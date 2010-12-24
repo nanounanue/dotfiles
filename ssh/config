@@ -1,0 +1,12 @@
+Host dialetheia
+     HostName	dialetheia.net
+     User     	dialethe
+
+Host bb
+     Compression	yes
+     HostName 		bitbucket.org	
+     User     		hg
+
+Host github
+     HostName		github.com
+     User		git

@@ -1,0 +1,5 @@
+export PATH=$PATH:~/bin
+
+export ALTERNATE_EDITOR=""
+
+export TERM=rxvt-unicode
