@@ -12,7 +12,7 @@ URxvt.urlLauncher:      /usr/bin/firefox
 URxvt.matcher.button:   1 
 
 # transparency - true or false (default)
-URxvt*transparent:true
+URxvt*transparent:false
 
 # tint with any color; i.e., blue, red, tomato4, olivedrab2, etc.
 #   some nice listings are at:
