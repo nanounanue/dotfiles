@@ -12,6 +12,7 @@ function gg() {
     git commit -v -a -m "$*"
 }
 alias gco='git checkout'
+alias gcb='git checkout -b'
 alias gd='git diff'
 alias gdm='git diff master'
 alias gl='git pull'
