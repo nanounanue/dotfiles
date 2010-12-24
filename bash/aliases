@@ -1,6 +1,7 @@
 
 # Git 
 alias gs="git status"
+alias gls="git ls-files"
 alias ungit="find . -name '.git' -exec rm -rf {} \;"
 alias gb='git branch'
 alias gba='git branch -a'
@@ -11,7 +12,7 @@ function gg() {
     git commit -v -a -m "$*"
 }
 alias gco='git checkout'
-alias gd='git diff | e'
+alias gd='git diff'
 alias gdm='git diff master'
 alias gl='git pull'
 alias gnp="git-notpushed"
