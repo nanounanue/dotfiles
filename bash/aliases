@@ -79,12 +79,19 @@ alias cl='clear; l'
 alias cls='clear; ls'
 
 # ls
-alias l="ls -h --color=auto" 
+alias ls='ls --color=auto'
+alias l='ls -h' 
 alias ll="l -lGt"  # -l lista larga, los más recientes primero
       	    	    # -G color
 alias lf="l -F"
 alias la='l -A'
 alias lt='l -lt' # sort with recently modified first
+
+alias dir='dir --color=auto'
+alias vdir='vdir --color=auto'
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
 
 # cd
 alias ..='cd ..'   # up one dir
