@@ -1,0 +1,9 @@
+[ui]
+ssh = ssh -C
+username = nanounanue <nanounanue@gmail.com>
+
+[extensions]
+graphlog =
+
+[defaults]
+glog = --template 'changeset:   {rev}:{node|short} {tags}\nsummary:     {desc|firstline|fill68|tabindent|tabindent}\n\n'
