@@ -12,9 +12,9 @@ glog = --template 'changeset:   {rev}:{node|short} {tags}\nsummary:     {desc|fi
 # Vamos a usar estilos de cli para mercurial de hg clone http://bitbucket.org/sjl/mercurial-cli-templates/
 # Ver http://hgtip.com/tips/advanced/2010-01-15-styling-mercurials-cli/
 [alias]
-slog = log --style=/full/path/to/map-cmdline.slog
-nlog = log --style=/full/path/to/map-cmdline.nlog
-sglog = glog --style=/full/path/to/map-cmdline.sglog
+slog = log --style=/home/nano/software/mercurial-cli-templates/map-cmdline.slog
+nlog = log --style=/home/nano/software/mercurial-cli-templates/map-cmdline.nlog
+sglog = glog --style=/home/nano/software/mercurial-cli-templates/map-cmdline.sglog
 
 
 
