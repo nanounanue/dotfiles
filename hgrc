@@ -15,6 +15,7 @@ glog = --template 'changeset:   {rev}:{node|short} {tags}\nsummary:     {desc|fi
 slog = log --style=/home/nano/software/mercurial-cli-templates/map-cmdline.slog
 nlog = log --style=/home/nano/software/mercurial-cli-templates/map-cmdline.nlog
 sglog = glog --style=/home/nano/software/mercurial-cli-templates/map-cmdline.sglog
+blame = annotate --user --number
 
 
 
