@@ -1,3 +1,8 @@
+# SSH
+# Para evitar el error "Error opening terminal:rxvt-unicode"
+# que sucede al conectarse via ssh
+alias ssh="TERM=linux ssh"
+
 
 # Git 
 alias gs="git status"
