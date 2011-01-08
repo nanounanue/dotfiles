@@ -107,15 +107,6 @@ PS1="\n\[$bldblu\]\u:\[$bldgrn\]\w \[$bldblk\]\$(vcprompt)\[$txtrst\] \n→ "
  #        PS1='\[\e[m\n\e[1;30m\][$$:$PPID \j:\!\[\e[1;30m\]]\[\e[0;36m\] \T \d \[\e[1;30m\][\[\e[1;34m\]\u@\H\[\e[1;30m\]:\[\e[0;37m\]${SSH_TTY} \[\e[0;32m\]+${SHLVL}\[\e[1;30m\]] \[\e[1;37m\]\w\[\e[0;37m\] \n($SHLVL:\!)\$ ';
 
 
-
-
-
-
-
-
-
-
-
 # Colores para el comando ls
 LS_COLORS='no=0'
 LS_COLORS=$LS_COLORS:'fi=0'
@@ -184,3 +175,12 @@ fi
 if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
     . /etc/bash_completion
 fi
+
+
+
+
+
+
+
+
+

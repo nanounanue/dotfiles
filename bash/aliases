@@ -41,6 +41,9 @@ function grf() {
 }
 
 # Mercurial
+alias hs="hg status"
+alias hpl="hg pull"
+alias hps="hg push"
 #alias hgdi="hg diff --color=always --git | less -r"
 #alias hgrev="hg revert --no-backup"
 #alias hgclean="hg status | grep -e '^\\?' | sed 's/^\\?//' | xargs -t rm -f"
