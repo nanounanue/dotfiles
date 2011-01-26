@@ -49,9 +49,11 @@ alias hps="hg push"
 #alias hgclean="hg status | grep -e '^\\?' | sed 's/^\\?//' | xargs -t rm -f"
 
 # Emacs
-alias e=emacsclient 
+alias e="emacsclient -t"
 alias ec="emacsclient -c"
 alias et="emacsclient -t"
+alias ed="emacs --daemon"
+
 # Regenerate TAGS file from file arguments
 function ct() {
   rm -f TAGS

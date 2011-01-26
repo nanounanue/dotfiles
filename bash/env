@@ -1,5 +1,9 @@
 export PATH=$PATH:~/bin
 
-export ALTERNATE_EDITOR=""
 
 export TERM=rxvt-unicode
+
+
+export ALTERNATE_EDITOR=""
+export EDITOR="emacsclient -c"
+export VISUAL="emacsclient -c"
