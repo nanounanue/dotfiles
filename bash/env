@@ -10,10 +10,6 @@ export VISUAL="emacsclient -c"
 
 
 
-
-export LC_TIME="es_ES"
-export LC_TIME="es_ES"
-
 # Cargar el RVM
 # http://ryanbigg.com/2010/12/ubuntu-ruby-rvm-rails-and-you 
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
