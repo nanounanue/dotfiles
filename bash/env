@@ -7,3 +7,7 @@ export TERM=rxvt-unicode
 export ALTERNATE_EDITOR=""
 export EDITOR="emacsclient -c"
 export VISUAL="emacsclient -c"
+
+
+
+export LC_TIME="es_ES"
