@@ -4,6 +4,29 @@ username = nanounanue <nanounanue@gmail.com>
 
 [extensions]
 graphlog =
+rebase =
+bookmarks =
+progress = 
+color =
+# funciona como el pull de git (pull, update, merge, commit)
+hgext.fetch = 
+# hg view
+hgk =
+pager =
+# mercurial.selenic.com/wiki/RecordExtension
+hgext.record = 
+
+# Simula los branches de git
+[bookmarks]
+track.current = True
+
+[pager]
+pager = LESS='FSRX' less
+ignore = version, help, update, serve, record
+quiet = True
+attend = annotate, cat, diff, export, glog, log, qdiff, nlog
+
+
 
 [defaults]
 glog = --template 'changeset:   {rev}:{node|short} {tags}\nsummary:     {desc|firstline|fill68|tabindent|tabindent}\n\n'
@@ -16,6 +39,7 @@ slog = log --style=/home/nano/software/mercurial-cli-templates/map-cmdline.slog
 nlog = log --style=/home/nano/software/mercurial-cli-templates/map-cmdline.nlog
 sglog = glog --style=/home/nano/software/mercurial-cli-templates/map-cmdline.sglog
 blame = annotate --user --number
-
-
-
+# Muestra el changeset que se va a mandar
+show = log --color=always -pr
+# Push unicamente en el branch que trabajamos (a la git)
+nudge = push --rev 

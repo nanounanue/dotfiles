@@ -86,7 +86,7 @@ bakcyn='\e[46m'   # Cyan
 bakwht='\e[47m'   # White
 txtrst='\e[0m'    # Text Reset
 
-PS1="\n\[$bldblu\]\u:\[$bldgrn\]\w \[$bldblk\]\$(vcprompt --format "%s:%r%m%u")\[$txtrst\] \n→ "
+PS1="\n\[$bldblu\]\u:\[$bldgrn\]\w \[$bldblk\]\$(vcprompt)\[$txtrst\] \n→ "
 
 # Este prompt muestra el directorio, la máquina y la hora en dos líneas.
 #PS1='\e[1;33;47m\u \e[1;32;47mon \h \e[1;35;47m\d \@\e[0;0m\n\e[1;34m[dir.= \w] \# > \e[0;0m'
