@@ -6,8 +6,6 @@ username = nanounanue <nanounanue@gmail.com>
 graphlog =
 rebase =
 bookmarks =
-<<<<<<< HEAD
-=======
 progress = 
 color =
 # funciona como el pull de git (pull, update, merge, commit)
@@ -28,7 +26,6 @@ ignore = version, help, update, serve, record
 quiet = True
 attend = annotate, cat, diff, export, glog, log, qdiff, nlog
 
->>>>>>> b86f9473c1905d189ab0d452a00fa6892b412332
 
 
 [defaults]
