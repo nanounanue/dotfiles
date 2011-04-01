@@ -1,3 +1,5 @@
+## Tomado desde http://dancingpenguinsoflight.com/2009/07/improved-irb-configuration/
+
 IRB_START_TIME = Time.now
 
 # Imprimit a formato  yaml con "y"
@@ -11,12 +13,6 @@ require 'irb/completion'
 # Save irb sessions to history file
 require 'irb/ext/save-history'
 
-# Not stdlib
-require 'map_by_method'
-require 'what_methods'
-
-# For printing time in session
-require 'duration'
 
 # For coloration
 require 'wirble'
@@ -61,8 +57,6 @@ class Object
   end
 end
 
-# Imprime el tiempo de duración de la sesión
-at_exit { puts Duration.new(Time.now - IRB_START_TIME) }
 
 
 
