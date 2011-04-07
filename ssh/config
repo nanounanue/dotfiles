@@ -10,3 +10,7 @@ Host bb
 Host github
      HostName		github.com
      User		git
+
+Host nucleares
+     HostName           metropolis.nucleares.unam.mx
+     User               adolfo
