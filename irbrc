@@ -4,10 +4,8 @@ IRB_START_TIME = Time.now
 
 # Imprimit a formato  yaml con "y"
 require 'yaml'
-# Pretty printing
-require 'pp'
 # Permite cargar gems
-require 'rubygems'
+require 'rubygems' rescue nil
 # Tab completion
 require 'irb/completion'
 # Save irb sessions to history file
@@ -16,6 +14,12 @@ require 'irb/ext/save-history'
 
 # For coloration
 require 'wirble'
+
+# For tables
+require 'hirb'
+
+# awesome_print
+require 'ap'
 
 # Incluye números de línea y niveles de indentación
 IRB.conf[:PROMPT][:SHORT] = {
@@ -40,7 +44,10 @@ IRB.conf[:SAVE_HISTORY] = 1000
 Wirble.init(:skip_prompt => true, :skip_history => true)
 Wirble.colorize
 
-# Facilidad de Bechmark
+# Cargar hirb
+Hirb::View.enable
+
+# Facilidad de Benchmark
 # Basado en  => http://pastie.org/179534
 def quick(repetitions=100, &block)
   require 'benchmark'
@@ -57,6 +64,39 @@ class Object
   end
 end
 
+if ENV.include?('RAILS_ENV')
+   if !Object.const_defined?('RAILS_DEFAULT_LOGGER')
+    require 'logger'
+    Object.const_set('RAILS_DEFAULT_LOGGER', Logger.new(STDOUT))
+  end
+
+  def sql(query)
+    ActiveRecord::Base.connection.select_all(query)
+  end
+  
+  if ENV['RAILS_ENV'] == 'test'
+    require 'test/test_helper'
+  end
+
+# for rails 3
+elsif defined?(Rails) && !Rails.env.nil?
+  if Rails.logger
+    Rails.logger =Logger.new(STDOUT)
+    ActiveRecord::Base.logger = Rails.logger
+  end
+  if Rails.env == 'test'
+    require 'test/test_helper'
+  end
+else
+  # nothing to do
+end
+
+# annotate column names of an AR model
+def show(obj)
+  y(obj.send("column_names"))
+end
+
+puts "> all systems are go wirble/hirb/ap/show <"
 
 
 
