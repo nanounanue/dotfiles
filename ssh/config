@@ -1,3 +1,5 @@
+ServerAliveInterval 5
+
 Host dialetheia
      HostName	dialetheia.net
      User     	dialethe
