@@ -3,6 +3,13 @@
 # que sucede al conectarse via ssh
 alias ssh="TERM=linux ssh"
 
+# SSH-FS
+alias mrqe='sshfs -o idmap=user nano@192.168.1.91:/home/nano ~/granja/rembrant-q-einstein'
+alias umrqe='fusermount -u ~/granja/rembrant-q-einstein'
+
+# ps-fea
+alias psf='ps -fea | grep'
+
 
 # Git 
 alias gs="git status"
