@@ -27,9 +27,9 @@ alias gco='git checkout'
 alias gcb='git checkout -b'
 alias gd='git diff'
 alias gdm='git diff master'
-alias gl='git pull'
+alias gpl='git pull'
 alias gnp="git-notpushed"
-alias gp='git push'
+alias gps='git push'
 alias eg='e .git/config'
 # Git clone from GitHub
 function gch() {
@@ -51,7 +51,8 @@ function grf() {
 alias hs="hg status"
 alias hpl="hg pull"
 alias hps="hg push"
-#alias hgdi="hg diff --color=always --git | less -r"
+alias hd="hg diff"
+alias hgdi="hg diff --color=always --git | less -r"
 #alias hgrev="hg revert --no-backup"
 #alias hgclean="hg status | grep -e '^\\?' | sed 's/^\\?//' | xargs -t rm -f"
 
@@ -128,10 +129,12 @@ function killnamed () {
 }
 
 
-# Directorios
+# Directorios de proyectos
 function proyecto() { 
     cd ~/Documentos/proyectos/$1
 }
+
+alias p="proyecto"
 
 # Habilitar y deshabilitar el touchpad
 alias moff='xinput set-int-prop "ImPS/2 Logitech Wheel Mouse" 134 8 0'
