@@ -1,0 +1,2 @@
+# Hace que Ctrl+b sea la combinación de escape por default (en lugar de Ctrl+a)
+escape ^Bb
