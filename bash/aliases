@@ -139,3 +139,7 @@ alias p="proyecto"
 # Habilitar y deshabilitar el touchpad
 alias moff='xinput set-int-prop "ImPS/2 Logitech Wheel Mouse" 134 8 0'
 alias mon='xinput set-int-prop "ImPS/2 Logitech Wheel Mouse" 134 8 1'
+
+
+# Vagrant
+alias v='vagrant'
