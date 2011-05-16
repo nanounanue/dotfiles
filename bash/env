@@ -13,7 +13,5 @@ export VISUAL="emacsclient -c"
 # Cargar el RVM
 # http://ryanbigg.com/2010/12/ubuntu-ruby-rvm-rails-and-you 
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
-[[ -r $rvm_path/scripts/completion ]] && . $rvm_path/scripts/completion
-
 
 export JAVA_HOME=/usr/lib/jvm/java-1.6.0-openjdk
