@@ -143,3 +143,9 @@ alias mon='xinput set-int-prop "ImPS/2 Logitech Wheel Mouse" 134 8 1'
 
 # Vagrant
 alias v='vagrant'
+
+
+# Popd, pushd, dirs
+alias +='pushd'
+alias _='popd'
+alias ?='dirs -v'
