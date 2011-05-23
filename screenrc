@@ -1,2 +1,10 @@
+# Turn off start message:
+startup_message off
+
+# Look and feel
+caption always "%{= bb}%{+b w}Screen: %n | %h %=%t"
+hardstatus alwayslastline
+hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{=kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%D, %{B}%d-%m-%Y %{W}%c %A %{g}]'
+
 # Hace que Ctrl+b sea la combinación de escape por default (en lugar de Ctrl+a)
 escape ^Bb
