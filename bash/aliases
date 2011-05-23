@@ -114,16 +114,25 @@ alias egrep='egrep --color=auto'
 # cd
 alias ..='cd ..'   # up one dir
 alias cdd='cd -'  # goto last dir cd'ed from
+
 function cdc() { 
     cd $1; ls 
 }
+
 function take() { 
     mkdir -p "$1"
     cd "$1" 
 }
 
+# Popd, pushd, dirs
+alias +='pushd'
+alias _='popd'
+alias ?='dirs -v'
+
+
 # kill
 alias k9="killall -9"
+
 function killnamed () { 
     ps ax | grep $1 | cut -d ' ' -f 2 | xargs kill 
 }
@@ -145,7 +154,3 @@ alias mon='xinput set-int-prop "ImPS/2 Logitech Wheel Mouse" 134 8 1'
 alias v='vagrant'
 
 
-# Popd, pushd, dirs
-alias +='pushd'
-alias _='popd'
-alias ?='dirs -v'
