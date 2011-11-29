@@ -1,5 +1,6 @@
-export PATH=$PATH:~/bin
+export JAVA_HOME=/usr/lib/jvm/java-6-openjdk-amd64/jre/
 
+export PATH=$PATH:~/bin
 
 export TERM=rxvt-unicode
 
@@ -14,4 +15,3 @@ export VISUAL="emacsclient -c"
 # http://ryanbigg.com/2010/12/ubuntu-ruby-rvm-rails-and-you 
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
 
-export JAVA_HOME=/usr/lib/jvm/java-1.6.0-openjdk

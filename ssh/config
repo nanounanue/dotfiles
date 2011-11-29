@@ -16,3 +16,8 @@ Host github
 Host nucleares
      HostName           metropolis.nucleares.unam.mx
      User               adolfo
+
+
+Host leviatan
+     HostName 		leviatan
+     User 		nano

@@ -1,5 +1,5 @@
-. ~/config/dotfiles/bash/env
-. ~/config/dotfiles/bash/config
-. ~/config/dotfiles/bash/aliases
+source ~/config/dotfiles/bash/env
+source ~/config/dotfiles/bash/config
+source ~/config/dotfiles/bash/aliases
 
-. ~/.ec2/ec2-vars
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
