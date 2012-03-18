@@ -1,9 +1,5 @@
 ServerAliveInterval 5
 
-Host dialetheia
-     HostName	dialetheia.net
-     User     	dialethe
-
 Host bb
      Compression	yes
      HostName 		bitbucket.org	
@@ -18,6 +14,3 @@ Host nucleares
      User               adolfo
 
 
-Host leviatan
-     HostName 		leviatan
-     User 		nano
