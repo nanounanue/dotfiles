@@ -1,17 +1,16 @@
-export PATH=$PATH:~/bin
+export JAVA_HOME=/usr/lib/jvm/java-6-openjdk-amd64/jre/
 
+export PATH=~/bin:$PATH
 
 export TERM=rxvt-unicode
 
 
-export ALTERNATE_EDITOR=""
+export ALTERNATE_EDITOR=emacs
 export EDITOR="emacsclient -c"
 export VISUAL="emacsclient -c"
 
+PATH=/usr/local/texlive/2011/bin/x86_64-linux:$PATH 
+export PATH
 
+PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
 
-# Cargar el RVM
-# http://ryanbigg.com/2010/12/ubuntu-ruby-rvm-rails-and-you 
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
-
-export JAVA_HOME=/usr/lib/jvm/java-1.6.0-openjdk

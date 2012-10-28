@@ -1,9 +1,5 @@
 ServerAliveInterval 5
 
-Host dialetheia
-     HostName	dialetheia.net
-     User     	dialethe
-
 Host bb
      Compression	yes
      HostName 		bitbucket.org	
@@ -16,3 +12,5 @@ Host github
 Host nucleares
      HostName           metropolis.nucleares.unam.mx
      User               adolfo
+
+
