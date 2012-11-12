@@ -14,3 +14,15 @@ Host nucleares
      User               adolfo
 
 
+Host sm4rtserver
+     HostName	        169.254.212.14
+     User               aunanue
+
+Host sm4rt-ws1
+     HostName           169.254.212.15
+     User               aunanue
+
+
+Host nano-desktop
+     HostName		192.168.1.69
+     User 		nano

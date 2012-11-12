@@ -4,6 +4,9 @@ username = nanounanue <nanounanue@gmail.com>
 
 [web]
 cacerts = /etc/ssl/certs/ca-certificates.crt
+allow_push = *
+push_ssl = false
+
 
 [extensions]
 graphlog =

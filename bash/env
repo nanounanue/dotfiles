@@ -1,6 +1,6 @@
-export JAVA_HOME=/usr/lib/jvm/java-6-openjdk-amd64/jre/
+export JAVA_HOME=/usr/lib/jvm/java-6-openjdk-amd64/
 
-export PATH=~/bin:$PATH
+export PATH=~/bin:$PATH:$JAVA_HOME/bin
 
 export TERM=rxvt-unicode
 
@@ -9,8 +9,5 @@ export ALTERNATE_EDITOR=emacs
 export EDITOR="emacsclient -c"
 export VISUAL="emacsclient -c"
 
-PATH=/usr/local/texlive/2011/bin/x86_64-linux:$PATH 
+PATH=/usr/local/texlive/2011/bin/x86_64-linux:$HOME/.rvm/bin:$PATH
 export PATH
-
-PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
-
