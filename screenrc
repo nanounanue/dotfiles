@@ -8,3 +8,6 @@ hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{=kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)
 
 # Hace que Ctrl+b sea la combinación de escape por default (en lugar de Ctrl+a)
 escape ^Bb
+
+# Scroll
+defscrollback 10000
