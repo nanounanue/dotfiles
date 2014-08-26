@@ -13,16 +13,32 @@ Host nucleares
      HostName           metropolis.nucleares.unam.mx
      User               adolfo
 
+host opi-la
+    HostName 54.213.30.3
+    User nanounanue
 
-Host sm4rtserver
-     HostName	        169.254.212.14
-     User               aunanue
+host opi-db-ubuntu
+    HostName 54.213.70.200
+    User ubuntu
+    IdentityFile ~/.ssh/opi.pem
 
-Host sm4rt-ws1
-     HostName           169.254.212.15
-     User               aunanue
+host opi-db
+    HostName 54.213.70.200
+    User nano
 
+host opi-test
+    HostName 54.218.5.15
+    User nanounanue
 
-Host nano-desktop
-     HostName		192.168.1.69
-     User 		nano
+host opi-test-ubuntu
+     HostName 54.218.5.15
+     User ubuntu
+     IdentityFile ~/.ssh/opi.pem
+
+host *opi.la
+     User deploy
+     IdentityFile ~/Documentos/LLAVE/deploy
+
+host 54.213.79.82
+     User deploy
+     IdentityFile ~/Documentos/LLAVE/deploy
