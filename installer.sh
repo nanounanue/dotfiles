@@ -20,7 +20,7 @@ make_symbolic_links () {
 
     for ARCHIVO in .bashrc .zshrc .irbrc .screenrc .gitconfig .ssh .psqlrc .tmux.conf .Xdefaults .Xresources
     do
-        if [ -f $HOME/$ARCHIVO ]
+        if [ -f $HOME/$ARCHIVO ] && [ ! -h $HOME/$ARCHIVO ]
         then
             printf "$BYELLOW Ya existe el archivo $ARCHIVO => respaldamos\n"
             mv $HOME/$ARCHIVO $HOME/$ARCHIVO.old
