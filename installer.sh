@@ -1,7 +1,7 @@
 # Basado (ok, copiado) en el trabajo de bbatsov (prelude)
 
 install_dotfiles () {
-    printf " Clonando el repositorio de configuración desde Github...\n$RESET"
+    printf "$BBLUE Clonando el repositorio de configuración desde Github...\n$RESET"
     if [ x$DOTFILES_VERBOSE != x ]
     then
         /usr/bin/env git clone $DOTFILES_URL "$DOTFILES_INSTALL_DIR"
@@ -16,12 +16,24 @@ install_dotfiles () {
 }
 
 make_dotfiles_dirs () {
-    printf " Creando los directorios requeridos.\n$RESET"
+    printf "$BBLUE Creando los directorios requeridos.\n$RESET"
     mkdir -p "$DOTFILES_INSTALL_DIR" "$DOTFILES_INSTALL_DIR/personal"
 }
 
 make_symbolic_links () {
-    printf " Creando los enlaces simbólicos requeridos.\n$RESET"
+    printf "$BBLUE Creando los enlaces simbólicos requeridos.\n$RESET"
+    if [ -e $HOME/.bashrc ]
+    then
+        printf "$BYELLOW Ya existe el archivo .bashrc => respaldamos\n"
+        mv $HOME/.bashrc $HOME/.bashrc.old
+    fi
+    
+    if [ -e $HOME/.zshrc ]
+    then
+        printf "$BYELLOW Ya existe el archivo .zshrc => respaldamos\n"
+        mv $HOME/.zshrc $HOME/.zshrc.old
+    fi
+
     ln -s $DOTFILES_INSTALL_DIR/bashrc .bashrc
     ln -s $DOTFILES_INSTALL_DIR/irbrc  .irbrc
     ln -s $DOTFILES_INSTALL_DIR/hgrc   .hgrc
