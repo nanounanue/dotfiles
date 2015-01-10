@@ -1,3 +1,3 @@
-source ~/config/dotfiles/bash/env
-source ~/config/dotfiles/bash/config
-source ~/config/dotfiles/bash/aliases
+source ~/dotfiles/bash/env
+source ~/dotfiles/bash/config
+source ~/dotfiles/bash/aliases
