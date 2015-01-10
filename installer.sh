@@ -15,36 +15,19 @@ install_dotfiles () {
     fi
 }
 
-make_dotfiles_dirs () {
-    printf "$BBLUE Creando los directorios requeridos.\n$RESET"
-    mkdir -p "$DOTFILES_INSTALL_DIR" "$DOTFILES_INSTALL_DIR/personal"
-}
-
 make_symbolic_links () {
     printf "$BBLUE Creando los enlaces simbólicos requeridos.\n$RESET"
-    if [ -e $HOME/.bashrc ]
-    then
-        printf "$BYELLOW Ya existe el archivo .bashrc => respaldamos\n"
-        mv $HOME/.bashrc $HOME/.bashrc.old
-    fi
-    
-    if [ -e $HOME/.zshrc ]
-    then
-        printf "$BYELLOW Ya existe el archivo .zshrc => respaldamos\n"
-        mv $HOME/.zshrc $HOME/.zshrc.old
-    fi
 
-    ln -s $DOTFILES_INSTALL_DIR/bashrc .bashrc
-    ln -s $DOTFILES_INSTALL_DIR/irbrc  .irbrc
-    ln -s $DOTFILES_INSTALL_DIR/hgrc   .hgrc
-    ln -s $DOTFILES_INSTALL_DIR/screenrc .screenrc
-    ln -s $DOTFILES_INSTALL_DIR/gitconfig .gitconfig
-    ln -s $DOTFILES_INSTALL_DIR/ssh       .ssh
-    ln -s $DOTFILES_INSTALL_DIR/psqlrc       .psqlrc
-    ln -s $DOTFILES_INSTALL_DIR/tmux.conf       .tmux.conf
-    ln -s $DOTFILES_INSTALL_DIR/zshrc       .zshrc
-    ln -s $DOTFILES_INSTALL_DIR/Xdefaults       .Xdefaults
-    ln -s $DOTFILES_INSTALL_DIR/Xresources       .Xresources
+    for ARCHIVO in .bashrc .zshrc .irbrc .screenrc .gitconfig .ssh .psqlrc .tmux.conf .Xdefaults .Xresources
+    do
+        if [ -f $HOME/$ARCHIVO ]
+        then
+            printf "$BYELLOW Ya existe el archivo $ARCHIVO => respaldamos\n"
+            mv $HOME/$ARCHIVO $HOME/$ARCHIVO.old
+            ln -s $DOTFILES_INSTALL_DIR/${ARCHIVO#"."} $ARCHIVO
+        fi
+    done
+    
 }
 
 colors_ () {
@@ -115,7 +98,6 @@ fi;
 
 # Instalando los dotfiles
 install_dotfiles
-make_dotfiles_dirs
 make_symbolic_links
 
 printf "\n"
