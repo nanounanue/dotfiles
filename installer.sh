@@ -20,6 +20,7 @@ mkdir -p "$DOTFILES_INSTALL_DIR" "$DOTFILES_INSTALL_DIR/personal"
 }
 
 make_symbolic_links () {
+  printf " Creando los enlaces simbólicos requeridos.\n$RESET"
 ln -s $DOTFILES_INSTALL_DIR/bashrc .bashrc
 ln -s $DOTFILES_INSTALL_DIR/irbrc  .irbrc
 ln -s $DOTFILES_INSTALL_DIR/hgrc   .hgrc
