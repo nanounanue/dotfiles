@@ -78,6 +78,7 @@ then
     printf "INSTALL_DIR = $DOTFILES_INSTALL_DIR\n"
     printf "SOURCE_URL = $DOTFILES_URL\n"
     printf "$RESET"
+fi
 
 # Si ya están instalados los dotfiles
 if [ -d "$DOTFILES_INSTALL_DIR/zshrc" ]
