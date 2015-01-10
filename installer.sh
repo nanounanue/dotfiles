@@ -68,7 +68,7 @@ colors_ () {
 
 VERBOSE_COLOR=$BBLUE
 
-[ -z "$DOTFILES_URL" ] && PRELUDE_URL="https://github.com/nanounanue/dotfiles.git"
+[ -z "$DOTFILES_URL" ] && DOTFILES_URL="https://github.com/nanounanue/dotfiles.git"
 [ -z "$DOTFILES_INSTALL_DIR" ] && DOTFILES_INSTALL_DIR="$HOME/dotfiles"
 
 if [ x$DOTFILES_VERBOSE != x ]
@@ -90,7 +90,7 @@ then
 fi
 
 ### Verificar dependencias
-printf "$CYAN Verificando si git está instalado. $RESET"
+printf "$CYAN Verificando si git está instalado... $RESET"
 if hash git 2>&-
 then
     printf "$GREEN encontrado.$RESET\n"
@@ -98,14 +98,6 @@ else
     printf "$RED no encontrado. ¡Abortando la instalación!$RESET\n"
 exit 1
 fi;
-
-printf "$CYAN Verificando que tmux esté instalado... "
-if hash tmux 2>&-
-then
-    printf "$GREEN encontrado.$RESET\n"
-else
-    printf "$RED no encontrado. ¡Abortando la instalación!$RESET\n"
-fi
 
 
 # Instalando los dotfiles
