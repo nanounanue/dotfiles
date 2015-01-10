@@ -2,6 +2,7 @@
         name = Adolfo De Unánue
         mail = nanounanue@gmail.com
         email = nanounanue@gmail.com
+        color.ui = true
 
 [alias]
         co = checkout

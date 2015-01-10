@@ -103,12 +103,6 @@ alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 
 
-# Popd, pushd, dirs
-alias +='pushd'
-alias _='popd'
-alias ?='dirs -v'
-
-
 # kill
 alias k9="killall -9"
 
