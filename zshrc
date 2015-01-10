@@ -77,8 +77,8 @@ export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/g
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
 # For a full list of active aliases, run `alias`.
 
-. ~/config/dotfiles/zsh/config
-. ~/config/dotfiles/zsh/aliases
+. ~/dotfiles/zsh/config
+. ~/dotfiles/aliases
 
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
