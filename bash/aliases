@@ -31,6 +31,7 @@ alias gpl='git pull'
 alias gnp="git-notpushed"
 alias gps='git push'
 alias eg='e .git/config'
+
 # Git clone from GitHub
 function gch() {
   git clone git://github.com/nanounanue/$1.git
@@ -41,20 +42,13 @@ alias grm="git status | grep deleted | awk '{print \$3}' | xargs git rm"
 function gbt() { 
   git branch --track $2 $1/$2 && git checkout $2 
 }
+
 # Quickly clobber a file and checkout
 function grf() { 
   rm $1
   git checkout $1 
 }
 
-# Mercurial
-alias hs="hg status"
-alias hpl="hg pull"
-alias hps="hg push"
-alias hd="hg diff"
-alias hgdi="hg diff --color=always --git | less -r"
-#alias hgrev="hg revert --no-backup"
-#alias hgclean="hg status | grep -e '^\\?' | sed 's/^\\?//' | xargs -t rm -f"
 
 # Emacs
 alias e="emacsclient -t"
@@ -70,8 +64,6 @@ function ct() {
 
 # Ruby
 alias r='rake'
-# alias irb='irb --readline -r irb/completion'
-alias rii='ri -Tf ansi'
 
 # Rails
 alias ss="./script/server"
@@ -85,7 +77,6 @@ alias rmig='rake db:migrate'
 alias reload='source ~/.bashrc'
 alias ea='e ~/config/dotfiles/bash/aliases && reload' # Edit aliases
 alias ee="e ~/config/dotfiles/bash/env"
-
 
 # General
 alias h='history'
@@ -111,18 +102,6 @@ alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 
-# cd
-alias ..='cd ..'   # up one dir
-alias cdd='cd -'  # goto last dir cd'ed from
-
-function cdc() { 
-    cd $1; ls 
-}
-
-function take() { 
-    mkdir -p "$1"
-    cd "$1" 
-}
 
 # Popd, pushd, dirs
 alias +='pushd'
@@ -133,10 +112,6 @@ alias ?='dirs -v'
 # kill
 alias k9="killall -9"
 
-function killnamed () { 
-    ps ax | grep $1 | cut -d ' ' -f 2 | xargs kill 
-}
-
 
 # Directorios de proyectos
 function proyecto() { 
@@ -144,13 +119,4 @@ function proyecto() {
 }
 
 alias p="proyecto"
-
-# Habilitar y deshabilitar el touchpad
-alias moff='xinput set-int-prop "ImPS/2 Logitech Wheel Mouse" 134 8 0'
-alias mon='xinput set-int-prop "ImPS/2 Logitech Wheel Mouse" 134 8 1'
-
-
-# Vagrant
-alias v='vagrant'
-
 
