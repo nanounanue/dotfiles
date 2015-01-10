@@ -10,7 +10,7 @@ install_dotfiles () {
     fi
     if ! [ $? -eq 0 ]
     then
-        printf "$RED Un error fatal ocurrió al intentar instalar. Abortamos la misión..."
+        printf "$RED Un error fatal ocurrió al intentar instalar. Abortamos la misión...\n\n"
         exit 1
     fi
 }
