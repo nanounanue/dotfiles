@@ -67,6 +67,7 @@ colors_ () {
 }
 
 VERBOSE_COLOR=$BBLUE
+DORFILES_VERBOSE='true'
 
 [ -z "$DOTFILES_URL" ] && DOTFILES_URL="https://github.com/nanounanue/dotfiles.git"
 [ -z "$DOTFILES_INSTALL_DIR" ] && DOTFILES_INSTALL_DIR="$HOME/dotfiles"
