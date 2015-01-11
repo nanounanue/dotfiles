@@ -55,6 +55,9 @@ alias e="emacsclient -t"
 alias ec="emacsclient -c"
 alias et="emacsclient -t"
 alias ed="emacs --daemon"
+alias vim="emacsclient -t"
+alias vi="emacsclient --t"
+
 
 # Regenerate TAGS file from file arguments
 function ct() {
