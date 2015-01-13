@@ -112,7 +112,7 @@ alias k9="killall -9"
 
 # Directorios de proyectos
 function proyecto() { 
-    cd ~/Documentos/proyectos/$1
+    cd ~/proyectos/$1
 }
 
 alias p="proyecto"
