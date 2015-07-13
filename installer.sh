@@ -24,10 +24,9 @@ make_symbolic_links () {
         then
             printf "$BYELLOW Ya existe el archivo $ARCHIVO => respaldamos\n"
             mv $HOME/$ARCHIVO $HOME/$ARCHIVO.old
-            ln -s $DOTFILES_INSTALL_DIR/${ARCHIVO#"."} $ARCHIVO
-        fi
+	fi
+        ln -s $DOTFILES_INSTALL_DIR/${ARCHIVO#"."} $ARCHIVO
     done
-    
 }
 
 colors_ () {
