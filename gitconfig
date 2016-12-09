@@ -36,3 +36,5 @@
 
 [github]
     user = nanounanue
+[push]
+	default = current

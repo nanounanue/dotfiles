@@ -5,8 +5,8 @@ export ZSH=$HOME/.oh-my-zsh
 # Look in ~/.oh-my-zsh/themes/
 # Optionally, if you set this to "random", it'll load a random theme each
 # time that oh-my-zsh is loaded.
-ZSH_THEME="ys"
-
+ZSH_THEME="agnoster"
+DEFAULT_USER="nanounanue"   ## Added for the agnoster theme, so it can hide the name saving screen space
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
 
@@ -85,3 +85,25 @@ export PATH="$HOME/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/
 export PATH="$HOME/.rbenv/bin:$PATH"
 eval "$(rbenv init -)"
 export PATH="$HOME/.rbenv/plugins/ruby-build/bin:$PATH"
+
+## Pyenv
+export PATH="$HOME/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+
+
+# Spark
+export SPARK_HOME="$HOME/software/spark"
+
+# Scala
+export SCALA_HOME="$HOME/software/scala-2.11.7"
+
+export TERM=xterm-256color
+
+export PATH="$SPARK_HOME/bin:$SCALA_HOME/bin:$PATH"
+
+# The next line updates PATH for the Google Cloud SDK.
+source '/home/nanounanue/google-cloud-sdk/path.zsh.inc'
+
+# The next line enables shell command completion for gcloud.
+source '/home/nanounanue/google-cloud-sdk/completion.zsh.inc'
