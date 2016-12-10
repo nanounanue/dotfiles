@@ -102,8 +102,3 @@ export TERM=xterm-256color
 
 export PATH="$SPARK_HOME/bin:$SCALA_HOME/bin:$PATH"
 
-# The next line updates PATH for the Google Cloud SDK.
-source '/home/nanounanue/google-cloud-sdk/path.zsh.inc'
-
-# The next line enables shell command completion for gcloud.
-source '/home/nanounanue/google-cloud-sdk/completion.zsh.inc'
