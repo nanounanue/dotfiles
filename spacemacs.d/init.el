@@ -96,7 +96,11 @@ values."
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages '(
                                       ox-pandoc
-                                      ox-beamer
+                                      ox-asciidoc
+                                      ox-ioslide
+                                      ox-rst
+                                      ox-tufte
+                                      ob-ml-marklogic
                                       ob-browser
                                       ob-coffee
                                       ob-cypher
@@ -450,7 +454,6 @@ you should place your code here."
   (require 'ob-sed)
   (require 'ob-sql)
   (require 'ob-sqlite)
-
   (require 'ox-beamer)
 
   (add-hook 'org-mode-hook 'turn-on-auto-fill)
