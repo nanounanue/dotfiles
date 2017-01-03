@@ -471,11 +471,27 @@ you should place your code here."
   ;;      org-ref-pdf-directory "~/Papers/"
   ;;      org-ref-bibliography-notes "~/Papers/notes.org")
 
-  (add-to-list 'org-babel-load-languages
-               '(ruby . t)
-               '(ipython . t)
+  ;;(add-to-list 'org-babel-load-languages
+  ;;             '(ruby . t)
+  ;;             '(ipython . t)
+  ;;             '(sh . t)
+  ;;               '(sh . t)
   ;;             '(ditaa . t)
-                )
+  ;;                )
+
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((http       . t)
+     (shell      . t)
+     (R          . t)
+     (emacs-lisp . t)
+     (clojure    . t)
+     (ipython    . t)
+     (ruby       . t)
+     (dot        . t)
+     ))
+
+
     )
 
   )
