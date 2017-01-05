@@ -119,4 +119,4 @@ alias p="proyecto"
 
 
 # Crear directorio y un archivo
-mkfile() { mkdir -p "$(dirname "$1")" || return; touch "$1"; }
+mkpfile() { mkdir -p "$(dirname "$1")" || return; touch "$1"; }
