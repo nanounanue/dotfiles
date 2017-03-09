@@ -12,7 +12,7 @@ DEFAULT_USER="nanounanue"   ## Added for the agnoster theme, so it can hide the 
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git docker dirhistory git-extras tmux httpie jsontools pip pep8 pyenv python web-search aws)
+plugins=(git docker dirhistory git-extras tmux httpie jsontools pip pep8 pyenv python web-search)
 
 ZSH_TMUX_AUTOSTART=true
 
