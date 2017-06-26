@@ -1,0 +1,991 @@
+#+TITLE: Configuración de GNU EMACS
+#+AUTHOR: Adolfo De Unánue
+#+EMAIL: nanounanue@gmail.com
+
+* Mi Configuración de GNU Emacs
+  :PROPERTIES:
+:header-args:emacs-lisp:  :tangle ~/.emacs.d/personal/nano-emacs.el
+:END:
+
+
+  Mi configuración de emacs está en este archivo.
+  Por supuesto, nunca está estable, siempre estoy agregando y probando cosas
+  nuevas que me hagan la vida más fácil y divertida.
+
+  *NOTA*: En esta encarnación, esta configuración depende de [[https://github.com/bbatsov/prelude][emacs-prelude]]
+
+
+** Configuración de paquetes
+
+*** =use-package=
+
+    Esto hará que todo sea más ordenado.
+
+    #+BEGIN_SRC emacs-lisp
+      (unless (package-installed-p 'use-package)
+        (package-refresh-contents)
+        (package-install 'use-package))
+      (setq use-package-always-ensure t)
+    #+END_SRC
+
+    #+RESULTS:
+    : t
+
+
+*** Más paquetes
+
+
+** Interfaz
+
+*** Cosas a quitar
+
+    #+BEGIN_SRC emacs-lisp
+      (setq prelude-guru nil)
+    #+END_SRC
+
+    #+RESULTS:
+
+*** =all-the-icons=
+
+    #+BEGIN_SRC emacs-lisp
+      (use-package all-the-icons
+        :config
+        (use-package all-the-icons-dired
+          :config
+          (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
+          )
+        )
+    #+END_SRC
+
+    #+RESULTS:
+    : t
+
+*** =gitter=
+
+    Muestra los cambios en archivos controlados por =git=
+
+    #+BEGIN_SRC emacs-lisp
+      (use-package git-gutter+
+        :diminish
+        :defer t
+        :config
+        (global-git-gutter+-mode)
+        )
+    #+END_SRC
+
+    #+RESULTS:
+
+*** Símbolos (=pretty-mode=)
+
+    #+BEGIN_SRC emacs-lisp
+      (use-package pretty-mode
+        :ensure t
+        :config
+        (global-pretty-mode t)
+
+        (pretty-deactivate-groups
+         '(:equality :ordering :ordering-double :ordering-triple
+                     :arrows :arrows-twoheaded :punctuation
+                     :logic :sets))
+
+        (pretty-activate-groups
+         '(:sub-and-superscripts :greek :arithmetic-nary :parentheses
+                                 :types :arrows-tails  :arrows-tails-double
+                                 :logic :sets :equality :ordering
+                                 :arrows :arrows-twoheaded ))
+        )
+    #+END_SRC
+
+    #+RESULTS:
+    : t
+
+    Además activamos otros símbolos en =prettify-symbols-alist=
+
+    #+BEGIN_SRC emacs-lisp
+      (add-hook
+       'prog-mode-hook
+       (lambda ()
+         (setq prettify-symbols-alist
+               '(;; Syntax
+                 ("in" .       #x2208)
+                 ("not in" .   #x2209)
+                 ("not" .      #x2757)
+                 ("return" .   #x27fc)
+                 ("yield" .    #x27fb)
+                 ("for" .      #x2200)
+                 ("function" . ?λ)
+                 ("<>" . ?≠)
+                 ("!=" . ?≠)
+                 ("exists" . ?Ǝ)
+                 ("in" . ?∈)
+                 ("sum" . ?Ʃ)
+                 ("complex numbers" . ?ℂ)
+                 ("integer numbers" . ?ℤ)
+                 ("natural numbers" . ?ℕ)
+                 ;; Base Types
+                 ("int" .      #x2124)
+                 ("float" .    #x211d)
+                 ("str" .      #x1d54a)
+                 ("True" .     #x1d54b)
+                 ("False" .    #x1d53d)
+                 ;; python
+                 ("Dict" .     #x1d507)
+                 ("List" .     #x2112)
+                 ("Tuple" .    #x2a02)
+                 ("Set" .      #x2126)
+                 ("Iterable" . #x1d50a)
+                 ("Any" .      #x2754)
+                 ("Union" .    #x22c3)))))
+      (global-prettify-symbols-mode t)
+
+    #+END_SRC
+
+    #+RESULTS:
+    : t
+
+*** =avy=
+
+    #+BEGIN_SRC emacs-lisp
+      (use-package avy
+        :ensure t
+        :commands avy-goto-word-1 avy-goto-char-1 avy-goto-line avy-goto-char-timer
+        :bind (("s-." . avy-goto-word-or-subword-1)
+               ("s-," . avy-goto-char)
+               ("C-l"     . avy-goto-word-1))
+        )
+    #+END_SRC
+
+    #+RESULTS:
+
+*** Acomodo /agresivo/
+
+    #+BEGIN_SRC emacs-lisp
+      ;; Aggressive-fill
+      (use-package aggressive-fill-paragraph
+        :ensure t
+        :disabled
+        :config
+        (afp-setup-recommended-hooks)
+        ;; to enable the minor mode in all places where it might be useful. Alternatively use
+        ;;(add-hook '[major-mode-hook] #'aggressive-fill-paragraph-mode)
+        )
+
+      ;; Aggressive-indent
+      (use-package aggressive-indent
+        :ensure t
+        :config
+        ;; (global-aggressive-indent-mode 1)
+        (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
+        (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
+        (add-hook 'clojure-mode-hook #'aggressive-indent-mode)
+        (add-hook 'ruby-mode-hook #'aggressive-indent-mode)
+        (add-hook 'css-mode-hook #'aggressive-indent-mode)
+        )
+    #+END_SRC
+
+    #+RESULTS:
+    : t
+
+*** Edición multi-línea
+
+[[http://emacsrocks.com/e13.html][Ejemplo de uso]]
+
+   #+BEGIN_SRC emacs-lisp
+;; Edición de múltiples líneas
+(use-package multiple-cursors
+             :diminish multiple-cursors-mode
+             :defer t
+             :init
+             (global-set-key (kbd "C->") 'mc/mark-next-like-this)
+             (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+             (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+             )
+   #+END_SRC
+
+   #+RESULTS:
+
+*** =undo-tree=
+
+    Recorre el /buffer/ mostrando un árbol
+
+    #+BEGIN_SRC emacs-lisp
+      (use-package undo-tree  ;; C-x u
+        :ensure t
+        :config
+        (progn
+          (global-undo-tree-mode)
+          (setq undo-tree-visualizer-timestamps t))
+        :diminish undo-tree-mode
+        )
+    #+END_SRC
+
+    #+RESULTS:
+    : t
+
+*** =swiper= / =ivy= / =counsel=
+
+    [[https://github.com/abo-abo/swiper][swiper]] es una biblioteca similar a =helm=  pero más ligera
+
+
+    #+BEGIN_SRC emacs-lisp
+      (use-package swiper
+        :ensure t
+        :diminish ivy-mode
+        :bind (("C-s" . swiper)
+               ("C-r" . swiper)
+               ("C-c C-r" . ivy-resume)
+               ("C-c h m" . woman)
+               ("C-x b" . ivy-switch-buffer)
+               ("C-c u" . swiper-all))
+        :config
+        (ivy-mode 1)
+        (setq ivy-use-virtual-buffers t)
+        )
+
+      (use-package counsel
+        :ensure t
+        :bind (("M-x" . counsel-M-x)
+               ("C-x C-f" . counsel-find-file)
+               ("<f1> f" . counsel-describe-function)
+               ("<f1> v" . counsel-describe-variable)
+               ("<f1> i" . counsel-info-lookup-symbol)
+               ("<f1> u" . counsel-unicode-char)
+               ("C-x a" . counsel-ag)
+               ("C-x l" . counsel-locate)
+               ("C-c h i" . counsel-imenu)
+               ("C-x p" . counsel-list-processes))
+        :config
+        (ivy-set-actions
+         'counsel-find-file
+         '(("j" find-file-other-window "other")))
+        (ivy-set-actions 'counsel-git-grep
+                         '(("j" find-file-other-window "other")))
+        )
+
+      (use-package ivy-hydra
+        :ensure t
+        )
+
+      (use-package counsel-projectile
+        :ensure t
+        :config
+        (counsel-projectile-on)
+        )
+    #+END_SRC
+
+    #+RESULTS:
+    : t
+
+
+** Major modes
+
+*** =org-mode=
+
+    Una de las grandes ventajas de GNU/Emacs es =org-mode=
+
+
+**** /Embellecedor/
+
+     #+BEGIN_SRC emacs-lisp
+       (use-package org-beautify-theme
+         :ensure t)
+
+     #+END_SRC
+
+     #+RESULTS:
+
+**** Cuerpo principal
+
+     #+BEGIN_SRC emacs-lisp
+       (use-package org
+         :mode ("\\.org\\'" . org-mode)
+         :bind (("C-c l" . org-store-link)
+                ("C-c c" . org-capture)
+                ("C-c a" . org-agenda)
+                ("C-c b" . org-iswitchb)
+                ("C-c C-w" . org-refile)
+                ("C-c j" . org-clock-goto)
+                ("C-c C-x C-o" . org-clock-out)
+                )
+
+         :init
+         (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
+         (add-hook 'org-mode-hook 'org-display-inline-images)
+         (add-hook 'org-mode-hook 'org-babel-result-hide-all)
+         (add-hook 'org-mode-hook 'turn-on-auto-fill)
+
+         :config
+         (progn
+           (setq org-directory "~/org")
+
+           (setq org-use-speed-commands t)
+
+           ;; Enable pretty entities - shows e.g. α β γ as UTF-8 characters.
+           (setq org-pretty-entities t)
+           ;; Ensure native syntax highlighting is used for inline source blocks in org files
+           (setq org-src-fontify-natively t)
+           (setq org-src-tab-acts-natively t)
+
+           (setq org-hide-emphasis-markers t)
+           ;; I can display inline images. Set them to have a maximum size so large images don't fill the screen.
+           (setq org-image-actual-width 800)
+           (setq org-ellipsis "⤵");; ⤵ ≫ ⚡⚡⚡
+
+           ;; make available "org-bullet-face" such that I can control the font size individually
+           (setq org-bullets-face-name (quote org-bullet-face))
+
+
+
+                 ;;;;;;;;;;;;
+           ;; Agenda ;;
+                 ;;;;;;;;;;;;
+           (setq org-agenda-files (quote ("~/org"
+                                          "~/org/datank.org"
+                                          "~/org/dsapp.org"
+                                          "~/org/gasolinerias.org"
+                                          "~/org/ligamx.org"
+                                          "~/org/vigilamos.org"
+                                          "~/org/personal.org"
+                                          "~/org/proyectos.org"
+                                          )))
+
+
+           ;; Basado en https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html
+           (setq org-agenda-custom-commands
+                 '(("d" "Agenda diaria"
+                    ((tags "PRIORITY=\"A\""
+                           ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                            (org-agenda-overriding-header "Tasks de alta prioridad sin terminar:")))
+                     (agenda "" ((org-agenda-ndays 1)))
+                     (alltodo ""
+                              ((org-agenda-skip-function
+                                '(or (nanounanue/org-skip-subtree-if-priority ?A)
+                                     (org-agenda-skip-if nil '(scheduled deadline))))
+                               (org-agenda-overriding-header "ALL tasks de prioridad normal:"))))
+
+                    )))
+
+
+                 ;;;;;;;;;;;;
+           ;; Refile ;;
+                 ;;;;;;;;;;;;
+           (setq org-default-notes-file "~/org/refile.org")
+
+           ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
+           (setq org-capture-templates
+                 (quote (("t" "todo" entry (file "~/org/refile.org")
+                          "* ▶ TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
+                         ("r" "respond" entry (file "~/org/refile.org")
+                          "* ★ NEXT Respond to %:from on %:subject\nSCHEDULED: %t\n%U\n%a\n" :clock-in t :clock-resume t )
+                         ("n" "note" entry (file "~/org/refile.org")
+                          "* 🗒 %?:NOTE\n%U\n%a\n" :clock-in t :clock-resume t)
+                         ("j" "Journal" entry (file+datetree "~/org/diary.org")
+                          "* %?\n%U\n" :clock-in t :clock-resume t)
+                         ("i" "idea" entry (file+headline "~/org/ideas.org" "Someday/Maybe")
+                          "💡 IDEA %?\nAgregada: %U\n" :prepend t :kill-buffer )
+                         ("m" "Meeting" entry (file "~/org/refile.org")
+                          "* ⛹ MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
+                         )))
+
+           ;; Targets include this file and any file contributing to the agenda - up to 9 levels deep
+           (setq org-refile-targets (quote ((nil :maxlevel . 9)
+                                            (org-agenda-files :maxlevel . 9))))
+
+           (setq org-todo-keywords '(
+                                     (sequence
+                                      "💡 IDEA(i)"
+                                      "▶ TODO(t)"
+                                      "🍽 INPROGRESS(p)"
+                                      "★ NEXT(n)" "|"
+                                      "✔ DONE(d)")
+                                     (sequence "⚑ WAITING(w@/!)" "🚪 HOLD(h@/!)" "|")
+                                     (sequence "|" "✘ CANCELLED(c@/!)"
+                                               "SOMEDAY(f)"
+                                               "☎ PHONE(z)" "⛹ MEETING(x)")))
+
+
+           (setq org-todo-keyword-faces
+                 (quote (
+                         ("💡 IDEA" :foreground "CadetBlue2" :weight bold)
+                         ("▶ TODO" :foreground "red" :weight bold)
+                         ("🍽 INPROGRESS" :foreground "OrangeRed" :weight bold)
+                         ("★ NEXT  :foreground" "blue" :weight bold)
+                         ("✔ DONE" :foreground "forest green" :weight bold)
+                         ("⚑ WAITING" :foreground "orange" :weight bold)
+                         ("🚪 HOLD" :foreground "magenta" :weight bold)
+                         ("✘ CANCELLED" :foreground "IndianRed1" :weight bold)
+                         ("☎ PHONE" :foreground "forest green" :weight bold)
+                         ("⛹ MEETING" :foreground "LimeGreen" :weight bold)
+                         )))
+
+
+
+           (setq org-todo-state-tags-triggers
+                 (quote (("✘ CANCELLED" ("✘ CANCELLED" . t))
+                         ("⚑ WAITING" ("⚑ WAITING" . t))
+                         ("🚪 HOLD" ("⚑ WAITING") ("🚪 HOLD" . t))
+                         (done ("⚑ WAITING") ("🚪 HOLD"))
+                         ("▶ TODO" ("⚑ WAITING") ("✘ CANCELLED") ("🚪 HOLD"))
+                         ("★ NEXT" ("⚑ WAITING") ("✘ CANCELLED") ("🚪 HOLD"))
+                         ("✔ DONE" ("⚑ WAITING") ("✘ CANCELLED") ("🚪 HOLD"))
+                         )
+                        )
+                 )
+
+                 ;;;;;;;;;;;;;;;
+           ;; Org-babel ;;
+                 ;;;;;;;;;;;;;;;
+
+           ;; No preguntar para confirmar la evaluación
+           (setq org-confirm-babel-evaluate nil)
+
+           ;; O en la exportación
+           (setq org-export-babel-evaluate nil)
+
+
+           ;; Paths a ditaa y plantuml
+           (setq org-ditaa-jar-path "~/software/org-libs/ditaa.jar")
+           (setq org-plantuml-jar-path "~/software/org-libs/plantuml.jar")
+
+
+           (require 'ob-clojure)
+           (setq org-babel-clojure-backend 'cider)
+           (require 'cider)
+
+           ;;(require 'ob-shell)
+           ;;(require 'ob-R)
+           ;;(require 'ob-awk)
+           ;;(require 'ob-latex)
+           (require 'ob-emacs-lisp)
+           (require 'ob-ipython)
+           ;;(require 'ob-stan)
+           ;;(require 'ob-ruby)
+           ;;(require 'ob-dot)
+           ;;(require 'ob-scala)
+           ;;(require 'ob-plantuml)
+           ;;(require 'ob-ditaa)
+           ;;(require 'ob-lisp)
+
+           (org-babel-do-load-languages
+            'org-babel-load-languages
+            '(
+
+              (shell      . t)
+              ;; (R          . t)
+              (awk        . t)
+              (sed        . t)
+              (org        . t)
+              (latex      . t)
+              (emacs-lisp . t)
+              (clojure    . t)
+              (stan       . t)
+              (ipython    . t)
+              (ruby       . t)
+              (dot        . t)
+              (scala      . t)
+              (ditaa      . t)
+              (plantuml   . t)
+              (mongo      . t)
+              (cypher     . t)
+              (redis      . t)
+              )
+            )
+
+
+                 ;;;;;;;;;;;
+           ;; LaTeX ;;
+                 ;;;;;;;;;;;
+           (setq org-export-latex-listings 'minted)
+           (setq org-export-latex-minted-options
+                 '(("frame" "lines")
+                   ("fontsize" "\\scriptsize")
+                   ("linenos" "")
+                   ))
+           (setq org-latex-to-pdf-process
+                 '("xelatex --shell-escape -interaction nonstopmode %f")) ;; for multiple passes
+
+
+
+           ) ;; Fin de progn
+
+         )  ;; Fin de use-package org
+     #+END_SRC
+
+     #+RESULTS:
+
+
+
+**** Exportadores
+
+     #+BEGIN_SRC emacs-lisp
+       (use-package ox-twbs :config (require 'ox-twbs))
+       (use-package ox-gfm :config (require 'ox-gfm))
+       (use-package ox-tufte :config (require 'ox-tufte))
+       (use-package ox-textile :config (require 'ox-textile))
+       (use-package ox-rst :config (require 'ox-rst))
+       (use-package ox-asciidoc :config (require 'ox-asciidoc))
+       (use-package ox-epub :config (require 'ox-epub))
+       (use-package ox-reveal :config (require 'ox-reveal))
+     #+END_SRC
+
+     #+RESULTS:
+     : t
+
+**** Componentes de =org-babel=
+
+     #+BEGIN_SRC emacs-lisp
+       (use-package ob-http
+         :config
+         (require 'ob-http)
+         )
+
+       (use-package ob-ipython
+         :config
+         (require 'ob-ipython)
+         )
+
+       (use-package ob-mongo
+         :config
+         (require 'ob-mongo)
+         )
+
+       (use-package ob-redis
+         :config
+         (require 'ob-redis) )
+
+       (use-package ob-cypher
+         :config
+         (require 'ob-cypher)
+         )
+
+       (use-package ob-sql-mode
+         :config
+         (require 'ob-sql-mode)
+         )
+
+       (use-package ob-prolog
+         :config
+         (require 'ob-prolog))
+
+     #+END_SRC
+
+     #+RESULTS:
+     : t
+
+
+**** =org-tree-slide=
+
+     #+BEGIN_SRC emacs-lisp
+       (use-package org-tree-slide
+         :defer t
+         :after (org)
+         :bind (("C-<right>" . org-tree-slide-move-next-tree)
+                ("C-<left>" . org-tree-slide-move-previous-tree)
+                ("C-<up>" . org-tree-slide-content)
+                )
+         :init
+         (setq org-tree-slide-skip-outline-level 4)
+         (org-tree-slide-narrowing-control-profile)
+         (setq org-tree-slide-skip-done nil)
+         (org-tree-slide-presentation-profile)
+         )
+     #+END_SRC
+
+     #+RESULTS:
+
+**** =org-projectile=
+
+     #+BEGIN_SRC emacs-lisp
+       (use-package org-projectile
+         :bind (("C-c n p" . org-projectile:project-todo-completing-read)
+                ("C-c c" . org-capture))
+         :after (org)
+         :config
+         (progn
+           (setq org-projectile:projects-file
+                 "~/projects.org")
+           (setq org-agenda-files (append org-agenda-files (org-projectile:todo-files)))
+           (add-to-list 'org-capture-templates (org-projectile:project-todo-entry "p")))
+         :ensure t)
+     #+END_SRC
+
+     #+RESULTS:
+
+**** =org-ref=
+
+     #+BEGIN_SRC emacs-lisp
+       (use-package org-ref
+         :defer t
+         :init
+         (setq reftex-default-bibliography '("~/Dropbox/bibliography/references.bib"))
+
+         ;; see org-ref for use of these variables
+         (setq org-ref-bibliography-notes "~/Dropbox/bibliography/notes.org"
+               org-ref-default-bibliography '("~/Dropbox/bibliography/references.bib")
+               org-ref-pdf-directory "~/Dropbox/bibliography/bibtex-pdfs/")
+         )
+     #+END_SRC
+
+     #+RESULTS:
+     : ~/Dropbox/bibliography/bibtex-pdfs/
+
+**** =org-present=
+
+     #+BEGIN_SRC emacs-lisp
+       (use-package org-present
+         :defer t
+         :after (org)
+         :init
+         (progn
+
+           (add-hook 'org-present-mode-hook
+                     (lambda ()
+                       (global-linum-mode -1)
+                       (org-present-big)
+                       (org-display-inline-images)
+                       (org-present-hide-cursor)
+                       (org-present-read-only)))
+           (add-hook 'org-present-mode-quit-hook
+                     (lambda ()
+                       (global-linum-mode)
+                       (org-present-small)
+                       (org-remove-inline-images)
+                       (org-present-show-cursor)
+                       (org-present-read-write))))
+         )
+
+     #+END_SRC
+
+     #+RESULTS:
+     : org-present
+
+**** =org-bullets=
+
+     #+BEGIN_SRC emacs-lisp
+       (use-package org-bullets
+         :defer t
+         :diminish
+         :disabled
+         :after (org)
+         :init
+         (setq org-bullets-bullet-list
+               '("■" "◆" "▲" "○" "☉" "◎" "◉" "○" "◌" "◎" "●" "◦" "◯" "⚪" "⚫" "⚬" "❍" "￮" "⊙" "⊚" "⊛" "∙" "∘"))
+         (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+         )
+     #+END_SRC
+
+     #+RESULTS:
+
+**** =org-attach-screenshot=
+
+     #+BEGIN_SRC emacs-lisp
+       (use-package org-attach-screenshot
+         :diminish
+         :after (org)
+         :bind
+         (("C-c S" . org-attach-screenshot))
+         )
+     #+END_SRC
+
+**** Calendario visual: =calfw=
+
+     Para configuración y =keybindings= se puede consultar  [[http://jameswilliams.be/blog/2016/01/11/Taming-Your-GCal.html][Taming Google Calendar With Org-Mode]]
+
+     #+BEGIN_SRC emacs-lisp
+
+       (use-package calfw
+         :ensure t
+         :bind ((""))
+         :config
+         (require 'calfw-org)
+         )
+
+     #+END_SRC
+
+     #+RESULTS:
+
+
+*** =python=
+
+    #+BEGIN_SRC emacs-lisp
+      (use-package pyenv-mode
+        :ensure t
+        :bind (("C-c v s" . pyenv-mode-set)
+               ("C-c v u" . pyenv-mode-unset))
+        :config
+        (pyenv-mode)
+        (add-hook 'projectile-switch-project-hook 'nanounanue/projectile-pyenv-mode-set)
+        )
+    #+END_SRC
+
+    #+RESULTS:
+
+
+*** =R=: [[https://ess.r-project.org/][Emacs Speaks Statistics]]
+
+
+    #+BEGIN_SRC emacs-lisp
+
+      (use-package ess
+:ensure t
+)
+
+    #+END_SRC
+
+    #+RESULTS:
+
+
+*** =nginx=
+    #+BEGIN_SRC emacs-lisp
+      (use-package nginx-mode
+:ensure t)
+    #+END_SRC
+
+    #+RESULTS:
+
+
+*** =docker=
+
+    #+BEGIN_SRC emacs-lisp
+      (use-package docker :ensure t)
+      (use-package docker-tramp :ensure t)
+      (use-package dockerfile-mode :ensure t)
+    #+END_SRC
+
+    #+RESULTS:
+
+    Para usar =docker-tramp=
+
+    #+BEGIN_EXAMPLE
+    C-x C-f /docker:user@container:/path/to/file
+
+    where
+      user           is the user that you want to use (optional)
+      container      is the id or name of the container
+    #+END_EXAMPLE
+
+
+**** Links relacionados
+
+     [[https://github.com/fniessen/refcard-org-beamer][Refcard para org-beamer]]
+
+     [[https://sam217pa.github.io/2016/09/13/from-helm-to-ivy/][From helm to ivy]]
+
+     [[http://oremacs.com/2015/04/16/ivy-mode/][Descripción de ivy]]
+
+
+** Blog
+
+   Basado principalmente de [[http://heikkil.github.io/blog/2015/03/28/understanding-org-page/][Understanding org-page]] y del [[https://github.com/kelvinh/org-page/blob/master/doc/quick-guide.org][Quick guide to org-page]]
+
+   #+BEGIN_SRC emacs-lisp
+     (use-package org-page
+       :ensure t
+       :config
+       (progn
+         (setq op/repository-directory "~/proyectos/nanounanue.github.io")   ;; the repository location
+         (setq op/site-domain "http://nanounanue.github.io")         ;; your domain
+         ;;; the configuration below you should choose one, not both
+         ;;(setq op/personal-disqus-shortname "your_disqus_shortname")    ;; your disqus commenting system
+         ;;(setq op/personal-duoshuo-shortname "your_duoshuo_shortname")  ;; your duoshuo commenting system
+         ;;(setq op/hashover-comments t)                                   ;; activate hashover self-hosted comment system
+         (setq op/personal-avatar "https://avatars2.githubusercontent.com/u/494528?v=3&s=460")
+         ;; for commenting; disabled for now
+         ;;(setq op/personal-disqus-shortname "your_disqus_shortname")
+
+         ;; analytics set up at ~/.emacs.secrets file
+         ;;(setq op/personal-google-analytics-id "UA-NNNNNNNN-N")
+
+         (setq op/personal-github-link "https://github.com/nanounanue")
+
+         (setq op/site-main-title "nanounanue @ home")
+         (setq op/site-sub-title "...")
+
+         ;; set up my own theme since a sans option does not exist
+         ;;(setq op/theme-root-directory "~/src/org-page/heikkil.github.io/themes")
+         ;;(setq op/theme 'sans)  ; mdo is the default
+
+         )
+       )
+
+     (use-package blog-admin
+       :ensure t
+       :defer t
+       :commands blog-admin-start
+       :init
+       (progn
+         ;; do your configuration here
+         (setq blog-admin-backend-type 'org-page)
+         (setq blog-admin-backend-path "~/proyectos/nanounanue.github.io")
+         (setq blog-admin-backend-new-post-in-drafts t)
+         (setq blog-admin-backend-new-post-with-same-name-dir t)
+         (setq blog-admin-backend-org-page-drafts "_drafts") ;; directory to save draft
+         ;;(setq blog-admin-backend-org-page-config-file "/path/to/org-page/config.el") ;; if nil init.el is used
+         )
+       )
+   #+END_SRC
+
+   #+RESULTS:
+   : _drafts
+
+
+** Misceláneo
+
+*** =fancy-narrow=
+
+    #+BEGIN_SRC emacs-lisp
+      (use-package fancy-narrow
+        :ensure t
+        :diminish
+        :config
+        (fancy-narrow-mode)
+        )
+    #+END_SRC
+
+    #+RESULTS:
+    : t
+
+*** =demo-it=
+
+    Paquete para hacer demostraciones. Ver por ejemplo:
+
+    - [[https://www.youtube.com/watch?v=WZVZXp-i7jQ][Demostration of demo-it]]
+    - [[https://github.com/howardabrams/demo-it][Repositorio de demo-it]]
+
+      #+BEGIN_SRC emacs-lisp
+        (use-package demo-it
+          :ensure t
+          )
+      #+END_SRC
+
+      #+RESULTS:
+
+*** =magit= y =github=
+
+    #+BEGIN_SRC emacs-lisp
+      (use-package magithub
+        :disabled
+        :after magit
+        :ensure t
+        :config
+        (magithub-feature-autoinject t)
+        (setq ghub-username "nanounanue")
+        (setq ghub-token "856a54bca7d06abb31c0b3197c260da30e7c551d")
+        )
+
+      (use-package magit-gitflow
+        :ensure t
+:after magit
+        :disabled
+        :init
+        (progn
+          (add-hook 'magit-mode-hook 'turn-on-magit-gitflow)  ;; Keybing: C-f en la ventana de magit
+          )
+        )
+    #+END_SRC
+
+    #+RESULTS:
+
+*** =eshell=
+
+    Puedes cambiar el tema de =eshell= tecleando =use-theme= en la consola
+    (esto gracias a =eshell-git-prompt-use-theme=)
+
+    #+BEGIN_SRC emacs-lisp
+      (use-package eshell-git-prompt
+        :config (eshell-git-prompt-use-theme 'robbyrussell))
+
+      (use-package eshell-prompt-extras
+        :config
+        (progn
+          (with-eval-after-load "esh-opt"
+            (autoload 'epe-theme-lambda "eshell-prompt-extras")
+            (setq eshell-highlight-prompt nil
+                  eshell-prompt-function 'epe-theme-lambda))
+          ))
+    #+END_SRC
+
+    #+RESULTS:
+    : t
+
+*** =csv=
+
+    #+BEGIN_SRC emacs-lisp
+      (use-package csv-nav
+        :ensure t
+        )
+
+      (use-package csv-mode
+        :ensure t
+        :mode "\\.[PpTtCc][Ss][Vv]\\'"
+
+        :config
+        (progn
+          (setq csv-separators '("," ";" "|" " " "\t"))
+          )
+        )
+    #+END_SRC
+
+    #+RESULTS:
+
+
+*** Ugly hacks
+
+    #+BEGIN_SRC emacs-lisp
+      (setq python-shell-prompt-detect-failure-warning nil)
+    #+END_SRC
+
+    #+RESULTS:
+
+    El siguiente código parte la ventana verticalmente por /default/,
+    (no me gusta que se parta horizontalmente)
+
+    #+BEGIN_SRC emacs-lisp
+      (setq split-height-threshold nil)
+      (setq split-width-threshold 80)
+    #+END_SRC
+
+    #+RESULTS:
+    : 80
+
+
+** Funciones
+
+   #+BEGIN_SRC emacs-lisp
+     ;; Para comentarios en archivos de código
+     ;; Tomado de https://www.emacswiki.org/emacs/AutoFillMode
+     (defun nanounanue/comment-auto-fill ()
+       (setq-local comment-auto-fill-only-comments t)
+       (auto-fill-mode 1))
+
+
+     (defun nanounanue/org-skip-subtree-if-priority (priority)
+       "Ignora un subtree de la agenda si su PRIORITY es igual a priority.
+
+            PRIORITY puede ser uno de los siguientes caracteres: ?A, ?B, or ?C."
+       (let ((subtree-end (save-excursion (org-end-of-subtree t)))
+             (pri-value (* 1000 (- org-lowest-priority priority)))
+             (pri-current (org-get-priority (thing-at-point 'line t))))
+         (if (= pri-value pri-current)
+             subtree-end
+           nil)))
+
+
+     (defun nanounanue/projectile-pyenv-mode-set ()
+       "Set pyenv version matching project name."
+       (let ((project (projectile-project-name)))
+         (if (member project (pyenv-mode-versions))
+             (pyenv-mode-set project)
+           (pyenv-mode-unset))))
+   #+END_SRC
+
+   #+RESULTS:
+   : nanounanue/projectile-pyenv-mode-set
+
+** Server
+
+Inicializamos el server
+
+#+BEGIN_EXAMPLE emacs-lisp
+(server-start)
+#+END_EXAMPLE

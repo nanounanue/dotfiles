@@ -9,7 +9,7 @@
     excludesfile = ~/.gitignore
 
 [web]
-    browser = firefox
+    browser = chrome
 
 [color]
     ui = auto
@@ -35,6 +35,26 @@
     tool = meld
 
 [github]
-    user = nanounanue
+        user = nanounanue
+	oauth-token = 98a9abad08656caa1b575637cab580e15a6ba353
 [push]
 	default = current
+
+[merge]
+	tool = meld
+[branch]
+	autoSetupMerge = always
+
+[alias]
+	co = checkout
+	cot = "!f() { git branch | grep $1 | xargs -I {} git co {}; }; f"
+        b = branch
+        pu = push -u origin HEAD
+        ci = commit
+        st = status
+        ap = add --patch
+        rename = branch -m
+	rn = rename
+	clean-merged = ! git branch --merged | egrep -v \"(^\\*|master|dev)\" | xargs git branch -d
+	age = for-each-ref --sort=committerdate refs/heads/ --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:red)%(objectname:short)%(color:reset) - %(contents:subject) - %(authorname) (%(color:green)%(committerdate:relative)%(color:reset))'
+

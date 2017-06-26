@@ -29,10 +29,12 @@ export LANG=es_MX.UTF-8
 
 # Preferred editor for local and remote sessions
 if [[ -n $SSH_CONNECTION ]]; then
-   export EDITOR='emacclient -c'
+   export EDITOR='emacsclient -c'
 else
-  export EDITOR='emacclient -c'
+  export EDITOR='emacsclient -t'
 fi
+
+export VISUAL="emacsclient -c -a emacs"
 
 # ssh
 export SSH_KEY_PATH="~/.ssh/id_rsa"
