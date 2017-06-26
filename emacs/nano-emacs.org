@@ -941,9 +941,10 @@
     El siguiente código parte la ventana verticalmente por /default/,
     (no me gusta que se parta horizontalmente)
 
+    *NOTA*: No es necesario si ejecuta bien todo el proceso
     #+BEGIN_SRC emacs-lisp
-      (setq split-height-threshold nil)
-      (setq split-width-threshold 80)
+      ;;(setq split-height-threshold nil)
+      ;;(setq split-width-threshold 80)
     #+END_SRC
 
     #+RESULTS:
@@ -982,6 +983,7 @@
 
    #+RESULTS:
    : nanounanue/projectile-pyenv-mode-set
+
 
 ** Server
 
