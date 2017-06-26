@@ -229,38 +229,40 @@
 
 
     #+BEGIN_SRC emacs-lisp
-      (use-package swiper
-        :ensure t
-        :diminish ivy-mode
-        :bind (("C-s" . swiper)
-               ("C-r" . swiper)
-               ("C-c C-r" . ivy-resume)
-               ("C-c h m" . woman)
-               ("C-x b" . ivy-switch-buffer)
-               ("C-c u" . swiper-all))
-        :config
-        (ivy-mode 1)
-        (setq ivy-use-virtual-buffers t)
-        )
-
+      ;; it looks like counsel is a requirement for swiper
       (use-package counsel
         :ensure t
-        :bind (("M-x" . counsel-M-x)
-               ("C-x C-f" . counsel-find-file)
+        )
+
+      (use-package swiper
+        :init (ivy-mode 1)
+        :ensure try
+        :bind (
+               ("C-s" . swiper)
+               ("C-r" . swiper)
+               ("M-x" . counsel-M-x)
+;;               ("C-x C-f" . counsel-find-file)
+               ("C-c C-r" . ivy-resume)
+               ("<f6>" . ivy-resume)
+               ("C-c h m" . woman)
+               ("C-x b" . ivy-switch-buffer)
+               ("C-c u" . swiper-all)
                ("<f1> f" . counsel-describe-function)
                ("<f1> v" . counsel-describe-variable)
-               ("<f1> i" . counsel-info-lookup-symbol)
-               ("<f1> u" . counsel-unicode-char)
-               ("C-x a" . counsel-ag)
+               ("<f1> l" . counsel-load-library)
+               ("<f2> i" . counsel-info-lookup-symbol)
+               ("<f2> u" . counsel-unicode-char)
+               ("C-c g" . counsel-git)
+               ("C-c j" . counsel-git-grep)
+               ("C-c k" . counsel-ag)
                ("C-x l" . counsel-locate)
-               ("C-c h i" . counsel-imenu)
-               ("C-x p" . counsel-list-processes))
+               ("C-S-o" . counsel-rhythmbox)
+               )
         :config
-        (ivy-set-actions
-         'counsel-find-file
-         '(("j" find-file-other-window "other")))
-        (ivy-set-actions 'counsel-git-grep
-                         '(("j" find-file-other-window "other")))
+        (setq ivy-use-virtual-buffers t
+              ivy-count-format "%d/%d ")
+        (setq projectile-completion-system 'ivy)                   ;; Habilitamos ivy en projectile
+        (setq magit-completing-read-function 'ivy-completing-read) ;; Habilitamos ivy en magit
         )
 
       (use-package ivy-hydra
@@ -269,6 +271,7 @@
 
       (use-package counsel-projectile
         :ensure t
+        :after counsel
         :config
         (counsel-projectile-on)
         )
@@ -299,6 +302,7 @@
 
      #+BEGIN_SRC emacs-lisp
        (use-package org
+         :ensure t
          :mode ("\\.org\\'" . org-mode)
          :bind (("C-c l" . org-store-link)
                 ("C-c c" . org-capture)
@@ -876,7 +880,7 @@
 
       (use-package magit-gitflow
         :ensure t
-:after magit
+        :after magit
         :disabled
         :init
         (progn
