@@ -2,10 +2,11 @@
 #+AUTHOR: Adolfo De Unánue
 #+EMAIL: nanounanue@gmail.com
 
+
 * Mi Configuración de GNU Emacs
   :PROPERTIES:
-:header-args:emacs-lisp:  :tangle ~/.emacs.d/personal/nano-emacs.el
-:END:
+  :header-args:emacs-lisp: :tangle ~/.emacs.d/personal/nano-emacs.el
+  :END:
 
 
   Mi configuración de emacs está en este archivo.
@@ -188,9 +189,9 @@
 
 *** Edición multi-línea
 
-[[http://emacsrocks.com/e13.html][Ejemplo de uso]]
+    [[http://emacsrocks.com/e13.html][Ejemplo de uso]]
 
-   #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
 ;; Edición de múltiples líneas
 (use-package multiple-cursors
              :diminish multiple-cursors-mode
@@ -200,9 +201,9 @@
              (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
              (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
              )
-   #+END_SRC
+    #+END_SRC
 
-   #+RESULTS:
+    #+RESULTS:
 
 *** =undo-tree=
 
@@ -984,8 +985,19 @@
 
 ** Server
 
-Inicializamos el server
+   Inicializamos el server
 
-#+BEGIN_EXAMPLE emacs-lisp
-(server-start)
-#+END_EXAMPLE
+   #+BEGIN_EXAMPLE emacs-lisp
+   (server-start)
+   #+END_EXAMPLE
+
+
+* Preload
+  :PROPERTIES:
+  :header-args:emacs-lisp: :tangle ~/.emacs.d/personal/preload/init.el
+  :END:
+
+  #+BEGIN_SRC emacs-lisp
+    ;; Cambia la fuente de GNu/Emacs
+    (setq default-frame-alist '((font . "Source Code Pro-11")))
+  #+END_SRC
