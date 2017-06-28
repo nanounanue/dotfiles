@@ -870,13 +870,15 @@
 
 **** Componentes de =org-babel=
 
-*NOTA* Para =ob-blockdiag= es necesario ejecutar lo siguiente:
+*NOTA* Para [[https://github.com/corpix/ob-blockdiag.el][ob-blockdiag]] es necesario ejecutar lo siguiente:
 
 #+BEGIN_EXAMPLE shell
 pip install bloackdiag seqdiag actdiag nwdiag
 #+END_EXAMPLE
 
-*NOTA* PAra =ob-browser= es necesario tener =phantomjs=:
+El formato se puede consultar en la página de [[http://blockdiag.com/en/][blockdiag]].
+
+*NOTA* PAra [[https://github.com/krisajenkins/ob-browser][ob-browser]]  es necesario tener =phantomjs=:
 
 #+BEGIN_EXAMPLE shell
 sudo apt-get phantomjs
