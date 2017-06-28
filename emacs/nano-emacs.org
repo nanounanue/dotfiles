@@ -474,7 +474,7 @@
                      (alltodo ""
                               ((org-agendaskip-function
                                 '(or (nanounanue/org-skip-subtree-if-priority ?A)
-                                     (org-agenda-skip-if nil '(scheduled deadline))))
+                                    (org-agenda-skip-if nil '(scheduled deadline))))
                                (org-agenda-overriding-header "ALL tasks de prioridad normal:"))))
                     )
                    )
@@ -665,6 +665,7 @@
               (mongo      . t)
               (cypher     . t)
               (redis      . t)
+              (blockdiag  . t)
               )
             )
 
@@ -869,6 +870,19 @@
 
 **** Componentes de =org-babel=
 
+*NOTA* Para =ob-blockdiag= es necesario ejecutar lo siguiente:
+
+#+BEGIN_EXAMPLE shell
+pip install bloackdiag seqdiag actdiag nwdiag
+#+END_EXAMPLE
+
+*NOTA* PAra =ob-browser= es necesario tener =phantomjs=:
+
+#+BEGIN_EXAMPLE shell
+sudo apt-get phantomjs
+#+END_EXAMPLE
+
+
      #+BEGIN_SRC emacs-lisp
        (use-package ob-http
          :config
@@ -902,6 +916,15 @@
        (use-package ob-prolog
          :config
          (require 'ob-prolog))
+
+
+       (use-package ob-blockdiag
+         :config
+         (require 'ob-blockdiag))
+
+       (use-package ob-browser
+         :config
+         (require 'ob-browser))
 
      #+END_SRC
 
