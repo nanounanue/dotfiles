@@ -120,3 +120,9 @@ alias p="proyecto"
 
 # Crear directorio y un archivo
 mkpfile() { mkdir -p "$(dirname "$1")" || return; touch "$1"; }
+
+
+## SSH tunnels for dsapp
+alias dsapp-up='ssh -fNTM dsapp-tunnel'
+alias dsapp-status='ssh -TO check dsapp-tunnel'
+alias dsapp-down='ssh -TO exit dsapp-tunnel'
