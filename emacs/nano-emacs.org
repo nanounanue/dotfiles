@@ -1961,7 +1961,7 @@
                        (org-present-read-only)))
            (add-hook 'org-present-mode-quit-hook
                      (lambda ()
-                       (global-linum-mode)
+                       (global-linum-mode -1)
                        (org-present-small)
                        (org-remove-inline-images)
                        (org-present-show-cursor)
@@ -2090,17 +2090,17 @@
 
 *** markdown
 
-Keybindings en [[http://jblevins.org/projects/markdown-mode/][Markdown Mode for Emacs]]
+    Keybindings en [[http://jblevins.org/projects/markdown-mode/][Markdown Mode for Emacs]]
 
-#+BEGIN_SRC emacs-lisp
-(use-package markdown-mode
-  :ensure t
-  :commands (markdown-mode gfm-mode)
-  :mode (("README\\.md\\'" . gfm-mode)
-         ("\\.md\\'" . markdown-mode)
-         ("\\.markdown\\'" . markdown-mode))
-  :init (setq markdown-command "multimarkdown"))
-#+END_SRC
+    #+BEGIN_SRC emacs-lisp
+      (use-package markdown-mode
+        :ensure t
+        :commands (markdown-mode gfm-mode)
+        :mode (("README\\.md\\'" . gfm-mode)
+               ("\\.md\\'" . markdown-mode)
+               ("\\.markdown\\'" . markdown-mode))
+        :init (setq markdown-command "multimarkdown"))
+    #+END_SRC
 
 
 ** Blog
@@ -2258,6 +2258,16 @@ Keybindings en [[http://jblevins.org/projects/markdown-mode/][Markdown Mode for 
     #+RESULTS:
 
 
+
+*** =pdf-tools=
+
+[[https://github.com/politza/pdf-tools][Github page]]
+
+    #+BEGIN_SRC emacs-lisp
+      (use-package  pdf-tools
+        :ensure t
+        )
+    #+END_SRC
 
 *** Ugly hacks
 
