@@ -1,8 +1,8 @@
-#+TITLE: Configuración de GNU EMACS
+#+TITLE: Mi Configuración de GNU EMACS
 #+AUTHOR: Adolfo De Unánue
 #+EMAIL: nanounanue@gmail.com
 
-* Mi Configuración de GNU Emacs
+* Intro
   :PROPERTIES:
   :header-args:emacs-lisp: :tangle ~/.emacs.d/personal/nano-emacs.el
   :END:
@@ -473,7 +473,7 @@
                      (alltodo ""
                               ((org-agendaskip-function
                                 '(or (nanounanue/org-skip-subtree-if-priority ?A)
-                                     (org-agenda-skip-if nil '(scheduled deadline))))
+                                    (org-agenda-skip-if nil '(scheduled deadline))))
                                (org-agenda-overriding-header "ALL tasks de prioridad normal:"))))
                     )
                    )
@@ -676,7 +676,7 @@
                    ("linenos" "")
                    ))
            (setq org-latex-to-pdf-process
-                 '("xelatex --shell-escape -interaction nonstopmode %f")) ;; for multiple passes
+                 '("latexmk -xelatex='xelatex --shell-escape -interaction nonstopmode' -f  %f")) ;; for multiple passes
 
 
            (defun ivy-insert-org-entity ()
@@ -1910,17 +1910,19 @@
 **** =org-projectile=
 
      #+BEGIN_SRC emacs-lisp
+
        (use-package org-projectile
-         :bind (("C-c n p" . org-projectile:project-todo-completing-read)
+         :bind (("C-c n p" . org-projectile-project-todo-completing-read)
                 ("C-c c" . org-capture))
          :after (org)
          :config
          (progn
-           (setq org-projectile:projects-file
+           (setq org-projectile-projects-file
                  "~/projects.org")
-           (setq org-agenda-files (append org-agenda-files (org-projectile:todo-files)))
-           (add-to-list 'org-capture-templates (org-projectile:project-todo-entry "p")))
+           (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files)))
+           (push (org-projectile-project-todo-entry) org-capture-templates))
          :ensure t)
+
      #+END_SRC
 
      #+RESULTS:
@@ -2282,6 +2284,9 @@ Para usr este paquete con  =org-mode=:
         (add-to-list 'org-file-apps
                      '("\\.pdf\\'" . (lambda (file link)
                                        (org-pdfview-open link))))
+        (add-to-list 'org-file-apps
+                     '("\\.pdf::\\([[:digit:]]+\\)\\'" . org-pdfview-open))
+
         (setq ess-pdf-viewer-pref 'emacsclient)
         )
 
