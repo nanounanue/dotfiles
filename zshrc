@@ -1,62 +1,59 @@
-# Path to your oh-my-zsh installation.
-export ZSH=$HOME/.oh-my-zsh
-
-## GEOMETRY SETTINGS
-GEOMETRY_PROMPT_PLUGINS=(virtualenv docker_machine exec_time git)
-PROMPT_GEOMETRY_EXEC_TIME=true
-
-ZSH_THEME="geometry/geometry"
-DEFAULT_USER="nanounanue"   ## Added for the agnoster theme, so it can hide the name saving screen space
-
-# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
-plugins=(git docker dirhistory git-extras tmux httpie jsontools pip pep8 pyenv python web-search)
-
 ZSH_TMUX_AUTOSTART=true
 
-source $ZSH/oh-my-zsh.sh
 
-# User configuration
-export PATH="$HOME/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+# Environment
+source ~/dotfiles/env
 
-# Alias que uso
-. ~/dotfiles/aliases
-
-# You may need to manually set your language environment
-export LANG=es_MX.UTF-8
-
-# Preferred editor for local and remote sessions
-if [[ -n $SSH_CONNECTION ]]; then
-   export EDITOR='emacsclient -c'
-else
-  export EDITOR='emacsclient -t'
-fi
-
-export VISUAL="emacsclient -c -a emacs"
-
-# ssh
-export SSH_KEY_PATH="~/.ssh/id_rsa"
-
-## Rbenv
-export PATH="$HOME/.rbenv/bin:$PATH"
-eval "$(rbenv init -)"
-export PATH="$HOME/.rbenv/plugins/ruby-build/bin:$PATH"
-
-## Pyenv
-export PATH="$HOME/.pyenv/bin:$PATH"
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
+# Alias
+source ~/dotfiles/aliases
 
 
-# Spark
-export SPARK_HOME="$HOME/software/spark"
+##############################
+##
+## Antigen
+##
+##############################
 
-# Scala
-export SCALA_HOME="$HOME/software/scala-2.11.7"
+source ~/software/antigen.zsh
 
-export TERM=xterm-256color
 
-export PATH="$SPARK_HOME/bin:$SCALA_HOME/bin:$PATH"
+
+# Load the oh-my-zsh's library.
+antigen use oh-my-zsh
+
+# Bundles from the default repo (robbyrussell's oh-my-zsh).
+antigen bundle git
+antigen bundle pip
+antigen bundle lein
+antigen bundle command-not-found
+antigen bundle colored-man-pages
+
+antigen bundle docker
+antigen bundle dirhistory
+antigen bundle git-extras
+antigen bundle tmux
+antigen bundle httpie
+antigen bundle jsontools
+antigen bundle pep8
+antigen bundle pyenv
+antigen bundle python
+antigen bundle web-search
+
+# Themes
+antigen bundle tylerreckart/odin
+antigen bundle tylerreckart/hyperzsh
+
+
+# Syntax highlighting bundle.
+antigen bundle zsh-users/zsh-autosuggestions
+antigen bundle zsh-users/zsh-completions
+antigen bundle zsh-users/zsh-syntax-highlighting
+
+# Themes
+#antigen theme geometry-zsh/geometry
+#antigen theme tylerreckart/odin odin.zsh-theme
+antigen theme https://github.com/denysdovhan/spaceship-zsh-theme spaceship
+
+antigen apply
+
 
