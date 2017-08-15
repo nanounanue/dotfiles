@@ -1,6 +1,5 @@
 ZSH_TMUX_AUTOSTART=true
 
-
 # Environment
 source ~/dotfiles/env
 
@@ -15,8 +14,6 @@ source ~/dotfiles/aliases
 ##############################
 
 source ~/software/antigen.zsh
-
-
 
 # Load the oh-my-zsh's library.
 antigen use oh-my-zsh
@@ -40,8 +37,8 @@ antigen bundle python
 antigen bundle web-search
 
 # Themes
-antigen bundle tylerreckart/odin
-antigen bundle tylerreckart/hyperzsh
+#antigen bundle tylerreckart/odin
+#antigen bundle tylerreckart/hyperzsh
 
 
 # Syntax highlighting bundle.
@@ -52,8 +49,10 @@ antigen bundle zsh-users/zsh-syntax-highlighting
 # Themes
 #antigen theme geometry-zsh/geometry
 #antigen theme tylerreckart/odin odin.zsh-theme
-antigen theme https://github.com/denysdovhan/spaceship-zsh-theme spaceship
+#antigen theme https://github.com/denysdovhan/spaceship-zsh-theme spaceship
+antigen theme tylerreckart/hyperzsh hyperzsh.zsh-theme
 
 antigen apply
 
 
+#source ~/dotfiles/spaceship-theme.cfg
