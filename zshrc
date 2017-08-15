@@ -1,5 +1,3 @@
-ZSH_TMUX_AUTOSTART=true
-
 # Environment
 source ~/dotfiles/env
 
@@ -37,8 +35,8 @@ antigen bundle python
 antigen bundle web-search
 
 # Themes
-#antigen bundle tylerreckart/odin
-#antigen bundle tylerreckart/hyperzsh
+antigen bundle tylerreckart/odin
+antigen bundle tylerreckart/hyperzsh
 
 
 # Syntax highlighting bundle.
@@ -46,13 +44,21 @@ antigen bundle zsh-users/zsh-autosuggestions
 antigen bundle zsh-users/zsh-completions
 antigen bundle zsh-users/zsh-syntax-highlighting
 
+antigen bundle mafredri/zsh-async
+antigen bundle marszall87/lambda-pure
+
+
 # Themes
 #antigen theme geometry-zsh/geometry
 #antigen theme tylerreckart/odin odin.zsh-theme
 #antigen theme https://github.com/denysdovhan/spaceship-zsh-theme spaceship
-antigen theme tylerreckart/hyperzsh hyperzsh.zsh-theme
+#antigen theme tylerreckart/hyperzsh hyperzsh.zsh-theme
 
 antigen apply
 
+ZSH_TMUX_AUTOSTART=true
+
+
 
 #source ~/dotfiles/spaceship-theme.cfg
+
