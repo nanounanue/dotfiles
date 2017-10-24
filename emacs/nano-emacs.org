@@ -43,6 +43,9 @@
 (setq user-mail-address "nanounanue@gmail.com")
 #+END_SRC
 
+#+RESULTS:
+: nanounanue@gmail.com
+
 ** Interfaz
 
 *** Inicio
@@ -76,6 +79,7 @@ No me gusta que el =scratch buffer= contenga texto
 
 #+RESULTS:
 | rainbow-delimiters-mode | (lambda nil (setq prettify-symbols-alist (quote ((in . 8712) (not in . 8713) (not . 10071) (return . 10236) (yield . 10235) (for . 8704) (function . 955) (<> . 8800) (!= . 8800) (exists . 398) (in . 8712) (sum . 425) (complex numbers . 8450) (integer numbers . 8484) (natural numbers . 8469) (int . 8484) (float . 8477) (str . 120138) (True . 120139) (False . 120125) (Dict . 120071) (List . 8466) (Tuple . 10754) (Set . 8486) (Iterable . 120074) (Any . 10068) (Union . 8899))))) |
+
 
 *** =all-the-icons=
 
@@ -423,9 +427,11 @@ Si un archivo empieza con /she-bang/ =#!= , volverlo ejecutable
 
 Esto es requerido por algunos paquetes
 
-#+BEGIN_SRC emacs-lis
+#+BEGIN_SRC emacs-lisp
 (use-package s)
 #+END_SRC
+
+#+RESULTS:
 
 *** =cider=
 
@@ -434,6 +440,8 @@ Esto es requerido por algunos paquetes
     :ensure t
     )
 #+END_SRC
+
+#+RESULTS:
 
 
 *** =org-mode=
@@ -2434,98 +2442,125 @@ Para usr este paquete con  =org-mode=:
 ** Funciones
 
    #+BEGIN_SRC emacs-lisp
-     ;; Para comentarios en archivos de código
-     ;; Tomado de https://www.emacswiki.org/emacs/AutoFillMode
-     (defun nanounanue/comment-auto-fill ()
-       (setq-local comment-auto-fill-only-comments t)
-       (auto-fill-mode 1))
+   ;; Para comentarios en archivos de código
+   ;; Tomado de https://www.emacswiki.org/emacs/AutoFillMode
+   (defun nanounanue/comment-auto-fill ()
+     (setq-local comment-auto-fill-only-comments t)
+     (auto-fill-mode 1))
 
 
-     (defun nanounanue/org-skip-subtree-if-priority (priority)
-       "Ignora un subtree de la agenda si su PRIORITY es igual a priority.
+   (defun nanounanue/org-skip-subtree-if-priority (priority)
+     "Ignora un subtree de la agenda si su PRIORITY es igual a priority.
 
-            PRIORITY puede ser uno de los siguientes caracteres: ?A, ?B, or ?C."
-       (let ((subtree-end (save-excursion (org-end-of-subtree t)))
-             (pri-value (* 1000 (- org-lowest-priority priority)))
-             (pri-current (org-get-priority (thing-at-point 'line t))))
-         (if (= pri-value pri-current)
-             subtree-end
-           nil)))
+          PRIORITY puede ser uno de los siguientes caracteres: ?A, ?B, or ?C."
+     (let ((subtree-end (save-excursion (org-end-of-subtree t)))
+           (pri-value (* 1000 (- org-lowest-priority priority)))
+           (pri-current (org-get-priority (thing-at-point 'line t))))
+       (if (= pri-value pri-current)
+           subtree-end
+         nil)))
 
 
-     (defun nanounanue/projectile-pyenv-mode-set ()
-       "Set pyenv version matching project name."
-       (let ((project (projectile-project-name)))
-         (if (member project (pyenv-mode-versions))
-             (pyenv-mode-set project)
-           (pyenv-mode-unset))))
+   (defun nanounanue/projectile-pyenv-mode-set ()
+     "Set pyenv version matching project name."
+     (let ((project (projectile-project-name)))
+       (if (member project (pyenv-mode-versions))
+           (pyenv-mode-set project)
+         (pyenv-mode-unset))))
 
-     (defun nanounanue/punch-in (arg)
-       "Start continuous clocking and set the default task to the
-     selected task.  If no task is selected set the Organization task
-     as the default task."
-       (interactive "p")
-       (setq bh/keep-clock-running t)
-       (if (equal major-mode 'org-agenda-mode)
-           ;;
-           ;; We're in the agenda
-           ;;
-           (let* ((marker (org-get-at-bol 'org-hd-marker))
-                  (tags (org-with-point-at marker (org-get-tags-at))))
-             (if (and (eq arg 4) tags)
-                 (org-agenda-clock-in '(16))
-               (bh/clock-in-organization-task-as-default)))
+   (defun nanounanue/punch-in (arg)
+     "Start continuous clocking and set the default task to the
+   selected task.  If no task is selected set the Organization task
+   as the default task."
+     (interactive "p")
+     (setq bh/keep-clock-running t)
+     (if (equal major-mode 'org-agenda-mode)
          ;;
-         ;; We are not in the agenda
+         ;; We're in the agenda
          ;;
-         (save-restriction
-           (widen)
-                                             ; Find the tags on the current task
-           (if (and (equal major-mode 'org-mode) (not (org-before-first-heading-p)) (eq arg 4))
-               (org-clock-in '(16))
-             (bh/clock-in-organization-task-as-default)))))
+         (let* ((marker (org-get-at-bol 'org-hd-marker))
+                (tags (org-with-point-at marker (org-get-tags-at))))
+           (if (and (eq arg 4) tags)
+               (org-agenda-clock-in '(16))
+             (bh/clock-in-organization-task-as-default)))
+       ;;
+       ;; We are not in the agenda
+       ;;
+       (save-restriction
+         (widen)
+                                           ; Find the tags on the current task
+         (if (and (equal major-mode 'org-mode) (not (org-before-first-heading-p)) (eq arg 4))
+             (org-clock-in '(16))
+           (bh/clock-in-organization-task-as-default)))))
 
-     (defun nanounanue/punch-out ()
-       (interactive)
-       (setq bh/keep-clock-running nil)
-       (when (org-clock-is-active)
-         (org-clock-out))
-       (org-agenda-remove-restriction-lock))
+   (defun nanounanue/punch-out ()
+     (interactive)
+     (setq bh/keep-clock-running nil)
+     (when (org-clock-is-active)
+       (org-clock-out))
+     (org-agenda-remove-restriction-lock))
 
 
-     (defvar nanounanue/insert-inactive-timestamp t)
+   (defvar nanounanue/insert-inactive-timestamp t)
 
-     (defun nanounanue/toggle-insert-inactive-timestamp ()
-       (interactive)
-       (setq bh/insert-inactive-timestamp (not bh/insert-inactive-timestamp))
-       (message "Heading timestamps are %s" (if bh/insert-inactive-timestamp "ON" "OFF")))
+   (defun nanounanue/toggle-insert-inactive-timestamp ()
+     (interactive)
+     (setq bh/insert-inactive-timestamp (not bh/insert-inactive-timestamp))
+     (message "Heading timestamps are %s" (if bh/insert-inactive-timestamp "ON" "OFF")))
 
-     (defun nanounanue/insert-inactive-timestamp ()
-       (interactive)
-       (org-insert-time-stamp nil t t nil nil nil))
+   (defun nanounanue/insert-inactive-timestamp ()
+     (interactive)
+     (org-insert-time-stamp nil t t nil nil nil))
 
-     (defun nanounanue/insert-heading-inactive-timestamp ()
-       (save-excursion
-         (when bh/insert-inactive-timestamp
-           (org-return)
-           (org-cycle)
-           (bh/insert-inactive-timestamp))))
+   (defun nanounanue/insert-heading-inactive-timestamp ()
+     (save-excursion
+       (when bh/insert-inactive-timestamp
+         (org-return)
+         (org-cycle)
+         (bh/insert-inactive-timestamp))))
 
-     (add-hook 'org-insert-heading-hook 'nanounanue/insert-heading-inactive-timestamp 'append)
+   (add-hook 'org-insert-heading-hook 'nanounanue/insert-heading-inactive-timestamp 'append)
+
+
+
+   (defun nanounanue/clock-in-task-by-id (id)
+     "Clock in a task by id"
+     (org-with-point-at (org-id-find id 'marker)
+       (org-clock-in nil)))
+
+   (defun nanounanue/clock-in-last-task (arg)
+     "Clock in the interrupted task if there is one
+   Skip the default task and get the next one.
+   A prefix arg forces clock in of the default task."
+     (interactive "p")
+     (let ((clock-in-to-task
+            (cond
+             ((eq arg 4) org-clock-default-task)
+             ((and (org-clock-is-active)
+                 (equal org-clock-default-task (cadr org-clock-history)))
+              (caddr org-clock-history))
+             ((org-clock-is-active) (cadr org-clock-history))
+             ((equal org-clock-default-task (car org-clock-history)) (cadr org-clock-history))
+             (t (car org-clock-history)))))
+       (widen)
+       (org-with-point-at clock-in-to-task
+         (org-clock-in nil))))
    #+END_SRC
 
    #+RESULTS:
-   : nanounanue/projectile-pyenv-mode-set
+   : nanounanue/clock-in-last-task
 
 
 ** Server
 
    Inicializamos el server
 
-   #+BEGIN_EXAMPLE emacs-lisp
-     (require 'server)
-     (if (not (server-running-p)) (server-start))
-   #+END_EXAMPLE
+   #+BEGIN_SRC emacs-lisp
+   (require 'server)
+   (if (not (server-running-p)) (server-start))
+   #+END_SRC
+
+   #+RESULTS:
 
 
 * Global Keybindings
@@ -2541,14 +2576,17 @@ Para usr este paquete con  =org-mode=:
 (global-set-key (kbd "<f9> I") 'nanounanue/punch-in)
 (global-set-key (kbd "<f9> O") 'nanounanue/punch-out)
 
-(global-set-key (kbd "<f9> t") 'bh/insert-inactive-timestamp)
-(global-set-key (kbd "<f9> T") 'bh/toggle-insert-inactive-timestamp)
+(global-set-key (kbd "<f9> t") 'nanounanue/insert-inactive-timestamp)
+(global-set-key (kbd "<f9> T") 'nanounanue/toggle-insert-inactive-timestamp)
 
-(global-set-key (kbd "<f9> SPC") 'bh/clock-in-last-task)
+(global-set-key (kbd "<f9> SPC") 'nanounanue/clock-in-last-task)
 
 (global-set-key (kbd "<f11>") 'org-clock-goto)
 (global-set-key (kbd "C-<f11>") 'org-clock-in)
 #+END_SRC
+
+#+RESULTS:
+: org-clock-in
 
 * Preload
   :PROPERTIES:
@@ -2559,3 +2597,6 @@ Para usr este paquete con  =org-mode=:
     ;; Cambia la fuente de GNu/Emacs
     (setq default-frame-alist '((font . "Source Code Pro-11")))
   #+END_SRC
+
+  #+RESULTS:
+  : ((font . Source Code Pro-11))
