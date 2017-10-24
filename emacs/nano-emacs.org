@@ -34,8 +34,6 @@
 
 *** Más paquetes
 
-
-
 ** Personal info
 
 #+BEGIN_SRC emacs-lisp
