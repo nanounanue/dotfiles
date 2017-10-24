@@ -462,443 +462,515 @@ Esto es requerido por algunos paquetes
 **** Cuerpo principal
 
      #+BEGIN_SRC emacs-lisp
-       (use-package org
-         :ensure t
-         :mode ("\\.org\\'" . org-mode)
-         :bind (("C-c l" . org-store-link)
-                ("C-c c" . org-capture)
-                ("C-c a" . org-agenda)
-                ("C-c b" . org-iswitchb)
-                ("C-c C-w" . org-refile)
-                ("C-c C-v t" . org-babel-tangle)
-                ("C-c C-v f" . org-babel-tangle-file)
-                ("C-c j" . org-clock-goto)
-                ("C-c C-x C-o" . org-clock-out)
-                )
-
-         :init
-         (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
-         (add-hook 'org-mode-hook 'org-display-inline-images)
-         (add-hook 'org-mode-hook 'org-babel-result-hide-all)
-         (add-hook 'org-mode-hook 'turn-on-auto-fill)
-
-         :config
-         (progn
-           (setq org-directory "~/Dropbox/org")
-
-           (setq org-use-speed-commands t)
-
-           (add-to-list 'org-speed-commands-user (cons "P" 'org-set-property))
-           (add-to-list 'org-speed-commands-user (cons "d" 'org-deadline))
-
-           ;; Mark a subtree
-           (add-to-list 'org-speed-commands-user (cons "m" 'org-mark-subtree))
-
-           ;; Widen
-           (add-to-list 'org-speed-commands-user (cons "S" 'widen))
-
-           ;; kill a subtree
-           (add-to-list 'org-speed-commands-user (cons "k" (lambda ()
-                                                             (org-mark-subtree)
-                                                             (kill-region
-                                                              (region-beginning)
-                                                              (region-end)))))
-
-           ;; Jump to headline
-           (add-to-list 'org-speed-commands-user
-                        (cons "q" (lambda ()
-                                    (avy-with avy-goto-line
-                                      (avy--generic-jump "^\\*+" nil avy-style)))))
-
-
-           ;; Enable pretty entities - shows e.g. α β γ as UTF-8 characters.
-           (setq org-pretty-entities t)
-           ;; Ensure native syntax highlighting is used for inline source blocks in org files
-           (setq org-src-fontify-natively t)
-           (setq org-src-tab-acts-natively t)
-           (setq org-edit-src-content-indentation 0)
-
-           (setq org-hide-emphasis-markers t)
-           ;; I can display inline images. Set them to have a maximum size so large images don't fill the screen.
-           (setq org-image-actual-width 800)
-           (setq org-ellipsis "⤵");; ⤵ ≫ ⚡⚡⚡
-
-           ;; make available "org-bullet-face" such that I can control the font size individually
-           (setq org-bullets-face-name (quote org-bullet-face))
-
-           ;; Agenda
-
-           ;; record time I finished a task when I change it to DONE
-           (setq org-log-done 'time)
-
-           ;; I don't want to see things that are done. turn that off here.
-           ;; http://orgmode.org/manual/Global-TODO-list.html#Global-TODO-list
-           (setq org-agenda-skip-scheduled-if-done t)
-           (setq org-agenda-skip-deadline-if-done t)
-           (setq org-agenda-skip-timestamp-if-done t)
-           (setq org-agenda-todo-ignore-scheduled t)
-           (setq org-agenda-todo-ignore-deadlines t)
-           (setq org-agenda-todo-ignore-timestamp t)
-           (setq org-agenda-todo-ignore-with-date t)
-           (setq org-agenda-start-on-weekday nil) ;; start on current day
-
-           (setq org-upcoming-deadline '(:foreground "blue" :weight bold))
-
-           ;; use timestamps in date-trees. for the journal
-           (setq org-datetree-add-timestamp 'active)
-           (setq org-agenda-files (quote ("~/Dropbox/org"
-                                          "~/Dropbox/org/research.org"
-                                          "~/Dropbox/org/consultancy.org"
-                                          "~/Dropbox/org/previta.org"
-                                          "~/Dropbox/org/anglobal.org"
-                                          "~/Dropbox/org/datank.org"
-                                          "~/Dropbox/org/dsapp.org"
-                                          "~/Dropbox/org/gasolinerias.org"
-                                          "~/Dropbox/org/ligamx.org"
-                                          "~/Dropbox/org/vigilamos.org"
-                                          "~/Dropbox/org/personal.org"
-                                          "~/Dropbox/org/proyectos.org"
-                                          )))
-
-
-           (setq org-agenda-custom-commands
-                 '(("w" "Weekly Review"
-                    ( ;; deadlines
-                     (tags-todo "+DEADLINE<=\"<today>\""
-                                ((org-agenda-overriding-header "Late Deadlines")))
-                     ;; scheduled  past due
-                     (tags-todo "+SCHEDULED<=\"<today>\""
-                                ((org-agenda-overriding-header "Late Scheduled")))
-
-                     ;; now the agenda
-                     (agenda ""
-                             ((org-agenda-overriding-header "weekly agenda")
-                              (org-agenda-ndays 7)
-                              (org-agenda-tags-todo-honor-ignore-options t)
-                              (org-agenda-todo-ignore-scheduled nil)
-                              (org-agenda-todo-ignore-deadlines nil)
-                              (org-deadline-warning-days 0)))
-                     ;; and last a global todo list
-                     (todo "TODO")))
-                   ("d" "Agenda diaria"
-                    ((tags "PRIORIY=\"A\""
-                           ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-                            (org-agenda-overriding-header "Tasks de alta prioridad sin terminar:")))
-                     (agenda "" ((org-agenda-ndays 1)))
-                     (alltodo ""
-                              ((org-agendaskip-function
-                                '(or (nanounanue/org-skip-subtree-if-priority ?A)
-                                    (org-agenda-skip-if nil '(scheduled deadline))))
-                               (org-agenda-overriding-header "ALL tasks de prioridad normal:"))))
-                    )
-                   )
-                 )
-
-           ;; Refile
-           (setq org-default-notes-file "~/Dropbox/org/refile.org")
-
-           ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
-           (setq org-capture-templates
-                 (quote (("t" "todo" entry (file "~/Dropbox/org/refile.org")
-                          "* ▶ TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
-                         ("R" "respond" entry (file "~/Dropbox/org/refile.org")
-                          "* ★ NEXT Respond to %:from on %:subject\nSCHEDULED: %t\n%U\n%a\n" :clock-in t :clock-resume t )
-                         ("n" "note" entry (file "~/Dropbox/org/refile.org")
-                          "* 🗒 %?:NOTE\n%U\n%a\n" :clock-in t :clock-resume t)
-                         ("j" "Journal" entry (file+datetree "~/Dropbox/org/diary.org")
-                          "* %?\n%U\n" :clock-in t :clock-resume t)
-                         ("i" "idea" entry (file+headline "~/Dropbox/org/ideas.org" "Someday/Maybe")
-                          "💡 IDEA %?\nAgregada: %U\n" :prepend t :kill-buffer )
-                         ("m" "Meeting" entry (file "~/Dropbox/org/refile.org")
-                          "* ⛹ MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
-                         )))
-
-           ;; Targets include this file and any file contributing to the agenda - up to 9 levels deep
-           (setq org-refile-targets (quote ((nil :maxlevel . 9)
-                                            (org-agenda-files :maxlevel . 9))))
-           ;; Use full outline paths for refile targets
-           (setq org-refile-use-outline-path t)
-
-           ;;
-           (setq org-outline-path-complete-in-steps nil)
-
-           ;; Allow refile to create parent tasks with confirmatio
-           (setq org-refile-allow-creating-parent-nodes (quote confirm))
-
-           (setq org-todo-keywords '(
-                                     (sequence
-                                      "▶ TODO(t)"
-                                      "🍽 INPROGRESS(p)"
-                                      "|"
-                                      "✔ DONE(d)")
-                                     (sequence "⚑ WAITING(w@/!)" "🚪 HOLD(h@/!)" "|")
-                                     (sequence "☎ PHONE(z)" "⛹ MEETING(x)" "|")
-                                     (sequence "|" "✘ CANCELLED(c@/!)"
-                                               "SOMEDAY(f)"
-                                               )))
-
-
-           (setq org-todo-keyword-faces
-                 (quote (
-                         ("💡 IDEA" :foreground "CadetBlue2" :weight bold)
-                         ("▶ TODO" :foreground "red" :weight bold)
-                         ("🍽 INPROGRESS" :foreground "OrangeRed" :weight bold)
-                         ("★ NEXT  :foreground" "blue" :weight bold)
-                         ("✔ DONE" :foreground "forest green" :weight bold)
-                         ("⚑ WAITING" :foreground "orange" :weight bold)
-                         ("🚪 HOLD" :foreground "magenta" :weight bold)
-                         ("✘ CANCELLED" :foreground "IndianRed1" :weight bold)
-                         ("☎ PHONE" :foreground "forest green" :weight bold)
-                         ("⛹ MEETING" :foreground "LimeGreen" :weight bold)
-                         )))
-
-
-
-           (setq org-todo-state-tags-triggers
-                 (quote (("✘ CANCELLED" ("✘ CANCELLED" . t))
-                         ("⚑ WAITING" ("⚑ WAITING" . t))
-                         ("🚪 HOLD" ("⚑ WAITING") ("🚪 HOLD" . t))
-                         (done ("⚑ WAITING") ("🚪 HOLD"))
-                         ("▶ TODO" ("⚑ WAITING") ("✘ CANCELLED") ("🚪 HOLD"))
-                         ("★ NEXT" ("⚑ WAITING") ("✘ CANCELLED") ("🚪 HOLD"))
-                         ("✔ DONE" ("⚑ WAITING") ("✘ CANCELLED") ("🚪 HOLD"))
-                         )
-                        )
-                 )
-
-           ;; Bloques
-           ;; * Block templates
-           ;; add <p for python expansion
-           (add-to-list 'org-structure-template-alist
-                        '("p" "#+BEGIN_SRC python :results output org drawer\n?\n#+END_SRC"
-                          "<src lang=\"python\">\n?\n</src>"))
-
-           ;; add <por for python expansion with raw output
-           (add-to-list 'org-structure-template-alist
-                        '("por" "#+BEGIN_SRC python :results output raw\n?\n#+END_SRC"
-                          "<src lang=\"python\">\n?\n</src>"))
-
-           ;; add <pv for python expansion with value
-           (add-to-list 'org-structure-template-alist
-                        '("pv" "#+BEGIN_SRC python :results value\n?\n#+END_SRC"
-                          "<src lang=\"python\">\n?\n</src>"))
-
-           ;; add <el for emacs-lisp expansion
-           (add-to-list 'org-structure-template-alist
-                        '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"
-                          "<src lang=\"emacs-lisp\">\n?\n</src>"))
-
-           (add-to-list 'org-structure-template-alist
-                        '("ell" "#+BEGIN_SRC emacs-lisp :lexical t\n?\n#+END_SRC"
-                          "<src lang=\"emacs-lisp\">\n?\n</src>"))
-
-           ;; add <sh for shell
-           (add-to-list 'org-structure-template-alist
-                        '("sh" "#+BEGIN_SRC sh\n?\n#+END_SRC"
-                          "<src lang=\"shell\">\n?\n</src>"))
-
-           (add-to-list 'org-structure-template-alist
-                        '("lh" "#+latex_header: " ""))
-
-           (add-to-list 'org-structure-template-alist
-                        '("lc" "#+latex_class: " ""))
-
-           (add-to-list 'org-structure-template-alist
-                        '("lco" "#+latex_class_options: " ""))
-
-           (add-to-list 'org-structure-template-alist
-                        '("ao" "#+attr_org: " ""))
-
-           (add-to-list 'org-structure-template-alist
-                        '("al" "#+attr_latex: " ""))
-
-           (add-to-list 'org-structure-template-alist
-                        '("ca" "#+caption: " ""))
-
-           (add-to-list 'org-structure-template-alist
-                        '("tn" "#+tblname: " ""))
-
-           (add-to-list 'org-structure-template-alist
-                        '("n" "#+name: " ""))
-
-           (add-to-list 'org-structure-template-alist
-                        '("o" "#+options: " ""))
-
-           (add-to-list 'org-structure-template-alist
-                        '("ti" "#+title: " ""))
-
-
-           ;; Org-babel
-
-
-           ;; No preguntar para confirmar la evaluación
-           (setq org-confirm-babel-evaluate nil)
-
-           ;; O en la exportación
-           (setq org-export-babel-evaluate nil)
-
-           (setq org-confirm-elisp-link-function nil)
-           (setq org-confirm-shell-link-function nil)
-
-           ;; Paths a ditaa y plantuml
-           (setq org-ditaa-jar-path "~/software/org-libs/ditaa.jar")
-           (setq org-plantuml-jar-path "~/software/org-libs/plantuml.jar")
-
-
-           (require 'ob-clojure)
-           (setq org-babel-clojure-backend 'cider)
-           (require 'cider)
-
-           ;;(require 'ob-shell)
-           ;;(require 'ob-R)
-           ;;(require 'ob-awk)
-           ;;(require 'ob-latex)
-           (require 'ob-emacs-lisp)
-           (require 'ob-ipython)
-           ;;(require 'ob-stan)
-           ;;(require 'ob-ruby)
-           ;;(require 'ob-dot)
-           ;;(require 'ob-scala)
-           ;;(require 'ob-plantuml)
-           ;;(require 'ob-ditaa)
-           ;;(require 'ob-lisp)
-
-           (org-babel-do-load-languages
-            'org-babel-load-languages
-            '(
-
-              (shell      . t)
-              ;; (R          . t)
-              (awk        . t)
-              (sed        . t)
-              (org        . t)
-              (latex      . t)
-              (emacs-lisp . t)
-              (clojure    . t)
-              (stan       . t)
-              (ipython    . t)
-              (ruby       . t)
-              (dot        . t)
-              (scala      . t)
-              (sqlite     . t)
-              (sql        . t)
-              (ditaa      . t)
-              (plantuml   . t)
-              (mongo      . t)
-              (cypher     . t)
-              (redis      . t)
-              (blockdiag  . t)
+     (use-package org
+       :ensure t
+       :mode ("\\.org\\'" . org-mode)
+       :bind (("C-c l" . org-store-link)
+              ("C-c c" . org-capture)
+              ("C-c a" . org-agenda)
+              ("C-c b" . org-iswitchb)
+              ("C-c C-w" . org-refile)
+              ("C-c C-v t" . org-babel-tangle)
+              ("C-c C-v f" . org-babel-tangle-file)
+              ("C-c j" . org-clock-goto)
+              ("C-c C-x C-o" . org-clock-out)
               )
+
+       :init
+       (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
+       (add-hook 'org-mode-hook 'org-display-inline-images)
+       (add-hook 'org-mode-hook 'org-babel-result-hide-all)
+       (add-hook 'org-mode-hook 'turn-on-auto-fill)
+
+
+       :config
+       (progn
+         (setq org-directory "~/Dropbox/org")
+
+         (setq org-use-speed-commands t)
+
+         (add-to-list 'org-modules 'org-habit)
+
+         (add-to-list 'org-speed-commands-user (cons "P" 'org-set-property))
+         (add-to-list 'org-speed-commands-user (cons "d" 'org-deadline))
+
+         ;; Mark a subtree
+         (add-to-list 'org-speed-commands-user (cons "m" 'org-mark-subtree))
+
+         ;; Widen
+         (add-to-list 'org-speed-commands-user (cons "S" 'widen))
+
+         ;; kill a subtree
+         (add-to-list 'org-speed-commands-user (cons "k" (lambda ()
+                                                           (org-mark-subtree)
+                                                           (kill-region
+                                                            (region-beginning)
+                                                            (region-end)))))
+
+         ;; Jump to headline
+         (add-to-list 'org-speed-commands-user
+                      (cons "q" (lambda ()
+                                  (avy-with avy-goto-line
+                                    (avy--generic-jump "^\\*+" nil avy-style)))))
+
+
+         ;; Enable pretty entities - shows e.g. α β γ as UTF-8 characters.
+         (setq org-pretty-entities t)
+         ;; Ensure native syntax highlighting is used for inline source blocks in org files
+         (setq org-src-fontify-natively t)
+         (setq org-src-tab-acts-natively t)
+         (setq org-edit-src-content-indentation 0)
+
+         (setq org-hide-emphasis-markers t)
+         ;; I can display inline images. Set them to have a maximum size so large images don't fill the screen.
+         (setq org-image-actual-width 800)
+         (setq org-ellipsis "⤵");; ⤵ ≫ ⚡⚡⚡
+
+         ;; make available "org-bullet-face" such that I can control the font size individually
+         (setq org-bullets-face-name (quote org-bullet-face))
+
+         ;; Agenda
+
+         ;; record time I finished a task when I change it to DONE
+         (setq org-log-done 'time)
+
+         ;; I don't want to see things that are done. turn that off here.
+         ;; http://orgmode.org/manual/Global-TODO-list.html#Global-TODO-list
+         (setq org-agenda-skip-scheduled-if-done t)
+         (setq org-agenda-skip-deadline-if-done t)
+         (setq org-agenda-skip-timestamp-if-done t)
+         (setq org-agenda-todo-ignore-scheduled t)
+         (setq org-agenda-todo-ignore-deadlines t)
+         (setq org-agenda-todo-ignore-timestamp t)
+         (setq org-agenda-todo-ignore-with-date t)
+         (setq org-agenda-start-on-weekday nil) ;; start on current day
+
+         (setq org-upcoming-deadline '(:foreground "blue" :weight bold))
+
+         ;; use timestamps in date-trees. for the journal
+         (setq org-datetree-add-timestamp 'active)
+         (setq org-agenda-files (quote ("~/Dropbox/org"
+                                        "~/Dropbox/org/research.org"
+                                        "~/Dropbox/org/consultancy.org"
+                                        "~/Dropbox/org/previta.org"
+                                        "~/Dropbox/org/anglobal.org"
+                                        "~/Dropbox/org/datank.org"
+                                        "~/Dropbox/org/dsapp.org"
+                                        "~/Dropbox/org/gasolinerias.org"
+                                        "~/Dropbox/org/ligamx.org"
+                                        "~/Dropbox/org/vigilamos.org"
+                                        "~/Dropbox/org/personal.org"
+                                        "~/Dropbox/org/proyectos.org"
+                                        )))
+
+
+         ;;
+         ;; Resume clocking task when emacs is restarted
+         (org-clock-persistence-insinuate)
+         ;;
+         ;; Show lot of clocking history so it's easy to pick items off the C-F11 list
+         (setq org-clock-history-length 23)
+         ;; Resume clocking task on clock-in if the clock is open
+         (setq org-clock-in-resume t)
+         ;; Change tasks to NEXT when clocking in
+         (setq org-clock-in-switch-to-state 'nanounanue/clock-in-to-next)
+         ;; Separate drawers for clocking and logs
+         (setq org-drawers (quote ("PROPERTIES" "LOGBOOK")))
+         ;; Save clock data and state changes and notes in the LOGBOOK drawer
+         (setq org-clock-into-drawer t)
+         ;; Sometimes I change tasks I'm clocking quickly - this removes clocked tasks with 0:00 duration
+         (setq org-clock-out-remove-zero-time-clocks t)
+         ;; Clock out when moving task to a done state
+         (setq org-clock-out-when-done t)
+         ;; Save the running clock and all clock history when exiting Emacs, load it on startup
+         (setq org-clock-persist t)
+         ;; Do not prompt to resume an active clock
+         (setq org-clock-persist-query-resume nil)
+         ;; Enable auto clock resolution for finding open clocks
+         (setq org-clock-auto-clock-resolution (quote when-no-clock-is-running))
+         ;; Include current clocking task in clock reports
+         (setq org-clock-report-include-clocking-task t)
+
+
+
+         (setq org-agenda-custom-commands
+               '(("w" "Weekly Review"
+                  ( ;; deadlines
+                   (tags-todo "+DEADLINE<=\"<today>\""
+                              ((org-agenda-overriding-header "Late Deadlines")))
+                   ;; scheduled  past due
+                   (tags-todo "+SCHEDULED<=\"<today>\""
+                              ((org-agenda-overriding-header "Late Scheduled")))
+
+                   ;; now the agenda
+                   (agenda ""
+                           ((org-agenda-overriding-header "weekly agenda")
+                            (org-agenda-ndays 7)
+                            (org-agenda-tags-todo-honor-ignore-options t)
+                            (org-agenda-todo-ignore-scheduled nil)
+                            (org-agenda-todo-ignore-deadlines nil)
+                            (org-deadline-warning-days 0)))
+                   ;; and last a global todo list
+                   (todo "TODO")))
+                 ("d" "Agenda diaria"
+                  ((tags "PRIORIY=\"A\""
+                         ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                          (org-agenda-overriding-header "Tasks de alta prioridad sin terminar:")))
+                   (agenda "" ((org-agenda-ndays 1)))
+                   (alltodo ""
+                            ((org-agendaskip-function
+                              '(or (nanounanue/org-skip-subtree-if-priority ?A)
+                                   (org-agenda-skip-if nil '(scheduled deadline))))
+                             (org-agenda-overriding-header "ALL tasks de prioridad normal:"))))
+                  )
+                 ("N" "Notes" tags "NOTE"
+                  ((org-agenda-overriding-header "Notes")
+                   (org-tags-match-list-sublevels t))
+                  )
+                 (" " "Agenda"
+                  ((agenda "" nil)
+                   (tags "REFILE"
+                         ((org-agenda-overriding-header "Tasks to Refile")
+                          (org-tags-match-list-sublevels nil)))
+                   (tags-todo "-CANCELLED/!"
+                              ((org-agenda-overriding-header "Stuck Projects")
+                               (org-agenda-skip-function 'nanounanue/skip-non-stuck-projects)
+                               (org-agenda-sorting-strategy
+                                '(category-keep))))
+                   (tags-todo "-HOLD-CANCELLED/!"
+                              ((org-agenda-overriding-header "Projects")
+                               (org-agenda-skip-function 'nanounanue/skip-non-projects)
+                               (org-tags-match-list-sublevels 'indented)
+                               (org-agenda-sorting-strategy
+                                '(category-keep))))
+                   (tags-todo "-CANCELLED/!NEXT"
+                              ((org-agenda-overriding-header (concat "Project Next Tasks"
+                                                                     (if nanounanue/hide-scheduled-and-waiting-next-tasks
+                                                                         ""
+                                                                       " (including WAITING and SCHEDULED tasks)")))
+                               (org-agenda-skip-function 'nanounanue/skip-projects-and-habits-and-single-tasks)
+                               (org-tags-match-list-sublevels t)
+                               (org-agenda-todo-ignore-scheduled nanounanue/hide-scheduled-and-waiting-next-tasks)
+                               (org-agenda-todo-ignore-deadlines nanounanue/hide-scheduled-and-waiting-next-tasks)
+                               (org-agenda-todo-ignore-with-date nanounanue/hide-scheduled-and-waiting-next-tasks)
+                               (org-agenda-sorting-strategy
+                                '(todo-state-down effort-up category-keep))))
+                   (tags-todo "-REFILE-CANCELLED-WAITING-HOLD/!"
+                              ((org-agenda-overriding-header (concat "Project Subtasks"
+                                                                     (if nanounanue/hide-scheduled-and-waiting-next-tasks
+                                                                         ""
+                                                                       " (including WAITING and SCHEDULED tasks)")))
+                               (org-agenda-skip-function 'nanounanue/skip-non-project-tasks)
+                               (org-agenda-todo-ignore-scheduled nanounanue/hide-scheduled-and-waiting-next-tasks)
+                               (org-agenda-todo-ignore-deadlines nanounanue/hide-scheduled-and-waiting-next-tasks)
+                               (org-agenda-todo-ignore-with-date nanounanue/hide-scheduled-and-waiting-next-tasks)
+                               (org-agenda-sorting-strategy
+                                '(category-keep))))
+                   (tags-todo "-REFILE-CANCELLED-WAITING-HOLD/!"
+                              ((org-agenda-overriding-header (concat "Standalone Tasks"
+                                                                     (if nanounanue/hide-scheduled-and-waiting-next-tasks
+                                                                         ""
+                                                                       " (including WAITING and SCHEDULED tasks)")))
+                               (org-agenda-skip-function 'nanounanue/skip-project-tasks)
+                               (org-agenda-todo-ignore-scheduled nanounanue/hide-scheduled-and-waiting-next-tasks)
+                               (org-agenda-todo-ignore-deadlines nanounanue/hide-scheduled-and-waiting-next-tasks)
+                               (org-agenda-todo-ignore-with-date nanounanue/hide-scheduled-and-waiting-next-tasks)
+                               (org-agenda-sorting-strategy
+                                '(category-keep))))
+                   (tags-todo "-CANCELLED+WAITING|HOLD/!"
+                              ((org-agenda-overriding-header (concat "Waiting and Postponed Tasks"
+                                                                     (if nanounanue/hide-scheduled-and-waiting-next-tasks
+                                                                         ""
+                                                                       " (including WAITING and SCHEDULED tasks)")))
+                               (org-agenda-skip-function 'nanounanue/skip-non-tasks)
+                               (org-tags-match-list-sublevels nil)
+                               (org-agenda-todo-ignore-scheduled nanounanue/hide-scheduled-and-waiting-next-tasks)
+                               (org-agenda-todo-ignore-deadlines nanounanue/hide-scheduled-and-waiting-next-tasks)))
+                   (tags "-REFILE/"
+                         ((org-agenda-overriding-header "Tasks to Archive")
+                          (org-agenda-skip-function 'nanounanue/skip-non-archivable-tasks)
+                          (org-tags-match-list-sublevels nil))))
+                  nil))
+
+               )
+
+         ;; Refile
+         (setq org-default-notes-file "~/Dropbox/org/refile.org")
+
+         ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
+         (setq org-capture-templates
+               (quote (("t" "todo" entry (file "~/Dropbox/org/refile.org")
+                        "* ▶ TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
+                       ("R" "respond" entry (file "~/Dropbox/org/refile.org")
+                        "* ★ NEXT Respond to %:from on %:subject\nSCHEDULED: %t\n%U\n%a\n" :clock-in t :clock-resume t )
+                       ("n" "note" entry (file "~/Dropbox/org/refile.org")
+                        "* 🗒 %?:NOTE\n%U\n%a\n" :clock-in t :clock-resume t)
+                       ("r" "research" entry (file "~/Dropbox/org/research.org")
+                        "* %? :IDEA:\n%U\n%a\n" :clock-in t :clock-resume t)
+                       ("j" "Journal" entry (file+datetree "~/Dropbox/org/diary.org")
+                        "* %?\n%U\n" :clock-in t :clock-resume t)
+                       ("i" "idea" entry (file+headline "~/Dropbox/org/ideas.org" "Someday/Maybe")
+                        "💡 IDEA %?\nAgregada: %U\n" :prepend t :kill-buffer )
+                       ("m" "Meeting" entry (file "~/Dropbox/org/refile.org")
+                        "* ⛹ MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
+                       )))
+
+         ;; Targets include this file and any file contributing to the agenda - up to 9 levels deep
+         (setq org-refile-targets (quote ((nil :maxlevel . 9)
+                                          (org-agenda-files :maxlevel . 9))))
+         ;; Use full outline paths for refile targets
+         (setq org-refile-use-outline-path t)
+
+         ;;
+         (setq org-outline-path-complete-in-steps nil)
+
+         ;; Allow refile to create parent tasks with confirmatio
+         (setq org-refile-allow-creating-parent-nodes (quote confirm))
+
+         (setq org-todo-keywords '(
+                                   (sequence
+                                    "▶ TODO(t)"
+                                    "🍽 INPROGRESS(p)"
+                                    "|"
+                                    "✔ DONE(d)")
+                                   (sequence "⚑ WAITING(w@/!)" "🚪 HOLD(h@/!)" "|")
+                                   (sequence "☎ PHONE(z)" "⛹ MEETING(x)" "|")
+                                   (sequence "|" "✘ CANCELLED(c@/!)"
+                                             "SOMEDAY(f)"
+                                             )))
+
+
+         (setq org-todo-keyword-faces
+               (quote (
+                       ("💡 IDEA" :foreground "CadetBlue2" :weight bold)
+                       ("▶ TODO" :foreground "red" :weight bold)
+                       ("🍽 INPROGRESS" :foreground "OrangeRed" :weight bold)
+                       ("★ NEXT  :foreground" "blue" :weight bold)
+                       ("✔ DONE" :foreground "forest green" :weight bold)
+                       ("⚑ WAITING" :foreground "orange" :weight bold)
+                       ("🚪 HOLD" :foreground "magenta" :weight bold)
+                       ("✘ CANCELLED" :foreground "IndianRed1" :weight bold)
+                       ("☎ PHONE" :foreground "forest green" :weight bold)
+                       ("⛹ MEETING" :foreground "LimeGreen" :weight bold)
+                       )))
+
+
+
+         (setq org-todo-state-tags-triggers
+               (quote (("✘ CANCELLED" ("✘ CANCELLED" . t))
+                       ("⚑ WAITING" ("⚑ WAITING" . t))
+                       ("🚪 HOLD" ("⚑ WAITING") ("🚪 HOLD" . t))
+                       (done ("⚑ WAITING") ("🚪 HOLD"))
+                       ("▶ TODO" ("⚑ WAITING") ("✘ CANCELLED") ("🚪 HOLD"))
+                       ("★ NEXT" ("⚑ WAITING") ("✘ CANCELLED") ("🚪 HOLD"))
+                       ("✔ DONE" ("⚑ WAITING") ("✘ CANCELLED") ("🚪 HOLD"))
+                       )
+                      )
+               )
+
+         ;; Bloques
+         ;; * Block templates
+         ;; add <p for python expansion
+         (add-to-list 'org-structure-template-alist
+                      '("p" "#+BEGIN_SRC python :results output org drawer\n?\n#+END_SRC"
+                        "<src lang=\"python\">\n?\n</src>"))
+
+         ;; add <por for python expansion with raw output
+         (add-to-list 'org-structure-template-alist
+                      '("por" "#+BEGIN_SRC python :results output raw\n?\n#+END_SRC"
+                        "<src lang=\"python\">\n?\n</src>"))
+
+         ;; add <pv for python expansion with value
+         (add-to-list 'org-structure-template-alist
+                      '("pv" "#+BEGIN_SRC python :results value\n?\n#+END_SRC"
+                        "<src lang=\"python\">\n?\n</src>"))
+
+         ;; add <el for emacs-lisp expansion
+         (add-to-list 'org-structure-template-alist
+                      '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"
+                        "<src lang=\"emacs-lisp\">\n?\n</src>"))
+
+         (add-to-list 'org-structure-template-alist
+                      '("ell" "#+BEGIN_SRC emacs-lisp :lexical t\n?\n#+END_SRC"
+                        "<src lang=\"emacs-lisp\">\n?\n</src>"))
+
+         ;; add <sh for shell
+         (add-to-list 'org-structure-template-alist
+                      '("sh" "#+BEGIN_SRC sh\n?\n#+END_SRC"
+                        "<src lang=\"shell\">\n?\n</src>"))
+
+         (add-to-list 'org-structure-template-alist
+                      '("lh" "#+latex_header: " ""))
+
+         (add-to-list 'org-structure-template-alist
+                      '("lc" "#+latex_class: " ""))
+
+         (add-to-list 'org-structure-template-alist
+                      '("lco" "#+latex_class_options: " ""))
+
+         (add-to-list 'org-structure-template-alist
+                      '("ao" "#+attr_org: " ""))
+
+         (add-to-list 'org-structure-template-alist
+                      '("al" "#+attr_latex: " ""))
+
+         (add-to-list 'org-structure-template-alist
+                      '("ca" "#+caption: " ""))
+
+         (add-to-list 'org-structure-template-alist
+                      '("tn" "#+tblname: " ""))
+
+         (add-to-list 'org-structure-template-alist
+                      '("n" "#+name: " ""))
+
+         (add-to-list 'org-structure-template-alist
+                      '("o" "#+options: " ""))
+
+         (add-to-list 'org-structure-template-alist
+                      '("ti" "#+title: " ""))
+
+
+         ;; Org-babel
+
+
+         ;; No preguntar para confirmar la evaluación
+         (setq org-confirm-babel-evaluate nil)
+
+         ;; O en la exportación
+         (setq org-export-babel-evaluate nil)
+
+         (setq org-confirm-elisp-link-function nil)
+         (setq org-confirm-shell-link-function nil)
+
+         ;; Paths a ditaa y plantuml
+         (setq org-ditaa-jar-path "~/software/org-libs/ditaa.jar")
+         (setq org-plantuml-jar-path "~/software/org-libs/plantuml.jar")
+
+
+         (require 'ob-clojure)
+         (setq org-babel-clojure-backend 'cider)
+         (require 'cider)
+
+         ;;(require 'ob-shell)
+         ;;(require 'ob-R)
+         ;;(require 'ob-awk)
+         ;;(require 'ob-latex)
+         (require 'ob-emacs-lisp)
+         (require 'ob-ipython)
+         ;;(require 'ob-stan)
+         ;;(require 'ob-ruby)
+         ;;(require 'ob-dot)
+         ;;(require 'ob-scala)
+         ;;(require 'ob-plantuml)
+         ;;(require 'ob-ditaa)
+         ;;(require 'ob-lisp)
+
+         (org-babel-do-load-languages
+          'org-babel-load-languages
+          '(
+
+            (shell      . t)
+            ;; (R          . t)
+            (awk        . t)
+            (sed        . t)
+            (org        . t)
+            (latex      . t)
+            (emacs-lisp . t)
+            (clojure    . t)
+            (stan       . t)
+            (ipython    . t)
+            (ruby       . t)
+            (dot        . t)
+            (scala      . t)
+            (sqlite     . t)
+            (sql        . t)
+            (ditaa      . t)
+            (plantuml   . t)
+            (mongo      . t)
+            (cypher     . t)
+            (redis      . t)
+            (blockdiag  . t)
             )
+          )
 
-           ;; LaTeX
-           (setq org-export-latex-listings 'minted)
-           (setq org-export-latex-minted-options
-                 '(("frame" "lines")
-                   ("fontsize" "\\scriptsize")
-                   ("linenos" "")
-                   ))
-           (setq org-latex-to-pdf-process
-                 '("latexmk -xelatex='xelatex --shell-escape -interaction nonstopmode' -f  %f")) ;; for multiple passes
-
-
-           (defun ivy-insert-org-entity ()
-             "Insert an org-entity using ivy."
-             (interactive)
-             (ivy-read "Entity: " (loop for element in (append org-entities org-entities-user)
-                                        when (not (stringp element))
-                                        collect
-                                        (cons
-                                         (format "%10s | %s | %s | %s"
-                                                 (car element) ;name
-                                                 (nth 1 element) ; latex
-                                                 (nth 3 element) ; html
-                                                 (nth 6 element)) ;utf-8
-                                         element))
-                       :require-match t
-                       :action '(1
-                                 ("u" (lambda (element) (insert (nth 6 (cdr element)))) "utf-8")
-                                 ("o" (lambda (element) (insert "\\" (cadr element))) "org-entity")
-                                 ("l" (lambda (element) (insert (nth 1 (cdr element)))) "latex")
-                                 ("h" (lambda (element) (insert (nth 3 (cdr element)))) "html"))))
+         ;; LaTeX
+         (setq org-export-latex-listings 'minted)
+         (setq org-export-latex-minted-options
+               '(("frame" "lines")
+                 ("fontsize" "\\scriptsize")
+                 ("linenos" "")
+                 ))
+         (setq org-latex-to-pdf-process
+               '("latexmk -xelatex='xelatex --shell-escape -interaction nonstopmode' -f  %f")) ;; for multiple passes
 
 
-           ;; * ivy navigation
-           (defun ivy-org-jump-to-visible-headline ()
-             "Jump to visible headline in the buffer."
-             (interactive)
-             (org-mark-ring-push)
-             (avy-with avy-goto-line (avy--generic-jump "^\\*+" nil avy-style)))
+         (defun ivy-insert-org-entity ()
+           "Insert an org-entity using ivy."
+           (interactive)
+           (ivy-read "Entity: " (loop for element in (append org-entities org-entities-user)
+                                      when (not (stringp element))
+                                      collect
+                                      (cons
+                                       (format "%10s | %s | %s | %s"
+                                               (car element) ;name
+                                               (nth 1 element) ; latex
+                                               (nth 3 element) ; html
+                                               (nth 6 element)) ;utf-8
+                                       element))
+                     :require-match t
+                     :action '(1
+                               ("u" (lambda (element) (insert (nth 6 (cdr element)))) "utf-8")
+                               ("o" (lambda (element) (insert "\\" (cadr element))) "org-entity")
+                               ("l" (lambda (element) (insert (nth 1 (cdr element)))) "latex")
+                               ("h" (lambda (element) (insert (nth 3 (cdr element)))) "html"))))
 
 
-           (defun ivy-jump-to-visible-sentence ()
-             "Jump to visible sentence in the buffer."
-             (interactive)
-             (org-mark-ring-push)
-             (avy-with avy-goto-line (avy--generic-jump (sentence-end) nil avy-style))
-             (forward-sentence))
+         ;; * ivy navigation
+         (defun ivy-org-jump-to-visible-headline ()
+           "Jump to visible headline in the buffer."
+           (interactive)
+           (org-mark-ring-push)
+           (avy-with avy-goto-line (avy--generic-jump "^\\*+" nil avy-style)))
 
 
-           (defun ivy-org-jump-to-heading ()
-             "Jump to heading in the current buffer."
-             (interactive)
-             (let ((headlines '()))
-               (save-excursion
-                 (goto-char (point-min))
-                 (while (re-search-forward
-                         ;; this matches org headings in elisp too.
-                         "^\\(;; \\)?\\(\\*+\\)\\(?: +\\(.*?\\)\\)?[    ]*$"  nil t)
-                   (cl-pushnew (list
-                                (format "%-80s"
-                                        (match-string 0))
-                                (cons 'position (match-beginning 0)))
-                               headlines)))
-               (ivy-read "Headline: "
-                         (reverse headlines)
-                         :action (lambda (candidate)
-                                   (org-mark-ring-push)
-                                   (goto-char (cdr (assoc 'position candidate)))
-                                   (outline-show-entry)))))
+         (defun ivy-jump-to-visible-sentence ()
+           "Jump to visible sentence in the buffer."
+           (interactive)
+           (org-mark-ring-push)
+           (avy-with avy-goto-line (avy--generic-jump (sentence-end) nil avy-style))
+           (forward-sentence))
 
 
-           (defun ivy-org-jump-to-agenda-heading ()
-             "Jump to a heading in an agenda file."
-             (interactive)
-             (let ((headlines '()))
-               ;; these files should be open already since they are agenda files.
-               (loop for file in (org-agenda-files) do
-                     (with-current-buffer (find-file-noselect file)
-                       (save-excursion
-                         (goto-char (point-min))
-                         (while (re-search-forward org-heading-regexp nil t)
-                           (cl-pushnew (list
-                                        (format "%-80s (%s)"
-                                                (match-string 0)
-                                                (file-name-nondirectory file))
-                                        :file file
-                                        :position (match-beginning 0))
-                                       headlines)))))
-               (ivy-read "Headline: "
-                         (reverse headlines)
-                         :action (lambda (candidate)
-                                   (org-mark-ring-push)
-                                   (find-file (plist-get (cdr candidate) :file))
-                                   (goto-char (plist-get (cdr candidate) :position))
-                                   (outline-show-entry)))))
+         (defun ivy-org-jump-to-heading ()
+           "Jump to heading in the current buffer."
+           (interactive)
+           (let ((headlines '()))
+             (save-excursion
+               (goto-char (point-min))
+               (while (re-search-forward
+                       ;; this matches org headings in elisp too.
+                       "^\\(;; \\)?\\(\\*+\\)\\(?: +\\(.*?\\)\\)?[    ]*$"  nil t)
+                 (cl-pushnew (list
+                              (format "%-80s"
+                                      (match-string 0))
+                              (cons 'position (match-beginning 0)))
+                             headlines)))
+             (ivy-read "Headline: "
+                       (reverse headlines)
+                       :action (lambda (candidate)
+                                 (org-mark-ring-push)
+                                 (goto-char (cdr (assoc 'position candidate)))
+                                 (outline-show-entry)))))
 
 
-           (defun ivy-org-jump-to-heading-in-files (files &optional fontify)
-             "Jump to org heading in FILES.
-              Optional FONTIFY colors the headlines. It might slow things down
-              a lot with large numbers of org-files or long org-files. This
-              function does not open the files."
-             (let ((headlines '()))
-               (loop for file in files do
-                     (with-temp-buffer
-                       (insert-file-contents file)
-                       (when fontify
-                         (org-mode)
-                         (font-lock-fontify-buffer))
+         (defun ivy-org-jump-to-agenda-heading ()
+           "Jump to a heading in an agenda file."
+           (interactive)
+           (let ((headlines '()))
+             ;; these files should be open already since they are agenda files.
+             (loop for file in (org-agenda-files) do
+                   (with-current-buffer (find-file-noselect file)
+                     (save-excursion
                        (goto-char (point-min))
                        (while (re-search-forward org-heading-regexp nil t)
                          (cl-pushnew (list
@@ -907,67 +979,97 @@ Esto es requerido por algunos paquetes
                                               (file-name-nondirectory file))
                                       :file file
                                       :position (match-beginning 0))
-                                     headlines))))
-               (ivy-read "Headline: "
-                         (reverse headlines)
-                         :action (lambda (candidate)
-                                   (org-mark-ring-push)
-                                   (find-file (plist-get (cdr candidate) :file))
-                                   (goto-char (plist-get (cdr candidate) :position))
-                                   (outline-show-entry)))))
+                                     headlines)))))
+             (ivy-read "Headline: "
+                       (reverse headlines)
+                       :action (lambda (candidate)
+                                 (org-mark-ring-push)
+                                 (find-file (plist-get (cdr candidate) :file))
+                                 (goto-char (plist-get (cdr candidate) :position))
+                                 (outline-show-entry)))))
 
 
-           (defun ivy-org-jump-to-heading-in-directory (&optional recursive)
-             "Jump to heading in an org file in the current directory.
-              Use a prefix arg to make it RECURSIVE.
-              Use a double prefix to make it recursive and fontified."
-             (interactive "P")
-             (let ((fontify nil))
-               (when (equal recursive '(16))
-                 (setq fontify t))
-               (ivy-org-jump-to-heading-in-files
-                (f-entries "."
-                           (lambda (f)
-                             (and
-                              (f-ext? f "org")
-                              (not (s-contains? "#" f))))
-                           recursive)
-                fontify)))
+         (defun ivy-org-jump-to-heading-in-files (files &optional fontify)
+           "Jump to org heading in FILES.
+                 Optional FONTIFY colors the headlines. It might slow things down
+                 a lot with large numbers of org-files or long org-files. This
+                 function does not open the files."
+           (let ((headlines '()))
+             (loop for file in files do
+                   (with-temp-buffer
+                     (insert-file-contents file)
+                     (when fontify
+                       (org-mode)
+                       (font-lock-fontify-buffer))
+                     (goto-char (point-min))
+                     (while (re-search-forward org-heading-regexp nil t)
+                       (cl-pushnew (list
+                                    (format "%-80s (%s)"
+                                            (match-string 0)
+                                            (file-name-nondirectory file))
+                                    :file file
+                                    :position (match-beginning 0))
+                                   headlines))))
+             (ivy-read "Headline: "
+                       (reverse headlines)
+                       :action (lambda (candidate)
+                                 (org-mark-ring-push)
+                                 (find-file (plist-get (cdr candidate) :file))
+                                 (goto-char (plist-get (cdr candidate) :position))
+                                 (outline-show-entry)))))
 
 
-           (defun ivy-org-jump-to-project-headline (&optional fontify)
-             "Jump to a headline in an org-file in the current project.
-              The project is defined by projectile. Use a prefix arg FONTIFY
-              for colored headlines."
-             (interactive "P")
+         (defun ivy-org-jump-to-heading-in-directory (&optional recursive)
+           "Jump to heading in an org file in the current directory.
+                 Use a prefix arg to make it RECURSIVE.
+                 Use a double prefix to make it recursive and fontified."
+           (interactive "P")
+           (let ((fontify nil))
+             (when (equal recursive '(16))
+               (setq fontify t))
              (ivy-org-jump-to-heading-in-files
-              (mapcar
-               (lambda (f) (expand-file-name f (projectile-project-root)))
-               (-filter (lambda (f)
-                          (and
-                           (f-ext? f "org")
-                           (not (s-contains? "#" f))))
-                        (projectile-current-project-files)))
-              fontify))
+              (f-entries "."
+                         (lambda (f)
+                           (and
+                            (f-ext? f "org")
+                            (not (s-contains? "#" f))))
+                         recursive)
+              fontify)))
 
 
-           (defun ivy-org-jump-to-open-headline (&optional fontify)
-             "Jump to a headline in an open org-file.
-              Use a prefix arg FONTIFY for colored headlines."
-             (interactive "P")
-             (ivy-org-jump-to-heading-in-files
-              (mapcar 'buffer-file-name
-                      (-filter (lambda (b)
-                                 (-when-let (f (buffer-file-name b))
-                                   (f-ext? f "org")))
-                               (buffer-list)))
-              fontify))
+         (defun ivy-org-jump-to-project-headline (&optional fontify)
+           "Jump to a headline in an org-file in the current project.
+                 The project is defined by projectile. Use a prefix arg FONTIFY
+                 for colored headlines."
+           (interactive "P")
+           (ivy-org-jump-to-heading-in-files
+            (mapcar
+             (lambda (f) (expand-file-name f (projectile-project-root)))
+             (-filter (lambda (f)
+                        (and
+                         (f-ext? f "org")
+                         (not (s-contains? "#" f))))
+                      (projectile-current-project-files)))
+            fontify))
+
+
+         (defun ivy-org-jump-to-open-headline (&optional fontify)
+           "Jump to a headline in an open org-file.
+                 Use a prefix arg FONTIFY for colored headlines."
+           (interactive "P")
+           (ivy-org-jump-to-heading-in-files
+            (mapcar 'buffer-file-name
+                    (-filter (lambda (b)
+                               (-when-let (f (buffer-file-name b))
+                                 (f-ext? f "org")))
+                             (buffer-list)))
+            fontify))
 
 
 
-           ) ;; Fin de progn
+         ) ;; Fin de progn
 
-         )  ;; Fin de use-package org
+       )  ;; Fin de use-package org
      #+END_SRC
 
      #+RESULTS:
@@ -2450,7 +2552,7 @@ Para usr este paquete con  =org-mode=:
    (defun nanounanue/org-skip-subtree-if-priority (priority)
      "Ignora un subtree de la agenda si su PRIORITY es igual a priority.
 
-          PRIORITY puede ser uno de los siguientes caracteres: ?A, ?B, or ?C."
+             PRIORITY puede ser uno de los siguientes caracteres: ?A, ?B, or ?C."
      (let ((subtree-end (save-excursion (org-end-of-subtree t)))
            (pri-value (* 1000 (- org-lowest-priority priority)))
            (pri-current (org-get-priority (thing-at-point 'line t))))
@@ -2466,83 +2568,383 @@ Para usr este paquete con  =org-mode=:
            (pyenv-mode-set project)
          (pyenv-mode-unset))))
 
-   (defun nanounanue/punch-in (arg)
-     "Start continuous clocking and set the default task to the
-   selected task.  If no task is selected set the Organization task
-   as the default task."
-     (interactive "p")
-     (setq bh/keep-clock-running t)
-     (if (equal major-mode 'org-agenda-mode)
-         ;;
-         ;; We're in the agenda
-         ;;
-         (let* ((marker (org-get-at-bol 'org-hd-marker))
-                (tags (org-with-point-at marker (org-get-tags-at))))
-           (if (and (eq arg 4) tags)
-               (org-agenda-clock-in '(16))
-             (bh/clock-in-organization-task-as-default)))
-       ;;
-       ;; We are not in the agenda
-       ;;
-       (save-restriction
-         (widen)
-                                           ; Find the tags on the current task
-         (if (and (equal major-mode 'org-mode) (not (org-before-first-heading-p)) (eq arg 4))
-             (org-clock-in '(16))
-           (bh/clock-in-organization-task-as-default)))))
 
-   (defun nanounanue/punch-out ()
-     (interactive)
-     (setq bh/keep-clock-running nil)
-     (when (org-clock-is-active)
-       (org-clock-out))
-     (org-agenda-remove-restriction-lock))
+   (setq nanounanue/keep-clock-running nil)
 
+   (defun nanounanue/clock-in-to-next (kw)
+     "Switch a task from TODO to NEXT when clocking in.
+   Skips capture tasks, projects, and subprojects.
+   Switch projects and subprojects from NEXT back to TODO"
+     (when (not (and (boundp 'org-capture-mode) org-capture-mode))
+       (cond
+        ((and (member (org-get-todo-state) (list "TODO"))
+            (nanounanue/is-task-p))
+         "NEXT")
+        ((and (member (org-get-todo-state) (list "NEXT"))
+            (nanounanue/is-project-p))
+         "TODO"))))
 
-   (defvar nanounanue/insert-inactive-timestamp t)
-
-   (defun nanounanue/toggle-insert-inactive-timestamp ()
-     (interactive)
-     (setq bh/insert-inactive-timestamp (not bh/insert-inactive-timestamp))
-     (message "Heading timestamps are %s" (if bh/insert-inactive-timestamp "ON" "OFF")))
-
-   (defun nanounanue/insert-inactive-timestamp ()
-     (interactive)
-     (org-insert-time-stamp nil t t nil nil nil))
-
-   (defun nanounanue/insert-heading-inactive-timestamp ()
-     (save-excursion
-       (when bh/insert-inactive-timestamp
-         (org-return)
-         (org-cycle)
-         (bh/insert-inactive-timestamp))))
-
-   (add-hook 'org-insert-heading-hook 'nanounanue/insert-heading-inactive-timestamp 'append)
-
-
-
-   (defun nanounanue/clock-in-task-by-id (id)
-     "Clock in a task by id"
-     (org-with-point-at (org-id-find id 'marker)
-       (org-clock-in nil)))
-
-   (defun nanounanue/clock-in-last-task (arg)
-     "Clock in the interrupted task if there is one
-   Skip the default task and get the next one.
-   A prefix arg forces clock in of the default task."
-     (interactive "p")
-     (let ((clock-in-to-task
-            (cond
-             ((eq arg 4) org-clock-default-task)
-             ((and (org-clock-is-active)
-                 (equal org-clock-default-task (cadr org-clock-history)))
-              (caddr org-clock-history))
-             ((org-clock-is-active) (cadr org-clock-history))
-             ((equal org-clock-default-task (car org-clock-history)) (cadr org-clock-history))
-             (t (car org-clock-history)))))
+   (defun nanounanue/find-project-task ()
+     "Move point to the parent (project) task if any"
+     (save-restriction
        (widen)
-       (org-with-point-at clock-in-to-task
-         (org-clock-in nil))))
+       (let ((parent-task (save-excursion (org-back-to-heading 'invisible-ok) (point))))
+         (while (org-up-heading-safe)
+           (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
+             (setq parent-task (point))))
+         (goto-char parent-task)
+         parent-task)))
+
+      (defun nanounanue/punch-in (arg)
+        "Start continuous clocking and set the default task to the
+      selected task.  If no task is selected set the Organization task
+      as the default task."
+        (interactive "p")
+        (setq nanounanue/keep-clock-running t)
+        (if (equal major-mode 'org-agenda-mode)
+            ;;
+            ;; We're in the agenda
+            ;;
+            (let* ((marker (org-get-at-bol 'org-hd-marker))
+                   (tags (org-with-point-at marker (org-get-tags-at))))
+              (if (and (eq arg 4) tags)
+                  (org-agenda-clock-in '(16))
+                (nanounanue/clock-in-organization-task-as-default)))
+          ;;
+          ;; We are not in the agenda
+          ;;
+          (save-restriction
+            (widen)
+                                              ; Find the tags on the current task
+            (if (and (equal major-mode 'org-mode) (not (org-before-first-heading-p)) (eq arg 4))
+                (org-clock-in '(16))
+              (nanounanue/clock-in-organization-task-as-default)))))
+
+      (defun nanounanue/punch-out ()
+        (interactive)
+        (setq nanounanue/keep-clock-running nil)
+        (when (org-clock-is-active)
+          (org-clock-out))
+        (org-agenda-remove-restriction-lock))
+
+
+      (defvar nanounanue/insert-inactive-timestamp t)
+
+      (defun nanounanue/toggle-insert-inactive-timestamp ()
+        (interactive)
+        (setq nanounanue/insert-inactive-timestamp (not nanounanue/insert-inactive-timestamp))
+        (message "Heading timestamps are %s" (if nanounanue/insert-inactive-timestamp "ON" "OFF")))
+
+      (defun nanounanue/insert-inactive-timestamp ()
+        (interactive)
+        (org-insert-time-stamp nil t t nil nil nil))
+
+      (defun nanounanue/insert-heading-inactive-timestamp ()
+        (save-excursion
+          (when nanounanue/insert-inactive-timestamp
+            (org-return)
+            (org-cycle)
+            (nanounanue/insert-inactive-timestamp))))
+
+      (add-hook 'org-insert-heading-hook 'nanounanue/insert-heading-inactive-timestamp 'append)
+
+
+
+      (defun nanounanue/clock-in-task-by-id (id)
+        "Clock in a task by id"
+        (org-with-point-at (org-id-find id 'marker)
+          (org-clock-in nil)))
+
+      (defun nanounanue/clock-in-last-task (arg)
+        "Clock in the interrupted task if there is one
+      Skip the default task and get the next one.
+      A prefix arg forces clock in of the default task."
+        (interactive "p")
+        (let ((clock-in-to-task
+               (cond
+                ((eq arg 4) org-clock-default-task)
+                ((and (org-clock-is-active)
+                    (equal org-clock-default-task (cadr org-clock-history)))
+                 (caddr org-clock-history))
+                ((org-clock-is-active) (cadr org-clock-history))
+                ((equal org-clock-default-task (car org-clock-history)) (cadr org-clock-history))
+                (t (car org-clock-history)))))
+          (widen)
+          (org-with-point-at clock-in-to-task
+            (org-clock-in nil))))
+
+
+      ;; Remove empty LOGBOOK drawers on clock out
+      (defun nanounanue/remove-empty-drawer-on-clock-out ()
+        (interactive)
+        (save-excursion
+          (beginning-of-line 0)
+          (org-remove-empty-drawer-at "LOGBOOK" (point))))
+
+      (add-hook 'org-clock-out-hook 'nanounanue/remove-empty-drawer-on-clock-out 'append)
+
+
+      ;; Refile settings
+      ;; Exclude DONE state tasks from refile targets
+      (defun nanounanue/verify-refile-target ()
+        "Exclude todo keywords with a done state from refile targets"
+        (not (member (nth 2 (org-heading-components)) org-done-keywords)))
+
+      (setq org-refile-target-verify-function 'nanounanue/verify-refile-target)
+
+      (defun nanounanue/is-project-p ()
+        "Any task with a todo keyword subtask"
+        (save-restriction
+          (widen)
+          (let ((has-subtask)
+                (subtree-end (save-excursion (org-end-of-subtree t)))
+                (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
+            (save-excursion
+              (forward-line 1)
+              (while (and (not has-subtask)
+                        (< (point) subtree-end)
+                        (re-search-forward "^\*+ " subtree-end t))
+                (when (member (org-get-todo-state) org-todo-keywords-1)
+                  (setq has-subtask t))))
+            (and is-a-task has-subtask))))
+
+      (defun nanounanue/is-project-subtree-p ()
+        "Any task with a todo keyword that is in a project subtree.
+      Callers of this function already widen the buffer view."
+        (let ((task (save-excursion (org-back-to-heading 'invisible-ok)
+                                    (point))))
+          (save-excursion
+            (nanounanue/find-project-task)
+            (if (equal (point) task)
+                nil
+              t))))
+
+      (defun nanounanue/is-task-p ()
+        "Any task with a todo keyword and no subtask"
+        (save-restriction
+          (widen)
+          (let ((has-subtask)
+                (subtree-end (save-excursion (org-end-of-subtree t)))
+                (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
+            (save-excursion
+              (forward-line 1)
+              (while (and (not has-subtask)
+                        (< (point) subtree-end)
+                        (re-search-forward "^\*+ " subtree-end t))
+                (when (member (org-get-todo-state) org-todo-keywords-1)
+                  (setq has-subtask t))))
+            (and is-a-task (not has-subtask)))))
+
+      (defun nanounanue/is-subproject-p ()
+        "Any task which is a subtask of another project"
+        (let ((is-subproject)
+              (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
+          (save-excursion
+            (while (and (not is-subproject) (org-up-heading-safe))
+              (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
+                (setq is-subproject t))))
+          (and is-a-task is-subproject)))
+
+      (defun nanounanue/list-sublevels-for-projects-indented ()
+        "Set org-tags-match-list-sublevels so when restricted to a subtree we list all subtasks.
+        This is normally used by skipping functions where this variable is already local to the agenda."
+        (if (marker-buffer org-agenda-restrict-begin)
+            (setq org-tags-match-list-sublevels 'indented)
+          (setq org-tags-match-list-sublevels nil))
+        nil)
+
+      (defun nanounanue/list-sublevels-for-projects ()
+        "Set org-tags-match-list-sublevels so when restricted to a subtree we list all subtasks.
+        This is normally used by skipping functions where this variable is already local to the agenda."
+        (if (marker-buffer org-agenda-restrict-begin)
+            (setq org-tags-match-list-sublevels t)
+          (setq org-tags-match-list-sublevels nil))
+        nil)
+
+      (defvar nanounanue/hide-scheduled-and-waiting-next-tasks t)
+
+      (defun nanounanue/toggle-next-task-display ()
+        (interactive)
+        (setq nanounanue/hide-scheduled-and-waiting-next-tasks (not nanounanue/hide-scheduled-and-waiting-next-tasks))
+        (when  (equal major-mode 'org-agenda-mode)
+          (org-agenda-redo))
+        (message "%s WAITING and SCHEDULED NEXT Tasks" (if nanounanue/hide-scheduled-and-waiting-next-tasks "Hide" "Show")))
+
+      (defun nanounanue/skip-stuck-projects ()
+        "Skip trees that are not stuck projects"
+        (save-restriction
+          (widen)
+          (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
+            (if (nanounanue/is-project-p)
+                (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
+                       (has-next ))
+                  (save-excursion
+                    (forward-line 1)
+                    (while (and (not has-next) (< (point) subtree-end) (re-search-forward "^\\*+ NEXT " subtree-end t))
+                      (unless (member "WAITING" (org-get-tags-at))
+                        (setq has-next t))))
+                  (if has-next
+                      nil
+                    next-headline)) ; a stuck project, has subtasks but no next task
+              nil))))
+
+      (defun nanounanue/skip-non-stuck-projects ()
+        "Skip trees that are not stuck projects"
+        ;; (nanounanue/list-sublevels-for-projects-indented)
+        (save-restriction
+          (widen)
+          (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
+            (if (nanounanue/is-project-p)
+                (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
+                       (has-next ))
+                  (save-excursion
+                    (forward-line 1)
+                    (while (and (not has-next) (< (point) subtree-end) (re-search-forward "^\\*+ NEXT " subtree-end t))
+                      (unless (member "WAITING" (org-get-tags-at))
+                        (setq has-next t))))
+                  (if has-next
+                      next-headline
+                    nil)) ; a stuck project, has subtasks but no next task
+              next-headline))))
+
+      (defun nanounanue/skip-non-projects ()
+        "Skip trees that are not projects"
+        ;; (nanounanue/list-sublevels-for-projects-indented)
+        (if (save-excursion (nanounanue/skip-non-stuck-projects))
+            (save-restriction
+              (widen)
+              (let ((subtree-end (save-excursion (org-end-of-subtree t))))
+                (cond
+                 ((nanounanue/is-project-p)
+                  nil)
+                 ((and (nanounanue/is-project-subtree-p) (not (nanounanue/is-task-p)))
+                  nil)
+                 (t
+                  subtree-end))))
+          (save-excursion (org-end-of-subtree t))))
+
+      (defun nanounanue/skip-non-tasks ()
+        "Show non-project tasks.
+      Skip project and sub-project tasks, habits, and project related tasks."
+        (save-restriction
+          (widen)
+          (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
+            (cond
+             ((nanounanue/is-task-p)
+              nil)
+             (t
+              next-headline)))))
+
+      (defun nanounanue/skip-project-trees-and-habits ()
+        "Skip trees that are projects"
+        (save-restriction
+          (widen)
+          (let ((subtree-end (save-excursion (org-end-of-subtree t))))
+            (cond
+             ((nanounanue/is-project-p)
+              subtree-end)
+             ((org-is-habit-p)
+              subtree-end)
+             (t
+              nil)))))
+
+      (defun nanounanue/skip-projects-and-habits-and-single-tasks ()
+        "Skip trees that are projects, tasks that are habits, single non-project tasks"
+        (save-restriction
+          (widen)
+          (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
+            (cond
+             ((org-is-habit-p)
+              next-headline)
+             ((and nanounanue/hide-scheduled-and-waiting-next-tasks
+                 (member "WAITING" (org-get-tags-at)))
+              next-headline)
+             ((nanounanue/is-project-p)
+              next-headline)
+             ((and (nanounanue/is-task-p) (not (nanounanue/is-project-subtree-p)))
+              next-headline)
+             (t
+              nil)))))
+
+      (defun nanounanue/skip-project-tasks-maybe ()
+        "Show tasks related to the current restriction.
+      When restricted to a project, skip project and sub project tasks, habits, NEXT tasks, and loose tasks.
+      When not restricted, skip project and sub-project tasks, habits, and project related tasks."
+        (save-restriction
+          (widen)
+          (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
+                 (next-headline (save-excursion (or (outline-next-heading) (point-max))))
+                 (limit-to-project (marker-buffer org-agenda-restrict-begin)))
+            (cond
+             ((nanounanue/is-project-p)
+              next-headline)
+             ((org-is-habit-p)
+              subtree-end)
+             ((and (not limit-to-project)
+                 (nanounanue/is-project-subtree-p))
+              subtree-end)
+             ((and limit-to-project
+                 (nanounanue/is-project-subtree-p)
+                 (member (org-get-todo-state) (list "NEXT")))
+              subtree-end)
+             (t
+              nil)))))
+
+      (defun nanounanue/skip-project-tasks ()
+        "Show non-project tasks.
+      Skip project and sub-project tasks, habits, and project related tasks."
+        (save-restriction
+          (widen)
+          (let* ((subtree-end (save-excursion (org-end-of-subtree t))))
+            (cond
+             ((nanounanue/is-project-p)
+              subtree-end)
+             ((org-is-habit-p)
+              subtree-end)
+             ((nanounanue/is-project-subtree-p)
+              subtree-end)
+             (t
+              nil)))))
+
+      (defun nanounanue/skip-non-project-tasks ()
+        "Show project tasks.
+      Skip project and sub-project tasks, habits, and loose non-project tasks."
+        (save-restriction
+          (widen)
+          (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
+                 (next-headline (save-excursion (or (outline-next-heading) (point-max)))))
+            (cond
+             ((nanounanue/is-project-p)
+              next-headline)
+             ((org-is-habit-p)
+              subtree-end)
+             ((and (nanounanue/is-project-subtree-p)
+                 (member (org-get-todo-state) (list "NEXT")))
+              subtree-end)
+             ((not (nanounanue/is-project-subtree-p))
+              subtree-end)
+             (t
+              nil)))))
+
+      (defun nanounanue/skip-projects-and-habits ()
+        "Skip trees that are projects and tasks that are habits"
+        (save-restriction
+          (widen)
+          (let ((subtree-end (save-excursion (org-end-of-subtree t))))
+            (cond
+             ((nanounanue/is-project-p)
+              subtree-end)
+             ((org-is-habit-p)
+              subtree-end)
+             (t
+              nil)))))
+
+      (defun nanounanue/skip-non-subprojects ()
+        "Skip trees that are not projects"
+        (let ((next-headline (save-excursion (outline-next-heading))))
+          (if (nanounanue/is-subproject-p)
+              nil
+            next-headline)))
    #+END_SRC
 
    #+RESULTS:
