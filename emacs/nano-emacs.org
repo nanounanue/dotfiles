@@ -352,8 +352,10 @@
 **** /Embellecedor/
 
      #+BEGIN_SRC emacs-lisp
-       (use-package org-beautify-theme
-         :ensure t)
+       (ignore-errors
+         (use-package org-beautify-theme
+           :ensure t)
+         )
 
      #+END_SRC
 
@@ -384,7 +386,7 @@
 
          :config
          (progn
-           (setq org-directory "~/org")
+           (setq org-directory "~/Dropbox/org")
 
            (setq org-use-speed-commands t)
 
@@ -445,14 +447,15 @@
 
            ;; use timestamps in date-trees. for the journal
            (setq org-datetree-add-timestamp 'active)
-           (setq org-agenda-files (quote ("~/org"
-                                          "~/org/datank.org"
-                                          "~/org/dsapp.org"
-                                          "~/org/gasolinerias.org"
-                                          "~/org/ligamx.org"
-                                          "~/org/vigilamos.org"
-                                          "~/org/personal.org"
-                                          "~/org/proyectos.org"
+           (setq org-agenda-files (quote ("~/Dropbox/org"
+                                          "~/Dropbox/org/research.org"
+                                          "~/Dropbox/org/datank.org"
+                                          "~/Dropbox/org/dsapp.org"
+                                          "~/Dropbox/org/gasolinerias.org"
+                                          "~/Dropbox/org/ligamx.org"
+                                          "~/Dropbox/org/vigilamos.org"
+                                          "~/Dropbox/org/personal.org"
+                                          "~/Dropbox/org/proyectos.org"
                                           )))
 
 
@@ -490,7 +493,7 @@
                  )
 
            ;; Refile
-           (setq org-default-notes-file "~/org/refile.org")
+           (setq org-default-notes-file "~/Dropbox/org/refile.org")
 
            ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
            (setq org-capture-templates

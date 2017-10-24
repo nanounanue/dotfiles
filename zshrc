@@ -1,3 +1,6 @@
+## Setting tmux
+ZSH_TMUX_AUTOSTART=true
+
 # Environment
 source ~/dotfiles/env
 
@@ -54,9 +57,10 @@ antigen bundle marszall87/lambda-pure
 #antigen theme https://github.com/denysdovhan/spaceship-zsh-theme spaceship
 #antigen theme tylerreckart/hyperzsh hyperzsh.zsh-theme
 
+
 antigen apply
 
-ZSH_TMUX_AUTOSTART=true
+
 
 
 
