@@ -35,15 +35,47 @@
 *** Más paquetes
 
 
+
+** Personal info
+
+#+BEGIN_SRC emacs-lisp
+(setq user-full-name "Adolfo De Unánue")
+(setq user-mail-address "nanounanue@gmail.com")
+#+END_SRC
+
 ** Interfaz
 
+*** Inicio
+
 *** Cosas a quitar
+
+No soy /gurú/ ...
 
     #+BEGIN_SRC emacs-lisp
       (setq prelude-guru nil)
     #+END_SRC
 
     #+RESULTS:
+
+No me gusta que el =scratch buffer= contenga texto
+
+#+BEGIN_SRC emacs-lisp
+  (setq initial-scratch-message "")
+#+END_SRC
+
+#+RESULTS:
+
+*** =rainbowdelimiters=
+
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-delimiters
+    :commands (rainbow-delimiters-mode)
+    :init
+    (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+#+END_SRC
+
+#+RESULTS:
+| rainbow-delimiters-mode | (lambda nil (setq prettify-symbols-alist (quote ((in . 8712) (not in . 8713) (not . 10071) (return . 10236) (yield . 10235) (for . 8704) (function . 955) (<> . 8800) (!= . 8800) (exists . 398) (in . 8712) (sum . 425) (complex numbers . 8450) (integer numbers . 8484) (natural numbers . 8469) (int . 8484) (float . 8477) (str . 120138) (True . 120139) (False . 120125) (Dict . 120071) (List . 8466) (Tuple . 10754) (Set . 8486) (Iterable . 120074) (Any . 10068) (Union . 8899))))) |
 
 *** =all-the-icons=
 
@@ -332,8 +364,68 @@
     : t
 
 
+*** Arreglando otras cosas de GNU/Emacs
+
+Muestra el paréntesis que hace /match/
+
+#+BEGIN_SRC emacs-lisp
+  (defvar show-paren-delay)
+  (setq show-paren-delay 0.0)
+  (show-paren-mode t)
+#+END_SRC
+
+#+RESULTS:
+: t
+
+Número de columnas
+
+#+BEGIN_SRC emacs-lisp
+  (column-number-mode t)
+#+END_SRC
+
+#+RESULTS:
+: t
+
+Archivos temporales de GNU/Emacs, todos a un sólo lugar
+
+#+BEGIN_SRC emacs-lisp
+  (setq backup-directory-alist `((".*" . "~/tmp/.emacs"))
+        auto-save-file-name-transforms `((".*" , "~/tmp/.emacs" t)))
+#+END_SRC
+
+#+RESULTS:
+| .* | ~/tmp/.emacs | t |
+
+Si algún programa cambia un archivo que está abierto en GNU/Emacs,
+automáticamente actualizar los cambios
+
+#+BEGIN_SRC emacs-lisp
+(global-auto-revert-mode t)
+#+END_SRC
+
+#+RESULTS:
+: t
+
+Si un archivo empieza con /she-bang/ =#!= , volverlo ejecutable
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'after-save-hook
+        'executable-make-buffer-file-executable-if-script-p)
+#+END_SRC
+
+#+RESULTS:
+| rmail-after-save-hook | sml/generate-buffer-identification | executable-make-buffer-file-executable-if-script-p |
+
+
 ** Major modes
 
+*** Emacs string manipulation
+
+Esto es requerido por algunos paquetes
+
+#+BEGIN_SRC emacs-lis
+(use-package s)
+#+END_SRC
 
 *** =cider=
 
@@ -418,6 +510,7 @@
            ;; Ensure native syntax highlighting is used for inline source blocks in org files
            (setq org-src-fontify-natively t)
            (setq org-src-tab-acts-natively t)
+           (setq org-edit-src-content-indentation 0)
 
            (setq org-hide-emphasis-markers t)
            ;; I can display inline images. Set them to have a maximum size so large images don't fill the screen.
@@ -449,6 +542,9 @@
            (setq org-datetree-add-timestamp 'active)
            (setq org-agenda-files (quote ("~/Dropbox/org"
                                           "~/Dropbox/org/research.org"
+                                          "~/Dropbox/org/consultancy.org"
+                                          "~/Dropbox/org/previta.org"
+                                          "~/Dropbox/org/anglobal.org"
                                           "~/Dropbox/org/datank.org"
                                           "~/Dropbox/org/dsapp.org"
                                           "~/Dropbox/org/gasolinerias.org"
@@ -497,35 +593,43 @@
 
            ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
            (setq org-capture-templates
-                 (quote (("t" "todo" entry (file "~/org/refile.org")
+                 (quote (("t" "todo" entry (file "~/Dropbox/org/refile.org")
                           "* ▶ TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
-                         ("r" "respond" entry (file "~/org/refile.org")
+                         ("R" "respond" entry (file "~/Dropbox/org/refile.org")
                           "* ★ NEXT Respond to %:from on %:subject\nSCHEDULED: %t\n%U\n%a\n" :clock-in t :clock-resume t )
-                         ("n" "note" entry (file "~/org/refile.org")
+                         ("n" "note" entry (file "~/Dropbox/org/refile.org")
                           "* 🗒 %?:NOTE\n%U\n%a\n" :clock-in t :clock-resume t)
-                         ("j" "Journal" entry (file+datetree "~/org/diary.org")
+                         ("j" "Journal" entry (file+datetree "~/Dropbox/org/diary.org")
                           "* %?\n%U\n" :clock-in t :clock-resume t)
-                         ("i" "idea" entry (file+headline "~/org/ideas.org" "Someday/Maybe")
+                         ("i" "idea" entry (file+headline "~/Dropbox/org/ideas.org" "Someday/Maybe")
                           "💡 IDEA %?\nAgregada: %U\n" :prepend t :kill-buffer )
-                         ("m" "Meeting" entry (file "~/org/refile.org")
+                         ("m" "Meeting" entry (file "~/Dropbox/org/refile.org")
                           "* ⛹ MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
                          )))
 
            ;; Targets include this file and any file contributing to the agenda - up to 9 levels deep
            (setq org-refile-targets (quote ((nil :maxlevel . 9)
                                             (org-agenda-files :maxlevel . 9))))
+           ;; Use full outline paths for refile targets
+           (setq org-refile-use-outline-path t)
+
+           ;;
+           (setq org-outline-path-complete-in-steps nil)
+
+           ;; Allow refile to create parent tasks with confirmatio
+           (setq org-refile-allow-creating-parent-nodes (quote confirm))
 
            (setq org-todo-keywords '(
                                      (sequence
-                                      "💡 IDEA(i)"
                                       "▶ TODO(t)"
                                       "🍽 INPROGRESS(p)"
-                                      "★ NEXT(n)" "|"
+                                      "|"
                                       "✔ DONE(d)")
                                      (sequence "⚑ WAITING(w@/!)" "🚪 HOLD(h@/!)" "|")
+                                     (sequence "☎ PHONE(z)" "⛹ MEETING(x)" "|")
                                      (sequence "|" "✘ CANCELLED(c@/!)"
                                                "SOMEDAY(f)"
-                                               "☎ PHONE(z)" "⛹ MEETING(x)")))
+                                               )))
 
 
            (setq org-todo-keyword-faces
@@ -779,9 +883,9 @@
 
            (defun ivy-org-jump-to-heading-in-files (files &optional fontify)
              "Jump to org heading in FILES.
-       Optional FONTIFY colors the headlines. It might slow things down
-       a lot with large numbers of org-files or long org-files. This
-       function does not open the files."
+              Optional FONTIFY colors the headlines. It might slow things down
+              a lot with large numbers of org-files or long org-files. This
+              function does not open the files."
              (let ((headlines '()))
                (loop for file in files do
                      (with-temp-buffer
@@ -809,8 +913,8 @@
 
            (defun ivy-org-jump-to-heading-in-directory (&optional recursive)
              "Jump to heading in an org file in the current directory.
-       Use a prefix arg to make it RECURSIVE.
-       Use a double prefix to make it recursive and fontified."
+              Use a prefix arg to make it RECURSIVE.
+              Use a double prefix to make it recursive and fontified."
              (interactive "P")
              (let ((fontify nil))
                (when (equal recursive '(16))
@@ -827,8 +931,8 @@
 
            (defun ivy-org-jump-to-project-headline (&optional fontify)
              "Jump to a headline in an org-file in the current project.
-       The project is defined by projectile. Use a prefix arg FONTIFY
-       for colored headlines."
+              The project is defined by projectile. Use a prefix arg FONTIFY
+              for colored headlines."
              (interactive "P")
              (ivy-org-jump-to-heading-in-files
               (mapcar
@@ -843,7 +947,7 @@
 
            (defun ivy-org-jump-to-open-headline (&optional fontify)
              "Jump to a headline in an open org-file.
-       Use a prefix arg FONTIFY for colored headlines."
+              Use a prefix arg FONTIFY for colored headlines."
              (interactive "P")
              (ivy-org-jump-to-heading-in-files
               (mapcar 'buffer-file-name
@@ -2355,6 +2459,59 @@ Para usr este paquete con  =org-mode=:
          (if (member project (pyenv-mode-versions))
              (pyenv-mode-set project)
            (pyenv-mode-unset))))
+
+     (defun nanounanue/punch-in (arg)
+       "Start continuous clocking and set the default task to the
+     selected task.  If no task is selected set the Organization task
+     as the default task."
+       (interactive "p")
+       (setq bh/keep-clock-running t)
+       (if (equal major-mode 'org-agenda-mode)
+           ;;
+           ;; We're in the agenda
+           ;;
+           (let* ((marker (org-get-at-bol 'org-hd-marker))
+                  (tags (org-with-point-at marker (org-get-tags-at))))
+             (if (and (eq arg 4) tags)
+                 (org-agenda-clock-in '(16))
+               (bh/clock-in-organization-task-as-default)))
+         ;;
+         ;; We are not in the agenda
+         ;;
+         (save-restriction
+           (widen)
+                                             ; Find the tags on the current task
+           (if (and (equal major-mode 'org-mode) (not (org-before-first-heading-p)) (eq arg 4))
+               (org-clock-in '(16))
+             (bh/clock-in-organization-task-as-default)))))
+
+     (defun nanounanue/punch-out ()
+       (interactive)
+       (setq bh/keep-clock-running nil)
+       (when (org-clock-is-active)
+         (org-clock-out))
+       (org-agenda-remove-restriction-lock))
+
+
+     (defvar nanounanue/insert-inactive-timestamp t)
+
+     (defun nanounanue/toggle-insert-inactive-timestamp ()
+       (interactive)
+       (setq bh/insert-inactive-timestamp (not bh/insert-inactive-timestamp))
+       (message "Heading timestamps are %s" (if bh/insert-inactive-timestamp "ON" "OFF")))
+
+     (defun nanounanue/insert-inactive-timestamp ()
+       (interactive)
+       (org-insert-time-stamp nil t t nil nil nil))
+
+     (defun nanounanue/insert-heading-inactive-timestamp ()
+       (save-excursion
+         (when bh/insert-inactive-timestamp
+           (org-return)
+           (org-cycle)
+           (bh/insert-inactive-timestamp))))
+
+     (add-hook 'org-insert-heading-hook 'nanounanue/insert-heading-inactive-timestamp 'append)
    #+END_SRC
 
    #+RESULTS:
@@ -2366,9 +2523,32 @@ Para usr este paquete con  =org-mode=:
    Inicializamos el server
 
    #+BEGIN_EXAMPLE emacs-lisp
-   (server-start)
+     (require 'server)
+     (if (not (server-running-p)) (server-start))
    #+END_EXAMPLE
 
+
+* Global Keybindings
+
+
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "<f8>") 'org-cycle-agenda-files)
+(global-set-key (kbd "<f9> b") 'bbdb)
+(global-set-key (kbd "<f9> c") 'calendar)
+(global-set-key (kbd "<f9> f") 'boxquote-insert-file)
+
+(global-set-key (kbd "<f9> I") 'nanounanue/punch-in)
+(global-set-key (kbd "<f9> O") 'nanounanue/punch-out)
+
+(global-set-key (kbd "<f9> t") 'bh/insert-inactive-timestamp)
+(global-set-key (kbd "<f9> T") 'bh/toggle-insert-inactive-timestamp)
+
+(global-set-key (kbd "<f9> SPC") 'bh/clock-in-last-task)
+
+(global-set-key (kbd "<f11>") 'org-clock-goto)
+(global-set-key (kbd "C-<f11>") 'org-clock-in)
+#+END_SRC
 
 * Preload
   :PROPERTIES:
