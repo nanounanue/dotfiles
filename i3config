@@ -202,7 +202,9 @@ client.background $transparent
 
 ## Programas al inicio
 exec_always --no-startup-id feh --bg-fill ~/Pictures/NS_MILKY_WAY_POSTER.jpg 
-
+exec_always emacs --daemon
+exec_always dropbox start
+exec_always /opt/Franz/franz
 
 
 ## Gaps
