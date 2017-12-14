@@ -1984,6 +1984,27 @@ In a later step it should be possible to create truly interleaved PDFs of your n
 
 #+RESULTS:
 
+*** =sql=
+
+#+begin_src emacs-lisp
+
+(add-to-list 'same-window-buffer-names "*SQL*")
+
+(setq sql-postgres-login-params
+      '((user :default "postgres")
+        (database :default "postgres")
+        (server :default "localhost")
+        (port :default 5432)))
+
+(add-hook 'sql-interactive-mode-hook
+          (lambda ()
+            (setq sql-prompt-regexp "^[_[:alpha:]]*[=][#>] ")
+            (setq sql-prompt-cont-regexp "^[_[:alpha:]]*[-][#>] ")
+            (toggle-truncate-lines t)))
+
+#+end_src
+
+
 *** =python=
 
 **** Global
@@ -3302,6 +3323,16 @@ Modificando un poquito =dired=
 ** Global Keybindings
 
 #+BEGIN_SRC emacs-lisp
+;; Start eshell or switch to it if it's active.
+(global-set-key (kbd "C-x m") 'eshell)
+
+;; Start a new eshell even if one is active.
+(global-set-key (kbd "C-x M") (lambda () (interactive) (eshell t)))
+
+
+(global-set-key (kbd "C-x g") 'magit-status)
+(global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
+
 (global-set-key [f8] 'neotree-toggle)
 
 (global-set-key (kbd "<f9> b") 'bbdb)
@@ -3322,6 +3353,9 @@ Modificando un poquito =dired=
 ;;(global-set-key (kbd "<f11>") 'org-clock-goto)
 ;;(global-set-key (kbd "C-<f11>") 'org-clock-in)
 #+END_SRC
+
+#+RESULTS:
+: org-agenda
 
 
 
