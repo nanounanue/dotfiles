@@ -4,6 +4,8 @@
 #+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/init.el
 #+STARTUP: showeverything
 #+STARTUP: nohideblocks
+#+STARTUP: indent
+
 
 * Intro
 
@@ -27,9 +29,6 @@ Es necesario preparar =emacs= para poder instalar paquetes
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
 (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
-(add-to-list 'package-archives '("elpy" . "https://jorgenschaefer.github.io/packages/"))
-
-
 #+END_SRC
 
 *** =use-package=
@@ -95,6 +94,16 @@ Tomadas desde [[https://github.com/hbin/top-programming-fonts][top-programming-f
 #+RESULTS:
 : ((font . Menlo:pixelsize=18))
 
+*** UTF-8
+    [2017-12-15 Fri 00:18]
+#+begin_src emacs-lisp
+;; UTF-8 please
+ (prefer-coding-system 'utf-8)
+ (set-default-coding-systems 'utf-8)
+ (set-terminal-coding-system 'utf-8)
+ (set-keyboard-coding-system 'utf-8)
+ (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
+#+end_src
 
 *** Acentos
     #+BEGIN_SRC emacs-lisp
@@ -103,6 +112,27 @@ Tomadas desde [[https://github.com/hbin/top-programming-fonts][top-programming-f
 
     #+RESULTS:
     : t
+
+*** highlights
+
+
+#+BEGIN_SRC emacs-lisp
+(use-package highlight-symbol
+  :ensure t
+  :commands highlight-symbol-mode
+  :init
+  (add-hook 'prog-mode-hook #'highlight-symbol-mode)
+  (add-hook 'matlab-mode-hook #'highlight-symbol-mode))
+(use-package highlight-parentheses
+  :ensure t
+  :commands highlight-parentheses-mode
+  :init
+  (add-hook 'org-mode-hook 'highlight-parentheses-mode)
+  (add-hook 'LaTeX-mode-hook 'highlight-parentheses-mode)
+  (add-hook 'python-mode-hook 'highlight-parentheses-mode))
+#+END_SRC
+
+#+RESULTS:
 
 *** Cosas a quitar
 
@@ -145,10 +175,12 @@ Y por supuesto no me gusta que haya toolbar, menubar, etc
 
 (setq inhibit-splash-screen t
       ring-bell-function 'ignore)
+
+;; Turn off the blinking cursor
+(blink-cursor-mode -1)
 #+end_src
 
 #+RESULTS:
-: ignore
 
 *** =smartparens=
 
@@ -167,6 +199,15 @@ Y por supuesto no me gusta que haya toolbar, menubar, etc
 
   ;; Do not pair simple quotes
   (sp-pair "'" nil :actions :rem)
+
+;; smart pairing for all
+(require 'smartparens-config)
+(setq sp-base-key-bindings 'paredit)
+(setq sp-autoskip-closing-pair 'always)
+(setq sp-hybrid-kill-entire-symbol nil)
+(sp-use-paredit-bindings)
+
+(show-smartparens-global-mode +1)
 )
 #+END_SRC
 
@@ -175,10 +216,13 @@ Y por supuesto no me gusta que haya toolbar, menubar, etc
 *** =rainbowdelimiters=
 
 #+BEGIN_SRC emacs-lisp
-  (use-package rainbow-delimiters
-    :commands (rainbow-delimiters-mode)
-    :init
-    (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+(use-package rainbow-delimiters
+  :ensure t
+  :commands rainbow-delimiters-mode
+  :init
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'LaTex-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'org-mode-hook 'rainbow-delimiters-mode))
 #+END_SRC
 
 
@@ -291,7 +335,12 @@ Y por supuesto no me gusta que haya toolbar, menubar, etc
   :config
 
   ;;
-  (setq recentf-max-menu-items 100)
+  (setq
+   recentf-max-saved-items 500
+   recentf-max-menu-items 15
+   ;; disable recentf-cleanup on Emacs start, because it can cause
+   ;; problems with remote files
+   recentf-auto-cleanup 'never)
 
   ;; Emacs
   (add-to-list 'recentf-exclude (format "%s/.orhc-bibtex-cache" (getenv "HOME")))
@@ -401,43 +450,50 @@ Y por supuesto no me gusta que haya toolbar, menubar, etc
 *** Temas
 
 #+BEGIN_SRC emacs-lisp
-(use-package doom-themes :defer t)
 (use-package material-theme :defer t)
-(use-package gruvbox-theme :defer t)
 (use-package ubuntu-theme :defer t)
 (use-package gotham-theme :defer t)
 (use-package django-theme :defer t)
 (use-package color-theme-sanityinc-tomorrow :defer t)
 (use-package creamsody-theme :defer t)
 (use-package monokai-theme :defer t)
-(use-package darkokai-theme :defer t)
 (use-package blackboard-theme :defer t)
 (use-package bubbleberry-theme :defer t)
+(use-package gruvbox-theme
+  :disabled t
+  :ensure t
+  :config (load-theme 'gruvbox-dark-medium t))
+(use-package darkokai-theme
+  :disabled t
+  :ensure t
+  :config
+  (setq darkokai-mode-line-padding 1)
+  (load-theme 'darkokai t))
+(use-package moe-theme
+  :disabled t
+  :ensure t
+  :config
+  (setq moe-theme-highlight-buffer-id nil)
+  (moe-dark))
+(use-package doom-themes
+  :ensure t
+  :config
+  ;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each theme
+  ;; may have their own settings.
+  (load-theme 'doom-one t)
+
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+
+  ;; Enable custom neotree theme
+  (doom-themes-neotree-config)  ; all-the-icons fonts must be installed!
+
+  ;; Corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config)
+  )
 #+END_SRC
 
 #+RESULTS:
-
-
-Por el momento me gusta este tema:
-
-#+BEGIN_SRC emacs-lisp
-;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each theme
-;; may have their own settings.
-(load-theme 'doom-one t)
-
-;; Enable flashing mode-line on errors
-(doom-themes-visual-bell-config)
-
-;; Enable custom neotree theme
-(doom-themes-neotree-config)  ; all-the-icons fonts must be installed!
-
-;; Corrects (and improves) org-mode's native fontification.
-(doom-themes-org-config)
-#+END_SRC
-
-#+RESULTS:
-: doom-themes-org
-
 
 
 *** =avy=
@@ -528,6 +584,11 @@ Set up company, i.e. code autocomplete
 #+BEGIN_SRC emacs-lisp
 (use-package company
   :ensure t
+  :init
+  (global-company-mode 1)
+  (add-hook 'prog-mode-hook 'company-mode)
+  (add-hook 'LaTeX-mode-hook 'company-mode)
+  (add-hook 'org-mode-hook 'company-mode)
   :config
   ;; Enable company mode everywhere
   (add-hook 'prog-mode-hook #'(lambda () (company-mode)))
@@ -537,14 +598,18 @@ Set up company, i.e. code autocomplete
   (define-key company-active-map (kbd "TAB") 'company-complete-common)
   ;; Set up M-h to see the documentation for items on the autocomplete menu
   (define-key company-active-map (kbd "M-h") 'company-show-doc-buffer)
-)
 
-(use-package company-jedi
-  :ensure t
-  :config
-  (defun nanounanue/python-mode-hook ()
-    (add-to-list 'company-backends 'company-jedi))
-  (add-hook 'python-mode-hook 'nanounanue/python-mode-hook))
+(setq company-show-numbers t)
+
+  (setq company-idle-delay 0.5)
+  (setq company-tooltip-limit 10)
+  (setq company-minimum-prefix-length 2)
+  ;; invert the navigation direction if the the completion popup-isearch-match
+  ;; is displayed on top (happens near the bottom of windows)
+  (setq company-tooltip-flip-when-above t)
+
+  )
+
 #+END_SRC
 
 #+RESULTS:
@@ -749,8 +814,59 @@ Si un archivo empieza con /she-bang/ =#!= , volverlo ejecutable
 
 #+RESULTS:
 
+*** Flycheck / Flyspell
+
+Por último, validadores
+
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck
+  :ensure t
+  :commands flycheck-mode
+  :init
+  (add-hook 'prog-mode-hook 'flycheck-mode)
+  :config
+  (setq flycheck-highlighting-mode 'lines)
+  (setq flycheck-indication-mode nil)
+  (setq flycheck-display-errors-delay 1.5)
+  (setq flycheck-idle-change-delay 3)
+  (setq flycheck-check-syntax-automatically '(mode-enabled save))
+
+  (flycheck-define-checker proselint
+    "A linter for prose."
+    :command ("proselint" source-inplace)
+    :error-patterns
+    ((warning line-start (file-name) ":" line ":" column ": "
+              (id (one-or-more (not (any " "))))
+              (message) line-end))
+    :modes (text-mode markdown-mode gfm-mode))
+
+  (add-to-list 'flycheck-checkers 'proselint))
+(use-package flyspell
+  :commands flyspell-mode
+  :init
+  (add-hook 'LaTeX-mode-hook 'flyspell-mode)
+  :config
+  (setq ispell-program-name "hunspell")
+  (setq ispell-local-dictionary "en_US")
+  (setq ispell-local-dictionary-alist
+        '(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil nil nil utf-8)
+          ("es_MX" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil nil nil utf-8)))
+  (flyspell-mode 1))
+(use-package flyspell-correct-ivy
+  :ensure t
+  :after flyspell
+  :bind (:map flyspell-mode-map
+              ("C-c C-SPC" . flyspell-correct-word-generic)))
+#+END_SRC
+
+#+RESULTS:
+: flyspell-correct-word-generic
+
 
 ** Major modes
+
+
+
 
 *** TeX
 
@@ -1524,16 +1640,16 @@ Esto es requerido por algunos paquetes
   :config
   ;; Define the templates
   (setq org-structure-template-alist
-        '(("s" "#+begin_src ?\n\n#+end_src" "<src lang=\"?\">\n\n</src>")
-          ("e" "#+begin_example\n?\n#+end_example" "<example>\n?\n</example>")
-          ("q" "#+begin_quote\n?\n#+end_quote" "<quote>\n?\n</quote>")
-          ("v" "#+begin_verse\n?\n#+end_verse" "<verse>\n?\n/verse>")
-          ("c" "#+begin_center\n?\n#+end_center" "<center>\n?\n/center>")
-          ("l" "#+begin_latex\n?\n#+end_latex" "<literal style=\"latex\">\n?\n</literal>")
+        '(("s" "#+BEGIN_SRC ?\n\n#+END_SRC" "<src lang=\"?\">\n\n</src>")
+          ("e" "#+BEGIN_EXAMPLE\n?\n#+END_EXAMPLE" "<example>\n?\n</example>")
+          ("q" "#+BEGIN_QUOTE\n?\n#+END_QUOTE" "<quote>\n?\n</quote>")
+          ("v" "#+BEGIN_VERSE\n?\n#+END_VERSE" "<verse>\n?\n/verse>")
+          ("c" "#+BEGIN_CENTER\n?\n#+END_CENTER" "<center>\n?\n/center>")
+          ("l" "#+BEGIN_LATEX\n?\n#+END_LATEX" "<literal style=\"latex\">\n?\n</literal>")
           ("L" "#+latex: " "<literal style=\"latex\">?</literal>")
-          ("h" "#+begin_html\n?\n#+end_html" "<literal style=\"html\">\n?\n</literal>")
+          ("h" "#+BEGIN_HTML\n?\n#+END_HTML" "<literal style=\"html\">\n?\n</literal>")
           ("H" "#+html: " "<literal style=\"html\">?</literal>")
-          ("a" "#+begin_ascii\n?\n#+end_ascii")
+          ("a" "#+BEGIN_ASCII\n?\n#+END_ASCII")
           ("A" "#+ascii: ")
           ("i" "#+index: ?" "#+index: ?")
           ("I" "#+include: %file ?" "<include file=%file markup=\"?\">")))
@@ -1949,22 +2065,6 @@ In a later step it should be possible to create truly interleaved PDFs of your n
      #+RESULTS:
      : org-attach-screenshot
 
-# **** Calendario visual: =calfw=
-
-#      Para configuración y =keybindings= se puede consultar  [[http://jameswilliams.be/blog/2016/01/11/Taming-Your-GCal.html][Taming Google Calendar With Org-Mode]]
-
-#      #+BEGIN_SRC emacs-lisp
-
-#        (use-package calfw
-#          :ensure t
-#          :bind ((""))
-#          :config
-#          (require 'calfw-org)
-#          )
-
-#      #+END_SRC
-
-#      #+RESULTS:
 
 *** Elisp
 
@@ -2009,95 +2109,75 @@ In a later step it should be possible to create truly interleaved PDFs of your n
 
 **** Global
 
-#+BEGIN_SRC emacs-lisp
-(setq tab-width     4
-      python-indent 4
-      python-indent-offset 4)
-#+END_SRC
+Basado en [[http://nasseralkmim.github.io/notes/2017/03/11/minimalist-python-developement-environment-in-emacs/][Minimalist Python development environment in Emacs]]
 
-#+RESULTS:
-: 4
-
-**** Anaconda
-
-#+BEGIN_SRC emacs-lisp
-(use-package anaconda-mode
-  :ensure t
-  :init
+#+begin_src emacs-lisp
+(use-package python
+  :mode ("\\.py\\'" . python-mode)
+  :interpreter ("python" . python-mode)
+  :config
+  (add-hook 'python-mode-hook 'smartparens-mode)
+  (add-hook 'python-mode-hook 'rainbow-delimiters-mode)
+  (add-hook 'python-mode-hook 'company-mode)
+  (add-hook 'python-mode-hook 'yas-minor-mode)
+  (add-hook 'python-mode-hook 'highlight-indent-guides-mode)
   (add-hook 'python-mode-hook 'anaconda-mode)
-  (add-hook 'python-mode-hook 'anaconda-eldoc-mode))
 
-(use-package company-anaconda
-  :ensure t
-  :after company
-  :after anaconda
-  :config
-  (add-to-list 'company-backends '(company-anaconda :with company-capf)))
-#+END_SRC
+;;  (require 'flycheck-pyflakes)
+  (add-hook 'python-mode-hook 'flycheck-mode)
+  (add-to-list 'flycheck-disabled-checkers 'python-flake8)
+  (add-to-list 'flycheck-disabled-checkers 'python-pylint)
 
-#+RESULTS:
-
-**** Sphinx
-
-#+BEGIN_SRC emacs-lisp
-(use-package sphinx-doc
-  :ensure t
-  :config
-  (add-hook 'python-mode-hook
-            (lambda ()
-              (sphinx-doc-mode t))))
-#+END_SRC
-
-#+RESULTS:
-: t
-
-**** Elpy
-
-  #+BEGIN_SRC emacs-lisp
+  (setq warning-suppress-types '((python)
+                                 (emacs)))
 
 
-  ; Set up elpy for Python in Emacs
-  (use-package elpy
+  (use-package anaconda-mode
     :ensure t
-    :pin elpy
-    :after flycheck
+    :bind ("C-c C-d" . anaconda-mode-show-doc)
     :config
-    (elpy-enable)
-    ;; Enable elpy in a Python mode
-    (add-hook 'python-mode-hook 'elpy-mode)
-    (elpy-use-ipython)
-    (setq elpy-rpc-backend "jedi")
-    ;; Open the Python shell in a buffer after sending code to it
-    (add-hook 'inferior-python-mode-hook 'python-shell-switch-to-shell)
-    ;; Use IPython as the default shell, with a workaround to accommodate IPython 5
-    ;; https://emacs.stackexchange.com/questions/24453/weird-shell-output-when-using-ipython-5  (setq python-shell-interpreter "ipython")
-    (setq python-shell-interpreter-args "--simple-prompt -i")
-    ;; Enable pyvenv, which manages Python virtual environments
-    (pyvenv-mode 1)
-    ;; Tell Python debugger (pdb) to use the current virtual environment
-    ;; https://emacs.stackexchange.com/questions/17808/enable-python-pdb-on-emacs-with-virtualenv
-    (setq gud-pdb-command-name "python -m pdb "))
-  #+END_SRC
+    (setq python-shell-interpreter "ipython")
 
-  #+RESULTS:
+    )
 
+  (use-package company-anaconda
+    :ensure t
+    :init
+    (eval-after-load "company"
+      '(add-to-list 'company-backends '(company-anaconda :with company-capf))))
 
-*** =pyenv=
+  (use-package highlight-indent-guides
+    :ensure t
+    :config
+    (setq highlight-indent-guides-method 'character))
 
-    #+BEGIN_SRC emacs-lisp
-      (use-package pyenv-mode
-        :ensure t
-        :bind (("C-c v s" . pyenv-mode-set)
-               ("C-c v u" . pyenv-mode-unset))
-        :config
-        (pyenv-mode)
+  (use-package sphinx-doc
+    :ensure t
+    :config
+    (add-hook 'python-mode-hook
+              (lambda ()
+                (sphinx-doc-mode t))))
 
-        ;(add-hook 'projectile-switch-project-hook 'nanounanue/projectile-pyenv-mode-set)
-        )
-    #+END_SRC
+  (use-package pyenv-mode
+    :ensure t
+    :bind (("C-c v s" . pyenv-mode-set)
+           ("C-c v u" . pyenv-mode-unset))
+    :config
+    (pyenv-mode)
+    (add-hook 'projectile-switch-project-hook 'nanounanue/projectile-pyenv-mode-set)
+    )
 
-    #+RESULTS:
-	: pyenv-mode-unset
+  (use-package pyenv-mode-auto
+    :ensure t
+    :config
+    (require 'pyenv-mode-auto)
+    )
+  )
+#+end_src
+
+#+RESULTS:
+: ((r . r-mode) (Rscript . r-mode) (python . python-mode) (ruby1.8 . ruby-mode) (ruby1.9 . ruby-mode) (jruby . ruby-mode) (rbx . ruby-mode) (ruby . ruby-mode) (python[0-9.]* . python-mode) (rhino . js-mode) (gjs . js-mode) (nodejs . js-mode) (node . js-mode) (gawk . awk-mode) (nawk . awk-mode) (mawk . awk-mode) (awk . awk-mode) (pike . pike-mode) (\(mini\)?perl5? . perl-mode) (wishx? . tcl-mode) (tcl\(sh\)? . tcl-mode) (expect . tcl-mode) (octave . octave-mode) (scm . scheme-mode) ([acjkwz]sh . sh-mode) (r?bash2? . sh-mode) (dash . sh-mode) (mksh . sh-mode) (\(dt\|pd\|w\)ksh . sh-mode) (es . sh-mode) (i?tcsh . sh-mode) (oash . sh-mode) (rc . sh-mode) (rpm . sh-mode) (sh5? . sh-mode) (tail . text-mode) (more . text-mode) (less . text-mode) (pg . text-mode) (make . makefile-gmake-mode) (guile . scheme-mode) (clisp . lisp-mode) (emacs . emacs-lisp-mode))
+
 
 
 *** Scala
@@ -2837,23 +2917,33 @@ Para usr este paquete con  =org-mode=:
     (no me gusta que se parta horizontalmente)
 
     *NOTA*: No es necesario si ejecuta bien todo el proceso
+    #+RESULTS:
+
     #+BEGIN_SRC emacs-lisp
       ;;(setq split-height-threshold nil)
       ;;(setq split-width-threshold 80)
     #+END_SRC
-
-    #+RESULTS:
 
 *** NeoTree
 
 #+BEGIN_SRC emacs-lisp
 (use-package neotree
   :ensure t
+
+  :config
+  (setq neo-smart-open t)
+  (setq neo-vc-integration nil)
+  ;; Do not allow neotree to be the only open window
+  (setq-default neo-dont-be-alone t)
+  (setq neo-fit-to-contents nil)
+  (setq neo-theme 'arrow)
+  (setq neo-window-fixed-size nil)
   )
 
 #+END_SRC
 
 #+RESULTS:
+: t
 
 +RESULTS:
 
@@ -3671,6 +3761,117 @@ _k_: previous error    _l_: last error
 #+RESULTS:
 : t
 
+** uniquify
+
+#+begin_src emacs-lisp
+(use-package uniquify
+  :ensure nil
+  :config
+  (setq uniquify-buffer-name-style 'forward)
+  (setq uniquify-separator "/")
+  (setq uniquify-after-kill-buffer-p t)    ; rename after killing uniquified
+  (setq uniquify-ignore-buffers-re "^\\*") ; don't muck with special buffers
+)
+#+end_src
+
+#+RESULTS:
+: t
+
+** savehist
+
+#+begin_src emacs-lisp
+(use-package savehist
+  :ensure t
+  :init
+  (savehist-mode +1)
+  :config
+  ;; savehist keeps track of some history
+  (setq savehist-additional-variables
+        ;; search entries
+        '(search-ring regexp-search-ring)
+        ;; save every minute
+        savehist-autosave-interval 60
+        ;; keep the home clean
+        ;;savehist-file (expand-file-name "savehist" prelude-savefile-dir)
+)
+
+  )
+#+end_src
+
+#+RESULTS:
+: t
+
+** windmove
+
+#+begin_src emacs-lisp
+(use-package windmove
+  :ensure t
+  :config
+  ;; use shift + arrow keys to switch between visible buffers
+  (windmove-default-keybindings)
+  )
+#+end_src
+
+#+RESULTS:
+: t
+
+** Dired
+
+#+begin_src emacs-lisp
+;; dired - reuse current buffer by pressing 'a'
+(put 'dired-find-alternate-file 'disabled nil)
+
+;; always delete and copy recursively
+(setq dired-recursive-deletes 'always)
+(setq dired-recursive-copies 'always)
+
+;; if there is a dired buffer displayed in the next window, use its
+;; current subdir, instead of the current subdir of this dired buffer
+(setq dired-dwim-target t)
+
+;; enable some really cool extensions like C-x C-j(dired-jump)
+(require 'dired-x)
+
+;; ediff - don't start another frame
+(require 'ediff)
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+
+;; clean up obsolete buffers automatically
+(require 'midnight)
+#+end_src
+
+#+RESULTS:
+: midnight
+
+
+* Edición en general
+
+#+begin_src emacs-lisp
+(setq-default indent-tabs-mode nil)   ;; don't use tabs to indent
+(setq-default tab-width 8)            ;; but maintain correct appearance
+
+
+;; Newline at end of file
+(setq require-final-newline t)
+
+;; delete the selection with a keypress
+(delete-selection-mode t)
+
+;; revert buffers automatically when underlying files are changed externally
+(global-auto-revert-mode t)
+
+;; disable annoying blink-matching-paren
+(setq blink-matching-paren nil)
+
+;; highlight the current line
+(global-hl-line-mode +1)
+
+;; saner regex syntax
+(require 're-builder)
+(setq reb-re-syntax 'string)
+
+#+end_src
+
 
 * Daemon  mode
 
@@ -3684,13 +3885,3 @@ _k_: previous error    _l_: last error
    #+END_SRC
 
    #+RESULTS:
-
-
-* Preload
-  #+BEGIN_SRC emacs-lisp
-    ;; Cambia la fuente de GNu/Emacs
-    ;;(setq default-frame-alist '((font . "Source Code Pro-11")))
-  #+END_SRC
-
-  #+RESULTS:
-  : ((font . Source Code Pro-11))
