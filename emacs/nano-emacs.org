@@ -182,6 +182,20 @@ Y por supuesto no me gusta que haya toolbar, menubar, etc
 
 #+RESULTS:
 
+*** =ag= silversearcher
+
+Requiere la instalación de =ag=:
+
+#+BEGIN_EXAMPLE
+sudo  apt install silversearcher-ag
+#+END_EXAMPLE
+
+#+BEGIN_SRC emacs-lisp
+(use-package ag
+  :ensure t)
+#+END_SRC
+
+
 *** =smartparens=
 
 #+BEGIN_SRC emacs-lisp
@@ -2121,6 +2135,12 @@ Basado en [[http://nasseralkmim.github.io/notes/2017/03/11/minimalist-python-dev
   (add-hook 'python-mode-hook 'company-mode)
   (add-hook 'python-mode-hook 'yas-minor-mode)
   (add-hook 'python-mode-hook 'highlight-indent-guides-mode)
+  (add-hook 'python-mode-hook
+	    (lambda ()
+		    (setq-default indent-tabs-mode t)
+		    (setq-default tab-width 4)
+		    (setq-default py-indent-tabs-mode t)
+	    (add-to-list 'write-file-functions 'delete-trailing-whitespace)))
   (add-hook 'python-mode-hook 'anaconda-mode)
 
 ;;  (require 'flycheck-pyflakes)
