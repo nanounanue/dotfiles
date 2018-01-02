@@ -427,8 +427,8 @@ sudo  apt install silversearcher-ag
 
 #+BEGIN_SRC emacs-lisp
 (use-package counsel-projectile
-  :ensure t
-  :after projectile)
+ :ensure t
+ :after projectile)
 #+END_SRC
 
 #+RESULTS:
@@ -729,12 +729,7 @@ Set up company, i.e. code autocomplete
         :ensure t
         )
 
-      (use-package counsel-projectile
-        :ensure t
-        :after counsel
-        :config
-        (counsel-projectile-on)
-        )
+
     #+END_SRC
 
     #+RESULTS:
@@ -761,6 +756,14 @@ Set up company, i.e. code autocomplete
 
 #+RESULTS:
 : t
+
+**** =yasnippet-snippets=
+
+#+BEGIN_SRC emacs-lisp
+(use-package  yasnippet-snippets
+  :ensure t)
+#+END_SRC
+
 
 *** Arreglando otras cosas de GNU/Emacs
 
@@ -1227,15 +1230,15 @@ Esto es requerido por algunos paquetes
        :ensure t
        :mode ("\\.org\\'" . org-mode)
        :bind (("C-c l" . org-store-link)
-	      ("C-c c" . org-capture)
-	      ("C-c a" . org-agenda)
-	      ("C-c b" . org-iswitchb)
-	      ("C-c C-w" . org-refile)
-	      ("C-c C-v t" . org-babel-tangle)
-	      ("C-c C-v f" . org-babel-tangle-file)
-	      ("C-c j" . org-clock-goto)
-	      ("C-c C-x C-o" . org-clock-out)
-	      )
+              ("C-c c" . org-capture)
+              ("C-c a" . org-agenda)
+              ("C-c b" . org-iswitchb)
+              ("C-c C-w" . org-refile)
+              ("C-c C-v t" . org-babel-tangle)
+              ("C-c C-v f" . org-babel-tangle-file)
+              ("C-c j" . org-clock-goto)
+              ("C-c C-x C-o" . org-clock-out)
+              )
 
        :init
        (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
@@ -1245,10 +1248,10 @@ Esto es requerido por algunos paquetes
 
 
        (add-hook 'org-mode-hook
-		 (lambda ()
-		   (let ((lines (count-lines (point-min) (point-max))))
-		     (when (< lines 500)
-		       (linum-mode)))))
+                 (lambda ()
+                   (let ((lines (count-lines (point-min) (point-max))))
+                     (when (< lines 500)
+                       (linum-mode)))))
 
        :config
 
@@ -1271,16 +1274,16 @@ Esto es requerido por algunos paquetes
 
        ;; kill a subtree
        (add-to-list 'org-speed-commands-user (cons "k" (lambda ()
-							 (org-mark-subtree)
-							 (kill-region
-							  (region-beginning)
-							  (region-end)))))
+                                                         (org-mark-subtree)
+                                                         (kill-region
+                                                          (region-beginning)
+                                                          (region-end)))))
 
        ;; Jump to headline
        (add-to-list 'org-speed-commands-user
-		    (cons "q" (lambda ()
-				(avy-with avy-goto-line
-					  (avy--generic-jump "^\\*+" nil avy-style)))))
+                    (cons "q" (lambda ()
+                                (avy-with avy-goto-line
+                                          (avy--generic-jump "^\\*+" nil avy-style)))))
 
 
        ;; Enable pretty entities - shows e.g. α β γ as UTF-8 characters.
@@ -1303,32 +1306,32 @@ Esto es requerido por algunos paquetes
        ;;(setq org-agenda-files '())
 
        (setq org-agenda-files (quote ("~/Dropbox/org"
-				      "~/Dropbox/org/research.org"
-				      "~/Dropbox/org/consultancy.org"
-				      "~/Dropbox/org/previta.org"
-				      "~/Dropbox/org/anglobal.org"
-				      "~/Dropbox/org/datank.org"
-				      "~/Dropbox/org/dsapp.org"
-				      "~/Dropbox/org/gasolinerias.org"
-				      "~/Dropbox/org/ligamx.org"
-				      "~/Dropbox/org/vigilamos.org"
-				      "~/Dropbox/org/personal.org"
-				      "~/Dropbox/org/proyectos.org"
-				      )))
+                                      "~/Dropbox/org/research.org"
+                                      "~/Dropbox/org/consultancy.org"
+                                      "~/Dropbox/org/previta.org"
+                                      "~/Dropbox/org/anglobal.org"
+                                      "~/Dropbox/org/datank.org"
+                                      "~/Dropbox/org/dsapp.org"
+                                      "~/Dropbox/org/gasolinerias.org"
+                                      "~/Dropbox/org/ligamx.org"
+                                      "~/Dropbox/org/vigilamos.org"
+                                      "~/Dropbox/org/personal.org"
+                                      "~/Dropbox/org/proyectos.org"
+                                      )))
 
 
 
        (when (file-exists-p "~/Dropbox/org/todo/todo.org")
-	 (setq org-agenda-files
-	       (append org-agenda-files '("~/Dropbox/org/todo/todo.org"))))
+         (setq org-agenda-files
+               (append org-agenda-files '("~/Dropbox/org/todo/todo.org"))))
 
        (when (file-exists-p "~/Dropbox/org/organisation/bookmarks.org")
-	 (setq org-agenda-files
-	       (append org-agenda-files '("~/Dropbox/org/organisation/bookmarks.org"))))
+         (setq org-agenda-files
+               (append org-agenda-files '("~/Dropbox/org/organisation/bookmarks.org"))))
 
        (when (file-exists-p "~/Calendars")
-	 (setq org-agenda-files
-	       (append org-agenda-files (directory-files "~/Calendars/" t "^.*\\.org$"))))
+         (setq org-agenda-files
+               (append org-agenda-files (directory-files "~/Calendars/" t "^.*\\.org$"))))
 
 
        ;; I don't want to see things that are done. turn that off here.
@@ -1345,105 +1348,105 @@ Esto es requerido por algunos paquetes
        (setq org-upcoming-deadline '(:foreground "blue" :weight bold))
 
        (setq org-agenda-custom-commands
-	     '(("w" "Weekly Review"
-		( ;; deadlines
-		 (tags-todo "+DEADLINE<=\"<today>\""
-			    ((org-agenda-overriding-header "Late Deadlines")))
-		 ;; scheduled  past due
-		 (tags-todo "+SCHEDULED<=\"<today>\""
-			    ((org-agenda-overriding-header "Late Scheduled")))
+             '(("w" "Weekly Review"
+                ( ;; deadlines
+                 (tags-todo "+DEADLINE<=\"<today>\""
+                            ((org-agenda-overriding-header "Late Deadlines")))
+                 ;; scheduled  past due
+                 (tags-todo "+SCHEDULED<=\"<today>\""
+                            ((org-agenda-overriding-header "Late Scheduled")))
 
-		 ;; now the agenda
-		 (agenda ""
-			 ((org-agenda-overriding-header "weekly agenda")
-			  (org-agenda-ndays 7)
-			  (org-agenda-tags-todo-honor-ignore-options t)
-			  (org-agenda-todo-ignore-scheduled nil)
-			  (org-agenda-todo-ignore-deadlines nil)
-			  (org-deadline-warning-days 0)))
-		 ;; and last a global todo list
-		 (todo "TODO")))
-	       ("d" "Agenda diaria"
-		((tags "PRIORIY=\"A\""
-		       ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-			(org-agenda-overriding-header "Tasks de alta prioridad sin terminar:")))
-		 (agenda "" ((org-agenda-ndays 1)))
-		 (alltodo ""
-			  ((org-agendaskip-function
-			    '(or (nanounanue/org-skip-subtree-if-priority ?A)
-				(org-agenda-skip-if nil '(scheduled deadline))))
-			   (org-agenda-overriding-header "ALL tasks de prioridad normal:"))))
-		)
-	       ("N" "Notes" tags "NOTE"
-		((org-agenda-overriding-header "Notes")
-		 (org-tags-match-list-sublevels t))
-		)
-	       (" " "Agenda"
-		((agenda "" nil)
-		 (tags "REFILE"
-		       ((org-agenda-overriding-header "Tasks to Refile")
-			(org-tags-match-list-sublevels nil)))
-		 (tags-todo "-CANCELLED/!"
-			    ((org-agenda-overriding-header "Stuck Projects")
-			     (org-agenda-skip-function 'nanounanue/skip-non-stuck-projects)
-			     (org-agenda-sorting-strategy
-			      '(category-keep))))
-		 (tags-todo "-HOLD-CANCELLED/!"
-			    ((org-agenda-overriding-header "Projects")
-			     (org-agenda-skip-function 'nanounanue/skip-non-projects)
-			     (org-tags-match-list-sublevels 'indented)
-			     (org-agenda-sorting-strategy
-			      '(category-keep))))
-		 (tags-todo "-CANCELLED/!NEXT"
-			    ((org-agenda-overriding-header (concat "Project Next Tasks"
-								   (if nanounanue/hide-scheduled-and-waiting-next-tasks
-								       ""
-								     " (including WAITING and SCHEDULED tasks)")))
-			     (org-agenda-skip-function 'nanounanue/skip-projects-and-habits-and-single-tasks)
-			     (org-tags-match-list-sublevels t)
-			     (org-agenda-todo-ignore-scheduled nanounanue/hide-scheduled-and-waiting-next-tasks)
-			     (org-agenda-todo-ignore-deadlines nanounanue/hide-scheduled-and-waiting-next-tasks)
-			     (org-agenda-todo-ignore-with-date nanounanue/hide-scheduled-and-waiting-next-tasks)
-			     (org-agenda-sorting-strategy
-			      '(todo-state-down effort-up category-keep))))
-		 (tags-todo "-REFILE-CANCELLED-WAITING-HOLD/!"
-			    ((org-agenda-overriding-header (concat "Project Subtasks"
-								   (if nanounanue/hide-scheduled-and-waiting-next-tasks
-								       ""
-								     " (including WAITING and SCHEDULED tasks)")))
-			     (org-agenda-skip-function 'nanounanue/skip-non-project-tasks)
-			     (org-agenda-todo-ignore-scheduled nanounanue/hide-scheduled-and-waiting-next-tasks)
-			     (org-agenda-todo-ignore-deadlines nanounanue/hide-scheduled-and-waiting-next-tasks)
-			     (org-agenda-todo-ignore-with-date nanounanue/hide-scheduled-and-waiting-next-tasks)
-			     (org-agenda-sorting-strategy
-			      '(category-keep))))
-		 (tags-todo "-REFILE-CANCELLED-WAITING-HOLD/!"
-			    ((org-agenda-overriding-header (concat "Standalone Tasks"
-								   (if nanounanue/hide-scheduled-and-waiting-next-tasks
-								       ""
-								     " (including WAITING and SCHEDULED tasks)")))
-			     (org-agenda-skip-function 'nanounanue/skip-project-tasks)
-			     (org-agenda-todo-ignore-scheduled nanounanue/hide-scheduled-and-waiting-next-tasks)
-			     (org-agenda-todo-ignore-deadlines nanounanue/hide-scheduled-and-waiting-next-tasks)
-			     (org-agenda-todo-ignore-with-date nanounanue/hide-scheduled-and-waiting-next-tasks)
-			     (org-agenda-sorting-strategy
-			      '(category-keep))))
-		 (tags-todo "-CANCELLED+WAITING|HOLD/!"
-			    ((org-agenda-overriding-header (concat "Waiting and Postponed Tasks"
-								   (if nanounanue/hide-scheduled-and-waiting-next-tasks
-								       ""
-								     " (including WAITING and SCHEDULED tasks)")))
-			     (org-agenda-skip-function 'nanounanue/skip-non-tasks)
-			     (org-tags-match-list-sublevels nil)
-			     (org-agenda-todo-ignore-scheduled nanounanue/hide-scheduled-and-waiting-next-tasks)
-			     (org-agenda-todo-ignore-deadlines nanounanue/hide-scheduled-and-waiting-next-tasks)))
-		 (tags "-REFILE/"
-		       ((org-agenda-overriding-header "Tasks to Archive")
-			(org-agenda-skip-function 'nanounanue/skip-non-archivable-tasks)
-			(org-tags-match-list-sublevels nil))))
-		nil))
+                 ;; now the agenda
+                 (agenda ""
+                         ((org-agenda-overriding-header "weekly agenda")
+                          (org-agenda-ndays 7)
+                          (org-agenda-tags-todo-honor-ignore-options t)
+                          (org-agenda-todo-ignore-scheduled nil)
+                          (org-agenda-todo-ignore-deadlines nil)
+                          (org-deadline-warning-days 0)))
+                 ;; and last a global todo list
+                 (todo "TODO")))
+               ("d" "Agenda diaria"
+                ((tags "PRIORIY=\"A\""
+                       ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                        (org-agenda-overriding-header "Tasks de alta prioridad sin terminar:")))
+                 (agenda "" ((org-agenda-ndays 1)))
+                 (alltodo ""
+                          ((org-agendaskip-function
+                            '(or (nanounanue/org-skip-subtree-if-priority ?A)
+                                 (org-agenda-skip-if nil '(scheduled deadline))))
+                           (org-agenda-overriding-header "ALL tasks de prioridad normal:"))))
+                )
+               ("N" "Notes" tags "NOTE"
+                ((org-agenda-overriding-header "Notes")
+                 (org-tags-match-list-sublevels t))
+                )
+               (" " "Agenda"
+                ((agenda "" nil)
+                 (tags "REFILE"
+                       ((org-agenda-overriding-header "Tasks to Refile")
+                        (org-tags-match-list-sublevels nil)))
+                 (tags-todo "-CANCELLED/!"
+                            ((org-agenda-overriding-header "Stuck Projects")
+                             (org-agenda-skip-function 'nanounanue/skip-non-stuck-projects)
+                             (org-agenda-sorting-strategy
+                              '(category-keep))))
+                 (tags-todo "-HOLD-CANCELLED/!"
+                            ((org-agenda-overriding-header "Projects")
+                             (org-agenda-skip-function 'nanounanue/skip-non-projects)
+                             (org-tags-match-list-sublevels 'indented)
+                             (org-agenda-sorting-strategy
+                              '(category-keep))))
+                 (tags-todo "-CANCELLED/!NEXT"
+                            ((org-agenda-overriding-header (concat "Project Next Tasks"
+                                                                   (if nanounanue/hide-scheduled-and-waiting-next-tasks
+                                                                       ""
+                                                                     " (including WAITING and SCHEDULED tasks)")))
+                             (org-agenda-skip-function 'nanounanue/skip-projects-and-habits-and-single-tasks)
+                             (org-tags-match-list-sublevels t)
+                             (org-agenda-todo-ignore-scheduled nanounanue/hide-scheduled-and-waiting-next-tasks)
+                             (org-agenda-todo-ignore-deadlines nanounanue/hide-scheduled-and-waiting-next-tasks)
+                             (org-agenda-todo-ignore-with-date nanounanue/hide-scheduled-and-waiting-next-tasks)
+                             (org-agenda-sorting-strategy
+                              '(todo-state-down effort-up category-keep))))
+                 (tags-todo "-REFILE-CANCELLED-WAITING-HOLD/!"
+                            ((org-agenda-overriding-header (concat "Project Subtasks"
+                                                                   (if nanounanue/hide-scheduled-and-waiting-next-tasks
+                                                                       ""
+                                                                     " (including WAITING and SCHEDULED tasks)")))
+                             (org-agenda-skip-function 'nanounanue/skip-non-project-tasks)
+                             (org-agenda-todo-ignore-scheduled nanounanue/hide-scheduled-and-waiting-next-tasks)
+                             (org-agenda-todo-ignore-deadlines nanounanue/hide-scheduled-and-waiting-next-tasks)
+                             (org-agenda-todo-ignore-with-date nanounanue/hide-scheduled-and-waiting-next-tasks)
+                             (org-agenda-sorting-strategy
+                              '(category-keep))))
+                 (tags-todo "-REFILE-CANCELLED-WAITING-HOLD/!"
+                            ((org-agenda-overriding-header (concat "Standalone Tasks"
+                                                                   (if nanounanue/hide-scheduled-and-waiting-next-tasks
+                                                                       ""
+                                                                     " (including WAITING and SCHEDULED tasks)")))
+                             (org-agenda-skip-function 'nanounanue/skip-project-tasks)
+                             (org-agenda-todo-ignore-scheduled nanounanue/hide-scheduled-and-waiting-next-tasks)
+                             (org-agenda-todo-ignore-deadlines nanounanue/hide-scheduled-and-waiting-next-tasks)
+                             (org-agenda-todo-ignore-with-date nanounanue/hide-scheduled-and-waiting-next-tasks)
+                             (org-agenda-sorting-strategy
+                              '(category-keep))))
+                 (tags-todo "-CANCELLED+WAITING|HOLD/!"
+                            ((org-agenda-overriding-header (concat "Waiting and Postponed Tasks"
+                                                                   (if nanounanue/hide-scheduled-and-waiting-next-tasks
+                                                                       ""
+                                                                     " (including WAITING and SCHEDULED tasks)")))
+                             (org-agenda-skip-function 'nanounanue/skip-non-tasks)
+                             (org-tags-match-list-sublevels nil)
+                             (org-agenda-todo-ignore-scheduled nanounanue/hide-scheduled-and-waiting-next-tasks)
+                             (org-agenda-todo-ignore-deadlines nanounanue/hide-scheduled-and-waiting-next-tasks)))
+                 (tags "-REFILE/"
+                       ((org-agenda-overriding-header "Tasks to Archive")
+                        (org-agenda-skip-function 'nanounanue/skip-non-archivable-tasks)
+                        (org-tags-match-list-sublevels nil))))
+                nil))
 
-	     )
+             )
 
 
        ;; record time I finished a task when I change it to DONE
@@ -1483,21 +1486,21 @@ Esto es requerido por algunos paquetes
 
        ;; Capture
        (setq org-capture-templates
-	     (quote (("t" "todo" entry (file "~/Dropbox/org/refile.org")
-		      "* ▶ TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
-		     ("R" "respond" entry (file "~/Dropbox/org/refile.org")
-		      "* ★ NEXT Respond to %:from on %:subject\nSCHEDULED: %t\n%U\n%a\n" :clock-in t :clock-resume t )
-		     ("n" "note" entry (file "~/Dropbox/org/refile.org")
-		      "* 🗒 %?:NOTE\n%U\n%a\n" :clock-in t :clock-resume t)
-		     ("r" "research" entry (file "~/Dropbox/org/research.org")
-		      "* %? :IDEA:\n%U\n%a\n" :clock-in t :clock-resume t)
-		     ("j" "Journal" entry (file+datetree "~/Dropbox/org/diary.org")
-		      "* %?\n%U\n" :clock-in t :clock-resume t)
-		     ("i" "idea" entry (file+headline "~/Dropbox/org/ideas.org" "Someday/Maybe")
-		      "💡 IDEA %?\nAgregada: %U\n" :prepend t :kill-buffer )
-		     ("m" "Meeting" entry (file "~/Dropbox/org/refile.org")
-		      "* ⛹ MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
-		     )))
+             (quote (("t" "todo" entry (file "~/Dropbox/org/refile.org")
+                      "* ▶ TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
+                     ("R" "respond" entry (file "~/Dropbox/org/refile.org")
+                      "* ★ NEXT Respond to %:from on %:subject\nSCHEDULED: %t\n%U\n%a\n" :clock-in t :clock-resume t )
+                     ("n" "note" entry (file "~/Dropbox/org/refile.org")
+                      "* 🗒 %?:NOTE\n%U\n%a\n" :clock-in t :clock-resume t)
+                     ("r" "research" entry (file "~/Dropbox/org/research.org")
+                      "* %? :IDEA:\n%U\n%a\n" :clock-in t :clock-resume t)
+                     ("j" "Journal" entry (file+datetree "~/Dropbox/org/diary.org")
+                      "* %?\n%U\n" :clock-in t :clock-resume t)
+                     ("i" "idea" entry (file+headline "~/Dropbox/org/ideas.org" "Someday/Maybe")
+                      "💡 IDEA %?\nAgregada: %U\n" :prepend t :kill-buffer )
+                     ("m" "Meeting" entry (file "~/Dropbox/org/refile.org")
+                      "* ⛹ MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
+                     )))
 
 
 
@@ -1506,7 +1509,7 @@ Esto es requerido por algunos paquetes
 
        ;; Targets include this file and any file contributing to the agenda - up to 9 levels deep
        (setq org-refile-targets (quote ((nil :maxlevel . 9)
-					(org-agenda-files :maxlevel . 9))))
+                                        (org-agenda-files :maxlevel . 9))))
        ;; Use full outline paths for refile targets
        (setq org-refile-use-outline-path t)
 
@@ -1517,45 +1520,45 @@ Esto es requerido por algunos paquetes
        (setq org-refile-allow-creating-parent-nodes (quote confirm))
 
        (setq org-todo-keywords '(
-				 (sequence
-				  "▶ TODO(t)"
-				  "🍽 INPROGRESS(p)"
-				  "|"
-				  "✔ DONE(d)")
-				 (sequence "⚑ WAITING(w@/!)" "🚪 HOLD(h@/!)" "|")
-				 (sequence "☎ PHONE(z)" "⛹ MEETING(x)" "|")
-				 (sequence "|" "✘ CANCELLED(c@/!)"
-					   "SOMEDAY(f)"
-					   )))
+                                 (sequence
+                                  "▶ TODO(t)"
+                                  "🍽 INPROGRESS(p)"
+                                  "|"
+                                  "✔ DONE(d)")
+                                 (sequence "⚑ WAITING(w@/!)" "🚪 HOLD(h@/!)" "|")
+                                 (sequence "☎ PHONE(z)" "⛹ MEETING(x)" "|")
+                                 (sequence "|" "✘ CANCELLED(c@/!)"
+                                           "SOMEDAY(f)"
+                                           )))
 
 
        (setq org-todo-keyword-faces
-	     (quote (
-		     ("💡 IDEA" :foreground "CadetBlue2" :weight bold)
-		     ("▶ TODO" :foreground "red" :weight bold)
-		     ("🍽 INPROGRESS" :foreground "OrangeRed" :weight bold)
-		     ("★ NEXT  :foreground" "blue" :weight bold)
-		     ("✔ DONE" :foreground "forest green" :weight bold)
-		     ("⚑ WAITING" :foreground "orange" :weight bold)
-		     ("🚪 HOLD" :foreground "magenta" :weight bold)
-		     ("✘ CANCELLED" :foreground "IndianRed1" :weight bold)
-		     ("☎ PHONE" :foreground "forest green" :weight bold)
-		     ("⛹ MEETING" :foreground "LimeGreen" :weight bold)
-		     )))
+             (quote (
+                     ("💡 IDEA" :foreground "CadetBlue2" :weight bold)
+                     ("▶ TODO" :foreground "red" :weight bold)
+                     ("🍽 INPROGRESS" :foreground "OrangeRed" :weight bold)
+                     ("★ NEXT  :foreground" "blue" :weight bold)
+                     ("✔ DONE" :foreground "forest green" :weight bold)
+                     ("⚑ WAITING" :foreground "orange" :weight bold)
+                     ("🚪 HOLD" :foreground "magenta" :weight bold)
+                     ("✘ CANCELLED" :foreground "IndianRed1" :weight bold)
+                     ("☎ PHONE" :foreground "forest green" :weight bold)
+                     ("⛹ MEETING" :foreground "LimeGreen" :weight bold)
+                     )))
 
 
 
        (setq org-todo-state-tags-triggers
-	     (quote (("✘ CANCELLED" ("✘ CANCELLED" . t))
-		     ("⚑ WAITING" ("⚑ WAITING" . t))
-		     ("🚪 HOLD" ("⚑ WAITING") ("🚪 HOLD" . t))
-		     (done ("⚑ WAITING") ("🚪 HOLD"))
-		     ("▶ TODO" ("⚑ WAITING") ("✘ CANCELLED") ("🚪 HOLD"))
-		     ("★ NEXT" ("⚑ WAITING") ("✘ CANCELLED") ("🚪 HOLD"))
-		     ("✔ DONE" ("⚑ WAITING") ("✘ CANCELLED") ("🚪 HOLD"))
-		     )
-		    )
-	     )
+             (quote (("✘ CANCELLED" ("✘ CANCELLED" . t))
+                     ("⚑ WAITING" ("⚑ WAITING" . t))
+                     ("🚪 HOLD" ("⚑ WAITING") ("🚪 HOLD" . t))
+                     (done ("⚑ WAITING") ("🚪 HOLD"))
+                     ("▶ TODO" ("⚑ WAITING") ("✘ CANCELLED") ("🚪 HOLD"))
+                     ("★ NEXT" ("⚑ WAITING") ("✘ CANCELLED") ("🚪 HOLD"))
+                     ("✔ DONE" ("⚑ WAITING") ("✘ CANCELLED") ("🚪 HOLD"))
+                     )
+                    )
+             )
 
 
        ;; Org-babel
@@ -1577,46 +1580,49 @@ Esto es requerido por algunos paquetes
 
 
        (org-babel-do-load-languages
-	'org-babel-load-languages
-	'(
+        'org-babel-load-languages
+        '(
 
-	  (shell      . t)
-	  (R          . t)
-	  (awk        . t)
-	  (sed        . t)
-	  (org        . t)
-	  (latex      . t)
-	  (emacs-lisp . t)
-	  (clojure    . t)
-	  (stan       . t)
-	  (ipython    . t)
-	  (ruby       . t)
-	  (dot        . t)
-	  ;;(scala      . t)
-	  (sqlite     . t)
-	  (sql        . t)
-	  (ditaa      . t)
-	  (plantuml   . t)
-	  (mongo      . t)
-	  (cypher     . t)
-	  (redis      . t)
-	  (blockdiag  . t)
-	  )
-	)
+          (shell      . t)
+          (R          . t)
+          (awk        . t)
+          (sed        . t)
+          (org        . t)
+          (latex      . t)
+          (emacs-lisp . t)
+          (clojure    . t)
+          (stan       . t)
+          (ipython    . t)
+          (ruby       . t)
+          (dot        . t)
+          ;;(scala      . t)
+          (sqlite     . t)
+          (sql        . t)
+          (ditaa      . t)
+          (plantuml   . t)
+          (mongo      . t)
+          (cypher     . t)
+          (redis      . t)
+          (blockdiag  . t)
+          )
+        )
 
        ;; LaTeX
        (setq org-export-latex-listings 'minted)
        (setq org-export-latex-minted-options
-	     '(("frame" "lines")
-	       ("fontsize" "\\scriptsize")
-	       ("linenos" "")
-	       ))
+             '(("frame" "lines")
+               ("fontsize" "\\scriptsize")
+               ("linenos" "")
+               ))
        (setq org-latex-to-pdf-process
-	     '("latexmk -xelatex='xelatex --shell-escape -interaction nonstopmode' -f  %f")) ;; for multiple passes
+             '("latexmk -xelatex='xelatex --shell-escape -interaction nonstopmode' -f  %f")) ;; for multiple passes
 
 
-
-
+       ;; Org-babel no muestra el stderr
+       ;; http://kitchingroup.cheme.cmu.edu/blog/2015/01/04/Redirecting-stderr-in-org-mode-shell-blocks/
+       (setq org-babel-default-header-args:sh
+             '((:prologue . "exec 2>&1") (:epilogue . ":"))
+             )
 
        )  ;; Fin de use-package org
      #+END_SRC
