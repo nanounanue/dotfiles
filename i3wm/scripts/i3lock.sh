@@ -20,6 +20,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-scrot /tmp/screen_locked.png
-convert /tmp/screen_locked.png -blur 3x3 /tmp/screen_locked2.png
-i3lock -i /tmp/screen_locked2.png
+revert() {
+  rm /tmp/*screen*.png
+  xset dpms 0 0 0
+}
+
+trap revert HUP INT TERM
+xset +dpms dpms 0 0 5
+scrot -d 1 /tmp/locking_screen.png
+convert -blur 0x8 /tmp/locking_screen.png /tmp/screen_blur.png
+convert -composite /tmp/screen_blur.png ~/dotfiles/icons/its_locked_morty_no_bg.png -gravity South -geometry -20x1200 /tmp/screen.png
+i3lock --ignore-empty-password --show-failed-attempts --image=/tmp/screen.png
+revert
+
+
+#scrot /tmp/screen_locked.png
+#convert /tmp/screen_locked.png -blur 0x4 /tmp/screen_locked2.png
+#i3lock -i /tmp/screen_locked2.png

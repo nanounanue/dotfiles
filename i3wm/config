@@ -1,0 +1,257 @@
+# Default modkey
+set $mod Mod4
+
+# Hide titlebar
+new_window pixel
+
+# i3-gaps
+gaps inner 5
+gaps outer 10
+
+# Font for window titles.
+font pango: SauceCodePro Nerd Font Black 11
+
+# Use Mouse+$mod to drag floating windows to their wanted position
+floating_modifier $mod
+
+# Start a terminal
+bindsym $mod+Return exec sakura
+
+# Kill focused window
+bindsym $mod+Shift+q kill
+
+# Start rofi
+bindsym $mod+d exec rofi -show drun
+
+# Move between windows
+bindsym $mod+j focus left
+bindsym $mod+k focus down
+bindsym $mod+l focus up
+bindsym $mod+semicolon focus right
+
+# Alternatively, you can use the cursor keys:
+bindsym $mod+Left  focus left
+bindsym $mod+Down  focus down
+bindsym $mod+Up    focus up
+bindsym $mod+Right focus right
+
+# Move focused window
+bindsym $mod+Shift+j move left
+bindsym $mod+Shift+k move down
+bindsym $mod+Shift+l move up
+bindsym $mod+Shift+semicolon move right
+
+# Alternatively, you can use the cursor keys:
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+
+# Split in horizontal orientation
+bindsym $mod+h split h
+
+# Split in vertical orientation
+bindsym $mod+v split v
+
+# Enter fullscreen mode for the focused container
+bindsym $mod+f fullscreen toggle
+
+# Change container layout (stacked, tabbed, toggle split)
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
+
+# Toggle tiling / floating
+bindsym $mod+Shift+space floating toggle
+
+# Change focus between tiling / floating windows
+bindsym $mod+space focus mode_toggle
+
+# Focus the parent container
+bindsym $mod+a focus parent
+
+# Name the workspaces
+set $workspace1 "1:  www"
+set $workspace2 "2:  code"
+set $workspace3 "3:  terminal"
+set $workspace4 "4:  files"
+set $workspace5 "5:  virtual machines"
+set $workspace6 "6:  stats"
+set $workspace7 "7: ♫ music"
+set $workspace8 "8:  random"
+set $workspace9 "9: 🏢 office"
+
+# Switch to workspace
+bindsym $mod+1 workspace $workspace1
+bindsym $mod+2 workspace $workspace2
+bindsym $mod+3 workspace $workspace3
+bindsym $mod+4 workspace $workspace4
+bindsym $mod+5 workspace $workspace5
+bindsym $mod+6 workspace $workspace6
+bindsym $mod+7 workspace $workspace7
+bindsym $mod+8 workspace $workspace8
+bindsym $mod+9 workspace $workspace9
+bindsym $mod+0 workspace 10
+
+# Move focused container to workspace
+bindsym $mod+Shift+1 move container to workspace $workspace1
+bindsym $mod+Shift+2 move container to workspace $workspace2
+bindsym $mod+Shift+3 move container to workspace $workspace3
+bindsym $mod+Shift+4 move container to workspace $workspace4
+bindsym $mod+Shift+5 move container to workspace $workspace5
+bindsym $mod+Shift+6 move container to workspace $workspace6
+bindsym $mod+Shift+7 move container to workspace $workspace7
+bindsym $mod+Shift+8 move container to workspace $workspace8
+bindsym $mod+Shift+9 move container to workspace $workspace9
+bindsym $mod+Shift+0 move container to workspace 10
+
+# Always open some programs on specified workspace
+assign [class=".*(F|f)irefox"]  $workspace1
+assign [class=".*(E|e)macs"]	$workspace2
+assign [class="VirtualBox"]	$workspace5
+assign [class="cmus"]		$workspace7
+assign [class=".*(S|s)akura"]   $workspace3
+assign [class=".*(P|p)cmanfm"]  $workspace4
+assign [class=".*libreoffice-.*"]    $workspace9
+assign [class=".*(R|r)studio"] $workspace6
+
+# Reload the configuration file
+bindsym $mod+Shift+c reload
+
+# Restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
+bindsym $mod+Shift+r restart
+
+# Exit i3 (logs you out of your X session)
+bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
+
+# Resize window (you can also use the mouse for that)
+mode "resize"
+{
+        # Resize with the arrow keys
+        # Pressing left will shrink the window’s width.
+        # Pressing right will grow the window’s width.
+        # Pressing up will shrink the window’s height.
+        # Pressing down will grow the window’s height.
+        bindsym Left resize shrink width 2 px or 2 ppt
+        bindsym Down resize grow height 2 px or 2 ppt
+        bindsym Up resize shrink height 2 px or 2 ppt
+        bindsym Right resize grow width 2 px or 2 ppt
+
+        # Back to normal: Enter or Escape
+        bindsym Return mode "default"
+        bindsym Escape mode "default"
+}
+bindsym $mod+r mode "resize"
+
+# Defining colors
+
+# RGB
+set $cyan0	 #4ec2f7
+set $silver0     #e4e4e4
+set $orange      #ff8700
+set $black        #282828
+set $darkblack    #1d2021
+set $darkwhite    #ffffff
+set $whitesmoke   #f5f5f5
+set $skyblue      #3399ff
+set $green        #42b879
+set $darkred      #8b0000
+set $darkgray     #414141
+set $lightgray    #D3D3D3
+set $transparent  #000000E5
+
+# RGBA
+set $cyan	 #4ec2f799
+set $acqua	 #00708999
+set $wine 	 #72003e99
+set $magenta     #af005f99
+set $silver      #e4e4e499
+set $toxic       #8EC00099
+set $elegant     #00002c99
+
+# Set some nice colors      border	 background text	   indicator
+client.focused              $cyan	   $cyan      $elegant $cyan
+client.unfocused            $elegant $elegant   $cyan    $elegant
+client.focused_inactive     $acqua   $acqua     $silver  $acqua
+client.urgent               $magenta $magenta   $silver  $magenta
+client.placeholder          $magenta $magenta   $silver  $magenta
+
+# Start i3blocks to display a workspace bar
+bar
+{
+	position top
+	status_command i3blocks
+        i3bar_command i3bar -t
+	font pango: SauceCodePro Nerd Font Black 10	
+	colors
+	{
+                        # Border	# Background	# Text
+		focused_workspace   $silver0  $silver0  $elegant
+		active_workspace    $elegant  $elegant  $orange
+		inactive_workspace  $elegant  $elegant 	$cyan0
+		urgent_workspace    $acqua    $acqua    $silver0
+		background          $elegant
+    	}
+}
+
+## Combinaciones de teclas
+bindsym Control+$mod+l exec sh ~/dotfiles/i3wm/scripts/i3lock.sh ## Bloqueo de pantalla
+bindsym Print exec "scrot '%Y-%m-%d-%T_$wx$h_scrot.png' -e 'mv $f ~/Pictures/screenshots/'"  ## Screenshot
+bindsym $mod+Print exec "scrot -ue 'mv $f ~/Pictures/screenshots'"
+bindsym $mod+Tab exec "rofi -show window"
+bindsym $mod+g [urgent=latest] focus
+bindsym $mod+m exec xrandr --output DP-1 --off
+bindsym $mod+Mod1+space exec ~/dotfiles/i3wm/scripts/layout-toggle.sh
+
+## Audio
+## Pulse Audio controls
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume 0 +5% #increase sound volume
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume 0 -5% #decrease sound volume
+bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute 0 toggle # mute sound
+
+## Media player controls
+bindsym XF86AudioPlay exec playerctl play
+bindsym XF86AudioPause exec playerctl pause
+bindsym XF86AudioNext exec playerctl next
+bindsym XF86AudioPrev exec playerctl previous
+
+# move focused workspace between monitors
+bindsym $mod+Ctrl+greater move workspace to output DP-1
+bindsym $mod+Ctrl+less move workspace to output eDP-1
+
+set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (Shift+s) shutdown
+
+mode "$mode_system" {
+    bindsym l exec --no-startup-id ~/dotfiles/i3wm/scripts/i3exit.sh lock, mode "default"
+    bindsym e exec --no-startup-id ~/dotfiles/i3wm/scripts/i3exit.sh logout, mode "default"
+    bindsym s exec --no-startup-id ~/dotfiles/i3wm/scripts/i3exit.sh suspend, mode "default"
+    bindsym h exec --no-startup-id ~/dotfiles/i3wm/scripts/i3exit.sh hibernate, mode "default"
+    bindsym r exec --no-startup-id ~/dotfiles/i3wm/scripts/i3exit.sh reboot, mode "default"
+    bindsym Shift+s exec --no-startup-id ~/dotfiles/i3wm/scripts/i3exit.sh shutdown, mode "default"
+
+    # back to normal: Enter or Escape
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+Shift+s mode "$mode_system"
+
+
+
+# Startup programs
+exec_always --no-startup-id feh --recursive --randomize --bg-fill ~/.wallpapers # Wallpaper
+
+#exec_always --no-startup-id ~/.monitor.sh # Automatically switch within monitors
+exec --no-startup-id setxkbmap us # Set the keyboard layout
+#exec --no-startup-id xbindkeys # Load keyboard shortcuts
+exec --no-startup-id dropbox start # Dropbox
+exec --no-startup-id compton -f -cCGb # Compositor for window transparency
+exec --no-startup-id emacs --daemon=instance1 # Daemonize Emacs
+exec --no-startup-id xfce4-power-manager # To monitor batttery
+
+exec --no-startup-id /usr/lib/gnome-settings-daemon/gsd-xsettings ## GNOME Settings Daemon
+exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 ## polkit-gnome
+exec --no-startup-id xautolock -time 10 -locker "sh ~/dotfiles/i3wm/scripts/i3lock.sh" #i3lock-fancy
+
+exec --no-startup-id notify-send "Welcome back Adolfo!" -i ~/dotfiles/icons/happy.png # Greeting on startup
+
+
