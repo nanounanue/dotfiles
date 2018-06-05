@@ -11,7 +11,10 @@ source ~/dotfiles/aliases
 
 
 # Sourcing fonts
-source ~/.fonts/*.sh
+source ~/.fonts/devicons-regular.sh
+source ~/.fonts/fontawesome-regular.sh
+source ~/.fonts/pomicons-regular.sh
+source ~/.fonts/octicons-regular.sh
 
 # Show OS info when opening a new terminal
 neofetch
@@ -58,44 +61,9 @@ antigen bundle zsh-users/zsh-syntax-highlighting
 #antigen bundle mafredri/zsh-async
 #antigen bundle marszall87/lambda-pure
 
-
-# Themes
-#antigen theme geometry-zsh/geometry
-#antigen theme tylerreckart/odin odin.zsh-theme
-#antigen theme https://github.com/denysdovhan/spaceship-zsh-theme spaceship
-#antigen theme tylerreckart/hyperzsh hyperzsh.zsh-theme
-
-# crunch
-# kardan
-# alien-minimal
-#antigen theme agnoster 
-#antigen theme blinks
-## antigen theme steeef
-
-
-## Theme
-
-# Font mode for powerlevel9k
-POWERLEVEL9K_MODE='awesome-fontconfig'
-
-POWERLEVEL9K_PROMPT_ON_NEWLINE=false
-POWERLEVEL9K_PROMPT_ADD_NEWLINE=true
-
-POWERLEVEL9K_SHORTEN_STRATEGY="truncate_middle"
-POWERLEVEL9K_SHORTEN_DIR_LENGTH=4
-
-POWERLEVEL9K_TIME_FORMAT="%D{%H:%M %d.%m.%Y}"
-
-POWERLEVEL9K_STATUS_VERBOSE=false
-
-POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(status context dir newline vcs)
-POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(virtualenv background_jobs time)
-#POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(icons_test)
-
 DISABLE_AUTO_TITLE="true"
 
-antigen theme bhilburn/powerlevel9k powerlevel9k
+# antigen theme crunch
+antigen theme steeef
 
 antigen apply
-
-
