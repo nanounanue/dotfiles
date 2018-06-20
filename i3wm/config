@@ -245,11 +245,10 @@ exec --no-startup-id setxkbmap us # Set the keyboard layout
 #exec --no-startup-id xbindkeys # Load keyboard shortcuts
 exec --no-startup-id dropbox start # Dropbox
 exec --no-startup-id compton -f -cCGb # Compositor for window transparency
-exec --no-startup-id emacs --fg-daemon # Daemonize Emacs
 exec --no-startup-id xfce4-power-manager # To monitor batttery
 
 exec --no-startup-id /usr/lib/gnome-settings-daemon/gsd-xsettings ## GNOME Settings Daemon
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 ## polkit-gnome
-exec --no-startup-id xautolock -time 10 -locker "sh ~/dotfiles/i3wm/scripts/i3lock.sh" #i3lock-fancy
+exec --no-startup-id xautolock -time 10 -locker "sh ~/dotfiles/i3wm/scripts/i3lock.sh" ## i3lock-fancy
 
 exec --no-startup-id notify-send "Welcome back Adolfo!" -i ~/dotfiles/icons/happy.png # Greeting on startup

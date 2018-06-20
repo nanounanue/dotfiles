@@ -3,15 +3,11 @@
 # que sucede al conectarse via ssh
 alias ssh="TERM=linux ssh"
 
-# SSH-FS
-alias mrqe='sshfs -o idmap=user nano@192.168.1.91:/home/nano ~/granja/rembrant-q-einstein'
-alias umrqe='fusermount -u ~/granja/rembrant-q-einstein'
-
 # ps-fea
 alias psf='ps -fea | grep'
 
 
-# Git 
+# Git
 alias gs="git status"
 alias gls="git ls-files"
 alias ungit="find . -name '.git' -exec rm -rf {} \;"
@@ -19,10 +15,7 @@ alias gb='git branch --color'
 alias gba='git branch -a'
 alias gc='git commit -v'
 alias gca='git commit -v -a'
-# Commit pending changes and quote all args as message
-function gg() { 
-    git commit -v -a -m "$*"
-}
+
 alias gco='git checkout'
 alias gcb='git checkout -b'
 alias gd='git diff'
@@ -36,50 +29,29 @@ alias eg='e .git/config'
 function gch() {
   git clone git://github.com/nanounanue/$1.git
 }
+
 alias grm="git status | grep deleted | awk '{print \$3}' | xargs git rm"
 
 # Setup a tracking branch from [remote] [branch_name]
-function gbt() { 
-  git branch --track $2 $1/$2 && git checkout $2 
+function gbt() {
+  git branch --track $2 $1/$2 && git checkout $2
 }
 
 # Quickly clobber a file and checkout
-function grf() { 
+function grf() {
   rm $1
-  git checkout $1 
+  git checkout $1
 }
-
 
 # Emacs
-alias e="emacsclient -t"
+alias e="emacsclient -c"
 alias ec="emacsclient -c"
-alias et="emacsclient -t"
-alias ed="emacs --daemon"
-alias vim="emacsclient -t"
-alias vi="emacsclient --t"
-
-
-# Regenerate TAGS file from file arguments
-function ct() {
-  rm -f TAGS
-  etags --append --output=TAGS $*
-}
-
-# Ruby
-alias r='rake'
-
-# Rails
-alias ss="./script/server"
-alias sc='./script/console'
-alias sg='./script/generate'
-alias sp='./script/plugin'
-alias tl='tail -f log/*.log'
-alias rmig='rake db:migrate'
+alias et="emacsclient -nw"
 
 # Utilidades
 alias reload='source ~/.bashrc'
-alias ea='e ~/config/dotfiles/bash/aliases && reload' # Edit aliases
-alias ee="e ~/config/dotfiles/bash/env"
+alias ea='e ~/dotfiles/bash/aliases && reload' # Edit aliases
+alias ee="e ~/dotfiles/bash/env"
 
 # General
 alias h='history'
@@ -92,9 +64,9 @@ alias cls='clear; ls'
 
 # ls
 alias ls='ls --color=auto'
-alias l='ls -h' 
+alias l='ls -h'
 alias ll="l -lGt"  # -l lista larga, los más recientes primero
-      	    	    # -G color
+                   # -G color
 alias lf="l -F"
 alias la='l -A'
 alias lt='l -lt' # sort with recently modified first
@@ -105,22 +77,18 @@ alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 
-
 # kill
 alias k9="killall -9"
 
-
 # Directorios de proyectos
-function proyecto() { 
+function proyecto() {
     cd ~/projects/$1
 }
 
 alias p="proyecto"
 
-
 # Crear directorio y un archivo
 mkpfile() { mkdir -p "$(dirname "$1")" || return; touch "$1"; }
-
 
 ## SSH tunnels for dsapp
 alias dsapp-up='ssh -fNTM dsapp-tunnel'
