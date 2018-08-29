@@ -67,3 +67,5 @@ DISABLE_AUTO_TITLE="true"
 antigen theme steeef
 
 antigen apply
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
