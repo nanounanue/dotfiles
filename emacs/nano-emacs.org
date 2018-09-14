@@ -461,20 +461,6 @@ apt install silversearcher-ag
     #+RESULTS:
     : t
 
-*** =gitter=
-
-    Muestra los cambios en archivos controlados por =git=
-
-    #+BEGIN_SRC emacs-lisp
-      (use-package git-gutter+
-        :diminish
-        :defer t
-        :config
-        (global-git-gutter+-mode)
-        )
-    #+END_SRC
-
-    #+RESULTS:
 
 *** Símbolos (=prettify-mode=)
 
@@ -2034,6 +2020,20 @@ and then "undo"
   (winner-undo))                                ;; Put the windows back in place
 #+END_SRC
 
+**** [[https://github.com/arbox/org-sync][org-sync]]
+
+#+BEGIN_QUOTE
+Synchronize Org-mode Files with Bug Tracking systems
+#+END_QUOTE
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-sync
+  :ensure t
+  )
+#+END_SRC
+
+#+RESULTS:
+
 **** [[https://github.com/gizmomogwai/org-kanban][org-kanban]]
 
 #+BEGIN_SRC emacs-lisp
@@ -2861,18 +2861,19 @@ Configuración tomada de [[https://ekaschalk.github.io/post/pretty-magit/][aquí
 (use-package gitconfig-mode :ensure t)
 #+END_SRC
 
+
 **** =magithub=
+
 
 #+BEGIN_SRC emacs-lisp
 (use-package magithub
-  :disabled
   :after magit
   :ensure t
   :config
   (magithub-feature-autoinject t)
-
   (setq ghub-username "nanounanue")
-
+  (setq magithub-clone-default-directory "~/github")
+  :bind ("C-c i" . magithub-issue-new)
   )
 
 (use-package magit-gitflow
@@ -2888,6 +2889,43 @@ Configuración tomada de [[https://ekaschalk.github.io/post/pretty-magit/][aquí
 
 #+RESULTS:
 
+Para tener acceso /offline/ siempre
+
+#+BEGIN_SRC sh
+git config --global magithub.cache always
+#+END_SRC
+
+#+RESULTS:
+
+
+**** =gitter=
+
+Muestra los cambios en archivos controlados por =git=
+
+#+BEGIN_SRC emacs-lisp
+(use-package git-gutter+
+  :diminish
+  :defer t
+  :config
+  (global-git-gutter+-mode)
+  )
+#+END_SRC
+
+#+RESULTS:
+
+**** =git-messenger=
+
+#+BEGIN_SRC emacs-lisp
+(use-package git-messenger
+  :ensure t
+  :commands git-messenger:popup-message
+  :bind (("C-c M" . git-messenger:popup-message))
+  :config
+  (setq git-messenger:show-detail t))
+#+END_SRC
+
+#+RESULTS:
+: git-messenger:popup-message
 
 
 **** Navegación
