@@ -6,7 +6,7 @@
 
 \set PROMPT1 '%~%x%# '
 -- El mejor formato de salida
--- NOTA: si vas a correr un scrip tpara sacar datos a un archivo, recuerda desactivar la configuración
+-- NOTA: si vas a correr un script tpara sacar datos a un archivo, recuerda desactivar la configuración
 \x auto
 \set ON_ERROR_STOP on
 \set ON_ERROR_ROLLBACK interactive
@@ -23,6 +23,12 @@ set intervalstyle to 'postgres_verbose';
 \timing on
 
 \set VERBOSITY verbose
+
+-- Un history por base de datos
 \set HISTFILE ~/.psql_history- :DBNAME
+
+-- Ignora duplicados en el history
 \set HISTCONTROL ignoredups
-\set COMP_KEYWORD_CASE upper
+
+-- No me gusta SQL en mayúsculas
+\set COMP_KEYWORD_CASE lower
