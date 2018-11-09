@@ -24,6 +24,9 @@ set intervalstyle to 'postgres_verbose';
 
 \set VERBOSITY verbose
 
+-- Un history largo
+\set HISTSIZE 5000
+
 -- Un history por base de datos
 \set HISTFILE ~/.psql_history- :DBNAME
 
@@ -32,3 +35,9 @@ set intervalstyle to 'postgres_verbose';
 
 -- No me gusta SQL en mayúsculas
 \set COMP_KEYWORD_CASE lower
+
+
+-- Algunos shortcuts
+\set version 'select version();'
+
+\set status 'select pid, age(clock_timestamp(), query_start), usename, query from pg_stat_activity where query != ''<IDLE>'' and query not ilike ''%pg_stat_activity%'' order by query_start desc;'
