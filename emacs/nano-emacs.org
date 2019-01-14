@@ -1515,7 +1515,7 @@ Finalmente [[https://github.com/emacs-helm/helm-system-packages]["A Helm interfa
   (TeX-master 'dwim)
   (TeX-parse-self t)
   (TeX-source-correlate-mode t)
-  (TeX-view-program-selection '((output-pdf "Evince")
+  (TeX-view-program-selection '((output-pdf "zathura")
                                 (output-html "xdg-open")))
   (setq Tex-parse-self t)
   (setq TeX-save-query nil)
@@ -1543,6 +1543,9 @@ Finalmente [[https://github.com/emacs-helm/helm-system-packages]["A Helm interfa
   )
 
 #+END_SRC
+
+#+RESULTS:
+| preview-mode-setup | er/add-latex-mode-expansions | latex-extra-mode | reftex-mode | flyspell-mode | company-mode | highlight-parentheses-mode |
 
 #+BEGIN_SRC emacs-lisp
     (use-package latex-extra

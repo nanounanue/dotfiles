@@ -64,7 +64,13 @@ antigen bundle zsh-users/zsh-syntax-highlighting
 DISABLE_AUTO_TITLE="true"
 
 # antigen theme crunch
-antigen theme steeef
+# antigen theme steeef
+#antigen theme afowler
+#antigen theme arrow
+#antigen theme eendroroy/theta theta
+antigen theme sobolevn/sobole-zsh-theme
+
+SOBOLE_THEME_MODE=dark
 
 antigen apply
 
