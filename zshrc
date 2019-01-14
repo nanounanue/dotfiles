@@ -17,7 +17,7 @@ source ~/.fonts/pomicons-regular.sh
 source ~/.fonts/octicons-regular.sh
 
 # Show OS info when opening a new terminal
-neofetch
+#neofetch
 
 ##############################
 ##

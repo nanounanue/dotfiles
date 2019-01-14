@@ -40,6 +40,127 @@
 #+RESULTS:
 : nanounanue/config-reload
 
+
+** Otras Funciones
+
+Determinar el sistema:
+
+#+BEGIN_SRC emacs-lisp
+(defun system-is-mac ()
+  (interactive)
+  (string-equal system-type "darwin"))
+
+(defun system-is-linux ()
+  (interactive)
+  (string-equal system-type "gnu/linux"))
+#+END_SRC
+
+Incrementar el tamaño de la fuente *en todos los buffers*
+
+#+BEGIN_SRC emacs-lisp
+(defun font-name-replace-size (font-name new-size)
+  (let ((parts (split-string font-name "-")))
+    (setcar (nthcdr 7 parts) (format "%d" new-size))
+    (mapconcat 'identity parts "-")))
+
+(defun increment-default-font-height (delta)
+  "Adjust the default font height by DELTA on every frame.
+The pixel size of the frame is kept (approximately) the same.
+DELTA should be a multiple of 10, in the units used by the
+:height face attribute."
+  (let* ((new-height (+ (face-attribute 'default :height) delta))
+         (new-point-height (/ new-height 10)))
+    (dolist (f (frame-list))
+      (with-selected-frame f
+        ;; Latest 'set-frame-font supports a "frames" arg, but
+        ;; we cater to Emacs 23 by looping instead.
+        (set-frame-font (font-name-replace-size (face-font 'default)
+                                                new-point-height)
+                        t)))
+    (set-face-attribute 'default nil :height new-height)
+    (message "default font size is now %d" new-point-height)))
+
+(defun increase-default-font-height ()
+  (interactive)
+  (increment-default-font-height 10))
+
+(defun decrease-default-font-height ()
+  (interactive)
+  (increment-default-font-height -10))
+
+(global-set-key (kbd "C-M-=") 'increase-default-font-height)
+(global-set-key (kbd "C-M--") 'decrease-default-font-height)
+#+END_SRC
+
+#+RESULTS:
+: decrease-default-font-height
+
+** =i3wm=
+
+Si estoy en =i3wm= *no* dividir los /frames/, sino crear uno nuevo (Tomado de [[https://github.com/DiegoVicen/my-emacs][aquí]])
+
+#+BEGIN_SRC emacs-lisp
+;; Fix quit-window definitions to get rid of buffers
+(defun quit-window-dwim (&optional args)
+  "`delete-frame' if closing a single window, else `quit-window'."
+  (interactive)
+  (if (one-window-p)
+      (delete-frame)
+    (quit-window args)))
+
+(defun running-i3 ()
+  (string-match-p
+   (regexp-quote "i3")
+   (shell-command-to-string "echo $DESKTOP_SESSION")))
+
+(defun set-up-i3 ()
+  (interactive)
+  (setq-default pop-up-frames 'graphic-only
+                magit-bury-buffer-function 'quit-window-dwim
+                magit-commit-show-diff nil)
+  (substitute-key-definition 'quit-window 'quit-window-dwim
+                             global-map)
+  (substitute-key-definition 'quit-window 'quit-window-dwim
+                             help-mode-map)
+  (substitute-key-definition 'quit-window 'quit-window-dwim
+                             Buffer-menu-mode-map)
+  (message "Configuration for i3 applied"))
+
+(when (running-i3)
+  (set-up-i3))
+#+END_SRC
+
+#+RESULTS:
+
+De la fuente original:
+
+#+BEGIN_QUOTE
+This last line checks up if i3 is running and sets everything up (duh), but when
+Emacs is started as a daemon in systemd or before actually running i3, this
+check will fail. My solution is to run =emacsclient -e “(set-up-i3)”= in my i3
+configuration, so that i3 is the one actually telling the Emacs daemon to get
+the proper settings.
+#+END_QUOTE
+
+#+BEGIN_SRC emacs-lisp
+;; TODO: fix different workspaces problem
+(setq  focus-follow-mouse t)
+
+(defun other-window-or-frame (&optional n)
+  "Switch to a different window or frame depending on the context"
+  (interactive)
+  (let ((count (if (eq n nil) 1 n)))
+        (if (one-window-p)
+            (other-frame count)
+          (other-window count))))
+
+(global-set-key (kbd "C-x o") 'other-window-or-frame)
+#+END_SRC
+
+#+RESULTS:
+: other-window-or-frame
+
+
 ** Configuración de paquetes
 
 Es necesario preparar =emacs= para poder instalar paquetes
@@ -49,18 +170,31 @@ Es necesario preparar =emacs= para poder instalar paquetes
 ; Enable "package", for installing packages
 ; Add some common package repositories
 (require 'package)
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
-(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
+(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+(add-to-list 'package-archives '("marmalade" . "https://marmalade-repo.org/packages/"))
+(add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
 (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/"))
 
-;; (package-initialize) ;; Not needed in Emacs 27
+(when (<= emacs-major-version 27)
+  (package-initialize) ;; Not needed in Emacs 27
                                         ; Disable loading package again after init.el
+  )
+
 (setq package-enable-at-startup nil)
 
 #+END_SRC
 
 #+RESULTS:
+
+*** Un poco más de seguridad
+
+Para mayor referencia ver [[https://glyph.twistedmatrix.com/2015/11/editor-malware.html][Your Text Editor is Malware]]
+
+#+BEGIN_SRC emacs-lisp
+(setq tls-checktrust t)
+(setq gnutls-verify-error t)
+#+END_SRC
 
 *** =use-package=
 
@@ -154,6 +288,9 @@ Esto hará que todo sea más ordenado.
 #+BEGIN_SRC emacs-lisp
 (setq user-full-name "Adolfo De Unánue")
 (setq user-mail-address "nanounanue@gmail.com")
+(setq  calendar-latitude 41.8756
+      calendar-longitude -87.6244
+      calendar-location-name "Chicago, IL")
 (setq auth-sources '("~/.gnupg/shared/.authinfo.gpg"
                      "~/.authinfo.gpg"
                      "~/.authinfo"
@@ -184,6 +321,7 @@ Esto hará que todo sea más ordenado.
  tab-width 4                                      ; Set width for tabs
  use-package-always-ensure t                      ; Avoid the :ensure keyword for each package
  ring-bell-function 'ignore
+ save-abbrevs 'silent                             ; No preguntar sobre guardar abbrevs
  vc-follow-symlinks t)                            ; Always follow the symlinks
 (cd "~/")                                         ; Move to the user directory
 (defalias 'yes-or-no-p 'y-or-n-p)                 ; No me gusta que tenga que escribir =yes/no=, prefiero =y/n=
@@ -260,7 +398,7 @@ Indicador de la columna 80
 *** Fuentes
 
 Hay que instalar varias fuentes desde el repositorio, la fuente Hack
-se puede descargar de [[Hack font: https://sourcefoundry.org/hack/][aquí]]
+se puede descargar de [[Hack font: https://sourcefoundry.org/hack/][aquí]], Overpass (RedHat) desde [[http://overpassfont.org/][aquí]] e Iosevka [[https://github.com/be5invis/Iosevka][aquí]].
 
 #+BEGIN_SRC sh :dir /sudo:: :cache no
 apt-get install fonts-firacode fonts-inconsolata fonts-ricty-diminished
@@ -298,6 +436,49 @@ Usemos =fira code= para desplegar símbolos
 #+END_SRC
 
 Tomadas desde [[https://github.com/hbin/top-programming-fonts][top-programming-fonts]]
+
+#+BEGIN_SRC emacs-lisp
+(defun set-custom-font (frame)
+  (interactive)
+  (set-face-attribute 'default frame
+                      :font "Overpass Mono 11"
+                      :weight 'semibold)
+  (set-face-attribute 'variable-pitch frame
+                      :font "Overpass Mono 11"
+                      :weight 'semibold)
+  (set-face-attribute 'fixed-pitch frame
+                      :font "Overpass Mono 11"
+                      :weight 'semibold)
+  (set-face-attribute 'tooltip frame
+                      :font "Overpass Mono 11"
+                      :weight 'semibold))
+
+(add-to-list 'after-make-frame-functions 'set-custom-font t)
+#+END_SRC
+
+#+RESULTS:
+| eyebrowse-init | x-dnd-init-frame | set-custom-font |
+
+
+Debido a que en Emacs se ven delgadas ... (tomado de [[https://github.com/DiegoVicen/my-emacs][aquí]])
+
+#+BEGIN_SRC emacs-lisp
+(defun thicken-all-faces ()
+  "Change all regular faces to semibold and bold to extrabold."
+  (interactive)
+  (mapc
+   (lambda (face)
+     (when (eq (face-attribute face :weight) 'bold)
+       (set-face-attribute face nil :weight 'extrabold))
+     (when (eq (face-attribute face :weight) 'normal)
+       (set-face-attribute face nil :weight 'semibold)))
+   (face-list)))
+
+(add-hook 'change-major-mode-after-body-hook 'thicken-all-faces)
+#+END_SRC
+
+#+RESULTS:
+| thicken-all-faces |
 
 
 *** UTF-8
@@ -430,36 +611,35 @@ apt install silversearcher-ag
 *** =rainbow mode=
 #+BEGIN_SRC emacs-lisp
 (use-package rainbow-mode
-    :ensure t
-    :config
-    (setq rainbow-x-colors nil)
-    (add-hook 'prog-mode-hook 'rainbow-mode))
+  :ensure t
+  :config
+  (setq rainbow-x-colors nil)
+  :hook (prog-mode . rainbow-delimiters-mode)
+  )
 #+END_SRC
 
 #+RESULTS:
-: t
+| git-gutter-mode | flycheck-mode | (lambda nil (font-lock-add-keywords nil '((\<\(FIXME\ | TODO\ | BUG\ | NOTE\ | QUESTION\ | XXX\): 1 font-lock-warning-face t)))) | company-mode | rainbow-mode | rainbow-delimiters-mode | highlight-symbol-mode | fci-mode |
 
 *** =all-the-icons=
 
+(use-package font-lock+
+  :demand t)
+
+
     #+BEGIN_SRC emacs-lisp
     (use-package all-the-icons
+      :after font-lock+
       ;; (use-package all-the-icons-dired
       ;;   :config
       ;;   (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
       ;;   )
       ;; (use-package all-the-icons-ivy :ensure t)
       )
-    (use-package all-the-icons-dired
-      ;; M-x all-the-icons-install-fonts
-      :ensure t
-      :config
-      (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
-      :commands (all-the-icons-dired-mode))
 
     #+END_SRC
 
     #+RESULTS:
-    : t
 
 
 *** Símbolos (=prettify-mode=)
@@ -784,6 +964,9 @@ apt install silversearcher-ag
 ;;(setq tramp-verbose 9)
 (setq tramp-debug-buffer nil)
 
+(use-package counsel-tramp
+  :ensure t)
+
 #+END_SRC
 
 #+RESULTS:
@@ -791,9 +974,12 @@ apt install silversearcher-ag
 *** Temas
 
 #+BEGIN_SRC emacs-lisp
+
 (use-package solarized-theme
   :ensure t
   :config
+  (load-theme 'solarized-light t)
+
   ;; make the fringe stand out from the background
   (setq solarized-distinct-fringe-background t)
 
@@ -824,7 +1010,14 @@ apt install silversearcher-ag
   (setq solarized-height-plus-3 1.0)
   (setq solarized-height-plus-4 1.0)
 
-  (load-theme 'solarized-dark t)
+  (let ((line (face-attribute 'mode-line :underline)))
+    (set-face-attribute 'mode-line          nil :overline   line)
+    (set-face-attribute 'mode-line-inactive nil :overline   line)
+    (set-face-attribute 'mode-line-inactive nil :underline  line)
+    (set-face-attribute 'mode-line          nil :box        nil)
+    (set-face-attribute 'mode-line-inactive nil :box        nil)
+    (set-face-attribute 'mode-line-inactive nil :background "#f9f2d9"))
+
   )
 
 (use-package material-theme :defer t)
@@ -867,7 +1060,7 @@ apt install silversearcher-ag
   :config
   ;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each theme
   ;; may have their own settings.
-  (load-theme 'doom-one t)
+  (load-theme 'doom-nord t)
 
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
@@ -891,9 +1084,9 @@ apt install silversearcher-ag
 
 #+BEGIN_SRC emacs-lisp
 (use-package avy
-  :ensure t
-  :bind (("M-s" . avy-goto-word-1))
-  )
+  :bind (("M-g s" . avy-goto-char-2)
+         ("M-g f" . avy-goto-line)
+         ("M-g w" . avy-goto-word-1)))
 #+END_SRC
 
 #+RESULTS:
@@ -937,6 +1130,7 @@ Parecido a =avy= pero para ventanas
 
 #+RESULTS:
 : switch-window
+
 
 *** =expand-region=
 
@@ -986,18 +1180,36 @@ Parecido a =avy= pero para ventanas
     [[http://emacsrocks.com/e13.html][Ejemplo de uso]]
 
     #+BEGIN_SRC emacs-lisp
-      ;; Edición de múltiples líneas
-      (use-package multiple-cursors
-        :diminish multiple-cursors-mode
-        :defer t
-        :init
-        (global-set-key (kbd "C->") 'mc/mark-next-like-this)
-        (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-        (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
-        )
+    ;; Edición de múltiples líneas
+    (use-package multiple-cursors
+      :diminish multiple-cursors-mode
+      :defer t
+      :init
+      (global-set-key (kbd "C->") 'mc/mark-next-like-this)
+      (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+      (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+      )
+
     #+END_SRC
 
     #+RESULTS:
+
+*** Modo vikingo
+
+[[https://github.com/TLINDEN/viking-mode/blob/master/README.md][kill first, ask later]]
+
+#+BEGIN_SRC emacs-lisp
+(use-package viking-mode
+  :diminish viking-mode
+  :config
+  (viking-global-mode)
+  (setq viking-greedy-kill nil)
+  (setq viking-enable-region-kill t)
+  )
+#+END_SRC
+
+#+RESULTS:
+: t
 
 *** Company mode
 
@@ -1141,10 +1353,12 @@ Por último, validadores
   :init
   (add-hook 'prog-mode-hook 'flycheck-mode)
   :config
+  (set-face-underline 'flycheck-error '(:color "#dc322f" :style line))
   (setq flycheck-highlighting-mode 'lines)
   (setq flycheck-indication-mode nil)
   (setq flycheck-display-errors-delay 1.5)
   (setq flycheck-idle-change-delay 3)
+  (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
   (setq flycheck-check-syntax-automatically '(mode-enabled save))
 
   (flycheck-define-checker proselint
@@ -1158,6 +1372,10 @@ Por último, validadores
 
   (add-to-list 'flycheck-checkers 'proselint))
 
+#+END_SRC
+
+
+#+BEGIN_SRC emacs-lisp
 (use-package flyspell
   :commands flyspell-mode
   :init
@@ -1168,7 +1386,29 @@ Por último, validadores
   (setq ispell-local-dictionary-alist
         '(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil nil nil utf-8)
           ("es_MX" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil nil nil utf-8)))
-  (flyspell-mode 1))
+  (flyspell-mode 1)
+
+  (set-face-underline 'flyspell-incorrect
+                      '(:color "#dc322f" :style line))
+
+  (defun change-dictionary-spanish ()
+    (interactive)
+    (ispell-change-dictionary "espanol"))
+
+  (defun change-dictionary-english ()
+    (interactive)
+    (ispell-change-dictionary "english"))
+
+  :hook (org-mode . (lambda () (setq ispell-parser 'tex)))
+  :bind (:map flyspell-mode-map
+              ("C-c d s" . change-dictionary-spanish)
+              ("C-c d e" . change-dictionary-english)))
+#+END_SRC
+
+#+RESULTS:
+: change-dictionary-english
+
+#+BEGIN_SRC emacs-lisp
 (use-package flyspell-correct-ivy
   :ensure t
   :after flyspell
@@ -1177,10 +1417,81 @@ Por último, validadores
 #+END_SRC
 
 #+RESULTS:
-: flyspell-correct-word-generic
 
+Por último, no queremos ejecutar flyspell /dentro/ de los bloques de =org=mode=
+
+#+BEGIN_SRC emacs-lisp
+(defadvice org-mode-flyspell-verify (after org-mode-flyspell-verify-hack activate)
+  (let* ((rlt ad-return-value)
+         (begin-regexp "^[ \t]*#\\+begin_\\(src\\|html\\|latex\\|example\\|quote\\)")
+         (end-regexp "^[ \t]*#\\+end_\\(src\\|html\\|latex\\|example\\|quote\\)")
+         (case-fold-search t)
+         b e)
+    (when ad-return-value
+      (save-excursion
+        (setq b (re-search-backward begin-regexp nil t))
+        (if b (setq e (re-search-forward end-regexp nil t))))
+      (if (and b e (< (point) e)) (setq rlt nil)))
+    (setq ad-return-value rlt)))
+#+END_SRC
+
+#+RESULTS:
+: org-mode-flyspell-verify
 
 ** Major modes
+
+*** Helm
+
+#+BEGIN_SRC emacs-lisp
+(use-package flx)
+(use-package helm-flx)
+(use-package helm
+  :demand
+  :diminish helm-mode
+  :bind (("M-x" . helm-M-x)
+         ("M-y" . helm-show-kill-ring)
+         ("C-x b" . helm-mini)
+         ("C-x C-f" . helm-find-files)
+         ("C-x r l" . helm-bookmarks)
+         ("C-c s" . helm-occur)
+         :map helm-find-files-map ;; I like these from Ido
+         ("C-<tab>"         . helm-execute-persistent-action)
+         ("C-<backspace>" . helm-find-files-up-one-level))
+  :config
+  (helm-mode 1)
+  (helm-flx-mode +1)
+  (setq helm-M-x-fuzzy-match t)
+  (setq helm-locate-fuzzy-match t)
+  (setq helm-lisp-fuzzy-completion t)
+  (setq helm-bookmark-show-location t))
+#+END_SRC
+
+#+RESULTS:
+: helm-find-files-up-one-level
+
+Agreguemos =imenu=
+
+#+BEGIN_SRC emacs-lisp
+(defun imenu-anywhere-same-buffer-p (current other)
+  (eq current other))
+
+(use-package imenu-anywhere
+  :bind (("C-c C-i" . helm-imenu-anywhere))
+  :config (setq imenu-anywhere-buffer-filter-functions
+                '(imenu-anywhere-same-buffer-p)))
+#+END_SRC
+
+#+RESULTS:
+: helm-imenu-anywhere
+
+Finalmente [[https://github.com/emacs-helm/helm-system-packages]["A Helm interface to the package manager of your operating system"]]
+
+#+BEGIN_SRC emacs-lisp
+(use-package helm-system-packages)
+#+END_SRC
+
+#+RESULTS:
+
 
 *** TeX
 
@@ -1425,6 +1736,10 @@ Por último, validadores
 
 *** =cider=
 
+(use-package clojure-mode
+  :ensure t
+  :demand t)
+
 #+BEGIN_SRC emacs-lisp
 (use-package cider
   :ensure t
@@ -1536,59 +1851,75 @@ pip install blockdiag seqdiag actdiag nwdiag
 apt install phantomjs
 #+END_SRC
 
+Esto también lo vamos a ocupar
 
 #+BEGIN_SRC emacs-lisp
-     (require 'ob-emacs-lisp)
+(use-package restclient
+  :mode ("\\.restclient\\'" . restclient-mode))
 
-     (use-package ob-http
-       :config
-       (require 'ob-http)
-       )
+(use-package company-restclient
+  :config (add-to-list 'company-backends 'company-restclient))
+#+END_SRC
 
-     (use-package ob-async
-       :config
-       (require 'ob-async)
-       )
-
-     (use-package ob-ipython
-       :ensure t
-       :config
-       (require 'ob-ipython)
-       )
-
-     (use-package ob-mongo
-       :config
-       (require 'ob-mongo)
-       )
-
-     (use-package ob-cypher
-       :config
-       (require 'ob-cypher)
-       )
-
-     (use-package ob-sql-mode
-       :config
-       (require 'ob-sql-mode)
-       )
-
-     (use-package ob-prolog
-       :config
-       (require 'ob-prolog))
+#+RESULTS:
+: t
 
 
-     (use-package ob-blockdiag
-       :config
-       (require 'ob-blockdiag))
+#+BEGIN_SRC emacs-lisp
+(require 'ob-emacs-lisp)
 
-     (use-package ob-browser
-       :config
-       (require 'ob-browser))
+(use-package ob-http
+  :config
+  (require 'ob-http)
+  )
 
-     (use-package ob-async :ensure t)
+(use-package ob-async
+  :config
+  (require 'ob-async)
+  )
+
+(use-package ob-ipython
+  :ensure t
+  :config
+  (require 'ob-ipython)
+  )
+
+(use-package ob-mongo
+  :config
+  (require 'ob-mongo)
+  )
+
+(use-package ob-cypher
+  :config
+  (require 'ob-cypher)
+  )
+
+(use-package ob-sql-mode
+  :config
+  (require 'ob-sql-mode)
+  )
+
+(use-package ob-prolog
+  :config
+  (require 'ob-prolog))
+
+
+(use-package ob-blockdiag
+  :config
+  (require 'ob-blockdiag))
+
+(use-package ob-browser
+  :config
+  (require 'ob-browser))
+
+(use-package ob-async :ensure t)
+
+(use-package ob-restclient :ensure t)
 
 #+END_SRC
 
 #+RESULTS:
+
 
 **** Cuerpo principal
 
@@ -1629,12 +1960,14 @@ apt install phantomjs
         org-directory "~/Dropbox/org"
         org-pretty-entities t   ;; Enable pretty entities - shows e.g. α β γ as UTF-8 characters.
         org-image-actual-width 800   ;; I can display inline images. Set them to have a maximum size so large images don't fill the screen.
+        org-src-preserve-indentation t
         )
   :hook
   (org-babel-after-execute . org-display-inline-images)
   (org-mode . org-display-inline-images)
   (org-mode . org-babel-result-hide-all)
   (org-mode . turn-on-auto-fill)
+  (org-mode . flyspell-mode)
 
   :config
   ;; Hace más grandes las imágenes de ecuaciones de LaTeX cuando tienes activado
@@ -1645,6 +1978,10 @@ apt install phantomjs
 
   (setq org-bullets-face-name (quote org-bullet-face))   ;; make available "org-bullet-face" such that I can control the font size individually
 
+  (defun org-file-path (filename)
+    "Return the absolute address of an org file, given its relative name."
+    (concat (file-name-as-directory org-directory) filename))
+
   )
 
 
@@ -1654,19 +1991,27 @@ apt install phantomjs
 #+RESULTS:
 : org-clock-out
 
-=Org-agenda=
+**** =Org agenda=
+
+- =research.org=
+- =dsapp.org=
+- =proyectos.org=
+- =refile.org=
+- =diary.org=
 
 #+BEGIN_SRC emacs-lisp
 
 (use-package org
   :config
-  (setq org-agenda-files (quote ("~/Dropbox/org"
-                                 "~/Dropbox/org/research.org"
-                                 "~/Dropbox/org/dsapp.org"
-                                 "~/Dropbox/org/proyectos.org"
-                                 )))
 
-  (when (file-exists-p "~/Dropbox/org/todo.org")
+  (setq org-agenda-files (list (org-file-path "research.org")
+                               (org-file-path "dsapp.org")
+                               (org-file-path "proyectos.org")
+                               (org-file-path "diary.org")
+                               (org-file-path "refile.org")
+                               ))
+
+  (when (file-exists-p (org-file-path "todo.org"))
     (setq org-agenda-files
           (append org-agenda-files '("~/Dropbox/org/todo.org"))))
 
@@ -1685,6 +2030,12 @@ apt install phantomjs
   (setq org-agenda-todo-ignore-with-date t)
   (setq org-agenda-start-on-weekday nil) ;; start on current day
 
+  ;; Do not dim blocked tasks
+  (setq org-agenda-dim-blocked-tasks nil)
+
+  ;; Compact the block agenda view
+  (setq org-agenda-compact-blocks t)
+
   (setq org-upcoming-deadline '(:foreground "blue" :weight bold))
 
   ;; record time I finished a task when I change it to DONE
@@ -1693,31 +2044,19 @@ apt install phantomjs
   ;; use timestamps in date-trees. for the journal
   (setq org-datetree-add-timestamp 'active)
 
-  ;; Org-clock
-  ;; Resume clocking task when emacs is restarted
-  (org-clock-persistence-insinuate)
-  ;;
-  ;; Show lot of clocking history so it's easy to pick items off the C-F11 list
-  (setq org-clock-history-length 23)
-  ;; Resume clocking task on clock-in if the clock is open
-  (setq org-clock-in-resume t)
-  ;; Separate drawers for clocking and logs
-  (setq org-drawers (quote ("PROPERTIES" "LOGBOOK")))
-  ;; Save clock data and state changes and notes in the LOGBOOK drawer
-  (setq org-clock-into-drawer t)
-  ;; Sometimes I change tasks I'm clocking quickly - this removes clocked tasks with 0:00 duration
-  (setq org-clock-out-remove-zero-time-clocks t)
-  ;; Clock out when moving task to a done state
-  (setq org-clock-out-when-done t)
-  ;; Save the running clock and all clock history when exiting Emacs, load it on startup
-  (setq org-clock-persist t)
-  ;; Do not prompt to resume an active clock
-  (setq org-clock-persist-query-resume nil)
-  ;; Enable auto clock resolution for finding open clocks
-  (setq org-clock-auto-clock-resolution (quote when-no-clock-is-running))
-  ;; Include current clocking task in clock reports
-  (setq org-clock-report-include-clocking-task t)
 
+  )
+
+#+END_SRC
+
+#+RESULTS:
+: t
+
+**** Capture-refile-archive
+
+#+BEGIN_SRC emacs-lisp
+(use-package org
+  :config
   ;; Capture
   (setq org-capture-templates
         (quote (("t" "todo" entry (file "~/Dropbox/org/refile.org")
@@ -1726,6 +2065,8 @@ apt install phantomjs
                  "* %? :IDEA:\n%U\n%a\n" :clock-in t :clock-resume t)
                 ("j" "journal" entry (file+datetree "~/Dropbox/org/diary.org")
                  "* %?\n%U\n" :clock-in t :clock-resume t)
+                ("x" "org-protocol" entry (file "~/Dropbox/org/refile.org")
+                 "* TODO Review %c \n Added:%T\n")
                 )))
 
   ;; Refile
@@ -1757,15 +2098,171 @@ apt install phantomjs
         )
 
   )
+#+END_SRC
+
+**** Org clock
+
+#+BEGIN_SRC emacs-lisp
+(use-package org
+  :config
+  ;; Org-clock
+  ;; Resume clocking task when emacs is restarted
+  (org-clock-persistence-insinuate)
+  ;;
+  ;; Show lot of clocking history so it's easy to pick items off the C-F11 list
+  (setq org-clock-history-length 23)
+  ;; Resume clocking task on clock-in if the clock is open
+  (setq org-clock-in-resume t)
+  ;; Separate drawers for clocking and logs
+  (setq org-drawers (quote ("PROPERTIES" "LOGBOOK")))
+  ;; Save clock data and state changes and notes in the LOGBOOK drawer
+  (setq org-clock-into-drawer t)
+  ;; Sometimes I change tasks I'm clocking quickly - this removes clocked tasks with 0:00 duration
+  (setq org-clock-out-remove-zero-time-clocks t)
+  ;; Clock out when moving task to a done state
+  (setq org-clock-out-when-done t)
+  ;; Save the running clock and all clock history when exiting Emacs, load it on startup
+  (setq org-clock-persist t)
+  ;; Do not prompt to resume an active clock
+  (setq org-clock-persist-query-resume nil)
+  ;; Enable auto clock resolution for finding open clocks
+  (setq org-clock-auto-clock-resolution (quote when-no-clock-is-running))
+  ;; Include current clocking task in clock reports
+  (setq org-clock-report-include-clocking-task t)
+
+ )
+#+END_SRC
+
+Las siguientes funciones fueron copiadas de [[http://doc.norang.ca/org-mode.html][Org-mode - Organize Your Life In Plain Text!]]
+
+#+BEGIN_SRC emacs-lisp
+
+(setq nanounanue/keep-clock-running nil)
+
+(defun nanounanue/clock-in-to-next (kw)
+  "Switch a task from TODO to NEXT when clocking in.
+Skips capture tasks, projects, and subprojects.
+Switch projects and subprojects from NEXT back to TODO"
+  (when (not (and (boundp 'org-capture-mode) org-capture-mode))
+    (cond
+     ((and (member (org-get-todo-state) (list "TODO"))
+           (nanounanue/is-task-p))
+      "NEXT")
+     ((and (member (org-get-todo-state) (list "NEXT"))
+           (nanounanue/is-project-p))
+      "TODO"))))
+
+(defun nanounanue/find-project-task ()
+  "Move point to the parent (project) task if any"
+  (save-restriction
+    (widen)
+    (let ((parent-task (save-excursion (org-back-to-heading 'invisible-ok) (point))))
+      (while (org-up-heading-safe)
+        (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
+          (setq parent-task (point))))
+      (goto-char parent-task)
+      parent-task)))
+
+(defun nanounanue/punch-in (arg)
+  "Start continuous clocking and set the default task to the
+selected task.  If no task is selected set the Organization task
+as the default task."
+  (interactive "p")
+  (setq nanounanue/keep-clock-running t)
+  (if (equal major-mode 'org-agenda-mode)
+      ;;
+      ;; We're in the agenda
+      ;;
+      (let* ((marker (org-get-at-bol 'org-hd-marker))
+             (tags (org-with-point-at marker (org-get-tags-at))))
+        (if (and (eq arg 4) tags)
+            (org-agenda-clock-in '(16))
+          (nanounanue/clock-in-organization-task-as-default)))
+    ;;
+    ;; We are not in the agenda
+    ;;
+    (save-restriction
+      (widen)
+      ; Find the tags on the current task
+      (if (and (equal major-mode 'org-mode) (not (org-before-first-heading-p)) (eq arg 4))
+          (org-clock-in '(16))
+        (nanounanue/clock-in-organization-task-as-default)))))
+
+(defun nanounanue/punch-out ()
+  (interactive)
+  (setq nanounanue/keep-clock-running nil)
+  (when (org-clock-is-active)
+    (org-clock-out))
+  (org-agenda-remove-restriction-lock))
+
+(defun nanounanue/clock-in-default-task ()
+  (save-excursion
+    (org-with-point-at org-clock-default-task
+      (org-clock-in))))
+
+(defun nanounanue/clock-in-parent-task ()
+  "Move point to the parent (project) task if any and clock in"
+  (let ((parent-task))
+    (save-excursion
+      (save-restriction
+        (widen)
+        (while (and (not parent-task) (org-up-heading-safe))
+          (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
+            (setq parent-task (point))))
+        (if parent-task
+            (org-with-point-at parent-task
+              (org-clock-in))
+          (when nanounanue/keep-clock-running
+            (nanounanue/clock-in-default-task)))))))
+
+(defvar nanounanue/organization-task-id "eb155a82-92b2-4f25-a3c6-0304591af2f9")
+
+(defun nanounanue/clock-in-organization-task-as-default ()
+  (interactive)
+  (org-with-point-at (org-id-find nanounanue/organization-task-id 'marker)
+    (org-clock-in '(16))))
+
+(defun nanounanue/clock-out-maybe ()
+  (when (and nanounanue/keep-clock-running
+             (not org-clock-clocking-in)
+             (marker-buffer org-clock-default-task)
+             (not org-clock-resolving-clocks-due-to-idleness))
+    (nanounanue/clock-in-parent-task)))
+
+(add-hook 'org-clock-out-hook 'nanounanue/clock-out-maybe 'append)
+
+(require 'org-id)
+(defun nanounanue/clock-in-task-by-id (id)
+  "Clock in a task by id"
+  (org-with-point-at (org-id-find id 'marker)
+    (org-clock-in nil)))
+
+(defun nanounanue/clock-in-last-task (arg)
+  "Clock in the interrupted task if there is one
+Skip the default task and get the next one.
+A prefix arg forces clock in of the default task."
+  (interactive "p")
+  (let ((clock-in-to-task
+         (cond
+          ((eq arg 4) org-clock-default-task)
+          ((and (org-clock-is-active)
+                (equal org-clock-default-task (cadr org-clock-history)))
+           (caddr org-clock-history))
+          ((org-clock-is-active) (cadr org-clock-history))
+          ((equal org-clock-default-task (car org-clock-history)) (cadr org-clock-history))
+          (t (car org-clock-history)))))
+    (widen)
+    (org-with-point-at clock-in-to-task
+      (org-clock-in nil))))
 
 
 #+END_SRC
 
 #+RESULTS:
-: t
+: nanounanue/clock-in-last-task
 
 
-Org-babel
+**** Org-babel
 
 #+BEGIN_SRC emacs-lisp
   ;; Org-babel
@@ -1867,8 +2364,54 @@ citecolor=blue,filecolor=blue,menucolor=blue,urlcolor=blue"
 
   )
 
+(add-to-list 'org-latex-default-packages-alist '("" "natbib" "") t)
+(add-to-list 'org-latex-default-packages-alist
+             '("linktocpage,pdfstartview=FitH,colorlinks
+-linkcolor=black,anchorcolor=black,
+-citecolor=black,filecolor=blue,menucolor=black,urlcolor=blue"
+               "hyperref" nil)
+             t)
+
 #+END_SRC
 
+#+RESULTS:
+| AUTO                                      | inputenc   | t   |
+|                                           | lmodern    | nil |
+| T1                                        | fontenc    | t   |
+|                                           | fixltx2e   | nil |
+|                                           | graphicx   | t   |
+|                                           | longtable  | nil |
+|                                           | float      | nil |
+|                                           | wrapfig    | nil |
+|                                           | rotating   | nil |
+| normalem                                  | ulem       | t   |
+|                                           | amsmath    | t   |
+|                                           | textcomp   | t   |
+|                                           | marvosym   | t   |
+|                                           | wasysym    | t   |
+|                                           | amssymb    | t   |
+|                                           | amsmath    | t   |
+| version=3                                 | mhchem     | t   |
+| numbers,super,sort&compress               | natbib     | nil |
+|                                           | natmove    | nil |
+|                                           | url        | nil |
+|                                           | minted     | nil |
+|                                           | underscore | nil |
+| linktocpage,pdfstartview=FitH,colorlinks, |            |     |
+
+Borrar archivos intermedios automáticamente al expoertar
+
+#+BEGIN_SRC emacs-lisp
+(use-package org
+  :config
+  (setq org-latex-logfiles-extensions
+        '("lof" "lot" "tex=" "aux" "idx" "log" "out" "toc" "nav" "snm" "vrb"
+          "dvi" "fdb_latexmk" "blg" "brf" "fls" "entoc" "ps" "spl" "bbl"))
+  )
+#+END_SRC
+
+#+RESULTS:
+: t
 
 Templates para bloques =org-babel=
 
@@ -1881,9 +2424,49 @@ Templates para bloques =org-babel=
                '("sh" "#+BEGIN_SRC sh\n?\n#+END_SRC"
                  "<src lang=\"shell\">\n?\n</src>"))
 
+  (add-to-list 'org-structure-template-alist
+	           '("p" "#+BEGIN_SRC ipython :results output org drawer\n?\n#+END_SRC"
+	             "<src lang=\"ipython\">\n?\n</src>"))
+
+  ;; add <por for python expansion with raw output
+  (add-to-list 'org-structure-template-alist
+	           '("por" "#+BEGIN_SRC ipython :results output raw\n?\n#+END_SRC"
+	             "<src lang=\"ipython\">\n?\n</src>"))
+
+  ;; add <pv for python expansion with value
+  (add-to-list 'org-structure-template-alist
+	           '("pv" "#+BEGIN_SRC ipython :results value\n?\n#+END_SRC"
+                 "<src lang=\"ipython\">\n?\n</src>"))
 
   )
 #+END_SRC
+
+#+RESULTS:
+: t
+
+Templates para LaTeX
+
+#+BEGIN_SRC emacs-lisp
+(use-package org
+
+  :config
+(require 'ox-latex)
+(add-to-list 'org-latex-packages-alist '("" "color"))
+(add-to-list 'org-latex-packages-alist '("" "listings"))
+(setq org-latex-listings 'listings)
+
+  (add-to-list 'org-latex-classes
+               '("IEEEtran" "\\documentclass[11pt]{IEEEtran}"
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))
+               t)
+  )
+
+#+END_SRC
+
 
 Más comandos rápidos
 
@@ -1973,8 +2556,6 @@ Habilitando mas tipos de imágenes a desplegar en =org-mode=
 
 #+END_SRC
 
-
-
 **** De =html= a =org=
 
 +Tomado+ Copiado de [[https://github.com/howardabrams/dot-files/blob/master/emacs-org.org][aquí]]
@@ -2037,6 +2618,20 @@ Synchronize Org-mode Files with Bug Tracking systems
 #+END_SRC
 
 #+RESULTS:
+
+**** [[https://github.com/stardiviner/org-sync-snippets][org-sync-snippets]]
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-sync-snippets
+  :ensure t
+  :config
+  (setq org-sync-snippets-org-snippet-file "~/Dropbox/org/snippets.org")
+  (setq org-sync-snippets-snippets-dir "~/Dropbox/snippets")
+  )
+#+END_SRC
+
+#+RESULTS:
+: t
 
 **** [[https://github.com/gizmomogwai/org-kanban][org-kanban]]
 
@@ -2184,7 +2779,7 @@ Al exportar archivos =org-mode= a  =HTML= aparecen algunos errores raros debido 
 #+RESULTS:
 
 
-**** [[https://github.com/alphapapa/org-web-tools][org-web-tools]]
+***** [[https://github.com/alphapapa/org-web-tools][org-web-tools]]
 
 #+BEGIN_QUOTE
 org-web-tools-insert-link-for-url: Insert an Org-mode link to the URL
@@ -2209,7 +2804,7 @@ contains a list of URLs or links.
 
 #+RESULTS:
 
-**** =org-tree-slide=
+***** =org-tree-slide=
 
 #+BEGIN_SRC emacs-lisp
 (use-package org-tree-slide
@@ -2230,7 +2825,7 @@ contains a list of URLs or links.
 #+RESULTS:
 : org-tree-slide-content
 
-**** =org-projectile=
+***** =org-projectile=
 
 #+BEGIN_SRC emacs-lisp
 
@@ -2251,7 +2846,7 @@ contains a list of URLs or links.
 #+RESULTS:
      : org-capture
 
-**** =ivy-bibtex=
+***** =ivy-bibtex=
 
 #+BEGIN_SRC emacs-lisp
 (use-package ivy-bibtex
@@ -2268,7 +2863,7 @@ contains a list of URLs or links.
 : t
 
 
-**** =org-ref=
+***** =org-ref=
 
 #+BEGIN_SRC emacs-lisp
 (use-package org-ref
@@ -2279,14 +2874,20 @@ contains a list of URLs or links.
   ;; see org-ref for use of these variables
   (setq org-ref-bibliography-notes "~/Dropbox/bibliography/notes.org"
         org-ref-default-bibliography '("~/Dropbox/bibliography/references.bib")
-        org-ref-pdf-directory "~/Dropbox/bibliography/bibtex-pdfs/")
+        org-ref-pdf-directory "~/Dropbox/bibliography/bibtex-pdfs/"
+        org-latex-prefer-user-labels t
+        org-latex-pdf-process
+        '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+          "bibtex %b"
+          "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+          "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
   )
 #+END_SRC
 
 #+RESULTS:
      : ~/Dropbox/bibliography/bibtex-pdfs/
 
-**** =interleave=
+***** =interleave=
 
 Del sitio [[https://github.com/rudolfochrist/interleave][web]]:
 
@@ -2323,7 +2924,7 @@ In a later step it should be possible to create truly interleaved PDFs of your n
 #+RESULTS:
 : interleave-mode
 
-**** =org-present=
+***** =org-present=
 
 #+BEGIN_SRC emacs-lisp
 (use-package org-present
@@ -2353,7 +2954,7 @@ In a later step it should be possible to create truly interleaved PDFs of your n
 #+RESULTS:
 | lambda | nil | (global-linum-mode -1) | (org-present-small) | (org-remove-inline-images) | (org-present-show-cursor) | (org-present-read-write) |
 
-**** =org-bullets=
+***** =org-bullets=
 
 #+BEGIN_SRC emacs-lisp
 (use-package org-bullets
@@ -2369,7 +2970,7 @@ In a later step it should be possible to create truly interleaved PDFs of your n
 
 #+RESULTS:
 
-**** =org-attach-screenshot=
+***** =org-attach-screenshot=
 
 #+BEGIN_SRC emacs-lisp
 (use-package org-attach-screenshot
@@ -2383,24 +2984,6 @@ In a later step it should be possible to create truly interleaved PDFs of your n
 #+RESULTS:
      : org-attach-screenshot
 
-
-*** Elisp
-
-#+BEGIN_SRC emacs-lisp
-;; Disable checking doc
-(use-package flycheck
-  :config
-  (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
-
-
-;; Package lint
-(use-package package-lint :ensure t)
-
-;; Pretty print for lisp
-(use-package ipretty :ensure t)
-#+END_SRC
-
-#+RESULTS:
 
 *** =sql=
 
@@ -2556,6 +3139,17 @@ In a later step it should be possible to create truly interleaved PDFs of your n
 
 #+RESULTS:
 
+#+BEGIN_SRC emacs-lisp
+;; Package lint
+(use-package package-lint :ensure t)
+
+;; Pretty print for lisp
+(use-package ipretty :ensure t)
+#+END_SRC
+
+#+RESULTS:
+
+
 *** =Docker=
 
     #+BEGIN_SRC emacs-lisp
@@ -2578,6 +3172,7 @@ In a later step it should be possible to create truly interleaved PDFs of your n
       user           is the user that you want to use (optional)
       container      is the id or name of the container
     #+END_EXAMPLE
+
 
 
 **** Links relacionados
@@ -2633,11 +3228,18 @@ Tutorial: http://jblevins.org/projects/markdown-mode/
 *** =yaml=
 
 #+BEGIN_SRC emacs-lisp
-(use-package yaml-mode :ensure t :mode "\\.ya?ml")
+(use-package yaml-mode
+  :ensure t
+  :mode "\\.ya?ml"
+  :config
+  (add-hook 'yaml-mode-hook 'flycheck-mode)
+  (add-hook 'yaml-mode-hook 'flyspell-mode)
+  )
 (use-package yaml-tomato :ensure t)
 #+END_SRC
 
 #+RESULTS:
+
 
 *** =mmm=
 
@@ -2657,6 +3259,7 @@ Tutorial: http://jblevins.org/projects/markdown-mode/
 #+RESULTS:
 : t
 
+
 *** =python=
 #+BEGIN_SRC emacs-lisp
 (use-package anaconda-mode
@@ -2668,6 +3271,20 @@ Tutorial: http://jblevins.org/projects/markdown-mode/
 
 #+RESULTS:
 : t
+
+#+BEGIN_SRC emacs-lisp
+(use-package sphinx-doc
+  :ensure t
+  :hook (python-mode . sphinx-doc-mode))
+
+(use-package python-docstring
+  :ensure t
+  :config (setq python-docstring-sentence-end-double-space nil)
+  :hook (python-mode . python-docstring-mode))
+#+END_SRC
+
+#+RESULTS:
+| python-docstring-mode | sphinx-doc-mode | er/add-python-mode-expansions | anaconda-eldoc-mode | anaconda-mode | (lambda nil (nanounanue/pretty-symbol-push-default) (setq prettify-symbols-alist (cons '(def . 402) prettify-symbols-alist)) (setq prettify-symbols-alist (cons '(sum . 931) prettify-symbols-alist)) (setq prettify-symbols-alist (cons '(**2 . 178) prettify-symbols-alist)) (setq prettify-symbols-alist (cons '(**3 . 179) prettify-symbols-alist)) (setq prettify-symbols-alist (cons '(None . 8709) prettify-symbols-alist)) (setq prettify-symbols-alist (cons '(in . 8712) prettify-symbols-alist)) (setq prettify-symbols-alist (cons '(not in . 8713) prettify-symbols-alist)) (setq prettify-symbols-alist (cons '(return . 10145) prettify-symbols-alist)) (prettify-symbols-mode t)) | highlight-parentheses-mode |
 
 *** [[https://github.com/skuro/plantuml-mode][plantuml]]
 
@@ -2693,6 +3310,19 @@ Agregamos este modo a =org-mode=
 #+END_SRC
 
 #+RESULTS:
+
+*** =slime=
+
+#+BEGIN_SRC emacs-lisp
+(use-package slime
+  :ensure t
+  :config
+  (setq inferior-lisp-program "sbcl")
+  )
+#+END_SRC
+
+#+RESULTS:
+: t
 
 ** Blog
 
@@ -2769,7 +3399,15 @@ Agregamos este modo a =org-mode=
 
 #+RESULTS:
 
-*** =eyebrowse=
+*** [[https://github.com/wasamasa/eyebrowse][eyebrowse]]
+
+| Key                 | Explicación                       |
+|---------------------+-----------------------------------|
+| =C-c C-w [un número]= | mover/crear /window configurations/ |
+| =C-c C-w "=           | cerrar el /window config/           |
+| =C-c C-w ,=           | nombrar el /window config/          |
+| =C-c C-w [< > ']=     | navegar entre /window config/       |
+
 #+BEGIN_SRC emacs-lisp
 (use-package eyebrowse
   :ensure t
@@ -2780,7 +3418,6 @@ Agregamos este modo a =org-mode=
 
 #+RESULTS:
 : t
-
 
 
 *** =fancy-narrow=
@@ -2908,6 +3545,15 @@ Configuración tomada de [[https://ekaschalk.github.io/post/pretty-magit/][aquí
 
 #+RESULTS:
 
+#+BEGIN_SRC emacs-lisp
+(use-package magit-todos
+  :ensure t
+  :config (magit-todos-mode))
+#+END_SRC
+
+#+RESULTS:
+: t
+
 **** Edición
 
 #+BEGIN_SRC emacs-lisp
@@ -2959,15 +3605,22 @@ git config --global magithub.cache always
 Muestra los cambios en archivos controlados por =git=
 
 #+BEGIN_SRC emacs-lisp
-(use-package git-gutter+
+(use-package git-gutter
+  :ensure git-gutter-fringe
   :diminish
   :defer t
   :config
-  (global-git-gutter+-mode)
+  (global-git-gutter-mode 't)
+  (set-face-background 'git-gutter:modified 'nil) ;; background color
+  (set-face-foreground 'git-gutter:added "green4")
+  (set-face-foreground 'git-gutter:deleted "red")
+  :hook ((prog-mode . git-gutter-mode)
+         (org-mode . git-gutter-mode))
   )
 #+END_SRC
 
 #+RESULTS:
+| git-gutter-mode | (lambda nil (org-bullets-mode 1)) | org-clock-load | turn-on-auto-fill | org-babel-result-hide-all | org-display-inline-images | ob-ipython-auto-configure-kernels | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-show-block-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes | company-mode | rainbow-delimiters-mode | highlight-parentheses-mode |
 
 **** =git-messenger=
 
@@ -3020,8 +3673,16 @@ Puedes cambiar el tema de =eshell= tecleando =use-theme= en la consola
             (lambda ()
               (add-to-list 'eshell-visual-commands "ssh")
               (add-to-list 'eshell-visual-commands "tail")
-              (add-to-list 'eshell-visual-commands "top"))))
+              (add-to-list 'eshell-visual-commands "top")
+              (add-to-list 'eshell-visual-commands "htop")
+              (add-to-list 'eshell-visual-commands "less")
+              (add-to-list 'eshell-visual-commands "more")
+              ))
 
+
+  (setq eshell-visual-subcommands '("git" "log" "diff" "show" "ssh"))
+
+  )
 (setq eshell-list-files-after-cd t)
 (setq eshell-ls-initial-args "-lh")
 
@@ -3414,6 +4075,11 @@ Para usr este paquete con  =org-mode=:
 (use-package org-pdfview
   :after org
   :ensure t
+  :config
+  (delete '("\\.pdf\\'" . default) org-file-apps)
+  (add-to-list
+   'org-file-apps
+   '("\\.pdf\\'" . (lambda (file link) (org-pdfview-open link))))
   )
 
 
@@ -3498,14 +4164,54 @@ Para usr este paquete con  =org-mode=:
 
 +RESULTS:
 
+*** Dired
+
 Modificando un poquito =dired=
 
 #+BEGIN_SRC emacs-lisp
+;; (use-package dired
+;;   :config
+;;   (setq dired-dwim-target t)
+;;   :hook (dired-mode . dired-hide-details-mode))
+
+(use-package all-the-icons-dired
+  :ensure t
+  :hook (dired-mode . all-the-icons-dired-mode))
+
+(use-package dired-sidebar
+  :ensure t
+  :bind (("C-c s" . dired-sidebar-toggle-sidebar)))
+
+
 (setq dired-listing-switches "-lh --group-directories-first")
+
+;; dired - reuse current buffer by pressing 'a'
+(put 'dired-find-alternate-file 'disabled nil)
+
+;; always delete and copy recursively
+(setq dired-recursive-deletes 'always)
+(setq dired-recursive-copies 'always)
+
+;; if there is a dired buffer displayed in the next window, use its
+;; current subdir, instead of the current subdir of this dired buffer
+(setq dired-dwim-target t)
+
+;; enable some really cool extensions like C-x C-j(dired-jump)
+(require 'dired-x)
+
+;; human readable sizes
+(setq dired-listing-switches "-alh")
+
+;; ediff - don't start another frame
+(require 'ediff)
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+
+;; clean up obsolete buffers automatically
+(require 'midnight)
 #+END_SRC
 
 #+RESULTS:
-: -lh --group-directories-first
+: midnight
 
 
 *** Escribiendo propiamente: [[https://github.com/bnbeckwith/writegood-mode][=writegood-mode=]]
@@ -3541,6 +4247,17 @@ Resalta las malas elecciones de palabras entre otras cosas
 
 #+RESULTS:
 : t
+
+*** =ibuffer=
+
+#+BEGIN_SRC emacs-lisp
+(use-package ibuffer-vc)
+(use-package ibuffer-git)
+(define-key global-map (kbd "C-x C-b") 'ibuffer)
+#+END_SRC
+
+#+RESULTS:
+: ibuffer
 
 *** Slack
 
@@ -3762,11 +4479,33 @@ T
 
 (global-set-key [f7] 'darkroom-tentative-mode)
 
+(global-set-key (kbd "<f9> s") 'nanounanue/switch-to-scratch)
+
 (global-set-key [f12] 'org-agenda)
+
+
+(global-set-key (kbd "<f9> I") 'nanounanue/punch-in)
+(global-set-key (kbd "<f9> O") 'nanounanue/punch-out)
+
+(global-set-key (kbd "<f9> v") 'visible-mode)
+(global-set-key (kbd "<f9> l") 'org-toggle-link-display)
+(global-set-key (kbd "<f9> SPC") 'nanounanue/clock-in-last-task)
+(global-set-key (kbd "C-<f9>") 'previous-buffer)
+(global-set-key (kbd "M-<f9>") 'org-toggle-inline-images)
+(global-set-key (kbd "C-<f10>") 'next-buffer)
+(global-set-key (kbd "M-<f11>") 'org-clock-goto)
+(global-set-key (kbd "C-<f11>") 'org-clock-in)
+
+(global-set-key (kbd "C-c c") 'org-capture)
+
+(defun nanounanue/switch-to-scratch ()
+  (interactive)
+  (switch-to-buffer "*scratch*"))
+
 #+END_SRC
 
 #+RESULTS:
-: org-agenda
+: nanounanue/switch-to-scratch
 
 
 ** Compilation
@@ -3839,12 +4578,49 @@ T
 
 #+RESULTS:
 
+** Modeline
+
+#+BEGIN_SRC emacs-lisp
+(use-package minions
+  :ensure t
+  :config
+  (setq minions-mode-line-lighter "[+]")
+  (minions-mode))
+
+(use-package moody
+  :ensure t
+  :config
+  (moody-replace-mode-line-buffer-identification)
+  (moody-replace-vc-mode)
+
+  (defun set-moody-face (frame)
+    (let ((line (face-attribute 'mode-line :underline frame)))
+      (set-face-attribute 'mode-line          frame :overline   line)
+      (set-face-attribute 'mode-line-inactive frame :overline   line)
+      (set-face-attribute 'mode-line-inactive frame :underline  line)
+      (set-face-attribute 'mode-line          frame :box        nil)
+      (set-face-attribute 'mode-line-inactive frame :box        nil)))
+
+  ;; (defun set-current-moody-face (&optional args)
+  ;;   (interactive)
+  ;;   (set-moody-face (selected-frame)))
+
+  (setq-default x-underline-at-descent-line t
+                column-number-mode t)
+
+  (add-to-list 'after-make-frame-functions 'set-moody-face t))
+  ;; (add-to-list 'after-make-frame-functions 'set-current-moody-face t))
+#+END_SRC
+
+#+RESULTS:
+: t
 
 
-** Telephone line
+*** Telephone line
 
 #+BEGIN_SRC emacs-lisp
 (use-package telephone-line
+  :disabled t
   :config (progn
             (require 'telephone-line-config)
             (telephone-line-mode 1)
@@ -3852,7 +4628,8 @@ T
 #+END_SRC
 
 #+RESULTS:
-: t
+
+
 
 ** [[https://github.com/kyanagi/scratch-ext-el][scratch-ext]]
 
@@ -3925,33 +4702,6 @@ T
 #+RESULTS:
 : t
 
-** Dired
-
-#+begin_src emacs-lisp
-;; dired - reuse current buffer by pressing 'a'
-(put 'dired-find-alternate-file 'disabled nil)
-
-;; always delete and copy recursively
-(setq dired-recursive-deletes 'always)
-(setq dired-recursive-copies 'always)
-
-;; if there is a dired buffer displayed in the next window, use its
-;; current subdir, instead of the current subdir of this dired buffer
-(setq dired-dwim-target t)
-
-;; enable some really cool extensions like C-x C-j(dired-jump)
-(require 'dired-x)
-
-;; ediff - don't start another frame
-(require 'ediff)
-(setq ediff-window-setup-function 'ediff-setup-windows-plain)
-
-;; clean up obsolete buffers automatically
-(require 'midnight)
-#+end_src
-
-#+RESULTS:
-: midnight
 
 
 * Edición en general
@@ -3996,8 +4746,46 @@ Regularmente quiero matar /este/ buffer
 #+RESULTS:
 : kill-buffer
 
+Deshabilitar /warning/ cuando matamos un /buffer/ con algún proceso
+
+#+BEGIN_SRC emacs-lisp
+(setq kill-buffer-query-functions
+  (remq 'process-kill-buffer-query-function
+         kill-buffer-query-functions))
+#+END_SRC
+
+#+RESULTS:
+| scratch-ext-kill-buffer-query-function |
+
 
 * Avanzado
+
+** sane-term
+#+BEGIN_SRC emacs-lisp
+(use-package sane-term
+  :ensure t
+  :config
+
+  (defun set-up-sane-term ()
+    "Fix yanking and prepare for sane-term-mode."
+    (setq-local global-hl-line-mode nil)
+    (define-key
+      term-raw-map
+      (kbd "C-y")
+      (lambda ()
+        (interactive)
+        (term-line-mode)
+        (yank)
+        (term-char-mode))))
+
+  :hook (term-mode . set-up-sane-term)
+  :bind (("C-c t" . sane-term)
+         ("C-c T" . sane-term-create)
+         ("C-c C-j" . sane-term-mode-toggle)))
+#+END_SRC
+
+#+RESULTS:
+: sane-term-mode-toggle
 
 ** Alert
 
@@ -4065,7 +4853,207 @@ Me gusta hacer las búsquedas sin salir de Emacs
 #+RESULTS:
 : t
 
+** =xkcd=
 
+Why not?
+
+#+BEGIN_SRC emacs-lisp
+(use-package xkcd)
+(defun showxkcd ()
+  "Call this to show xkcd comic of the day on start"
+  (require 'xkcd)
+  (xkcd)
+  (switch-to-buffer "*xkcd*"))
+#+END_SRC
+
+#+RESULTS:
+: showxkcd
+
+
+* Cheatsheet
+
+#+BEGIN_SRC emacs-lisp
+(use-package cheatsheet
+  :config
+  (setq cheatsheet--group-face '(:foreground "spring green"))
+  (setq cheatsheet--key-face '(:foreground "orchid")))
+#+END_SRC
+
+#+RESULTS:
+: t
+
+** Common
+#+BEGIN_SRC emacs-lisp
+(cheatsheet-add :group 'Common
+                :key "C-c r"
+                :description "Revert buffer")
+(cheatsheet-add :group 'Common
+                :key "C-c q"
+                :description "Turn on/off autofill mode")
+(cheatsheet-add :group 'Common
+                :key "C-x u"
+                :description "Show the undo-tree")
+(cheatsheet-add :group 'Common
+                :key "M-y"
+                :description "Show the kill-ring")
+(cheatsheet-add :group 'Common
+                :key "C-x r l"
+                :description "Show the bookmarks")
+(cheatsheet-add :group 'Common
+                :key "C-c s"
+                :description "Swoop search through buffer")
+(cheatsheet-add :group 'Common
+                :key "C-x w"
+                :description "Read news and RSS feeds")
+(cheatsheet-add :group 'Common
+                :key "C-c SPC"
+                :description "Jump to char")
+(cheatsheet-add :group 'Common
+                :key "C-c C-d"
+                :description "Hungry delete")
+(cheatsheet-add :group 'Common
+                :key "C-c i"
+                :description "Ciel kill")
+(cheatsheet-add :group 'Common
+                :key "C-M-h"
+                :description "Select region")
+(cheatsheet-add :group 'Common
+                :key "C-c +"
+                :description "Increment number at point")
+(cheatsheet-add :group 'Common
+                :key "C-c -"
+                :description "Decrement number at point")
+#+END_SRC
+
+** Org
+#+BEGIN_SRC emacs-lisp
+(cheatsheet-add :group 'Org
+                :key "C-c c"
+                :description "Org Capture")
+(cheatsheet-add :group 'Org
+                :key "C-c ^"
+                :description "Org sort")
+(cheatsheet-add :group 'Org
+                :key "C-c C-t"
+                :description "Org cycle todo")
+(cheatsheet-add :group 'Org
+                :key "C-c '"
+                :description "Edit code block")
+(cheatsheet-add :group 'Org
+                :key "C-c C-c"
+                :description "Evaluate source block")
+(cheatsheet-add :group 'Org
+                :key "C-c C-o"
+                :description "Show source block eval result")
+#+END_SRC
+
+** Projectile
+#+BEGIN_SRC emacs-lisp
+(cheatsheet-add :group 'Projectile
+                :key "C-c v"
+                :description "Find file in project")
+(cheatsheet-add :group 'Projectile
+                :key "C-c C-v"
+                :description "Find word in project")
+(cheatsheet-add :group 'Projectile
+                :key "C-c C-v C-w"
+                :description "Find word under cursor in project")
+(cheatsheet-add :group 'Projectile
+                :key "C-c w"
+                :description "Switch project")
+#+END_SRC
+
+** Emacs Lisp
+#+BEGIN_SRC emacs-lisp
+(cheatsheet-add :group 'Emacs-Lisp
+                :key "C-x C-e"
+                :description "Evaluate sexp")
+(cheatsheet-add :group 'Emacs-Lisp
+                :key "C-c x"
+                :description "Evaluate buffer")
+(cheatsheet-add :group 'Emacs-Lisp
+                :key "C-c X"
+                :description "Evaluate region")
+(cheatsheet-add :group 'Emacs-Lisp
+                :key "C-h f"
+                :description "Describe function")
+(cheatsheet-add :group 'Emacs-Lisp
+                :key "C-h v"
+                :description "Describe variable")
+#+END_SRC
+
+** Code
+#+BEGIN_SRC emacs-lisp
+(cheatsheet-add :group 'Code
+                :key "C-c C-i"
+                :description "List classes and functions in buffer via imenu")
+(cheatsheet-add :group 'Code
+                :key "C-x g"
+                :description "Summon Magit")
+(cheatsheet-add :group 'Code
+                :key "C-c f"
+                :description "Flycheck the buffer")
+(cheatsheet-add :group 'Code
+                :key "C-x C-;"
+                :description "Comment out current line")
+#+END_SRC
+
+** Multiple cursors
+#+BEGIN_SRC emacs-lisp
+(cheatsheet-add :group 'Multiple-Cursors
+                :key "C->"
+                :description "Mark next like this")
+(cheatsheet-add :group 'Multiple-Cursors
+                :key "C-<"
+                :description "Mark previous like this")
+(cheatsheet-add :group 'Multiple-Cursors
+                :key "C-c C-<"
+                :description "Mark all like this")
+(cheatsheet-add :group 'Multiple-Cursors
+                :key "C-S-<mouse-1>"
+                :description "Add cursor on click")
+#+END_SRC
+
+** Paredit
+#+BEGIN_SRC emacs-lisp
+(cheatsheet-add :group 'Paredit
+                :key "C-("
+                :description "Slurp left")
+(cheatsheet-add :group 'Paredit
+                :key "C-)"
+                :description "Slurp right")
+(cheatsheet-add :group 'Paredit
+                :key "C-{"
+                :description "Barf left")
+(cheatsheet-add :group 'Paredit
+                :key "C-}"
+                :description "Barf right")
+(cheatsheet-add :group 'Paredit
+                :key "M-("
+                :description "Wrap sexp in ()")
+(cheatsheet-add :group 'Paredit
+                :key "M-("
+                :description "Wrap sexp in ()")
+(cheatsheet-add :group 'Paredit
+                :key "M-s"
+                :description "Splice sexp out of ()")
+#+END_SRC
+
+** Eyebrowse
+#+BEGIN_SRC emacs-lisp
+  (cheatsheet-add :group 'Eyebrowse
+                  :key "C-c C-w 1"
+                  :description "Switch to workspace 1")
+  (cheatsheet-add :group 'Eyebrowse
+                  :key "C-c C-w 2"
+                  :description "Switch to workspace 2")
+  (cheatsheet-add :group 'Eyebrowse
+                  :key "C-c C-w '"
+                  :description "Switch to previous workspace")
+  (cheatsheet-add :group 'Eyebrowse
+                  :key "C-c C-w \""
+                  :description "Close current workspace")
+#+END_SRC
 
 * Environment
 
@@ -4081,3 +5069,9 @@ manera que tu terminal, este paquete ayuda a solucionar esto
 #+END_SRC
 
 #+RESULTS:
+
+* Server
+
+#+BEGIN_SRC emacs-lisp
+(server-start)
+#+END_SRC
