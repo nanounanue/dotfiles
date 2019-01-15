@@ -5072,9 +5072,3 @@ manera que tu terminal, este paquete ayuda a solucionar esto
 #+END_SRC
 
 #+RESULTS:
-
-* Server
-
-#+BEGIN_SRC emacs-lisp
-(server-start)
-#+END_SRC
