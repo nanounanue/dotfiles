@@ -187,15 +187,6 @@ Es necesario preparar =emacs= para poder instalar paquetes
 
 #+RESULTS:
 
-*** Un poco más de seguridad
-
-Para mayor referencia ver [[https://glyph.twistedmatrix.com/2015/11/editor-malware.html][Your Text Editor is Malware]]
-
-#+BEGIN_SRC emacs-lisp
-(setq tls-checktrust t)
-(setq gnutls-verify-error t)
-#+END_SRC
-
 *** =use-package=
 
 Esto hará que todo sea más ordenado.
@@ -449,16 +440,30 @@ Tomadas desde [[https://github.com/hbin/top-programming-fonts][top-programming-f
   (set-face-attribute 'fixed-pitch frame
                       :font "Overpass Mono 11"
                       :weight 'semibold)
-  (set-face-attribute 'tooltip frame
-                      :font "Overpass Mono 11"
-                      :weight 'semibold))
+)
 
-(add-to-list 'after-make-frame-functions 'set-custom-font t)
+;;(add-to-list 'after-make-frame-functions 'set-custom-font t)
 #+END_SRC
 
 #+RESULTS:
-| eyebrowse-init | x-dnd-init-frame | set-custom-font |
+| moody--set-active-window | eyebrowse-init | x-dnd-init-frame | set-custom-font | set-moody-face |
 
+#+BEGIN_SRC emacs-lisp
+  (set-face-attribute 'default nil :family "Iosevka" :height 130 :weight 'semibold)
+  ;;(set-face-attribute 'fixed-pitch nil :family "Iosevka")
+  (set-face-attribute 'variable-pitch nil :family "Baskerville" :weight 'semibold)
+  ;; (set-face-attribute 'default nil
+  ;;                     :font "Overpass Mono 11"
+  ;;                     :weight 'semibold)
+  ;; (set-face-attribute 'variable-pitch nil
+  ;;                     :font "Overpass Mono 11"
+  ;;                     :weight 'semibold)
+   (set-face-attribute 'fixed-pitch nil
+                       :font "Overpass Mono 11"
+                       :weight 'semibold)
+#+END_SRC
+
+#+RESULTS:
 
 Debido a que en Emacs se ven delgadas ... (tomado de [[https://github.com/DiegoVicen/my-emacs][aquí]])
 
@@ -510,15 +515,6 @@ Debido a que en Emacs se ven delgadas ... (tomado de [[https://github.com/DiegoV
 #+RESULTS:
 : t
 
-*** Backups
-
-#+BEGIN_SRC emacs-lisp
-(setq-default auto-save-default nil
-              create-lockfiles nil
-              make-backup-files nil)
-#+END_SRC
-
-#+RESULTS:
 
 *** highlights
 
@@ -977,6 +973,7 @@ apt install silversearcher-ag
 
 (use-package solarized-theme
   :ensure t
+  :disabled t
   :config
   (load-theme 'solarized-light t)
 
@@ -1076,6 +1073,60 @@ apt install silversearcher-ag
 
 #+RESULTS:
 
+**** Poet
+
+Un tema que orientado a =org-mode= soportando varias fuentes a la vez.
+
+Repo: https://github.com/kunalb/poet
+
+#+BEGIN_SRC emacs-lisp
+(use-package poet-theme
+  :ensure t
+  :config
+  (add-hook 'text-mode-hook
+            (lambda ()
+              (variable-pitch-mode 1)))
+  )
+#+END_SRC
+
+#+RESULTS:
+: t
+
+Paquetes recomendados:
+
+***** Olivetti-mode
+
+#+BEGIN_SRC emacs-lisp
+(use-package olivetti
+  :ensure t
+  :after (org)
+  )
+#+END_SRC
+
+#+RESULTS:
+
+***** Typo
+
+#+BEGIN_SRC emacs-lisp
+(use-package typo
+  :ensure t
+  :config
+  (typo-mode 1)
+  )
+#+END_SRC
+
+#+RESULTS:
+: t
+
+
+#+BEGIN_SRC emacs-lisp
+(if window-system
+    (load-theme 'poet-dark t)
+  (load-theme 'wombat t))
+#+END_SRC
+
+#+RESULTS:
+: t
 
 *** =avy=
 
@@ -1301,17 +1352,21 @@ Set up company, i.e. code autocomplete
 
 *** Arreglando otras cosas de GNU/Emacs
 
-
-
 Archivos temporales de GNU/Emacs, todos a un sólo lugar
 
 #+BEGIN_SRC emacs-lisp
-  (setq backup-directory-alist `((".*" . "/tmp/.emacs"))
-        auto-save-file-name-transforms `((".*" , "/tmp/.emacs" t)))
+(setq backup-directory-alist `((".*" . "/tmp/.emacs"))
+      auto-save-file-name-transforms `((".*" , "/tmp/.emacs" t))
+      backup-by-copying t		; don't clobber symlinks
+   	  version-control t		; use versioned backups
+	  delete-old-versions t
+	  kept-new-versions 6
+	  kept-old-versions 2)
 #+END_SRC
 
 #+RESULTS:
-| .* | /tmp/.emacs | t |
+: 2
+
 
 Si algún programa cambia un archivo que está abierto en GNU/Emacs,
 automáticamente actualizar los cambios
