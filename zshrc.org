@@ -2,6 +2,12 @@
 #+AUTHOR:    Adolfo De Unánue
 #+EMAIL:     nanounanue@gmail.com
 #+PROPERTY: header-args:shell :tangle ~/.zshrc :shebang #!/usr/local/bin/zsh :comments org
+#+STARTUP: showeverything
+#+STARTUP: nohideblocks
+#+STARTUP: indent
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
 #+DESCRIPTION: Generalidades para configurar ZSH
 
 *NOTA*: Recuerda que este archivo es invocado en shells /interactivos/ ...
@@ -25,19 +31,12 @@ chsh -s $(which zsh)
 Finalmente instalamos /oh-my-zsh/
 
  #+BEGIN_SRC shell :tangle no
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+ sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
  #+END_SRC
 
 ** Tema
 
-
-#+BEGIN_SRC sh :dir ~/.oh-my-zsh/custom/themes  :tangle no
-git clone https://github.com/geometry-zsh/geometry.git 
-#+END_SRC
-
- #+BEGIN_SRC shell
- ZSH_THEME="geometry/geometry"
- #+END_SRC
+   Vamos a usar =geometry= como tema
 
 =geometry= tiene un sistema de /plugins/ internos
 
@@ -45,27 +44,21 @@ git clone https://github.com/geometry-zsh/geometry.git
 GEOMETRY_PROMPT_PLUGINS=(virtualenv docker_machine exec_time git)
 #+END_SRC
 
+
+#+BEGIN_SRC sh :dir ~/.oh-my-zsh/custom/themes  :tangle no
+git clone https://github.com/geometry-zsh/geometry.git
+#+END_SRC
+
+ #+BEGIN_SRC shell
+ ZSH_THEME="geometry/geometry"
+ #+END_SRC
+
+
 Para mayor configuración ver el [[https://github.com/geometry-zsh/geometry][repositorio]]
 
 ** Plugins
 
- #+BEGIN_SRC sh
- plugins=(git 
-          git-extras 
-          debian 
-          httpie 
-          pip pyenv python 
-          tmux 
-          docker 
-          lein 
-          rsync 
-          json_tools
-          z 
-          zsh-navigation-tools zsh-wakatime zsh_reload zsh-autosuggestions zsh-syntax-highlighting)
- #+END_SRC
-
-
-Si =ZSH_TMUX_AUTOSTART= es verdadero, siempre, al crear una terminal 
+Si =ZSH_TMUX_AUTOSTART= es verdadero, siempre, al crear una terminal
 se inicializará =tmux= o se conectará a una sesión existente
 
  #+BEGIN_SRC shell
@@ -73,10 +66,25 @@ se inicializará =tmux= o se conectará a una sesión existente
  #+END_SRC
 
 
+ #+BEGIN_SRC sh
+ plugins=(git
+          git-extras
+          debian
+          httpie
+          pip pyenv python
+          tmux
+          docker
+          lein
+          rsync
+          json_tools
+          z
+          zsh-navigation-tools zsh-wakatime zsh_reload zsh-autosuggestions zsh-syntax-highlighting)
+ #+END_SRC
+
+
+
 ** Oh my Zsh!
 
  #+BEGIN_SRC shell
  source $ZSH/oh-my-zsh.sh
  #+END_SRC
-
-
