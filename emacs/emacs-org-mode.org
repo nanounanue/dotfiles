@@ -14,86 +14,86 @@
 
 * Configuración inicial
 
-  #+BEGIN_SRC elisp
-	    (use-package org
-	      :ensure t     
-	      :mode
-	      ("\\.org\\'" . org-mode)
-	      ("\\.txt\\'" . org-mode)
-	      (".*/[0-9]*$" . org-mode)
-	      :init
-	      (setq org-use-speed-commands t
-		    org-return-follows-link t
-		    org-hide-emphasis-markers t
-		    org-completion-use-ido t
-		    org-outline-path-complete-in-steps nil
-		    org-src-fontify-natively t   ;; Pretty code blocks
-		    org-src-tab-acts-natively t
-		    org-confirm-babel-evaluate nil  ;; No quiero que me pregunte, si quiero ejecutar
-		    org-directory "~/Dropbox/org"
-		    org-confirm-elisp-link-function nil
-		    org-confirm-shell-link-function nil
-		    org-pretty-entities t   ;; Enable pretty entities - shows e.g. α β γ as UTF-8 characters.
-		    org-image-actual-width 800   ;; I can display inline images. Set them to have a maximum size so large images don't fill the screen.
-		    org-src-preserve-indentation t
-		    org-todo-keywords '((sequence "TODO(t)" "DOING(g)" "|" "DONE(d)")
-					(sequence "|" "CANCELED(c)")))
+  #+BEGIN_SRC emacs-lisp
+    (use-package org
+      :ensure t
+      :mode
+      ("\\.org\\'" . org-mode)
+      ("\\.txt\\'" . org-mode)
+      (".*/[0-9]*$" . org-mode)
+      :init
+      (setq org-use-speed-commands t
+            org-return-follows-link t
+            org-hide-emphasis-markers t
+            org-completion-use-ido t
+            org-outline-path-complete-in-steps nil
+            org-src-fontify-natively t   ;; Pretty code blocks
+            org-src-tab-acts-natively t
+            org-confirm-babel-evaluate nil  ;; No quiero que me pregunte, si quiero ejecutar
+            org-directory "~/Dropbox/org"
+            org-confirm-elisp-link-function nil
+            org-confirm-shell-link-function nil
+            org-pretty-entities t   ;; Enable pretty entities - shows e.g. α β γ as UTF-8 characters.
+            org-image-actual-width 800   ;; I can display inline images. Set them to have a maximum size so large images don't fill the screen.
+            org-src-preserve-indentation t
+            org-todo-keywords '((sequence "TODO(t)" "DOING(g)" "|" "DONE(d)")
+                                (sequence "|" "CANCELED(c)")))
 
-	      (add-hook 'org-mode-hook 'yas-minor-mode-on)
-	      :bind (("C-c l" . org-store-link)
-		     ("C-c c" . org-capture)
-		     ("C-c a" . org-agenda)
-		     ("C-c C-w" . org-refile)
-		     ("C-c C-v t" . org-babel-tangle)
-		     ("C-c C-v f" . org-babel-tangle-file)
-		     ("C-M-|" . indent-rigidly))
-	      :hook
-	      (org-babel-after-execute . org-display-inline-images)
-	      (org-mode . org-display-inline-images)
-	      (org-mode . org-babel-result-hide-all)
-	      (org-mode . turn-on-auto-fill)
-	      (org-mode . flyspell-mode)
-	      :config
-	      ;; Hace más grandes las imágenes de ecuaciones de LaTeX cuando tienes activado
-	      ;; #+OPTIONS: LaTeX:t
-	      ;; #+OPTIONS: tex:imagemagick
-	      ;; Solución tomada desde: https://tex.stackexchange.com/a/78587/24453
-	      (plist-put org-format-latex-options :scale 1.5)
+      (add-hook 'org-mode-hook 'yas-minor-mode-on)
+      :bind (("C-c l" . org-store-link)
+             ("C-c c" . org-capture)
+             ("C-c a" . org-agenda)
+             ("C-c C-w" . org-refile)
+             ("C-c C-v t" . org-babel-tangle)
+             ("C-c C-v f" . org-babel-tangle-file)
+             ("C-M-|" . indent-rigidly))
+      :hook
+      (org-babel-after-execute . org-display-inline-images)
+      (org-mode . org-display-inline-images)
+      (org-mode . org-babel-result-hide-all)
+      (org-mode . turn-on-auto-fill)
+      (org-mode . flyspell-mode)
+      :config
+      ;; Hace más grandes las imágenes de ecuaciones de LaTeX cuando tienes activado
+      ;; #+OPTIONS: LaTeX:t
+      ;; #+OPTIONS: tex:imagemagick
+      ;; Solución tomada desde: https://tex.stackexchange.com/a/78587/24453
+      (plist-put org-format-latex-options :scale 1.5)
 
-	      (defun org-file-path (filename)
-		"Return the absolute address of an org file, given its relative name."
-		(concat (file-name-as-directory org-directory) filename)))
-	      
-	      (font-lock-add-keywords            ; A bit silly but my headers are now
-	       'org-mode `(("^\\*+ \\(TODO\\) "  ; shorter, and that is nice canceled
-			    (1 (progn (compose-region (match-beginning 1) (match-end 1) "⚑")
-				      nil)))
-			   ("^\\*+ \\(DOING\\) "
-			    (1 (progn (compose-region (match-beginning 1) (match-end 1) "⚐")
-				      nil)))
-			   ("^\\*+ \\(CANCELED\\) "
-			    (1 (progn (compose-region (match-beginning 1) (match-end 1) "✘")
-				      nil)))
-			   ("^\\*+ \\(DONE\\) "
-			    (1 (progn (compose-region (match-beginning 1) (match-end 1) "✔")
-				      nil)))))
+      (defun org-file-path (filename)
+        "Return the absolute address of an org file, given its relative name."
+        (concat (file-name-as-directory org-directory) filename)))
 
-	      (define-key org-mode-map (kbd "M-C-n") 'org-end-of-item-list)
-	      (define-key org-mode-map (kbd "M-C-p") 'org-beginning-of-item-list)
-	      (define-key org-mode-map (kbd "M-C-u") 'outline-up-heading)
-	      (define-key org-mode-map (kbd "M-C-w") 'org-table-copy-region)
-	      (define-key org-mode-map (kbd "M-C-y") 'org-table-paste-rectangle)
+      (font-lock-add-keywords            ; A bit silly but my headers are now
+       'org-mode `(("^\\*+ \\(TODO\\) "  ; shorter, and that is nice canceled
+                    (1 (progn (compose-region (match-beginning 1) (match-end 1) "⚑")
+                              nil)))
+                   ("^\\*+ \\(DOING\\) "
+                    (1 (progn (compose-region (match-beginning 1) (match-end 1) "⚐")
+                              nil)))
+                   ("^\\*+ \\(CANCELED\\) "
+                    (1 (progn (compose-region (match-beginning 1) (match-end 1) "✘")
+                              nil)))
+                   ("^\\*+ \\(DONE\\) "
+                    (1 (progn (compose-region (match-beginning 1) (match-end 1) "✔")
+                              nil)))))
 
-	      (define-key org-mode-map [remap org-return] (lambda () (interactive)
-							    (if (org-in-src-block-p)
-								(org-return)
-							      (org-return-indent)))))
+      (define-key org-mode-map (kbd "M-C-n") 'org-end-of-item-list)
+      (define-key org-mode-map (kbd "M-C-p") 'org-beginning-of-item-list)
+      (define-key org-mode-map (kbd "M-C-u") 'outline-up-heading)
+      (define-key org-mode-map (kbd "M-C-w") 'org-table-copy-region)
+      (define-key org-mode-map (kbd "M-C-y") 'org-table-paste-rectangle)
+
+      (define-key org-mode-map [remap org-return] (lambda () (interactive)
+                                                    (if (org-in-src-block-p)
+                                                        (org-return)
+                                                      (org-return-indent)))))
   #+END_SRC
 
 
 * /Key bindings/
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (use-package org
       :config
        (bind-keys :map org-mode-map
@@ -114,7 +114,7 @@
 
 Los /bullets/ hacen más presentable =org-mode=
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (use-package org-bullets
        :ensure t
        :init (add-hook 'org-mode-hook 'org-bullets-mode))
@@ -128,7 +128,7 @@ Los /bullets/ hacen más presentable =org-mode=
   =org-speed-command-help= for details (or hit the ? key at a
   headline).
 
- 
+
 #+BEGIN_SRC emacs-lisp
 (use-package org
   :config
@@ -150,14 +150,14 @@ Los /bullets/ hacen más presentable =org-mode=
                                                      (region-end))))))
 #+END_SRC
 
-  
+
 * /Pasting/
 
 Si =pandoc= está instalado, podemos copiar código HTML, ponerlo en el
 /clipboard/ y convertirlo a =org-mode= antes de /yanking it/ al /buffer/
 
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (defun nanounanue/paste-html-to-org ()
       "Assumes the contents of the system clip/paste-board to be
     HTML, this calls out to `pandoc' to convert it for the org-mode
@@ -174,7 +174,7 @@ Si =pandoc= está instalado, podemos copiar código HTML, ponerlo en el
         (yank)))
   #+END_SRC
 
-  
+
 * Org agenda
 
 #+BEGIN_SRC emacs-lisp
@@ -272,9 +272,6 @@ Si estoy trabajando en algo y quiero anotar algo que se me acaba de
 ocurrir o que recordé (me pasa muy seguido), sin que afecte el archivo
 en el que estoy trabajando (/capture/)
 
-#+BEGIN_SRC elisp
-#+END_SRC
-
 #+BEGIN_SRC emacs-lisp
 (use-package org
   :config
@@ -317,7 +314,7 @@ Por último, recuerda hacer =C-c C-w= para /refile/ la nota al lugar correspondi
 
 ** HTML
 
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package ox-html
   :init
   (setq org-html-postamble nil)
@@ -448,7 +445,7 @@ Templates para LaTeX
                   ("\\section{%s}" . "\\section*{%s}")
                   ("\\subsection{%s}" . "\\subsection*{%s}")
                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
-  
+
   )
 
 
@@ -466,9 +463,9 @@ Para usar un /template/ agregar al archivo
 
 Para aprovechar [[https://github.com/kawabata/ox-pandoc][ox-pandoc]] es necesario tener una versión reciente de =pandoc=.
 
-#+BEGIN_SRC sh :dir /sudo:: :async t
-VERSION=$(curl --silent "https://api.github.com/repos/jgm/pandoc/releases/latest" | jq -r .tag_name)
-wget  -q -O /tmp/pandoc.deb https://github.com/jgm/pandoc/releases/download/${VERSION}/pandoc-${VERSION}-1-amd64.deb
+#+BEGIN_SRC shell :dir /sudo::
+VERSION=$(curl --silent "https://api.github.com/repos/jgm/pandoc/releases/latest" | jq -r .tag_name) && \
+wget  -q -O /tmp/pandoc.deb https://github.com/jgm/pandoc/releases/download/${VERSION}/pandoc-${VERSION}-1-amd64.deb && \
 dpkg -i /tmp/pandoc.deb
 #+END_SRC
 
@@ -522,14 +519,14 @@ dpkg -i /tmp/pandoc.deb
 
 Necesita =xclip=
 
-#+BEGIN_SRC sh  :dir /sudo:: :cache no
-apt install xclip
+#+BEGIN_SRC shell  :dir /sudo::
+apt install -y xclip
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
   (use-package ox-clip
-  :ensure t
-  :after ox)
+    :ensure t
+    :after ox)
 #+END_SRC
 
 
@@ -543,19 +540,6 @@ apt install xclip
 (use-package ox-reveal
    :init
    (setq org-reveal-root (concat "file://" (getenv "HOME") "/software/js/reveal.js"))* Org extras
-
-  We will use some of the packages from [[http://orgmode.org/worg/org-contrib/][org extras]], especially
-  [[http://orgmode.org/worg/org-contrib/org-drill.html][org-drill]] and [[http://orgmode.org/worg/org-contrib/org-mime.html][org-mime]] for HTML exports:
-
-  #+BEGIN_SRC elisp
-    (use-package org-drill
-      :ensure org-plus-contrib)
-
-    (use-package org-mime
-      :ensure t)
-  #+END_SRC
-
-
    (setq org-reveal-postamble "Adolfo De Unánue"))
 #+END_SRC
 
@@ -567,8 +551,8 @@ apt install xclip
    * org-tree-slide-move-previous-tree (C-<)
    * org-tree-slide-content (C-x s c)
 
-     
-   #+BEGIN_SRC elisp
+
+   #+BEGIN_SRC emacs-lisp
      (use-package org-tree-slide
         :ensure t
         :init
@@ -610,7 +594,10 @@ apt install xclip
 Larga vida al [[http://orgmode.org/worg/org-contrib/babel/intro.html][proyecto Babel]], el cual permite la ejecución de bloques
 códigos y /tangle out/ bloques hacia archivos
 
-#+BEGIN_SRC elisp
+
+
+
+#+BEGIN_SRC emacs-lisp
     (use-package org
       :config
       ;; Paths a ditaa y plantuml
@@ -655,7 +642,9 @@ códigos y /tangle out/ bloques hacia archivos
   #+END_SRC
 
 
-Templates para bloques =org-babel=
+
+
+** Templates para bloques =org-babel=
 
 #+BEGIN_SRC emacs-lisp
 (use-package org
@@ -683,6 +672,84 @@ Templates para bloques =org-babel=
   )
 #+END_SRC
 
+** Dependencias
+
+*NOTA* Para [[https://github.com/corpix/ob-blockdiag.el][ob-blockdiag]] es necesario ejecutar lo siguiente:
+
+#+BEGIN_SRC shell
+pip install blockdiag seqdiag actdiag nwdiag
+#+END_SRC
+
+El formato se puede consultar en la página de [[http://blockdiag.com/en/][blockdiag]].
+
+*NOTA* PAra [[https://github.com/krisajenkins/ob-browser][ob-browser]]  es necesario tener =phantomjs=:
+
+#+BEGIN_SRC sh :dir /sudo::
+apt install -y phantomjs
+#+END_SRC
+
+Esto también lo vamos a ocupar
+
+#+BEGIN_SRC emacs-lisp
+(use-package restclient
+  :mode ("\\.restclient\\'" . restclient-mode))
+
+(use-package company-restclient
+  :config (add-to-list 'company-backends 'company-restclient))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(require 'ob-emacs-lisp)
+
+(use-package ob-http
+  :config
+  (require 'ob-http)
+  )
+
+(use-package ob-async
+  :config
+  (require 'ob-async)
+  )
+
+(use-package ob-ipython
+  :ensure t
+  :config
+  (require 'ob-ipython)
+  )
+
+(use-package ob-mongo
+  :config
+  (require 'ob-mongo)
+  )
+
+(use-package ob-cypher
+  :config
+  (require 'ob-cypher)
+  )
+
+(use-package ob-sql-mode
+  :config
+  (require 'ob-sql-mode)
+  )
+
+(use-package ob-prolog
+  :config
+  (require 'ob-prolog))
+
+
+(use-package ob-blockdiag
+  :config
+  (require 'ob-blockdiag))
+
+(use-package ob-browser
+  :config
+  (require 'ob-browser))
+
+(use-package ob-async :ensure t)
+
+(use-package ob-restclient :ensure t)
+
+#+END_SRC
 
 
 * Imágenes
@@ -705,7 +772,6 @@ Habilitando mas tipos de imágenes a desplegar en =org-mode=
 
   (setq imagemagick-types-inhibit (remove 'PDF imagemagick-types-inhibit))
   )
-
 #+END_SRC
 
 * Misceláneos
@@ -721,11 +787,11 @@ Habilitando mas tipos de imágenes a desplegar en =org-mode=
 
 #+BEGIN_SRC emacs-lisp
 (use-package org-download
-:init
-(require 'org-download)
-:config
-;; Drag-and-drop to `dired`
-(add-hook 'dired-mode-hook 'org-download-enable))
+  :init
+  (require 'org-download)
+  :config
+  ;; Drag-and-drop to `dired`
+  (add-hook 'dired-mode-hook 'org-download-enable))
 #+END_SRC
 
 ** =interleave=
@@ -776,9 +842,31 @@ In a later step it should be possible to create truly interleaved PDFs of your n
 #+END_SRC
 
 
+
+
+**  =org-ref=
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-ref
+  :defer t
+  :init
+  (setq reftex-default-bibliography '("~/Dropbox/bibliography/references.bib"))
+
+  ;; see org-ref for use of these variables
+  (setq org-ref-bibliography-notes "~/Dropbox/bibliography/notes.org"
+        org-ref-default-bibliography '("~/Dropbox/bibliography/references.bib")
+        org-ref-pdf-directory "~/Dropbox/bibliography/bibtex-pdfs/"
+        org-latex-prefer-user-labels t
+        org-latex-pdf-process
+        '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+          "bibtex %b"
+          "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+          "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+  )
+#+END_SRC
+
 * Proveer
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (provide 'init-org-mode)
   #+END_SRC
-

@@ -4,7 +4,7 @@
 #+STARTUP: showeverything
 #+STARTUP: nohideblocks
 #+STARTUP: indent
-#+PROPERTY:    header-args:elisp  :tangle ~/.emacs.d/elisp/init-client.el
+#+PROPERTY:    header-args:emacs-lisp  :tangle ~/.emacs.d/elisp/init-client.el
 #+PROPERTY:    header-args:shell  :tangle no
 #+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
 #+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
@@ -19,7 +19,7 @@ Configuración para clientes gráficos
 El artículo [[http://emacsninja.com/posts/making-emacs-more-presentable.html][Making Emacs More Presentable]], muestra este truco que
 cambia el tamaño de la fuente, en la /window/ no el /buffer/
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (defun nanounanue/text-scale-frame-change (fn)
       (let* ((current-font-name (frame-parameter nil 'font))
              (decomposed-font-name (x-decompose-font-name current-font-name))
@@ -47,7 +47,7 @@ cambia el tamaño de la fuente, en la /window/ no el /buffer/
 Nunca abandonamos Emacs...
 
 
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (setq confirm-kill-emacs 'yes-or-no-p)
 #+END_SRC
 
@@ -56,7 +56,7 @@ Nunca abandonamos Emacs...
 
 Activar /syntax highlighting/ globalmente
 
- #+BEGIN_SRC elisp
+ #+BEGIN_SRC emacs-lisp
  (global-font-lock-mode 1)
  #+END_SRC
 
@@ -64,7 +64,7 @@ Activar /syntax highlighting/ globalmente
 
 ** Fixed Font
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (defvar nanounanue/fixed-font-family
       (cond ((x-list-fonts "Hasklig")         "Hasklig")
             ((x-list-fonts "Source Code Pro") "Source Code Pro")
@@ -76,7 +76,7 @@ Activar /syntax highlighting/ globalmente
 
 ** Variable font
 
-  #+BEGIN_SRC  elisp
+  #+BEGIN_SRC  emacs-lisp
     (defvar nanounanue/variable-font-tuple
       (cond ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
             ((x-list-fonts "Iosevka")         '(:font "Iosevka"))
@@ -89,16 +89,16 @@ Activar /syntax highlighting/ globalmente
 
 
 
-  
+
 ** [[https://gitlab.com/jabranham/mixed-pitch][Mixed-pitch]]
 
-#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp
 (use-package mixed-pitch
   :hook
   ;; If you want it in all text modes:
   (text-mode . mixed-pitch-mode))
 #+END_SRC
-  
+
 *  [[https://emacsthemes.com/popular/index.html][Temas]]
 
 ** Zenburn
@@ -136,7 +136,11 @@ Activar /syntax highlighting/ globalmente
 :ensure t)
 #+END_SRC
 
-Integrarlo con [[file:emacs-ivy.org][ivy y counsel]] 
+#+BEGIN_SRC emacs-lisp :tangle no
+(all-the-icons-install-fonts)
+#+END_SRC
+
+Integrarlo con [[file:emacs-ivy.org][ivy y counsel]]
 
 #+BEGIN_SRC emacs-lisp
 (use-package all-the-icons-ivy
@@ -162,8 +166,9 @@ Y =dired=
         )
 #+END_SRC
 
+
 * Al final
 
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (provide 'init-client)
 #+END_SRC

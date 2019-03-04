@@ -94,6 +94,8 @@
 
 
 #+BEGIN_SRC emacs-lisp
+(use-package ivy
+:config
 ;;set action options during execution of counsel-find-file
 ;; replace "frame" with window to open in new window
 (ivy-set-actions
@@ -111,8 +113,7 @@
  '(("j" switch-to-buffer-other-frame "other frame")
    ("k" kill-buffer "kill")
    ("r" ivy--rename-buffer-action "rename")))
-
-
+)
 #+END_SRC
 
 * /Key bindings/

@@ -4,7 +4,7 @@
 #+STARTUP: showeverything
 #+STARTUP: nohideblocks
 #+STARTUP: indent
-#+PROPERTY:    header-args:elisp  :tangle ~/.emacs.d/elisp/init-python.el
+#+PROPERTY:    header-args:emacs-lisp  :tangle ~/.emacs.d/elisp/init-python.el
 #+PROPERTY:    header-args:shell  :tangle no
 #+PROPERTY:    header-args:python :tangle no
 #+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
@@ -15,7 +15,7 @@
 
 *  Python
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (use-package python
       :mode ("\\.py\\'" . python-mode)
             ("\\.wsgi$" . python-mode)
@@ -46,7 +46,7 @@ pip install --upgrade flake8
   Elpy will automatically use either, however, I want to hook Jedi to
   Company mode:
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (use-package jedi
       :ensure t
       :init
@@ -67,7 +67,7 @@ pip install --upgrade flake8
   thinner wrapper around Jedi, which seems to work a bit better for me
   and the fact that I need to use =pyenv= (instead of =pyvenv=).
 
-  #+BEGIN_SRC elisp :tangle no
+  #+BEGIN_SRC emacs-lisp :tangle no
     (use-package anaconda-mode
       :ensure t
       :init (add-hook 'python-mode-hook 'anaconda-mode)
@@ -83,6 +83,6 @@ pip install --upgrade flake8
 
 * Finito
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (provide 'init-python)
   #+END_SRC

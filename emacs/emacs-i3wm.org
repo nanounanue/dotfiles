@@ -1,0 +1,80 @@
+#+TITLE: Integración de Emacs con i3wm
+#+AUTHOR: Adolfo De Unánue
+#+EMAIL: nanounanue@gmail.com
+#+STARTUP: showeverything
+#+STARTUP: nohideblocks
+#+STARTUP: indent
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/elisp/init-i3wm.el
+#+PROPERTY:    header-args:shell  :tangle no
+#+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+
+
+* i3wm
+
+Si estoy en =i3wm= *no* dividir los /frames/, sino crear uno nuevo (Tomado de [[https://github.com/DiegoVicen/my-emacs][aquí]])
+
+#+BEGIN_SRC emacs-lisp
+;; Fix quit-window definitions to get rid of buffers
+(defun quit-window-dwim (&optional args)
+  "`delete-frame' if closing a single window, else `quit-window'."
+  (interactive)
+  (if (one-window-p)
+      (delete-frame)
+    (quit-window args)))
+
+(defun running-i3 ()
+  (string-match-p
+   (regexp-quote "i3")
+   (shell-command-to-string "echo $DESKTOP_SESSION")))
+
+(defun set-up-i3 ()
+  (interactive)
+  (setq-default pop-up-frames 'graphic-only
+                magit-bury-buffer-function 'quit-window-dwim
+                magit-commit-show-diff nil)
+  (substitute-key-definition 'quit-window 'quit-window-dwim
+                             global-map)
+  (substitute-key-definition 'quit-window 'quit-window-dwim
+                             help-mode-map)
+  (substitute-key-definition 'quit-window 'quit-window-dwim
+                             Buffer-menu-mode-map)
+  (message "Configuration for i3 applied"))
+
+(when (running-i3)
+  (set-up-i3))
+#+END_SRC
+
+
+De la fuente original:
+
+#+BEGIN_QUOTE
+This last line checks up if i3 is running and sets everything up (duh), but when
+Emacs is started as a daemon in systemd or before actually running i3, this
+check will fail. My solution is to run =emacsclient -e “(set-up-i3)”= in my i3
+configuration, so that i3 is the one actually telling the Emacs daemon to get
+the proper settings.
+#+END_QUOTE
+
+#+BEGIN_SRC emacs-lisp
+;; TODO: fix different workspaces problem
+(setq  focus-follow-mouse t)
+
+(defun other-window-or-frame (&optional n)
+  "Switch to a different window or frame depending on the context"
+  (interactive)
+  (let ((count (if (eq n nil) 1 n)))
+        (if (one-window-p)
+            (other-frame count)
+          (other-window count))))
+
+(global-set-key (kbd "C-x o") 'other-window-or-frame)
+#+END_SRC
+
+* Conectando ...
+
+#+BEGIN_SRC emacs-lisp
+(provide 'init-i3wm)
+#+END_SRC

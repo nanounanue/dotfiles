@@ -4,7 +4,7 @@
 #+STARTUP: showeverything
 #+STARTUP: nohideblocks
 #+STARTUP: indent
-#+PROPERTY:    header-args:elisp  :tangle ~/.emacs.d/elisp/init-eshell.el
+#+PROPERTY:    header-args:emacs-lisp  :tangle ~/.emacs.d/elisp/init-eshell.el
 #+PROPERTY:    header-args:shell  :tangle no
 #+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
 #+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
@@ -15,7 +15,7 @@
 
 * Arreglar el Path
 
-   #+BEGIN_SRC elisp
+   #+BEGIN_SRC emacs-lisp
      (setenv "PATH"
              (concat
               "/usr/local/bin:/usr/local/sbin:"
@@ -24,7 +24,7 @@
 
 * Pager
 
-   #+BEGIN_SRC elisp
+   #+BEGIN_SRC emacs-lisp
      (setenv "PAGER" "cat")
    #+END_SRC
 
@@ -41,7 +41,7 @@
 
 * Configuración
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (use-package eshell
       :init
       (setq ;; eshell-buffer-shorthand t ...  Can't see Bug#19391
@@ -55,7 +55,7 @@
 
 Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se encargue:
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (use-package eshell
       :init
       (add-hook 'eshell-mode-hook
@@ -67,7 +67,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
 
 * [[https://www.emacswiki.org/emacs/EshellAlias][Aliases]]
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (add-hook 'eshell-mode-hook (lambda ()
         (eshell/alias "e" "find-file $1")
         (eshell/alias "ff" "find-file $1")
@@ -87,7 +87,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
    =alias= doesn't pull in the current working directory, so I make it
    a function, instead:
 
-   #+BEGIN_SRC elisp
+   #+BEGIN_SRC emacs-lisp
      (defun eshell/gst (&rest args)
          (magit-status (pop args) nil)
          (eshell/echo))   ;; The echo command suppresses output
@@ -98,7 +98,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
    We should have an "f" alias for searching the current directory for
    a file, and a "ef" for editing that file.
 
-   #+BEGIN_SRC elisp
+   #+BEGIN_SRC emacs-lisp
      (defun eshell/f (filename &optional dir try-count)
        "Searches for files matching FILENAME in either DIR or the
      current directory. Just a typical wrapper around the standard
@@ -141,7 +141,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
    what I expect, and creating an alias is ineffective in overriding
    it, so a function will do:
 
-   #+BEGIN_SRC elisp
+   #+BEGIN_SRC emacs-lisp
      (defun eshell/find (&rest args)
        "Wrapper around the ‘find’ executable."
        (let ((cmd (concat "find " (string-join args))))
@@ -153,7 +153,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
    While deleting and recreating =eshell= may be just as fast, I always
    forget and type =clear=, so let's implement it:
 
-   #+BEGIN_SRC elisp
+   #+BEGIN_SRC emacs-lisp
      (defun eshell/clear ()
        "Clear the eshell buffer."
        (let ((inhibit-read-only t))
@@ -170,7 +170,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
   a function that returns a string with the Git branch in it,
   e.g. ":master"
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (defun curr-dir-git-branch-string (pwd)
       "Returns current git branch as a string, or the empty string if
     PWD is not in a git repo (or the git command is not found)."
@@ -191,7 +191,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
   replaces the =$HOME= part with a tilde. I'm sure this function
   already exists in the eshell source, but I didn't find it...
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (defun pwd-replace-home (pwd)
       "Replace home in PWD with tilde (~) character."
       (interactive)
@@ -208,7 +208,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
   names with just its first names. However, we leave the last two to
   be the full names. Why yes, I did steal this.
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (defun pwd-shorten-dirs (pwd)
       "Shorten all directory names in PWD except the last two."
       (let ((p-lst (split-string pwd "/")))
@@ -227,7 +227,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
 
   Break up the directory into a "parent" and a "base":
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (defun split-directory-prompt (directory)
       (if (string-match-p ".*/.*" directory)
           (list (file-name-directory directory) (file-name-base directory))
@@ -237,7 +237,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
   Using virtual environments for certain languages is helpful to know,
   especially since I change them based on the directory.
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (defun ruby-prompt ()
       "Returns a string (may be empty) based on the current Ruby Virtual Environment."
       (let* ((executable "~/.rvm/bin/rvm-prompt")
@@ -264,7 +264,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
   Now tie it all together with a prompt function can color each of the
   prompts components.
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (defun eshell/eshell-local-prompt-function ()
       "A prompt for eshell that works locally (in that is assumes
     that it could run certain commands) in order to make a prettier,
@@ -312,7 +312,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
 
   Turn off the default prompt, otherwise, it won't use ours:
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (setq eshell-highlight-prompt nil)
   #+END_SRC
 
@@ -329,7 +329,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
 
    Making little Shells whenever I need them:
 
-   #+BEGIN_SRC elisp :tangle no
+   #+BEGIN_SRC emacs-lisp :tangle no
      (defun eshell-here ()
        "Opens up a new shell in the directory associated with the
      current buffer's file. The eshell is renamed to match that
@@ -354,7 +354,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
    Let's try a version that doesn't put the current working directory
    in the mode-line's buffer title:
 
-   #+BEGIN_SRC elisp
+   #+BEGIN_SRC emacs-lisp
      (defun eshell-here ()
        "Opens up a new shell in the directory associated with the
          current buffer's file. The eshell is renamed to match that
@@ -373,7 +373,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
    Used to ~C-d~ exiting from a shell? Want it to keep working, but still
    allow deleting a character? We can have it both (thanks to [[https://github.com/wasamasa/dotemacs/blob/master/init.org#eshell][wasamasa]]):
 
-   #+BEGIN_SRC elisp
+   #+BEGIN_SRC emacs-lisp
      (use-package eshell
        :config
        (defun ha/eshell-quit-or-delete-char (arg)
@@ -399,7 +399,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
    Would be nice to be able to run an eshell session and use Tramp to
    connect to the remote host in one fell swoop:
 
-   #+BEGIN_SRC elisp
+   #+BEGIN_SRC emacs-lisp
      (defun eshell-there (host)
        "Creates an eshell session that uses Tramp to automatically
      connect to a remote system, HOST.  The hostname can be either the
@@ -438,7 +438,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
    references, is a bit...uhm, hairy.  And since I want to reuse these,
    I will hide them in a function:
 
-   #+BEGIN_SRC elisp
+   #+BEGIN_SRC emacs-lisp
      (defun ha/eshell-host-regexp (regexp)
        "Returns a particular regular expression based on symbol, REGEXP"
        (let* ((user-regexp      "\\(\\([[:alpha:].]+\\)@\\)?")
@@ -464,7 +464,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
    function calls that what I could use for =eshell-there=, so let's
    =save-excursion= and hunt around:
 
-   #+BEGIN_SRC elisp
+   #+BEGIN_SRC emacs-lisp
      (defun ha/eshell-scan-for-hostnames ()
        "Helper function to scan the current line for any hostnames, IP
      or Tramp references.  This returns a tuple of the username (if
@@ -503,7 +503,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
    Tramp reference can be long when attempting to connect as another
    user account using the pipe symbol.
 
-   #+BEGIN_SRC elisp
+   #+BEGIN_SRC emacs-lisp
      (defun ha/eshell-host->tramp (username hostname &optional prefer-root)
        "Returns a TRAMP reference based on a USERNAME and HOSTNAME
      that refers to any host or IP address."
@@ -518,7 +518,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
    #+END_SRC
 
    Finally
-   #+BEGIN_SRC elisp
+   #+BEGIN_SRC emacs-lisp
      (defun eshell-here-on-line (p)
        "Search the current line for an IP address or hostname, and call the `eshell-here' function.
 
@@ -544,7 +544,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
     variable, =remote-shell-fav-hosts=, a hash that maps nicknames of
     hosts to their IP address.
 
-    #+BEGIN_SRC elisp
+    #+BEGIN_SRC emacs-lisp
      (defvar remote-shell-fav-hosts (make-hash-table :test 'equal)
        "Table of host aliases for IPs or other actual references.")
     #+END_SRC
@@ -553,7 +553,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
     have been defined? In this case, we want to call the function,
     =remote-shell-fav-hosts-get= to populate it:
 
-    #+BEGIN_SRC elisp
+    #+BEGIN_SRC emacs-lisp
       (defun remote-shell-fav-hosts-map ()
         "Returns the mapping between our simple names of our favorite
       hosts and their IP address. If the map is empty, and the function
@@ -568,7 +568,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
 
     In order to populate the =completing-read=, we need a list of hosts:
 
-    #+BEGIN_SRC elisp
+    #+BEGIN_SRC emacs-lisp
       (defun remote-shell-fav-hosts-list ()
         "Simply returns a list of known hosts from the cached map, or
       populates it first if it is empty and the
@@ -581,7 +581,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
     =root= access. If the =remote-shell-fav-hosts= hash is empty, we'll
     populate it when this is called.
 
-    #+BEGIN_SRC elisp
+    #+BEGIN_SRC emacs-lisp
       (defun remote-shell-tramp-connection (hostname &optional root directory)
         "Return a TRAMP connection string to HOSTNAME. If ROOT is
       non-nil, returns an sudo compatible string."
@@ -599,7 +599,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
     shell command is the same, we can take advantage of that from
     multiple functions, so:
 
-    #+BEGIN_SRC elisp
+    #+BEGIN_SRC emacs-lisp
       (defun remote-shell-buffer-name (hostname &optional command-str default-name)
         "Returns a standard format for our remote shell command buffer
       windows based on the HOSTNAME and the COMMAND-STR. Uses
@@ -614,7 +614,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
     Our simple wrapper function for accessing a remote shell, should
     use =ido= if available.
 
-    #+BEGIN_SRC elisp
+    #+BEGIN_SRC emacs-lisp
       (defun remote-shell (hostname &optional root)
         "Start an shell experience on HOSTNAME, that can be an alias to
       a virtual machine from my 'cloud' server. With prefix command, opens
@@ -633,7 +633,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
     DRY this function to be a simple alias with the exception of
     using eshell:
 
-    #+BEGIN_SRC elisp
+    #+BEGIN_SRC emacs-lisp
       (defun eshell-favorite (hostname &optional root)
         "Start an shell experience on HOSTNAME, that can be an alias to
       a virtual machine from my 'cloud' server. With prefix command, opens
@@ -652,7 +652,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
     =shell-command= (so that commands that end in a =&= are automatically
     ran asynchronously.
 
-    #+BEGIN_SRC elisp
+    #+BEGIN_SRC emacs-lisp
       (defun remote-shell-command (hostname command
                                             &optional root bufname directory)
         "On HOSTNAME, run COMMAND (if the command ends with &, run
@@ -673,7 +673,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
     With the above helper functions, we can loop over a list of machines,
     and kick off remote work on each one:
 
-    #+BEGIN_SRC elisp
+    #+BEGIN_SRC emacs-lisp
       (defun remote-shell-commands (clients command
                                             &optional root async directory)
         "On each host entry in CLIENTS, run the shell COMMAND,
@@ -690,7 +690,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
     since we know what the names are, this command will attempt to load
     them on the side... yeah, this is a bit ugly.
 
-    #+BEGIN_SRC elisp
+    #+BEGIN_SRC emacs-lisp
       (defun remote-shell-commands-show (clients command)
         "Shows each buffer of a previously executed command. For example:
 
@@ -716,7 +716,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
 
     All this work allows me to do magic:
 
-    #+BEGIN_SRC elisp :tangle no
+    #+BEGIN_SRC emacs-lisp :tangle no
       (let ((my-favs '("os-controller" "contrail-controller"
                        "compute" "nagios" "elk"))
             (command "chef-client"))
@@ -747,10 +747,16 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
 
   So, let's do it...
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (setq tramp-default-method "ssh")
   #+END_SRC
 
+Usar =counsel=
+
+#+BEGIN_SRC emacs-lisp
+(use-package counsel-tramp
+  :ensure t)
+#+END_SRC
 
 * Helpers
 
@@ -759,7 +765,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
   =Command-1= will prompt for a shell command string and then append
   the current file to it and execute it.
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (defun execute-command-on-file-buffer (cmd)
       (interactive "sCommand to execute: ")
       (let* ((file-name (buffer-file-name))
@@ -785,7 +791,7 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
   (instead of seeing a red mark, and needing to scroll back in order
   to wonder what command it was that made it). Still...
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
   (use-package eshell-fringe-status
     :config
     (add-hook 'eshell-mode-hook 'eshell-fringe-status-mode))
@@ -793,7 +799,6 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
 
 * Para terminar
 
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
     (provide 'init-eshell)
 #+END_SRC
-

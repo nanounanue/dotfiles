@@ -4,7 +4,7 @@
 #+STARTUP: showeverything
 #+STARTUP: nohideblocks
 #+STARTUP: indent
-#+PROPERTY:    header-args:elisp  :tangle ~/.emacs.d/elisp/init-clojure.el
+#+PROPERTY:    header-args:emacs-lisp  :tangle ~/.emacs.d/elisp/init-clojure.el
 #+PROPERTY:    header-args:shell  :tangle no
 #+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
 #+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
@@ -23,7 +23,7 @@
 
 * Snippets
 
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
   (use-package clojure-snippets
     :ensure t)
 #+END_SRC
@@ -51,7 +51,7 @@
   the S-Expression to the REPL and evaluate it there instead of
   showing the result in the mini-buffer:
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (defun cider-send-and-evaluate-sexp ()
       "Sends the s-expression located before the point or the active
       region to the REPL and evaluates it. Then the Clojure buffer is
@@ -76,7 +76,7 @@
     everything up. Keyboard: =C-c M-j=
   - =cider= to connect to an existing nREPL server.
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
         (use-package cider
           :ensure t
           :commands (cider cider-connect cider-jack-in)
@@ -139,12 +139,12 @@
   will insert a comment character if we aren't already in a comment,
   and we will then advice the Cider function that prints the results:
 
-  #+BEGIN_SRC elisp
-    (defun ha/cider-append-comment ()
+  #+BEGIN_SRC emacs-lisp
+    (defun nanounanue/cider-append-comment ()
       (when (null (nth 8 (syntax-ppss)))
         (insert " ; ")))
 
-    (advice-add 'cider-eval-print-last-sexp :before #'ha/cider-append-comment)
+    (advice-add 'cider-eval-print-last-sexp :before #'nanounanue/cider-append-comment)
   #+END_SRC
 
   While I typically use [[https://github.com/clojure-emacs/clj-refactor.el][clj-refactor]]'s [[https://github.com/clojure-emacs/clj-refactor.el/wiki/cljr-add-missing-libspec][add-missing-libspec]] function,
@@ -154,7 +154,7 @@
 
   To get Clojure's Cider working with org-mode, do:
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (use-package ob-clojure
       :init
       (setq org-babel-clojure-backend 'cider))
@@ -166,7 +166,7 @@
   Using [[https://github.com/jonase/eastwood#emacs--cider][Eastwood]] with the [[https://github.com/clojure-emacs/squiggly-clojure][Squiggly Clojure]] project to add lint
   warnings to [[file:emacs.org::*Flycheck][Flycheck]]:
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (use-package flycheck-clojure
       :ensure t
       :init
@@ -179,7 +179,7 @@
 
   Seems we should also install [[https://github.com/flycheck/flycheck-pos-tip][flycheck-pos-tip]] as well.
 
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
     (use-package flycheck-pos-tip
       :ensure t
       :config
@@ -194,7 +194,7 @@
   Finally, if you are just learning Clojure, check out [[http://www.4clojure.com/][4Clojure]] and then
   install [[https://github.com/joshuarh/4clojure.el][4clojure-mode]].
 
-  #+BEGIN_SRC elisp :tangle no
+  #+BEGIN_SRC emacs-lisp :tangle no
     (use-package 4clojure
       :init
       (bind-key "<f9> a" '4clojure-check-answers clojure-mode-map)
@@ -215,7 +215,7 @@
   Got some good /advice/ from [[http://endlessparentheses.com/be-a-4clojure-hero-with-emacs.html][Endless Parens]] for dealing with
   4Clojure:
 
-  #+BEGIN_SRC elisp :tangle no
+  #+BEGIN_SRC emacs-lisp :tangle no
      (defun endless/4clojure-check-and-proceed ()
        "Check the answer and show the next question if it worked."
        (interactive)
@@ -238,7 +238,7 @@
 
   And:
 
-  #+BEGIN_SRC elisp :tangle no
+  #+BEGIN_SRC emacs-lisp :tangle no
      (defadvice 4clojure/start-new-problem
          (after endless/4clojure/start-new-problem-advice () activate)
          ;; Prettify the 4clojure buffer.
@@ -262,16 +262,16 @@
 
   We need a file where we can save our current question:
 
-  #+BEGIN_SRC elisp :tangle no
-   (defvar ha-4clojure-place-file (concat user-emacs-directory "4clojure-place.txt"))
+  #+BEGIN_SRC emacs-lisp :tangle no
+   (defvar nanounanue-4clojure-place-file (concat user-emacs-directory "4clojure-place.txt"))
   #+END_SRC
 
   Read a file's contents as a buffer by specifying the file. For
   this, we use a temporary buffer, so that we don't have to worry
   about saving it.
 
-  #+BEGIN_SRC elisp :tangle no
-  (defun ha-file-to-string (file)
+  #+BEGIN_SRC emacs-lisp :tangle no
+  (defun nanounanue-file-to-string (file)
     "Read the contents of FILE and return as a string."
     (with-temp-buffer
       (insert-file-contents file)
@@ -280,26 +280,26 @@
 
   Parse a file into separate lines and return a list.
 
-  #+BEGIN_SRC elisp :tangle no
-    (defun ha-file-to-list (file)
+  #+BEGIN_SRC emacs-lisp :tangle no
+    (defun nanounanue-file-to-list (file)
       "Return a list of lines in FILE."
-      (split-string (ha-file-to-string file) "\n" t))
+      (split-string (nanounanue-file-to-string file) "\n" t))
   #+END_SRC
 
   We create a wrapper function that reads our previous "place"
   question and then calls the open question function.
 
-  #+BEGIN_SRC elisp :tangle no
-     (defun ha-4clojure-last-project (file)
+  #+BEGIN_SRC emacs-lisp :tangle no
+     (defun nanounanue-4clojure-last-project (file)
        (interactive "f")
        (if (file-exists-p file)
-           (car (ha-file-to-list file))
+           (car (nanounanue-file-to-list file))
          "1"))
 
      (defun 4clojure-start-session ()
        (interactive)
        (4clojure-open-question
-        (ha-4clojure-last-project ha-4clojure-place-file)))
+        (nanounanue-4clojure-last-project nanounanue-4clojure-place-file)))
 
      (global-set-key (kbd "<f2> s") '4clojure-start-session)
   #+END_SRC
@@ -307,8 +307,8 @@
   Write a value to a file. Making this interactive makes for an
   interesting use case...we'll see if I use that.
 
-  #+BEGIN_SRC elisp :tangle no
-     (defun ha-string-to-file (string file)
+  #+BEGIN_SRC emacs-lisp :tangle no
+     (defun nanounanue-string-to-file (string file)
        (interactive "sEnter the string: \nFFile to save to: ")
        (with-temp-file file
          (insert string)))
@@ -317,18 +317,18 @@
   Whenever we load a 4clojure project or go to the next one, we store
   the project number to our "place" file:
 
-  #+BEGIN_SRC elisp :tangle no
+  #+BEGIN_SRC emacs-lisp :tangle no
    (when (package-installed-p '4clojure)
-     (defun ha-4clojure-store-place (num)
-         (ha-string-to-file (int-to-string num) ha-4clojure-place-file))
+     (defun nanounanue-4clojure-store-place (num)
+         (nanounanue-string-to-file (int-to-string num) nanounanue-4clojure-place-file))
 
-     (defadvice 4clojure-next-question (after ha-4clojure-next-question)
+     (defadvice 4clojure-next-question (after nanounanue-4clojure-next-question)
        "Save the place for each question you progress to."
-       (ha-4clojure-store-place (4clojure/problem-number-of-current-buffer)))
+       (nanounanue-4clojure-store-place (4clojure/problem-number-of-current-buffer)))
 
-     (defadvice 4clojure-open-question (after ha-4clojure-next-question)
+     (defadvice 4clojure-open-question (after nanounanue-4clojure-next-question)
        "Save the place for each question you progress to."
-       (ha-4clojure-store-place (4clojure/problem-number-of-current-buffer)))
+       (nanounanue-4clojure-store-place (4clojure/problem-number-of-current-buffer)))
 
      (ad-activate '4clojure-next-question)
      (ad-activate '4clojure-open-question))
@@ -339,6 +339,6 @@
 *  Finalmente
 
 
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (provide 'init-clojure)
 #+END_SRC

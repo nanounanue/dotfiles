@@ -15,31 +15,30 @@
 * Scala
 
 #+BEGIN_SRC emacs-lisp
-(use-package scala-mode
-:mode (
-("\\.scala$" . scala-mode)
-)
-:ensure t
-:config
-(add-hook 'scala-mode-hook
-          '(lambda ()
-             (yas/minor-mode-on)
-             (scala-mode-feature-electric-mode)))
-(add-hook 'scala-mode-hook 'ensime-scala-mode-hook)))
+  (use-package scala-mode
+    :mode (
+           ("\\.scala$" . scala-mode)
+           )
+    :ensure t
+    :config
+    (add-hook 'scala-mode-hook
+              '(lambda ()
+                 (yas/minor-mode-on)
+                 (scala-mode-feature-electric-mode)))
+    (add-hook 'scala-mode-hook 'ensime-scala-mode-hook))
 #+END_SRC
 
 * ENSIME
 
 #+BEGIN_SRC emacs-lisp
-(use-package ensime
-:ensure t
-:config
-(setq ensime-startup-notification nil
-      ensime-startup-snapshot-notification nil))
+  (use-package ensime
+    :ensure t
+    :config
+    (setq ensime-startup-notification nil
+          ensime-startup-snapshot-notification nil))
 #+END_SRC
 
 
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
   (provide 'init-scala)
 #+END_SRC
-

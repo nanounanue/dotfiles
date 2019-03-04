@@ -11,14 +11,15 @@
 #+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
 #+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
 
+* Preludio
 
-* Esto debe de ir en =.emacs=
+** Esto debe de ir en =.emacs=
 
 #+BEGIN_SRC emacs-lisp :tangle no
 (load-file "~/.emacs.d/elisp/init-main.el")
 #+END_SRC
 
-* Load Path
+** Load Path
 
 #+BEGIN_SRC emacs-lisp
 (defconst nanounanue/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
@@ -141,7 +142,7 @@ Este paquete permite que todo sea más ordenado
 #+END_SRC
 
 
-*** =paradox=
+*** paradox
 
 [[https://github.com/Malabarba/paradox][Paradox]] moderniza la lista de paquetes de Emacs
 
@@ -154,6 +155,30 @@ Este paquete permite que todo sea más ordenado
   (setq paradox-spinner-type 'progress-bar))
 #+END_SRC
 
+
+*** delight y diminish
+
+#+BEGIN_SRC emacs-lisp
+(use-package delight
+  :ensure t
+  :config
+  (delight '((emacs-lisp-mode       "ξ" :major)
+             (lisp-interaction-mode "λ" :major)
+             (python-mode           "π" :major)
+             (org-mode              "ομ" :major)
+             (company-mode          " C"  company)
+             (ivy-mode              " ι"  ivy)
+             (sql-mode              "Σ"  sql)
+             (projectile-mode       " ρ"  projectile)
+             (eldoc-mode            " ε"  eldoc)
+             (flycheck-mode         " ƒ"  flycheck)
+             (flyspell-mode         ""    flyspell)))
+  )
+
+
+(use-package diminish :ensure t)
+(use-package use-package-ensure-system-package :ensure t)
+#+END_SRC
 
 ** Paqueterías de soporte
 
@@ -175,8 +200,8 @@ Mejoras de Emacs lisp, básicamente
 
 * Cifrado
 
-#+BEGIN_SRC shell
-apt install gpg
+#+BEGIN_SRC shell :dir /sudo::
+apt install -y gpg
 #+END_SRC
 
 Cualquier archivo que tenga una extensión =gpg= pedirá a contraseña /antes/ de ser mostrado.
@@ -280,6 +305,11 @@ Quiero que emacs guarde en /cache/ mi contraseña
 (global-set-key (kbd "C-c C-;") 'comment-region)
 (global-set-key (kbd "C-c C-:") 'uncomment-region)
 
+(global-set-key (kbd "C-+") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-decrease)
+(global-set-key (kbd "C-0") 'text-scale-adjust)
+
+
 #+END_SRC
 
 * Búsquedas
@@ -287,7 +317,7 @@ Quiero que emacs guarde en /cache/ mi contraseña
 ** Silver searcher
 
 #+BEGIN_SRC shell :dir /sudo::
-apt install silversearcher-ag
+apt install -y silversearcher-ag
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -308,7 +338,7 @@ Es posible  [[file:~/.agignore][crear una lista de archivos a ignorar]] en las b
 * /Indexing/
 
 #+BEGIN_SRC shell :dir /sudo::
-apt install recoll
+apt install -y recoll
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -419,7 +449,62 @@ Más extensiones en [[http://www.masteringemacs.org/articles/2014/04/10/dired-sh
 #+END_SRC
 
 
+* Clipboard
+
+#+BEGIN_SRC emacs-lisp
+(setq x-select-enable-primary nil)
+(setq x-select-enable-clipboard t)
+#+END_SRC
+
 * Edición
+
+** Generalidades
+
+#+BEGIN_SRC emacs-lisp
+(column-number-mode t)
+#+END_SRC
+
+
+Muestra el paréntesis que hace /match/
+
+#+BEGIN_SRC emacs-lisp
+  (defvar show-paren-delay)
+  (setq show-paren-delay 0.0)
+  (show-paren-mode t)
+#+END_SRC
+
+Paréntesis con color
+
+#+BEGIN_SRC emacs-lisp
+(use-package rainbow-delimiters
+  :ensure t
+  :commands rainbow-delimiters-mode
+  :init
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'LaTex-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'org-mode-hook #'rainbow-delimiters-mode))
+#+END_SRC
+
+
+Visualizar colores
+
+#+BEGIN_SRC emacs-lisp
+(use-package rainbow-mode
+  :ensure t
+  :config
+  (setq rainbow-x-colors nil)
+  :hook (prog-mode . rainbow-delimiters-mode)
+  )
+#+END_SRC
+
+Seleccionar incrementalmente la sección
+
+#+BEGIN_SRC emacs-lisp
+(use-package expand-region
+  :ensure t
+  :bind ("C-=" . er/expand-region))
+#+END_SRC
+
 
 ** Auto Completado
 
@@ -485,11 +570,11 @@ Obvio autocompletar en el [[https://github.com/Alexander-Miller/company-shell][s
    [[http://www.emacswiki.org/emacs/FlySpell][FlySpell]] utiliza =ispell=, pero =aspell= está mejor en
    general. Como sea, instalamos los dos además del soporte a español.
 
-   #+BEGIN_SRC shell
-     apt install aspell aspell-es ispell ispanish
+   #+BEGIN_SRC shell :dir /sudo::
+     apt install -y aspell aspell-es ispell ispanish
    #+END_SRC
 
-   Start for all text modes (but not for log files):
+   Usarlo en todos los archivos de texto, excepto en los =logs=
 
    #+BEGIN_SRC emacs-lisp
      (use-package flyspell
@@ -646,6 +731,28 @@ Y guardemos todos los archivos si Emacs pierde el foco
     )
 #+END_SRC
 
+Usar =counsel=
+
+#+BEGIN_SRC emacs-lisp
+(use-package counsel-projectile
+  :ensure t
+  :after projectile
+  :config
+  (counsel-projectile-mode)
+  )
+#+END_SRC
+
+** Escribiendo propiamente: [[https://github.com/bnbeckwith/writegood-mode][=writegood-mode=]]
+
+Resalta las malas elecciones de palabras entre otras cosas
+
+#+BEGIN_SRC emacs-lisp
+(use-package writegood-mode
+  :ensure t
+  :bind ("C-c g" . writegood-mode)
+  :config
+  (add-to-list 'writegood-weasel-words "actionable"))
+#+END_SRC
 
 * Lenguajes de programación
 
@@ -748,7 +855,7 @@ Y guardemos todos los archivos si Emacs pierde el foco
 Instalar el =SBCL=
 
 #+BEGIN_SRC shell :dir /sudo::
-apt instal sbcl
+apt install -y sbcl
 #+END_SRC
 
 Para aprender más sobre como usar Emacs con Common Lisp ver [[https://lispcookbook.github.io/cl-cookbook/emacs-ide.html][aquí]]
@@ -785,28 +892,28 @@ Para aprender más sobre como usar Emacs con Common Lisp ver [[https://lispcookb
 [[https://ess.r-project.org/][Emacs Speaks Statistics]]
 
  #+BEGIN_SRC emacs-lisp
- (use-package ess
-   :disabled
-   ;;      :init
-   ;;      (require 'ess-site)
-   :config
-   ;; Subpackage
-   (use-package ess-R-data-view :ensure t)
-   (use-package ess-smart-equals :disabled)
-   (use-package ess-smart-underscore :ensure t)
-   (use-package ess-view :ensure t)
+   (use-package ess
+     :ensure t
+     :init
+     (require 'ess-site)
+     :config
+     ;; Subpackage
+     (use-package ess-R-data-view :ensure t)
+     (use-package ess-smart-equals :disabled)
+     (use-package ess-smart-underscore :ensure t)
+     (use-package ess-view :ensure t)
 
-   ;;(ess-toggle-underscore nil) ; http://stackoverflow.com/questions/2531372/how-to-stop-emacs-from-replacing-underbar-with-in-ess-mode
-   (setq ess-fancy-comments nil) ; http://stackoverflow.com/questions/780796/emacs-ess-mode-tabbing-for-comment-region
-                                         ; Make ESS use RStudio's indenting style
-   (add-hook 'ess-mode-hook (lambda() (ess-set-style 'RStudio)))
-                                         ; Make ESS use more horizontal screen
-                                         ; http://stackoverflow.com/questions/12520543/how-do-i-get-my-r-buffer-in-emacs-to-occupy-more-horizontal-space
-   (add-hook 'ess-R-post-run-hook 'ess-execute-screen-options)
-   (define-key inferior-ess-mode-map "\C-cw" 'ess-execute-screen-options)
-                                         ; Add path to Stata to Emacs' exec-path so that Stata can be found
+     ;;(ess-toggle-underscore nil) ; http://stackoverflow.com/questions/2531372/how-to-stop-emacs-from-replacing-underbar-with-in-ess-mode
+     (setq ess-fancy-comments nil) ; http://stackoverflow.com/questions/780796/emacs-ess-mode-tabbing-for-comment-region
+                                           ; Make ESS use RStudio's indenting style
+     (add-hook 'ess-mode-hook (lambda() (ess-set-style 'RStudio)))
+                                           ; Make ESS use more horizontal screen
+                                           ; http://stackoverflow.com/questions/12520543/how-do-i-get-my-r-buffer-in-emacs-to-occupy-more-horizontal-space
+     (add-hook 'ess-R-post-run-hook 'ess-execute-screen-options)
+     (define-key inferior-ess-mode-map "\C-cw" 'ess-execute-screen-options)
+                                           ; Add path to Stata to Emacs' exec-path so that Stata can be found
 
-   )
+     )
 #+END_SRC
 
 Conectamos =R= con =company=
@@ -909,9 +1016,6 @@ Para usar =docker-tramp=
 #+END_EXAMPLE
 
 
-
-
-
 ** Magit
 
 [[http://philjackson.github.com/magit/magit.html][Magit]] es de lo mejor que le ha pasado a Emacs. Este modo junto con
@@ -1001,8 +1105,8 @@ Tutorial: http://jblevins.org/projects/markdown-mode/
 
 ** PlantUML
 
-#+BEGIN_SRC shell
-apt install plantuml
+#+BEGIN_SRC shell :dir /sudo::
+apt install -y plantuml
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -1016,8 +1120,8 @@ apt install plantuml
 
 ** Graphviz
 
-#+BEGIN_SRC shell
-apt install graphviz
+#+BEGIN_SRC shell :dir /sudo::
+apt install -y graphviz
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -1117,8 +1221,8 @@ Github page]]
 
 Dependencias:
 
-#+BEGIN_SRC shell
-apt install libpng-dev zlib1g-dev libpoppler-glib-dev libpoppler-private-dev
+#+BEGIN_SRC shell :dir /sudo::
+apt install -y libpng-dev zlib1g-dev libpoppler-glib-dev libpoppler-private-dev
 #+END_SRC
 
 
@@ -1212,9 +1316,17 @@ Paquete para hacer demostraciones. Ver por ejemplo:
 
  #+BEGIN_SRC emacs-lisp
  (use-package demo-it
-   :ensure t
-   )
+   :ensure t)
  #+END_SRC
+
+
+
+
+* [[file:emacs-i3wm.org][Integración con i3wm]]
+
+#+BEGIN_SRC emacs-lisp
+(require 'init-i3wm)
+#+END_SRC
 
 
 
