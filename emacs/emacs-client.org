@@ -122,12 +122,14 @@ Activar /syntax highlighting/ globalmente
 
 #+BEGIN_SRC emacs-lisp
 (use-package solarized-theme
-  :ensure t
-  :disabled t
-  :config
-  (load-theme 'solarized-light t))
+  :ensure t)
 #+END_SRC
 
+
+#+BEGIN_SRC emacs-lisp
+(use-package theme-changer)
+(change-theme 'solarized-light 'zenburn)  ;; day and night theme
+#+END_SRC
 
 * all-the-icons
 

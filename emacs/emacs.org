@@ -41,6 +41,21 @@
 (add-to-list 'load-path (nanounanue/emacs-subdirectory "elisp"))
 #+END_SRC
 
+** Editar este archivo
+
+#+BEGIN_SRC emacs-lisp
+(defun nanounanue/config-open ()
+  (interactive)
+  (find-file "~/dotfiles/emacs/emacs.org"))
+(global-set-key (kbd "C-c e") 'nanounanue/config-open)
+
+(defun nanounanue/config-reload ()
+  "Reloads ~/dotfiles/emacs/nano-emacs.org"
+  (interactive)
+  (org-babel-load-file (expand-file-name "~/dotfiles/emacs/emacs.org")))
+(global-set-key (kbd "C-c R") 'nanounanue/config-reload)
+#+END_SRC
+
 
 * Configuración general
 
@@ -138,7 +153,7 @@ Este paquete permite que todo sea más ordenado
 (eval-when-compile
   (require 'use-package))
 
-(setq use-package-always-ensure t)
+(setq use-package-always-ensure nil)
 #+END_SRC
 
 
@@ -177,7 +192,7 @@ Este paquete permite que todo sea más ordenado
 
 
 (use-package diminish :ensure t)
-(use-package use-package-ensure-system-package :ensure t)
+;;(use-package use-package-ensure-system-package :ensure t)
 #+END_SRC
 
 ** Paqueterías de soporte
@@ -268,12 +283,11 @@ Quiero que emacs guarde en /cache/ mi contraseña
 ** Fill mode
 
 #+BEGIN_SRC emacs-lisp
-  ;; (use-package fill
-  ;;   :ensure t
-  ;;   :bind (("C-c T f" . auto-fill-mode)
-  ;;          ("C-c T t" . toggle-truncate-lines))
-  ;;   :init (add-hook 'org-mode-hook 'turn-on-auto-fill)
-  ;;   :diminish auto-fill-mode)
+  (use-package fill
+    :bind (("C-c T f" . auto-fill-mode)
+           ("C-c T t" . toggle-truncate-lines))
+    :init (add-hook 'org-mode-hook 'turn-on-auto-fill)
+    :diminish auto-fill-mode)
 #+END_SRC
 
 * [[file:emacs-ivy.org][Ivy]]
@@ -445,7 +459,9 @@ Echar un /vistazo/ sin cargar en el /buffer/
 Más extensiones en [[http://www.masteringemacs.org/articles/2014/04/10/dired-shell-commands-find-xargs-replacement/][dired-x]]
 
 #+BEGIN_SRC emacs-lisp
-(use-package dired-x :ensure t)
+(add-hook 'dired-load-hook
+          (lambda ()
+            (load "dired-x")))
 #+END_SRC
 
 
@@ -770,31 +786,17 @@ Resalta las malas elecciones de palabras entre otras cosas
 
 *** /Folding/
 
-[[info:emacs#Hideshow][Hide Show Minor]] (o [[http://www.emacswiki.org/emacs/HideShow][aquí]]) esconde (/fold/) todas las funciones
-
 #+BEGIN_SRC emacs-lisp
-  (use-package hs-minor-mode
-    :config
-      (defun nanounanue/hs-show-all ()
-      (interactive)
-      (hs-minor-mode 1)
-      (hs-show-all))
+(use-package bicycle
+  :after outline
+  :bind (:map outline-minor-mode-map
+              ([C-tab] . bicycle-cycle)
+              ([S-tab] . bicycle-cycle-global)))
 
-    (defun nanounanue/hs-hide-all ()
-      (interactive)
-      (hs-minor-mode 1)
-      (hs-hide-all))
-
-    (defun nanounanue/hs-toggle-hiding ()
-      (interactive)
-      (hs-minor-mode 1)
-      (hs-toggle-hiding))
-
-    :bind
-    ("C-c T h" . hs-minor-mode)
-    ("C-c h a" . nanounanue/hs-hide-all)
-    ("C-c h s" . nanounanue/hs-show-all)
-    ("C-c h h" . nanounanue/hs-toggle-hiding))
+(use-package prog-mode
+  :config
+  (add-hook 'prog-mode-hook 'outline-minor-mode)
+  (add-hook 'prog-mode-hook 'hs-minor-mode))
 #+END_SRC
 
 *** Resaltado
