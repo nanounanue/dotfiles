@@ -1,10 +1,10 @@
-#+TITLE:     ZShell Resources Startup File
+#+TITLE:     Tmux
 #+AUTHOR:    Adolfo De Unánue
 #+EMAIL:     nanounanue@gmail.com
 
-
-*  =tmux.conf=
-#+BEGIN_SRC sh
+* Tmux
+**  Configuración local: =tmux.conf=
+ #+BEGIN_SRC sh :tangle ~/.tmux.conf
 set -g history-limit 50000
 
 set -s escape 1 # Cambiando el delay al mandar comandos
@@ -294,7 +294,7 @@ set -g @open-S 'https://www.google.com/search?q='
 
 # Session is considered to be remote when we ssh into host
 if-shell 'test -n "$SSH_CLIENT"' \
-    'source-file ~/dotfiles/tmux.remote.conf'
+    'source-file ~/.tmux.remote.conf'
 
 # We want to have single prefix key "C-a", usable both for local and remote session
 # we don't want to "C-a" + "a" approach either
@@ -324,11 +324,12 @@ bind -T off F12 \
 # Run all plugins' scripts
 run '~/.tmux/plugins/tpm/tpm'
 
-#+END_SRC
+ #+END_SRC
 
 * =tmux.remote.conf=
 
-#+BEGIN_SRC sh
+#+BEGIN_SRC sh :tangle ~/.tmux.remote.conf
+
 # show status bar at top for remote session,
 # so it do not stack together with local session's one
 set -g status-position top

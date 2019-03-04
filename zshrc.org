@@ -1,220 +1,82 @@
 #+TITLE:     ZShell Resources Startup File
 #+AUTHOR:    Adolfo De Unánue
 #+EMAIL:     nanounanue@gmail.com
+#+PROPERTY: header-args:shell :tangle ~/.zshrc :shebang #!/usr/local/bin/zsh :comments org
+#+DESCRIPTION: Generalidades para configurar ZSH
 
-* Funciones
+*NOTA*: Recuerda que este archivo es invocado en shells /interactivos/ ...
 
-#+BEGIN_SRC sh
-function projects() {
-    cd ~/projects/$1
-}
+* ZSH
+
+** Instalación
+
+Instalamos desde los repositorios
+
+#+BEGIN_SRC shell :dir /sudo:: :tangle no
+apt install zsh
 #+END_SRC
 
-* Aliases
-
-#+BEGIN_SRC sh
-alias p="projects"
-#+END_SRC
-
-
-#+BEGIN_SRC sh
-alias e="emacsclient -c"
-alias ec="emacsclient -c"
-alias et="emacsclient -nw"
-alias gs="git status"
-#+END_SRC
-
-** SSH Tunneling (DSaPP)
-  #+BEGIN_SRC sh
-  alias dsapp-up='ssh -fNTM dsapp-tunnel'
-  alias dsapp-status='ssh -TO check dsapp-tunnel'
-  alias dsapp-down='ssh -TO exit dsapp-tunnel'
-  #+END_SRC
-
-* Environment
-
-#+BEGIN_SRC sh
-SAVEHIST=5000
-HISTSIZE=5000
-#+END_SRC
-
-Scrolling horizontal
-
-#+BEGIN_SRC sh
-export PAGER=less
-export LESS="-iMRSx4 -FX"
-#+END_SRC
-
-* Emacs 
-
-#+BEGIN_SRC sh
-export ALTERNATE_EDITOR=emacs
-export EDITOR="emacsclient -c"
-export VISUAL="emacsclient -c"
-#+END_SRC
-
-
-* Oh my zsh!
-
-#+BEGIN_SRC sh
-plugins=()
-#+END_SRC
-
-#+BEGIN_SRC sh
-source $ZSH/oh-my-zsh.sh
-#+END_SRC
-
-* Paths
-
-Queremos estos directorios, pero sólo si existen
-
-   #+BEGIN_SRC shell
-     OLDPATH=$PATH
-     PATH=$HOME/bin
-
-     for DIR in /opt/local/bin /opt/local/sbin /usr/local/bin /usr/local/sbin
-     do
-       if [ -d $DIR ]
-       then
-           PATH=$PATH:$DIR
-       fi
-     done
-
-     PATH=$PATH:$OLDPATH
-   #+END_SRC
-
-* Python
-
-Instalar =pyenv=
+Luego, establecemos =zsh= como el shell por /default/ para mi usuario
 
 #+BEGIN_SRC shell :tangle no
-curl https://pyenv.run | bash
+chsh -s $(which zsh)
 #+END_SRC
 
-Inicializamos =pyenv=:
+Finalmente instalamos /oh-my-zsh/
 
-#+BEGIN_SRC sh
-export PATH="$HOME/.pyenv/bin:$PATH"
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
+ #+BEGIN_SRC shell :tangle no
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+ #+END_SRC
+
+** Tema
+
+
+#+BEGIN_SRC sh :dir ~/.oh-my-zsh/custom/themes  :tangle no
+git clone https://github.com/geometry-zsh/geometry.git 
 #+END_SRC
 
-Y luego instalamos algunas versiones de python
+ #+BEGIN_SRC shell
+ ZSH_THEME="geometry/geometry"
+ #+END_SRC
 
-#+BEGIN_SRC sh :tangle no
-pyenv install 3.6.3
-pyenv global 3.6.3
+=geometry= tiene un sistema de /plugins/ internos
+
+#+BEGIN_SRC shell
+GEOMETRY_PROMPT_PLUGINS=(virtualenv docker_machine exec_time git)
 #+END_SRC
 
+Para mayor configuración ver el [[https://github.com/geometry-zsh/geometry][repositorio]]
 
-Para crear un ambiente virtual:
+** Plugins
 
-#+BEGIN_SRC sh :tangle no
-pyenv virtualenv $NAME
-#+END_SRC
+ #+BEGIN_SRC sh
+ plugins=(git 
+          git-extras 
+          debian 
+          httpie 
+          pip pyenv python 
+          tmux 
+          docker 
+          lein 
+          rsync 
+          json_tools
+          z 
+          zsh-navigation-tools zsh-wakatime zsh_reload zsh-autosuggestions zsh-syntax-highlighting)
+ #+END_SRC
 
-Para activarlo/desactivarlo manualmente
 
-#+BEGIN_SRC sh :tangle no
-pyenv activate $NAME
-pyenv deactivate $NAME
-#+END_SRC
+Si =ZSH_TMUX_AUTOSTART= es verdadero, siempre, al crear una terminal 
+se inicializará =tmux= o se conectará a una sesión existente
 
-o para activarlo de manera automática en un directorio:
+ #+BEGIN_SRC shell
+ ZSH_TMUX_AUTOSTART=true
+ #+END_SRC
 
-#+BEGIN_SRC sh :tangle no
-echo $NAME > .python-version
-#+END_SRC
 
-* Prompt
+** Oh my Zsh!
 
-  A helper function to help trim down lengthy directories:
+ #+BEGIN_SRC shell
+ source $ZSH/oh-my-zsh.sh
+ #+END_SRC
 
-  #+BEGIN_SRC shell
-    function _trim_dir {
-        V='[[:alnum:]._-]'
-        D='[[:alnum:]._/-]'
-        sed -E "s|/$D+/($V+)|../\1|; s/ / /g" <<< $1
-    }
-  #+END_SRC
 
-  The =__git_ps1= is nice, but can be lengthy when pulling down Gerrit
-  reviews, so let's make a simpler branch:
-
-  #+BEGIN_SRC shell
-    function _mygit_ps1 {
-      __git_ps1 " :%s" | sed 's|^ :review/.*/\([0-9]*\)$| :review-\1|'
-    }
-  #+END_SRC
-
-  Better approach to displaying the current path, is to only display
-  the first or second directory name ... any maybe the name of the Git
-  project. Holy hell, so many exceptions and so few patterns...
-
-  #+BEGIN_SRC shell
-    function prompt_dir {
-        PWD=$(pwd)
-
-        if [[ $PWD == $HOME ]]
-        then
-            echo -n '~'
-        elif [[ $PWD == $HOME/Work ]]
-        then
-            echo -n '~/Work'
-
-             # In a Git project?
-        elif PRJ=$(git rev-parse --show-toplevel 2>/dev/null)
-        then
-            name=$(basename $PRJ)
-            rest=$(sed "s|$PRJ||" <<< $PWD)
-            echo -n "$(sed -e 's/ / /g' <<< [$name])$(_trim_dir $rest)"
-
-             # In work-related directory...
-        elif [[ $PWD == $HOME/Work/* ]]
-        then
-            name=$(sed -E "s|$HOME/Work/([[:alnum:]_-]+).*|\1|; s/ / /g" <<< $PWD)
-            base=$(basename $PWD)
-            intr=$(basename "`dirname \"$PWD\"`")
-
-            if [[ "$name" == "$base" ]]
-            then
-                echo -n "Ⓦ/$name"
-            elif [[ "$intr" == "$name" ]]
-            then
-                echo -n "Ⓦ/$name/$base"
-            else
-                echo -n "Ⓦ/$name/../$base"
-            fi
-
-             # In a home directory
-        elif [[ $PWD == $HOME/* ]]
-        then
-            base=$(basename $PWD)
-            intr=$(basename "`dirname \"$PWD\"`")
-            if [[ "$intr" == $(basename $HOME) ]]
-            then
-                echo -n "~/$base"
-            else
-                echo -n "~/$(_trim_dir $PWD)"
-            fi
-        else
-            _trim_dir $PWD
-        fi
-    }
-  #+END_SRC
-
-  I wanna add everything to my command line prompt: the Git
-  repository, the Python virtual environment (in white), the Ruby
-  Virtual Environment (in red) ... of course, now I have no room to
-  type commands. ;-)
-
-  #+BEGIN_SRC shell
-    export PS1='\[\e[1;34m\]$(prompt_dir)\[\e[1;32m\]$(_mygit_ps1)\[\e[0m\] \$ '
-
-    if [ -d ~/.rvm ]
-    then
-        export PS1='\[\e[1;31m\]$(~/.rvm/bin/rvm-prompt v g)'"$PS1"
-    fi
-  #+END_SRC
-
-  Good thing I seldom use a shell.

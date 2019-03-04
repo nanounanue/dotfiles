@@ -1,0 +1,131 @@
+#+TITLE:
+#+AUTHOR: Adolfo De Unánue
+#+EMAIL:  nanounanue@gmail.com
+#+DESCRIPTION: Configuración global para el shell
+#+PROPERTY: header-args:shell :tangle ~/.profile :shebang #!/bin/sh :comments org
+
+
+* Funciones
+
+#+BEGIN_SRC sh
+function projects() {
+    cd ~/projects/$1
+}
+#+END_SRC
+
+* Environment
+
+#+BEGIN_SRC sh
+HISTSIZE=5000
+SAVEHIST=$HISTSIZE
+#+END_SRC
+
+** Scrolling horizontal
+
+ #+BEGIN_SRC sh
+export PAGER=less
+export LESS="-iMRSx4 -FX"
+ #+END_SRC
+
+
+
+** GNU/Emacs
+
+ #+BEGIN_SRC shell
+export ALTERNATE_EDITOR=emacs
+export EDITOR="emacsclient -c"
+export VISUAL="emacsclient -c"
+ #+END_SRC
+
+A veces, si abres Emacs en la terminal, se ve horrible :(, esto lo arregla:
+
+#+BEGIN_SRC shell
+export TERM=xterm-256color
+#+END_SRC
+
+** Pyenv
+
+Instalar =pyenv=
+
+#+BEGIN_SRC shell :tangle no
+curl https://pyenv.run | bash
+#+END_SRC
+
+Inicializar =pyenv=:
+
+#+BEGIN_SRC shell
+export PATH="$HOME/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+#+END_SRC
+
+Y luego instalamos algunas versiones de python
+
+#+BEGIN_SRC sh :tangle no
+pyenv install 3.6.3
+pyenv global 3.6.3
+#+END_SRC
+
+
+Para crear un ambiente virtual:
+
+#+BEGIN_SRC sh :tangle no
+pyenv virtualenv $NAME
+#+END_SRC
+
+Para activarlo/desactivarlo manualmente
+
+#+BEGIN_SRC sh :tangle no
+pyenv activate $NAME
+pyenv deactivate $NAME
+#+END_SRC
+
+o para activarlo de manera automática en un directorio:
+
+#+BEGIN_SRC sh :tangle no
+echo $NAME > .python-version
+#+END_SRC
+
+* Aliases
+
+#+BEGIN_SRC shell
+alias p="projects"
+#+END_SRC
+
+** Emacs
+
+ #+BEGIN_SRC shell
+alias e="emacsclient -c"
+alias ec="emacsclient -c"
+alias et="emacsclient -nw"
+alias gs="git status"
+ #+END_SRC
+
+
+** SSH Tunneling (DSaPP)
+
+  #+BEGIN_SRC shell
+  alias dsapp-up='ssh -fNTM dsapp-tunnel'
+  alias dsapp-status='ssh -TO check dsapp-tunnel'
+  alias dsapp-down='ssh -TO exit dsapp-tunnel'
+  #+END_SRC
+
+
+* Paths
+
+Queremos estos directorios, pero sólo si existen
+
+   #+BEGIN_SRC shell
+     OLDPATH=$PATH
+     PATH=$HOME/bin
+
+     for DIR in $HOME/bin /opt/local/bin /opt/local/sbin /usr/local/bin /usr/local/sbin /usr/bin /usr/sbin
+     do
+       if [ -d $DIR ]
+       then
+           PATH=$PATH:$DIR
+       fi
+     done
+
+     PATH=$PATH:$OLDPATH
+   #+END_SRC

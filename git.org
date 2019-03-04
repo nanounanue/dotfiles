@@ -1,10 +1,10 @@
-#+TITLE:     ZShell Resources Startup File
+#+TITLE:     Configuración de Git
 #+AUTHOR:    Adolfo De Unánue
 #+EMAIL:     nanounanue@gmail.com
 
 * =gitconfig=
 
-#+BEGIN_SRC sh 
+#+BEGIN_SRC sh :tangle ~/.gitconfig
 [user]
     name = Adolfo De Unánue
     mail = nanounanue@gmail.com
@@ -168,9 +168,9 @@
 
 #+END_SRC
 
-* Global =gitignore=
+* Gitignore global
 
-#+BEGIN_SRC sh
+#+BEGIN_SRC text :tangle ~/.gitignore
 # Compiled source #
 ###################
 *.com

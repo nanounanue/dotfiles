@@ -1,0 +1,152 @@
+#+TITLE: Ivy, Counsel y Swiper
+#+AUTHOR: Adolfo De Unánue
+#+EMAIL: nanounanue@gmail.com
+#+STARTUP: showeverything
+#+STARTUP: nohideblocks
+#+STARTUP: indent
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/elisp/init-ivy.el
+#+PROPERTY:    header-args:shell  :tangle no
+#+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+
+* Links de interés
+- [[https://sam217pa.github.io/2016/09/13/from-helm-to-ivy/][From helm to ivy]]
+- [[http://oremacs.com/2015/04/16/ivy-mode/][Descripción de ivy]]
+- [[https://truthseekers.io/lessons/how-to-use-ivy-swiper-counsel-in-emacs-for-noobs/][how to use ivy swiper counsel in emacs for noobs]]
+- [[https://emacs.stackexchange.com/a/37307/10848][Find and replace a text among the files of a project]]
+
+  
+* Ivy
+
+#+BEGIN_SRC emacs-lisp
+(use-package ivy
+  :defer 0.1
+  :ensure t
+  :diminish ivy-mode
+  :config
+  (setq ivy-height 10                                 ; length of ivy completions list
+        ivy-wrap t                                    ; wrap around at end of completions list
+        ivy-count-format "%d/%d "
+        ivy-fixed-height-minibuffer t                  ; use consistent height for ivy
+        projectile-completion-system 'ivy              ; use ivy for projectile
+        smex-completion-method 'ivy                    ; use ivy for smex
+        ivy-initial-inputs-alist nil                   ; don't use ^ as initial input
+        ivy-format-function #'ivy-format-function-line ; highlight til EOL
+        ivy-use-virtual-buffers nil                    ; dont' show recent files in switch-buffer
+        ivy-virtual-abbreviate 'full                   ; show full path if showing virtual buffer
+        ivy-magic-slash-non-match-action nil           ; disable magic slash on non-match
+        ivy-on-del-error-function nil                  ; don't quit minibuffer on delete-error
+        ivy-use-selectable-prompt t)                   ; allow input prompt value to be selectable
+  (ivy-mode)
+  )
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package ivy-rich
+  :after ivy
+  :custom
+  (ivy-virtual-abbreviate 'full
+                          ivy-rich-switch-buffer-align-virtual-buffer t
+                          ivy-rich-path-style 'abbrev)
+  :config
+  (ivy-rich-mode 1)
+  (setq ivy-rich--display-transformers-list
+        '(ivy-switch-buffer
+          (:columns
+           ((ivy-rich-switch-buffer-icon :width 2)
+            (ivy-rich-candidate (:width 30))
+            (ivy-rich-switch-buffer-size (:width 7))
+            (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
+            (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
+            (ivy-rich-switch-buffer-project (:width 15 :face success))
+            (ivy-rich-switch-buffer-path (:width (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.3))))))
+           ))))
+
+#+END_SRC
+
+
+* Swiper
+
+#+BEGIN_SRC emacs-lisp
+(use-package swiper
+  :after ivy
+  :bind (("C-s" . swiper)
+         ("C-r" . swiper)))
+
+(use-package smex
+  :ensure t
+  :commands (smex smex-major-mode-commands)
+  :config
+  (smex-initialize))
+#+END_SRC
+
+
+* Counsel
+
+#+BEGIN_SRC emacs-lisp
+(use-package counsel
+  :after ivy
+  :ensure t
+  )
+#+END_SRC
+
+
+#+BEGIN_SRC emacs-lisp
+;;set action options during execution of counsel-find-file
+;; replace "frame" with window to open in new window
+(ivy-set-actions
+ 'counsel-find-file
+ '(("j" find-file-other-frame "other frame")
+   ("b" counsel-find-file-cd-bookmark-action "cd bookmark")
+   ("x" counsel-find-file-extern "open externally")
+   ("d" delete-file "delete")
+   ("r" counsel-find-file-as-root "open as root")))
+
+;; set actions when running C-x b
+;; replace "frame" with window to open in new window
+(ivy-set-actions
+ 'ivy-switch-buffer
+ '(("j" switch-to-buffer-other-frame "other frame")
+   ("k" kill-buffer "kill")
+   ("r" ivy--rename-buffer-action "rename")))
+
+
+#+END_SRC
+
+* /Key bindings/
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-s") 'swiper)  ;; replaces i-search with swiper
+(global-set-key (kbd "C-r") 'swiper)
+
+(global-set-key (kbd "M-x") 'counsel-M-x) ;; Gives M-x command counsel features
+(global-set-key (kbd "C-x C-f") 'counsel-find-file) ;; gives C-x C-f counsel features
+
+(global-set-key (kbd "<f1> f") 'counsel-describe-function)
+(global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+(global-set-key (kbd "<f1> l") 'counsel-find-library)
+(global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+(global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+
+(global-set-key (kbd "C-x b") 'ivy-switch-buffer)
+(global-set-key (kbd "C-x B") 'ivy-switch-buffer-other-window)
+
+(global-set-key [f6] 'ivy-resume)
+
+(global-set-key (kbd "C-c g") 'counsel-git)
+(global-set-key (kbd "C-c j") 'counsel-git-grep)
+(global-set-key (kbd "C-c k") 'counsel-ag) ;; add counsel/ivy features to ag package
+(global-set-key (kbd "C-x l") 'counsel-locate)
+(global-set-key (kbd "C-x C-r") 'counsel-recentf)
+(global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+#+END_SRC
+  
+* Al final
+
+#+BEGIN_SRC emacs-lisp
+(provide 'init-ivy)
+#+END_SRC
+
+

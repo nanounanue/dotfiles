@@ -1,0 +1,45 @@
+#+TITLE: Scala
+#+AUTHOR: Adolfo De Unánue
+#+EMAIL: nanounanue@gmail.com
+#+STARTUP: showeverything
+#+STARTUP: nohideblocks
+#+STARTUP: indent
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/elisp/init-scala.el
+#+PROPERTY:    header-args:shell  :tangle no
+#+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+
+
+* Scala
+
+#+BEGIN_SRC emacs-lisp
+(use-package scala-mode
+:mode (
+("\\.scala$" . scala-mode)
+)
+:ensure t
+:config
+(add-hook 'scala-mode-hook
+          '(lambda ()
+             (yas/minor-mode-on)
+             (scala-mode-feature-electric-mode)))
+(add-hook 'scala-mode-hook 'ensime-scala-mode-hook)))
+#+END_SRC
+
+* ENSIME
+
+#+BEGIN_SRC emacs-lisp
+(use-package ensime
+:ensure t
+:config
+(setq ensime-startup-notification nil
+      ensime-startup-snapshot-notification nil))
+#+END_SRC
+
+
+#+BEGIN_SRC elisp
+  (provide 'init-scala)
+#+END_SRC
+
