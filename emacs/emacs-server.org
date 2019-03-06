@@ -11,6 +11,9 @@
 
 * Server
 
+* Systemd
+
+* Hacerse visible
 
   #+BEGIN_SRC emacs-lisp
   (provide 'init-server)

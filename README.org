@@ -14,10 +14,7 @@ decir, intentaba hacer /Literate programming/. Los resultados fueron
 espectaculares, pero sólo afectaba Emacs. ZSH, =psql=, =tmux= no obtenían
 esas ventajas y las instrucciones para poder instalarlos quedaba fuera
 del archivo de configuración, así que en cada nueva computadora, tenía
-que buscar en internet como instalar todo de nuevo. 
+que buscar en internet como instalar todo de nuevo.
 
 Debido a esto he decidido extenderlo a /Literate programming/ a todos
 mis dotfiles.
-
-
-

@@ -62,7 +62,7 @@
 
       (defun org-file-path (filename)
         "Return the absolute address of an org file, given its relative name."
-        (concat (file-name-as-directory org-directory) filename)))
+        (concat (file-name-as-directory org-directory) filename))
 
       (font-lock-add-keywords            ; A bit silly but my headers are now
        'org-mode `(("^\\*+ \\(TODO\\) "  ; shorter, and that is nice canceled
@@ -233,9 +233,7 @@ Si =pandoc= está instalado, podemos copiar código HTML, ponerlo en el
   ;; Enable auto clock resolution for finding open clocks
   (setq org-clock-auto-clock-resolution (quote when-no-clock-is-running))
   ;; Include current clocking task in clock reports
-  (setq org-clock-report-include-clocking-task t)
-
- )
+  (setq org-clock-report-include-clocking-task t))
 #+END_SRC
 
 
@@ -297,11 +295,7 @@ en el que estoy trabajando (/capture/)
   (setq org-refile-use-outline-path t)
 
   ;; Allow refile to create parent tasks with confirmatio
-  (setq org-refile-allow-creating-parent-nodes (quote confirm))
-
-
-)
-
+  (setq org-refile-allow-creating-parent-nodes (quote confirm)))
 #+END_SRC
 
 Luego de seleccionar el /template/ adecuado, tecleas la nota, =C-c C-c=
@@ -402,8 +396,7 @@ Borrar archivos intermedios automáticamente al exportar
   :config
   (setq org-latex-logfiles-extensions
         '("lof" "lot" "tex=" "aux" "idx" "log" "out" "toc" "nav" "snm" "vrb"
-          "dvi" "fdb_latexmk" "blg" "brf" "fls" "entoc" "ps" "spl" "bbl"))
-  )
+          "dvi" "fdb_latexmk" "blg" "brf" "fls" "entoc" "ps" "spl" "bbl")))
 #+END_SRC
 
 Templates para LaTeX
@@ -444,12 +437,7 @@ Templates para LaTeX
                            "[EXTRA]\n")
                   ("\\section{%s}" . "\\section*{%s}")
                   ("\\subsection{%s}" . "\\subsection*{%s}")
-                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
-
-  )
-
-
-
+                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))))
 #+END_SRC
 
 Para usar un /template/ agregar al archivo
@@ -536,10 +524,16 @@ apt install -y xclip
 
 [[https://github.com/yjwen/org-reveal][ox-reveal]] para crear slides en *HTML*
 
+#+BEGIN_SRC shell :dir /tmp
+wget -O reveal.tar.gz https://github.com/hakimel/reveal.js/archive/3.7.0.tar.gz && \
+tar zxf /tmp/reveal.tar.gz -C ~/software/js/revealjs --strip-component 1
+#+END_SRC
+
+
 #+BEGIN_SRC emacs-lisp
 (use-package ox-reveal
    :init
-   (setq org-reveal-root (concat "file://" (getenv "HOME") "/software/js/reveal.js"))* Org extras
+   (setq org-reveal-root (concat "file://" (getenv "HOME") "/software/js/revealjs"))
    (setq org-reveal-postamble "Adolfo De Unánue"))
 #+END_SRC
 
@@ -583,9 +577,7 @@ apt install -y xclip
                 (org-present-small)
                 (org-remove-inline-images)
                 (org-present-show-cursor)
-                (org-present-read-write))))
-  )
-
+                (org-present-read-write)))))
 #+END_SRC
 
 
@@ -667,10 +659,9 @@ códigos y /tangle out/ bloques hacia archivos
   ;; add <pv for python expansion with value
   (add-to-list 'org-structure-template-alist
 	           '("pv" "#+BEGIN_SRC ipython :results value\n?\n#+END_SRC"
-                 "<src lang=\"ipython\">\n?\n</src>"))
-
-  )
+                 "<src lang=\"ipython\">\n?\n</src>")))
 #+END_SRC
+
 
 ** Dependencias
 
@@ -837,8 +828,7 @@ In a later step it should be possible to create truly interleaved PDFs of your n
   :diminish
   :after (org)
   :bind
-  (("C-c S" . org-attach-screenshot))
-  )
+  (("C-c S" . org-attach-screenshot)))
 #+END_SRC
 
 
@@ -861,8 +851,7 @@ In a later step it should be possible to create truly interleaved PDFs of your n
         '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
           "bibtex %b"
           "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-          "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
-  )
+          "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f")))
 #+END_SRC
 
 * Proveer

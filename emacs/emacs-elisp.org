@@ -28,40 +28,40 @@
 * Emacs Lisp
 
    #+BEGIN_SRC emacs-lisp
-     (use-package lisp-mode
-       :init
-       (defconst lisp--prettify-symbols-alist
-         '(("lambda"  . ?λ)                  ; Shrink this
-           ("."       . ?•)))                ; Enlarge this
+(use-package lisp-mode
+  :init
+  (defconst lisp--prettify-symbols-alist
+    '(("lambda"  . ?λ)                  ; Shrink this
+      ("."       . ?•)))                ; Enlarge this
 
-       :bind (("C-c e i" . ielm))
-       :delight emacs-lisp-mode "ξ"
-       :config
-       (add-hook 'emacs-lisp-mode-hook 'global-prettify-symbols-mode)
-       (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
-       (add-hook 'emacs-lisp-mode-hook 'activate-aggressive-indent)
+  :bind (("C-c e i" . ielm))
+  :delight emacs-lisp-mode "ξ"
+  :config
+  (add-hook 'emacs-lisp-mode-hook 'global-prettify-symbols-mode)
+  (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
+  (add-hook 'emacs-lisp-mode-hook 'aggressive-indent-mode)
 
-       ;; Bind some prefixes to a couple of mode maps:
-       (bind-keys :map emacs-lisp-mode-map
-                  :prefix-map lisp-find-map
-                  :prefix "C-h e"
-                  ("e" . view-echo-area-messages)
-                  ("f" . find-function)
-                  ("k" . find-function-on-key)
-                  ("l" . find-library)
-                  ("v" . find-variable)
-                  ("V" . apropos-value))
+  ;; Bind some prefixes to a couple of mode maps:
+  (bind-keys :map emacs-lisp-mode-map
+             :prefix-map lisp-find-map
+             :prefix "C-h e"
+             ("e" . view-echo-area-messages)
+             ("f" . find-function)
+             ("k" . find-function-on-key)
+             ("l" . find-library)
+             ("v" . find-variable)
+             ("V" . apropos-value))
 
-       (dolist (m (list emacs-lisp-mode-map lisp-interaction-mode-map))
-         (bind-keys :map m
-                    :prefix-map lisp-evaluation-map
-                    :prefix "C-c e"
-                    ("b" . eval-buffer)
-                    ("r" . eval-region)
-                    ("c" . eval-and-comment-output) ;; Defined below
-                    ("o" . eval-and-comment-output)
-                    ("d" . toggle-debug-on-error)
-                    ("f" . emacs-lisp-byte-compile-and-load))))
+  (dolist (m (list emacs-lisp-mode-map lisp-interaction-mode-map))
+    (bind-keys :map m
+               :prefix-map lisp-evaluation-map
+               :prefix "C-c e"
+               ("b" . eval-buffer)
+               ("r" . eval-region)
+               ("c" . eval-and-comment-output) ;; Defined below
+               ("o" . eval-and-comment-output)
+               ("d" . toggle-debug-on-error)
+               ("f" . emacs-lisp-byte-compile-and-load))))
    #+END_SRC
 
 * /Matching/ de Paréntesis
@@ -145,7 +145,7 @@ El [[https://github.com/xiongtx/eros][EROS project]] despliega los resultados de
 
 Por ejemplo, en el siguiente bloque, teclea =C-x C-e=
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (number-sequence 1 10)
 #+END_SRC
 

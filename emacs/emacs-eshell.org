@@ -792,9 +792,10 @@ Usar =counsel=
   to wonder what command it was that made it). Still...
 
   #+BEGIN_SRC emacs-lisp
-  (use-package eshell-fringe-status
-    :config
-    (add-hook 'eshell-mode-hook 'eshell-fringe-status-mode))
+    (use-package eshell-fringe-status
+      :ensure t
+      :config
+      (add-hook 'eshell-mode-hook 'eshell-fringe-status-mode))
   #+END_SRC
 
 * Para terminar

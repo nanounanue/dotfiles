@@ -47,7 +47,7 @@
 (defun nanounanue/config-open ()
   (interactive)
   (find-file "~/dotfiles/emacs/emacs.org"))
-(global-set-key (kbd "C-c e") 'nanounanue/config-open)
+(global-set-key (kbd "C-c E") 'nanounanue/config-open)
 
 (defun nanounanue/config-reload ()
   "Reloads ~/dotfiles/emacs/nano-emacs.org"
@@ -134,7 +134,8 @@ Emacs tiene un gestionador de paquetes (como cualquier otro sistema operativo).
                            ("melpa"     . "http://melpa.org/packages/")
                            ("marmalade" . "http://marmalade-repo.org/packages/")))
 
-  (package-initialize)
+  (unless package--initialized (package-initialize t))
+
   (setq package-enable-at-startup nil)
   ;; Actualiza los metadatos si no hay cache local
   (unless package-archive-contents
@@ -251,6 +252,7 @@ Quiero que emacs guarde en /cache/ mi contraseña
 
 #+BEGIN_SRC emacs-lisp
   (setq
+   ad-redefinition-action 'accept                   ; Silence warnings for redefinition
    cursor-in-non-selected-windows t                 ; No quiero un cursor en las ventanas inactivas
    help-window-select t                             ; Enfocar las ventanas de ayuda cuando son abiertas
    inhibit-startup-screen t                         ; No pantalla de inicio
@@ -263,7 +265,6 @@ Quiero que emacs guarde en /cache/ mi contraseña
    save-abbrevs 'silent                             ; No preguntar sobre guardar abbrevs
    vc-follow-symlinks t)                            ; Siempre seguir los symlinks
   (cd "~/")                                         ; Iniciar en el $HOME
-  (defalias 'yes-or-no-p 'y-or-n-p)                 ; No me gusta que tenga que escribir =yes/no=, prefiero =y/n=
   (tool-bar-mode -1)                                ; No quiero toolbar
   (menu-bar-mode -1)                                ; O menubar
   (unless (frame-parameter nil 'tty)                ; O scrollbar
@@ -287,7 +288,7 @@ Quiero que emacs guarde en /cache/ mi contraseña
     :bind (("C-c T f" . auto-fill-mode)
            ("C-c T t" . toggle-truncate-lines))
     :init (add-hook 'org-mode-hook 'turn-on-auto-fill)
-    :diminish auto-fill-mode)
+    :diminish auto-fill>-mode)
 #+END_SRC
 
 * [[file:emacs-ivy.org][Ivy]]
@@ -509,8 +510,7 @@ Visualizar colores
   :ensure t
   :config
   (setq rainbow-x-colors nil)
-  :hook (prog-mode . rainbow-delimiters-mode)
-  )
+  :hook (prog-mode . rainbow-delimiters-mode))
 #+END_SRC
 
 Seleccionar incrementalmente la sección
@@ -561,6 +561,7 @@ Obvio autocompletar en el [[https://github.com/Alexander-Miller/company-shell][s
 
 #+BEGIN_SRC emacs-lisp
 (use-package company-shell
+  :ensure t
   :after company
   :config
   (add-to-list 'company-backends '(company-shell company-shell-env)))
@@ -573,7 +574,7 @@ Obvio autocompletar en el [[https://github.com/Alexander-Miller/company-shell][s
    #+BEGIN_SRC emacs-lisp
      (use-package yasnippet
        :ensure t
-       :diminish
+       :diminish yasnippet
        :init
        (yas-global-mode 1)
        :config
@@ -663,12 +664,14 @@ automáticamente actualizar los cambios
 Guardar la posición en el archivo donde me quedé
 
 #+BEGIN_SRC emacs-lisp
-  (use-package saveplace
-    :init
-    (setq-default save-place t)
-    (setq save-place-forget-unreadable-files t
-          save-place-skip-check-regexp "\\`/\\(?:cdrom\\|floppy\\|mnt\\|/[0-9]\\|\\(?:[^@/:]*@\\)?[^@/:]*[^@/:.]:\\)"))
+(save-place-mode 1)
+  ;; (use-package saveplace
+  ;;   :init
+  ;;   (setq-default save-place t)
+     (setq save-place-forget-unreadable-files t
+           save-place-skip-check-regexp "\\`/\\(?:cdrom\\|floppy\\|mnt\\|/[0-9]\\|\\(?:[^@/:]*@\\)?[^@/:]*[^@/:.]:\\)")
 #+END_SRC
+
 
 ** Regexp
 
@@ -839,6 +842,20 @@ Resalta las malas elecciones de palabras entre otras cosas
 
 #+END_SRC
 
+*** Aggresive-indent
+
+#+BEGIN_SRC emacs-lisp
+(use-package aggressive-indent
+  :ensure t
+  :config
+  ;; (global-aggressive-indent-mode 1)
+  (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
+  (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
+  (add-hook 'clojure-mode-hook #'aggressive-indent-mode)
+  (add-hook 'ruby-mode-hook #'aggressive-indent-mode)
+  (add-hook 'python-mode-hook #'aggresive-indent-mode)
+  (add-hook 'css-mode-hook #'aggressive-indent-mode))
+#+END_SRC
 
 ** [[file:emacs-elisp.org][Emacs Lisp]]
 
@@ -970,7 +987,7 @@ Conectamos =R= con =company=
 * [[file:emacs-org-mode.org][Org-Mode]]
 
 #+BEGIN_SRC emacs-lisp
-(require 'init-org-mode)
+;;(require 'init-org-mode)
 #+END_SRC
 
 
@@ -1086,8 +1103,8 @@ Tutorial: http://jblevins.org/projects/markdown-mode/
       (json-pretty-print-buffer-ordered)))
   )
 
-(use-package json-navigator)
-(use-package json-reformat)
+(use-package json-navigator :ensure t)
+(use-package json-reformat :ensure t)
 #+END_SRC
 
 

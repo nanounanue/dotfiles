@@ -59,8 +59,6 @@ pip install --upgrade flake8
         (setq company-jedi-python-bin "python")))
   #+END_SRC
 
-
-
 * Anaconda
 
   While [[https://github.com/jorgenschaefer/elpy/wiki][ELPY]] tries to be the all-in-one Python IDE, [[https://github.com/proofit404/anaconda-mode][Anaconda]] is

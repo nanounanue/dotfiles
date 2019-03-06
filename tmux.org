@@ -1,10 +1,17 @@
 #+TITLE:     Tmux
 #+AUTHOR:    Adolfo De Unánue
 #+EMAIL:     nanounanue@gmail.com
+#+STARTUP: showeverything
+#+STARTUP: nohideblocks
+#+STARTUP: indent
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
 
 * Tmux
+
 **  Configuración local: =tmux.conf=
- #+BEGIN_SRC sh :tangle ~/.tmux.conf
+#+BEGIN_SRC sh :tangle ~/.tmux.conf
 set -g history-limit 50000
 
 set -s escape 1 # Cambiando el delay al mandar comandos

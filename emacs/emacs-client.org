@@ -93,10 +93,11 @@ Activar /syntax highlighting/ globalmente
 ** [[https://gitlab.com/jabranham/mixed-pitch][Mixed-pitch]]
 
 #+BEGIN_SRC emacs-lisp
-(use-package mixed-pitch
-  :hook
-  ;; If you want it in all text modes:
-  (text-mode . mixed-pitch-mode))
+  (use-package mixed-pitch
+    :ensure t
+    :hook
+    ;; If you want it in all text modes:
+    (text-mode . mixed-pitch-mode))
 #+END_SRC
 
 *  [[https://emacsthemes.com/popular/index.html][Temas]]
@@ -127,8 +128,11 @@ Activar /syntax highlighting/ globalmente
 
 
 #+BEGIN_SRC emacs-lisp
-(use-package theme-changer)
+(use-package theme-changer
+:ensure t
+:config
 (change-theme 'solarized-light 'zenburn)  ;; day and night theme
+)
 #+END_SRC
 
 * all-the-icons
@@ -144,8 +148,10 @@ Activar /syntax highlighting/ globalmente
 
 Integrarlo con [[file:emacs-ivy.org][ivy y counsel]]
 
+
 #+BEGIN_SRC emacs-lisp
-(use-package all-the-icons-ivy
+  (use-package all-the-icons-ivy
+    :ensure t
     :after (all-the-icons ivy)
     :custom (all-the-icons-ivy-file-commands '(counsel-dired-jump
                                                counsel-find-file
