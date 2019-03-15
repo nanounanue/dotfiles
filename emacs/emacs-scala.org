@@ -4,7 +4,7 @@
 #+STARTUP: showeverything
 #+STARTUP: nohideblocks
 #+STARTUP: indent
-#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/elisp/init-scala.el
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/elisp/setup-scala.el
 #+PROPERTY:    header-args:shell  :tangle no
 #+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
 #+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
@@ -12,33 +12,67 @@
 #+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
 
 
-* Scala
-
-#+BEGIN_SRC emacs-lisp
-  (use-package scala-mode
-    :mode (
-           ("\\.scala$" . scala-mode)
-           )
-    :ensure t
-    :config
-    (add-hook 'scala-mode-hook
-              '(lambda ()
-                 (yas/minor-mode-on)
-                 (scala-mode-feature-electric-mode)))
-    (add-hook 'scala-mode-hook 'ensime-scala-mode-hook))
-#+END_SRC
-
 * ENSIME
 
 #+BEGIN_SRC emacs-lisp
   (use-package ensime
     :ensure t
+    :pin melpa
     :config
     (setq ensime-startup-notification nil
           ensime-startup-snapshot-notification nil))
+
+
+  (use-package sbt-mode
+    :pin melpa)
+
+
+#+END_SRC
+
+* SBT
+
+#+BEGIN_SRC emacs-lisp
+  (use-package sbt-mode
+               :ensure t
+               :pin melpa
+               :commands sbt-start sbt-command
+               :config
+               ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
+               ;; allows using SPACE when in the minibuffer
+               (substitute-key-definition
+                'minibuffer-complete-word
+                'self-insert-command
+                minibuffer-local-completion-map)
+               (add-hook 'sbt-mode-hook
+                         (lambda ()
+                           (setq prettify-symbols-alist
+                                 `((,(expand-file-name (directory-file-name default-directory)) . ?⌂)
+                                   (,(expand-file-name "~") . ?~)))
+                           (prettify-symbols-mode t)))
+
+               )
 #+END_SRC
 
 
+* Scala
+
 #+BEGIN_SRC emacs-lisp
-  (provide 'init-scala)
+  (use-package scala-mode
+    :pin melpa
+    :mode (
+           ("\\.scala$" . scala-mode)
+           )
+    :config
+      (add-hook 'scala-mode-hook
+                '(lambda ()
+                   (yas/minor-mode-on)
+                   (scala-mode-feature-electric-mode)))
+      (add-hook 'scala-mode-hook 'ensime-scala-mode-hook))
+
+#+END_SRC
+
+* Al final
+
+#+BEGIN_SRC emacs-lisp
+  (provide 'setup-scala)
 #+END_SRC

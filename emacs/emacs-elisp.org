@@ -5,7 +5,7 @@
 #+STARTUP: nohideblocks
 #+STARTUP: indent
 #+PROPERTY:    header-args:shell     :tangle no
-#+PROPERTY:    header-args:emacs-lisp  :tangle ~/.emacs.d/elisp/init-elisp.el
+#+PROPERTY:    header-args:emacs-lisp  :tangle ~/.emacs.d/elisp/setup-elisp.el
 #+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
 #+PROPERTY:    comments no
 #+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
@@ -27,8 +27,9 @@
 
 * Emacs Lisp
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (use-package lisp-mode
+  :ensure nil
   :init
   (defconst lisp--prettify-symbols-alist
     '(("lambda"  . ?λ)                  ; Shrink this
@@ -62,7 +63,7 @@
                ("o" . eval-and-comment-output)
                ("d" . toggle-debug-on-error)
                ("f" . emacs-lisp-byte-compile-and-load))))
-   #+END_SRC
+#+END_SRC
 
 * /Matching/ de Paréntesis
 
@@ -129,6 +130,7 @@ Integremos [[https://www.emacswiki.org/emacs/InferiorEmacsLispMode][Inferior Ema
 
 #+BEGIN_SRC emacs-lisp
   (use-package ielm
+    :ensure nil
     :init
     (add-hook 'ielm-mode-hook 'turn-on-eldoc-mode))
 #+END_SRC
@@ -166,5 +168,5 @@ Algunos /key-bindings/:
 * Al final
 
 #+BEGIN_SRC emacs-lisp
-(provide 'init-elisp)
+(provide 'setup-elisp)
 #+END_SRC

@@ -1,0 +1,368 @@
+#+TITLE: Archivo de inicio de GNU/Emacs
+#+AUTHOR: Adolfo De Unánue
+#+EMAIL: nanounanue@gmail.com
+#+STARTUP: showeverything
+#+STARTUP: nohideblocks
+#+STARTUP: indent
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/init.el
+#+PROPERTY:    header-args:shell  :tangle no
+#+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+
+
+Basado en
+
+- https://github.com/zzamboni/dot-emacs/blob/master/init.org
+
+
+
+* Mejorando el desempeño
+
+/Hook/ para contar el número de /garbage-collections/ que ocurrieron durante el /startup/
+
+#+BEGIN_SRC emacs-lisp
+;; Use a hook so the message doesn't get clobbered by other messages.
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (message "Emacs ready in %s with %d garbage collections."
+                     (format "%.2f seconds"
+                             (float-time
+                              (time-subtract after-init-time before-init-time)))
+                     gcs-done)))
+#+END_SRC
+
+
+Por si ocurre un error
+
+#+BEGIN_SRC emacs-lisp
+(setq debug-on-error t)
+#+END_SRC
+
+
+No queremos que ocurra /garbage-collection/ durante el inicio de Emacs, así que lo hacemos muy grande.
+Al acabar, lo regresamos a un tamaño razonable.
+
+#+BEGIN_SRC emacs-lisp
+  (setq gc-cons-threshold  most-positive-fixnum)
+  (add-hook 'emacs-startup-hook
+            (lambda () (setq gc-cons-threshold  (* 20 1024 1024))))
+#+END_SRC
+
+
+* Gestión de paquetes
+
+Emacs tiene un gestionador de paquetes (como cualquier otro sistema operativo).
+
+Primero ¿Qué repositorios usar?
+
+#+BEGIN_SRC emacs-lisp
+(customize-set-variable 'package-archives
+                        '(("org"       . "https://orgmode.org/elpa/")
+                          ("marmalade" . "https://marmalade-repo.org/packages/")
+                          ("melpa"     . "https://melpa.org/packages/")
+                          ("gnu"       . "https://elpa.gnu.org/packages/")))
+#+END_SRC
+
+Inicializamos el sistema de paquetería (si es necesario)
+
+#+BEGIN_SRC emacs-lisp
+(require 'package)
+(unless package--initialized (package-initialize t))
+#+END_SRC
+
+
+Refrescamos la lista de paquetes disponibles e instalamos =use-package=
+
+#+BEGIN_SRC emacs-lisp
+(when (not package-archive-contents)
+  (package-refresh-contents))
+
+(when (not (package-installed-p 'use-package))
+  (package-install 'use-package))
+#+END_SRC
+
+Cargamos =use-package=
+
+#+BEGIN_SRC emacs-lisp
+(eval-when-compile
+  (require 'use-package))
+#+END_SRC
+
+
+** Configuración de =use-package=
+
+Siempre tratar de instalar los paquetes no instalados.
+En alguno casos esto /no/ es lo apropiado (quizá no es un paquete que se pueda instalar),
+en esas ocasiones agrear =:ensure nil= al bloque de =use-package=
+
+#+BEGIN_SRC emacs-lisp
+(customize-set-variable 'use-package-always-ensure t)
+#+END_SRC
+
+No cargar los paquetes por /default/ cuando Emacs está iniciando, sólo cuando son requeridos.
+Si no funciona bien, agregar al  bloque de =use-package= =:defer nil=
+
+#+BEGIN_SRC emacs-lisp
+(customize-set-variable 'use-package-always-defer nil)
+#+END_SRC
+
+Ser /verbose/ es bueno para el /debugging/
+
+#+BEGIN_SRC emacs-lisp
+(customize-set-variable 'use-package-verbose t)
+#+END_SRC
+
+
+#+BEGIN_SRC emacs-lisp
+(use-package exec-path-from-shell :ensure t)
+
+(when (memq window-system '(mac ns x))
+  (exec-path-from-shell-initialize))
+#+END_SRC
+
+
+
+** Preferir el código fuente si ...
+
+Es nuevo, y forzar el autocompilar
+
+#+BEGIN_SRC emacs-lisp
+(customize-set-variable 'load-prefer-newer t)
+(use-package auto-compile
+  :config (auto-compile-on-load-mode))
+#+END_SRC
+
+
+
+** Paquetes de soporte
+
+*** Paradox
+
+[[https://github.com/Malabarba/paradox][Paradox]] moderniza la lista de paquetes de Emacs
+
+
+#+BEGIN_SRC emacs-lisp
+(use-package paradox
+  :defer 1
+  :after auth-source-pass
+  :config
+  (paradox-enable)
+  (setq paradox-spinner-type 'progress-bar)
+  :custom
+  (paradox-automatically-start t))
+#+END_SRC
+
+
+*** delight y diminish
+
+#+BEGIN_SRC emacs-lisp
+(use-package delight
+  :config
+  (delight '((emacs-lisp-mode       "ξ" :major)
+             (lisp-interaction-mode "λ" :major)
+             (python-mode           "π" :major)
+             (org-mode              "ομ" :major)
+             (company-mode          " C"  company)
+             (ivy-mode              " ι"  ivy)
+             (sql-mode              "Σ"  sql)
+             (projectile-mode       " ρ"  projectile)
+             (eldoc-mode            " ε"  eldoc)
+             (flycheck-mode         " ƒ"  flycheck)
+             (flyspell-mode         ""    flyspell)))
+  )
+
+
+(use-package diminish)
+#+END_SRC
+
+*** Chords
+
+=Key chords= liga funciones a secuencias de teclas, como =jj=.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package use-package-chords
+    :ensure t
+    :config
+    (key-chord-mode 1))
+#+END_SRC
+
+
+*** Mejoras de Emacs lisp, básicamente
+
+#+BEGIN_SRC emacs-lisp
+  (require 'cl)
+
+  (use-package dash
+    :config (eval-after-load "dash" '(dash-enable-font-lock)))
+
+  (use-package s)
+
+  (use-package f)
+#+END_SRC
+
+
+* Custom
+
+Emacs agrega /customised settings/ a =init.el=. No me gusta. Lo mandamos a un archivo temporal.
+
+#+BEGIN_SRC emacs-lisp
+ (setq custom-file (make-temp-file "emacs-custom"))
+#+END_SRC
+
+
+* /Keybindings/
+
+Uso =bind-key= para mis /keybindings/. La principal razón para usarlo en lugar de =define-key= o =global-set-key=
+es que puedes consultar tus /keybindings/ con =M-x= =describe-personal-keybindings=
+
+Ya viene incluido con =use-package=, sólo hay que activarlo
+
+#+BEGIN_SRC emacs-lisp
+(require 'bind-key)
+#+END_SRC
+
+** Misceláneos
+
+#+BEGIN_SRC emacs-lisp
+(bind-key "M-g" 'goto-line)   ;; Pregunta por la línea y "brinca"
+(bind-key "M-`" 'other-frame) ;; Enfoca el siguiente frame
+(bind-key "C-x m" 'eshell)    ;; Inicia eshell o cambia a eshell si ya está activo
+(bind-key "C-x M" (lambda () (interactive) (eshell t))) ;; Inicia un nuevo eshell aunque haya uno activo
+(bind-key "M-<" 'beginning-of-buffer)
+(bind-key "M->" 'end-of-buffer)
+(bind-key "C-c C-c" 'compile)
+(bind-key "C-c c" 'org-capture)
+(bind-key [f12] 'org-agenda)
+(bind-key "C-c C-;" 'comment-region)
+(bind-key "C-c C-:" 'uncomment-region)
+(bind-key "C-+" 'text-scale-increase)
+(bind-key "C--" 'text-scale-decrease)
+(bind-key "C-0" 'text-scale-adjust)
+#+END_SRC
+
+Regularmente quiero matar /este/ /buffer/
+
+=kill-this-buffer= ya no existe (era inestable)
+
+[[http://pragmaticemacs.com/emacs/dont-kill-buffer-kill-this-buffer-instead/][Aquí]] sugieren lo siguiente:
+
+#+BEGIN_SRC emacs-lisp
+(defun nanounanue/kill-this-buffer ()
+  "Kill the current buffer."
+  (interactive)
+  (kill-buffer (current-buffer)))
+#+END_SRC
+
+
+#+BEGIN_SRC emacs-lisp
+(bind-key "C-x k" 'nanounanue/kill-this-buffer)
+(bind-key "C-x K" 'kill-buffer)
+#+END_SRC
+
+* /Load path/
+
+#+BEGIN_SRC emacs-lisp
+(defconst nanounanue/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
+
+(defun nanounanue/emacs-subdirectory (d) (expand-file-name d nanounanue/emacs-directory))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(let* ((subdirs '("elisp" "backups"))
+       (fulldirs (mapcar (lambda (d) (nanounanue/emacs-subdirectory d)) subdirs)))
+  (dolist (dir fulldirs)
+    (when (not (file-exists-p dir))
+      (message "Make directory: %s" dir)
+      (make-directory dir))))
+#+END_SRC
+
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'load-path (nanounanue/emacs-subdirectory "elisp"))
+#+END_SRC
+
+* /Bootstrap/
+
+#+BEGIN_SRC emacs-lisp
+(defun nanounanue/config-open ()
+  (interactive)
+  (find-file "~/dotfiles/emacs/init.org"))
+(bind-key "C-c E" 'nanounanue/config-open)
+
+(defun nanounanue/config-tangle ()
+  (interactive)
+  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-i3wm.org"))
+  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-client.org"))
+  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-clojure.org"))
+  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-elisp.org"))
+  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-eshell.org"))
+  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-ivy.org"))
+  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-org-mode.org"))
+  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-python.org"))
+  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-scala.org"))
+  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-server.org"))
+  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-tex.org"))
+  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-system.org"))
+  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-programming.org"))
+  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-main.org"))
+  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/init.org")))
+(bind-key "C-c T" 'nanounanue/config-tangle)
+
+
+(defun nanounanue/config-reload ()
+  "Reloads ~/dotfiles/emacs/nano-emacs.org"
+  (interactive)
+  (org-babel-load-file (expand-file-name "~/dotfiles/emacs/init.org")))
+(bind-key "C-c R" 'nanounanue/config-reload)
+#+END_SRC
+
+* Generalidades
+
+#+BEGIN_SRC emacs-lisp
+(require 'setup-main)
+#+END_SRC
+
+
+* Programación
+
+#+BEGIN_SRC emacs-lisp
+(require 'setup-coding)
+#+END_SRC
+
+
+* [[file:emacs-org-mode.org][Org-Mode]]
+
+Org-mode sobre todas las cosas
+
+#+BEGIN_SRC emacs-lisp
+(require 'setup-org-mode)
+#+END_SRC
+
+* [[file:emacs-ivy.org][Ivy]]
+
+#+BEGIN_SRC emacs-lisp
+(require 'setup-ivy)
+#+END_SRC
+
+* [[file:emacs-eshell.org][Eshell]]
+
+#+BEGIN_SRC emacs-lisp
+(require 'setup-eshell)
+#+END_SRC
+
+* [[file:emacs-i3wm.org][Integración con i3wm]]
+
+#+BEGIN_SRC emacs-lisp
+(require 'setup-i3wm)
+#+END_SRC
+
+
+* Configuración gráfica
+
+#+BEGIN_SRC emacs-lisp
+  (if (window-system)
+      (require 'setup-client)
+    (require 'setup-server))
+#+END_SRC

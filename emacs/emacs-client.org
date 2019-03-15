@@ -4,7 +4,7 @@
 #+STARTUP: showeverything
 #+STARTUP: nohideblocks
 #+STARTUP: indent
-#+PROPERTY:    header-args:emacs-lisp  :tangle ~/.emacs.d/elisp/init-client.el
+#+PROPERTY:    header-args:emacs-lisp  :tangle ~/.emacs.d/elisp/setup-client.el
 #+PROPERTY:    header-args:shell  :tangle no
 #+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
 #+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
@@ -115,25 +115,46 @@ Activar /syntax highlighting/ globalmente
     (setq zenburn-scale-org-headlines t)
 
     ;; scale headings in outline-mode
-    (setq zenburn-scale-outline-headlines t)
-    (load-theme 'zenburn t))
+    (setq zenburn-scale-outline-headlines t))
 #+END_SRC
 
 ** Solarized
 
 #+BEGIN_SRC emacs-lisp
-(use-package solarized-theme
+  (use-package solarized-theme
+    :ensure t
+    :config
+    (setq x-underline-at-descent-line t))
+#+END_SRC
+
+** Gruvbox
+
+#+BEGIN_SRC emacs-lisp
+(use-package gruvbox-theme
   :ensure t)
 #+END_SRC
 
+
+** Poet
+
+#+BEGIN_SRC emacs-lisp
+(use-package poet-theme
+:ensure t)
+#+END_SRC
+
+
+** Tema según horario
+
+Esto es una /excelente/ idea
 
 #+BEGIN_SRC emacs-lisp
 (use-package theme-changer
 :ensure t
 :config
-(change-theme 'solarized-light 'zenburn)  ;; day and night theme
+(change-theme 'gruvbox-light-medium 'zenburn)  ;; day and night theme
 )
 #+END_SRC
+
 
 * all-the-icons
 
@@ -164,7 +185,7 @@ Integrarlo con [[file:emacs-ivy.org][ivy y counsel]]
     :config (all-the-icons-ivy-setup))
 #+END_SRC
 
-Y =dired=
+ =dired=
 
 #+BEGIN_SRC emacs-lisp
  (use-package all-the-icons-dired
@@ -174,9 +195,18 @@ Y =dired=
         )
 #+END_SRC
 
+Y finalmente =company-box= (/Front end/ con íconos para =company=)
+
+#+BEGIN_SRC emacs-lisp
+(use-package company-box
+  :after company
+  :diminish
+  :hook (company-mode . company-box-mode))
+#+END_SRC
+
 
 * Al final
 
 #+BEGIN_SRC emacs-lisp
-(provide 'init-client)
+(provide 'setup-client)
 #+END_SRC

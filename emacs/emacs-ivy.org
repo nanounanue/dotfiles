@@ -4,7 +4,7 @@
 #+STARTUP: showeverything
 #+STARTUP: nohideblocks
 #+STARTUP: indent
-#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/elisp/init-ivy.el
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/elisp/setup-ivy.el
 #+PROPERTY:    header-args:shell  :tangle no
 #+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
 #+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
@@ -18,12 +18,25 @@
 - [[https://emacs.stackexchange.com/a/37307/10848][Find and replace a text among the files of a project]]
 
 
+* smex, un reemplazo de =M-x=
+
+Un /smart/ =M-x=. Sugiere los comandos de =M-x=  basados  en frecuencia y recién uso.
+
+#+BEGIN_SRC emacs-lisp
+(use-package smex
+  :commands (smex smex-major-mode-commands)
+  :config
+  (smex-initialize))
+#+END_SRC
+
+
 * Ivy
+
+Sistema genérico de completado. Reemplaza a =ido=
 
 #+BEGIN_SRC emacs-lisp
 (use-package ivy
   :defer 0.1
-  :ensure t
   :diminish ivy-mode
   :config
   (setq ivy-height 10                                 ; length of ivy completions list
@@ -66,30 +79,25 @@
 
 #+END_SRC
 
-
-* Swiper
+** [[https://github.com/vspinu/imenu-anywhere][/Bookmarks/ a la carta]]
 
 #+BEGIN_SRC emacs-lisp
-(use-package swiper
-  :ensure t
-  :after ivy
-  :bind (("C-s" . swiper)
-         ("C-r" . swiper)))
-
-(use-package smex
-  :ensure t
-  :commands (smex smex-major-mode-commands)
-  :config
-  (smex-initialize))
+(use-package imenu-anywhere
+  :bind
+  ("M-i" . ivy-imenu-anywhere))
 #+END_SRC
 
 
 * Counsel
 
+Colección de comandos de emacs mejorados por =ivy=
+
 #+BEGIN_SRC emacs-lisp
   (use-package counsel
     :after ivy
-    :ensure t)
+    :ensure t
+;;    :chords (("yy" . counsel-yank-pop))
+)
 #+END_SRC
 
 
@@ -115,36 +123,47 @@
        ("r" ivy--rename-buffer-action "rename"))))
 #+END_SRC
 
+* Swiper
+
+La versión mejorada de =isearch= por =ivy=
+
+#+BEGIN_SRC emacs-lisp
+(use-package swiper
+  :after ivy)
+#+END_SRC
+
+
 * /Key bindings/
 
 #+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "C-s") 'swiper)  ;; replaces i-search with swiper
-(global-set-key (kbd "C-r") 'swiper)
+(bind-key  "C-s" 'swiper)  ;; replaces i-search with swiper
+(bind-key  "C-r" 'swiper)
 
-(global-set-key (kbd "M-x") 'counsel-M-x) ;; Gives M-x command counsel features
-(global-set-key (kbd "C-x C-f") 'counsel-find-file) ;; gives C-x C-f counsel features
+(bind-key  "M-x" 'counsel-M-x) ;; Gives M-x command counsel features
+(bind-key  "C-x C-f" 'counsel-find-file) ;; gives C-x C-f counsel features
 
-(global-set-key (kbd "<f1> f") 'counsel-describe-function)
-(global-set-key (kbd "<f1> v") 'counsel-describe-variable)
-(global-set-key (kbd "<f1> l") 'counsel-find-library)
-(global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
-(global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+(bind-key  "<f1> f" 'counsel-describe-function)
+(bind-key  "<f1> v" 'counsel-describe-variable)
+(bind-key  "<f1> l" 'counsel-find-library)
+(bind-key  "<f2> i" 'counsel-info-lookup-symbol)
+(bind-key  "<f2> u" 'counsel-unicode-char)
 
-(global-set-key (kbd "C-x b") 'ivy-switch-buffer)
-(global-set-key (kbd "C-x B") 'ivy-switch-buffer-other-window)
+(bind-key  "C-x b" 'ivy-switch-buffer)
+(bind-key  "C-x B" 'ivy-switch-buffer-other-window)
 
 (global-set-key [f6] 'ivy-resume)
 
-(global-set-key (kbd "C-c g") 'counsel-git)
-(global-set-key (kbd "C-c j") 'counsel-git-grep)
-(global-set-key (kbd "C-c k") 'counsel-ag) ;; add counsel/ivy features to ag package
-(global-set-key (kbd "C-x l") 'counsel-locate)
-(global-set-key (kbd "C-x C-r") 'counsel-recentf)
-(global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+(bind-key  "C-c g" 'counsel-git)
+(bind-key  "C-c j" 'counsel-git-grep)
+(bind-key  "C-c k" 'counsel-ag) ;; add counsel/ivy features to ag package
+(bind-key  "C-x l" 'counsel-locate)
+(bind-key  "C-x C-r" 'counsel-recentf)
+(bind-key  "C-S-o" 'counsel-rhythmbox)
 #+END_SRC
+
 
 * Al final
 
 #+BEGIN_SRC emacs-lisp
-(provide 'init-ivy)
+(provide 'setup-ivy)
 #+END_SRC

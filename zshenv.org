@@ -6,10 +6,12 @@
 
 *NOTA*: Este archivo *siempre* es cargado por el shell, inclusive en las sesiones /no interactivas/.
 
-* Variable de ambiente 
+* Variable de ambiente
 
  #+BEGIN_SRC shell
- export ZSH=$HOME/.oh-my-zsh/
+
+export DEFAULT_USER="$USER"
+
  #+END_SRC
 
 * Profile

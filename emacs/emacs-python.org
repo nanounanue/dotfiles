@@ -4,7 +4,7 @@
 #+STARTUP: showeverything
 #+STARTUP: nohideblocks
 #+STARTUP: indent
-#+PROPERTY:    header-args:emacs-lisp  :tangle ~/.emacs.d/elisp/init-python.el
+#+PROPERTY:    header-args:emacs-lisp  :tangle ~/.emacs.d/elisp/setup-python.el
 #+PROPERTY:    header-args:shell  :tangle no
 #+PROPERTY:    header-args:python :tangle no
 #+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
@@ -13,22 +13,28 @@
 #+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
 #+TAGS:   emacs python
 
+* Requerimientos
+
+#+BEGIN_SRC shell
+pip install jedi flake8 yapf autopep8 importmagic
+#+END_SRC
+
 *  Python
 
-  #+BEGIN_SRC emacs-lisp
-    (use-package python
-      :mode ("\\.py\\'" . python-mode)
-            ("\\.wsgi$" . python-mode)
-      :interpreter ("python" . python-mode)
+  # #+BEGIN_SRC emacs-lisp
+  #   (use-package python
+  #     :mode ("\\.py\\'" . python-mode)
+  #           ("\\.wsgi$" . python-mode)
+  #     :interpreter ("python" . python-mode)
 
-      :init
-      (setq-default indent-tabs-mode nil)
+  #     :init
+  #     (setq-default indent-tabs-mode nil)
 
-      :config
-      (setq python-indent-offset 4)
-      (add-hook 'python-mode-hook 'smartparens-mode)
-      (add-hook 'python-mode-hook 'color-identifiers-mode))
-  #+END_SRC
+  #     :config
+  #     (setq python-indent-offset 4)
+  #     (add-hook 'python-mode-hook 'smartparens-mode)
+  #     (add-hook 'python-mode-hook 'color-identifiers-mode))
+  # #+END_SRC
 
 *  Lint
 
@@ -38,34 +44,52 @@ pip install --upgrade flake8
 
 * Jedi
 
-  For auto-completion (and refactoring) for Python, you get two
-  choices: [[http://rope.sourceforge.net/ropemacs.html][Rope]] or [[https://github.com/tkf/emacs-jedi][Jedi]]. Rope, while claiming more features, seems to
-  crash and not work. Besides, Jedi is a better name.
   See [[http://www.masteringemacs.org/articles/2013/01/10/jedi-completion-library-python/][this article]], and maybe [[http://tkf.github.io/emacs-jedi/][these instructions]].
 
-  Elpy will automatically use either, however, I want to hook Jedi to
-  Company mode:
+ Conectemos =Jedi= to   =company-mode=:
 
   #+BEGIN_SRC emacs-lisp
     (use-package jedi
+      :disabled t
       :ensure t
       :init
       (add-to-list 'company-backends 'company-jedi)
       :config
       (use-package company-jedi
+        :disabled t
         :ensure t
         :init
         (add-hook 'python-mode-hook (lambda () (add-to-list 'company-backends 'company-jedi)))
         (setq company-jedi-python-bin "python")))
   #+END_SRC
 
+* Pyenv
+
+#+BEGIN_SRC emacs-lisp
+(use-package pyenv-mode
+  :disabled t
+  :ensure t
+  :config
+  (require 'pyenv-mode)
+  )
+
+;; (defun nanounanue/projectile-pyenv-mode-set ()
+;;   "Set pyenv version matching project name."
+;;   (let ((project (projectile-project-name)))
+;;     (if (member project (pyenv-mode-versions))
+;;         (pyenv-mode-set project)
+;;       (pyenv-mode-unset))))
+
+
+;; (add-hook 'projectile-after-switch-project-hook 'projectile-pyenv-mode-set)
+#+END_SRC
+
 * Anaconda
 
-  While [[https://github.com/jorgenschaefer/elpy/wiki][ELPY]] tries to be the all-in-one Python IDE, [[https://github.com/proofit404/anaconda-mode][Anaconda]] is
-  thinner wrapper around Jedi, which seems to work a bit better for me
+ [[https://github.com/proofit404/anaconda-mode][Anaconda]] is   thinner wrapper around Jedi, which seems to work a bit better for me
   and the fact that I need to use =pyenv= (instead of =pyvenv=).
 
-  #+BEGIN_SRC emacs-lisp :tangle no
+  #+BEGIN_SRC emacs-lisp
     (use-package anaconda-mode
       :ensure t
       :init (add-hook 'python-mode-hook 'anaconda-mode)
@@ -79,8 +103,21 @@ pip install --upgrade flake8
 
   Oh, make sure we have [[https://github.com/proofit404/company-anaconda][Company-Anaconda]] configured too.
 
+* Documentación
+
+#+BEGIN_SRC emacs-lisp
+(use-package sphinx-doc
+  :ensure t
+  :hook (python-mode . sphinx-doc-mode))
+
+(use-package python-docstring
+  :ensure t
+  :config (setq python-docstring-sentence-end-double-space nil)
+  :hook (python-mode . python-docstring-mode))
+#+END_SRC
+
 * Finito
 
   #+BEGIN_SRC emacs-lisp
-    (provide 'init-python)
+  (provide 'setup-python)
   #+END_SRC

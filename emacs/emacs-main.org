@@ -4,69 +4,15 @@
 #+STARTUP: showeverything
 #+STARTUP: nohideblocks
 #+STARTUP: indent
-#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/elisp/init-main.el
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/elisp/setup-main.el
 #+PROPERTY:    header-args:shell  :tangle no
 #+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
 #+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
 #+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
 #+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
 
-* Preludio
-
-** Esto debe de ir en =.emacs=
-
-#+BEGIN_SRC emacs-lisp :tangle no
-(load-file "~/.emacs.d/elisp/init-main.el")
-#+END_SRC
-
-** Load Path
-
-#+BEGIN_SRC emacs-lisp
-(defconst nanounanue/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
-
-(defun nanounanue/emacs-subdirectory (d) (expand-file-name d nanounanue/emacs-directory))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-(let* ((subdirs '("elisp" "backups"))
-       (fulldirs (mapcar (lambda (d) (nanounanue/emacs-subdirectory d)) subdirs)))
-  (dolist (dir fulldirs)
-    (when (not (file-exists-p dir))
-      (message "Make directory: %s" dir)
-      (make-directory dir))))
-#+END_SRC
-
-
-#+BEGIN_SRC emacs-lisp
-(add-to-list 'load-path (nanounanue/emacs-subdirectory "elisp"))
-#+END_SRC
-
-** Editar este archivo
-
-#+BEGIN_SRC emacs-lisp
-(defun nanounanue/config-open ()
-  (interactive)
-  (find-file "~/dotfiles/emacs/emacs.org"))
-(global-set-key (kbd "C-c E") 'nanounanue/config-open)
-
-(defun nanounanue/config-reload ()
-  "Reloads ~/dotfiles/emacs/nano-emacs.org"
-  (interactive)
-  (org-babel-load-file (expand-file-name "~/dotfiles/emacs/emacs.org")))
-(global-set-key (kbd "C-c R") 'nanounanue/config-reload)
-#+END_SRC
-
 
 * Configuración general
-
-** Modernizar Emacs: un mejor /garbage colector/
-
-Por default, =GNU Emacs= recolecta basura cada =0.76MB=.  Lo ponemos a
-50MB para disminuir la frecuencia de recolección.
-
-#+BEGIN_SRC emacs-lisp
-(setq gc-cons-threshold 50000000)
-#+END_SRC
 
 ** UTF-8
 
@@ -92,6 +38,7 @@ Por default, =GNU Emacs= recolecta basura cada =0.76MB=.  Lo ponemos a
 (load-library "iso-transl")
 #+END_SRC
 
+
 ** Tabs
 
 Nunca tabs
@@ -101,10 +48,10 @@ Nunca tabs
 (setq tab-width 4)
 #+END_SRC
 
-Primero /tabular/ luego /completar/
+Siempre indentar
 
 #+BEGIN_SRC emacs-lisp
-(setq-default tab-always-indent 'complete)
+(setq-default tab-always-indent t)
 #+END_SRC
 
 ** Misceláneos
@@ -122,96 +69,51 @@ Mantener el cursor en el centro
       scroll-preserve-screen-position t)
 #+END_SRC
 
-* Paquetería
-
-Emacs tiene un gestionador de paquetes (como cualquier otro sistema operativo).
+Y queremos hacer /scrooling/ suave (línea por línea)
 
 #+BEGIN_SRC emacs-lisp
-  (require 'package)
-
-  (setq package-archives '(("org"       . "http://orgmode.org/elpa/")
-                           ("gnu"       . "http://elpa.gnu.org/packages/")
-                           ("melpa"     . "http://melpa.org/packages/")
-                           ("marmalade" . "http://marmalade-repo.org/packages/")))
-
-  (unless package--initialized (package-initialize t))
-
-  (setq package-enable-at-startup nil)
-  ;; Actualiza los metadatos si no hay cache local
-  (unless package-archive-contents
-    (package-refresh-contents))
-#+END_SRC
-
-** Use-package
-
-Este paquete permite que todo sea más ordenado
-
-#+BEGIN_SRC emacs-lisp
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-
-(eval-when-compile
-  (require 'use-package))
-
-(setq use-package-always-ensure nil)
-#+END_SRC
-
-
-*** paradox
-
-[[https://github.com/Malabarba/paradox][Paradox]] moderniza la lista de paquetes de Emacs
-
-
-#+BEGIN_SRC emacs-lisp
-(use-package paradox
-  :ensure t
+(use-package smooth-scrolling
   :config
-  (paradox-enable)
-  (setq paradox-spinner-type 'progress-bar))
+  (smooth-scrolling-mode 1))
+#+END_SRC
+
+Línea al final del archivo
+
+#+BEGIN_SRC emacs-lisp
+(setq require-final-newline t)
+#+END_SRC
+
+Borrar selección con un /keypress/
+
+#+BEGIN_SRC emacs-lisp
+(delete-selection-mode t)
+#+END_SRC
+
+Resaltar la línea actual
+
+#+BEGIN_SRC emacs-lisp
+(global-hl-line-mode +1)
+#+END_SRC
+
+Deshabilitar que parpadeé el paréntesis que hace /match/
+
+#+BEGIN_SRC emacs-lisp
+(setq blink-matching-paren nil)
+#+END_SRC
+
+Deshabilitar /warning/ cuando matamos un /buffer/ con algún proceso
+
+#+BEGIN_SRC emacs-lisp
+(setq kill-buffer-query-functions
+  (remq 'process-kill-buffer-query-function
+         kill-buffer-query-functions))
 #+END_SRC
 
 
-*** delight y diminish
+* Peculiaridades de los SO
 
 #+BEGIN_SRC emacs-lisp
-(use-package delight
-  :ensure t
-  :config
-  (delight '((emacs-lisp-mode       "ξ" :major)
-             (lisp-interaction-mode "λ" :major)
-             (python-mode           "π" :major)
-             (org-mode              "ομ" :major)
-             (company-mode          " C"  company)
-             (ivy-mode              " ι"  ivy)
-             (sql-mode              "Σ"  sql)
-             (projectile-mode       " ρ"  projectile)
-             (eldoc-mode            " ε"  eldoc)
-             (flycheck-mode         " ƒ"  flycheck)
-             (flyspell-mode         ""    flyspell)))
-  )
-
-
-(use-package diminish :ensure t)
-;;(use-package use-package-ensure-system-package :ensure t)
-#+END_SRC
-
-** Paqueterías de soporte
-
-Mejoras de Emacs lisp, básicamente
-
-#+BEGIN_SRC emacs-lisp
-  (require 'cl)
-
-  (use-package dash
-    :ensure t
-    :config (eval-after-load "dash" '(dash-enable-font-lock)))
-
-  (use-package s
-    :ensure t)
-
-  (use-package f
-    :ensure t)
+(require 'setup-system)
 #+END_SRC
 
 * Cifrado
@@ -242,13 +144,24 @@ Quiero que emacs guarde en /cache/ mi contraseña
 (setq  calendar-latitude 41.8756
       calendar-longitude -87.6244
       calendar-location-name "Chicago, IL")
+#+END_SRC
+
+* Administración de contraseñas
+
+#+BEGIN_SRC emacs-lisp
+(require 'auth-source)
+(require 'auth-source-pass)
+(auth-source-pass-enable)
 (setq auth-sources '("~/.gnupg/shared/.authinfo.gpg"
                      "~/.authinfo.gpg"
                      "~/.authinfo"
                      "~/.netrc"))
+
 #+END_SRC
 
-* Display
+* /Display/
+
+** /Defaults/
 
 #+BEGIN_SRC emacs-lisp
   (setq
@@ -262,15 +175,29 @@ Quiero que emacs guarde en /cache/ mi contraseña
    scroll-conservatively most-positive-fixnum       ; Siempre realizar el scroll línea a línea
    select-enable-clipboard t                        ; Emacs y el SO comparten el clipboard
    ring-bell-function 'ignore
+   show-trailing-whiespace t                        ; Muestra en rojo los espacios en blanco al final de un párrafo
+   kill-whole-line t                                ; Remueve la línea completa, en lugar de sólo limpiarla
    save-abbrevs 'silent                             ; No preguntar sobre guardar abbrevs
    vc-follow-symlinks t)                            ; Siempre seguir los symlinks
+#+END_SRC
+
+** Emacs inicia en =$HOME=
+
+#+BEGIN_SRC emacs-lisp
   (cd "~/")                                         ; Iniciar en el $HOME
+#+END_SRC
+
+** No quiero /toolbar/, /manubar/, /scrollbar/, etc
+
+#+BEGIN_SRC emacs-lisp
   (tool-bar-mode -1)                                ; No quiero toolbar
   (menu-bar-mode -1)                                ; O menubar
   (unless (frame-parameter nil 'tty)                ; O scrollbar
       (scroll-bar-mode -1))
   (blink-cursor-mode -1)                            ; No quiero que parpadee el cursor
 #+END_SRC
+
+
 
 ** Formato de reloj
 
@@ -285,46 +212,22 @@ Quiero que emacs guarde en /cache/ mi contraseña
 
 #+BEGIN_SRC emacs-lisp
   (use-package fill
-    :bind (("C-c T f" . auto-fill-mode)
-           ("C-c T t" . toggle-truncate-lines))
+    :ensure nil
+    :bind
+    ("C-c F" . auto-fill-mode)
+    ;("C-c T" . toggle-truncate-lines)
     :init (add-hook 'org-mode-hook 'turn-on-auto-fill)
     :diminish auto-fill>-mode)
 #+END_SRC
 
-* [[file:emacs-ivy.org][Ivy]]
+** Unfill
 
 #+BEGIN_SRC emacs-lisp
-(require 'init-ivy)
-#+END_SRC
-
-* /Key bindings/
-
-#+BEGIN_SRC emacs-lisp
-;; Start eshell or switch to it if it's active.
-(global-set-key (kbd "C-x m") 'eshell)
-
-;; Start a new eshell even if one is active.
-(global-set-key (kbd "C-x M") (lambda () (interactive) (eshell t)))
-
-
-
-(global-set-key (kbd "M-<") 'beginning-of-buffer)
-(global-set-key (kbd "M->") 'end-of-buffer)
-
-
-(global-set-key [f12] 'org-agenda)
-(global-set-key (kbd "C-c c") 'org-capture)
-
-(global-set-key (kbd "C-c C-c") 'compile)
-
-(global-set-key (kbd "C-c C-;") 'comment-region)
-(global-set-key (kbd "C-c C-:") 'uncomment-region)
-
-(global-set-key (kbd "C-+") 'text-scale-increase)
-(global-set-key (kbd "C--") 'text-scale-decrease)
-(global-set-key (kbd "C-0") 'text-scale-adjust)
-
-
+(use-package unfill
+  :ensure nil
+  :bind
+  ("M-q" . unfill-toggle)
+  ("A-q" . unfill-paragraph))
 #+END_SRC
 
 * Búsquedas
@@ -342,12 +245,37 @@ apt install -y silversearcher-ag
     :config    (add-to-list 'ag-arguments "--word-regexp"))
 #+END_SRC
 
-Es posible  [[file:~/.agignore][crear una lista de archivos a ignorar]] en las búsquedas
+Es posible [[file:~/.agignore][crear una lista de archivos a ignorar]] en las búsquedas
 
 #+BEGIN_SRC org :tangle ~/.agignore
 #.*
 #+END_SRC
 
+
+** =[[https://github.com/mhayashi1120/Emacs-wgrep][wgrep]]=
+
+Permite editar un /grep buffer/ y aplicar los cambios al /file buffer/
+
+
+| Key     | Descripción                                                                                                                                        |
+|---------+----------------------------------------------------------------------------------------------------------------------------------------------------|
+| C-c C-e | Apply the changes to file buffers.                                                                                                                 |
+| C-c C-u | All changes are unmarked and ignored.                                                                                                              |
+| C-c C-d | Mark as delete to current line (including newline).                                                                                                |
+| C-c C-r | Remove the changes in the region (these changes are not applied to the files. Of course, the remaining changes can still be applied to the files.) |
+| C-c C-p | Toggle read-only area.                                                                                                                             |
+| C-c C-k | Discard all changes and exit.                                                                                                                      |
+| C-x C-q | Exit wgrep mode.                                                                                                                                   |
+
+
+#+BEGIN_SRC emacs-lisp
+      (use-package wgrep
+                   :ensure t
+                   :config
+                   (require 'wgrep)
+                   ;; salva los cambios automáticamente
+                   (setq wgrep-auto-save-buffer t))
+#+END_SRC
 
 
 * /Indexing/
@@ -359,18 +287,18 @@ apt install -y recoll
 #+BEGIN_SRC emacs-lisp
 (setq locate-command "recoll")
 
-(global-set-key (kbd "C-c f l") 'locate)
+(bind-key "C-c L" 'locate)
 #+END_SRC
 
 Es posible limitar la búsqueda a archivos =org-mode=
 
 #+BEGIN_SRC emacs-lisp
-  (defun locate-org-files (search-string)
+  (defun nanounanue/locate-org-files (search-string)
     "Busca SEARCH-STRING únicamente  dentro de archivos org-mode."
     (interactive "sSearch string: ")
     (locate-with-filter search-string ".org$"))
 
-  (global-set-key (kbd "C-c f o") 'locate-org-files)
+  (bind-key "C-c O" 'nanounanue/locate-org-files)
 #+END_SRC
 
 También es posible restringir a buscar en mis notas:
@@ -416,9 +344,22 @@ También es posible restringir a buscar en mis notas:
 
 #+BEGIN_SRC emacs-lisp
 (use-package avy
-  :bind (("M-g s" . avy-goto-char-2)
-         ("M-g f" . avy-goto-line)
-         ("M-g w" . avy-goto-word-1)))
+    :disabled t
+    :chords (("jj" . avy-goto-char-2)
+             ("jl" . avy-goto-line)))
+#+END_SRC
+
+** windmove
+
+Usa =shift + arrow keys= para moverte entre /buffers/ visibles
+
+#+BEGIN_SRC emacs-lisp
+(use-package windmove
+  :ensure t
+  :config
+  ;;
+  (windmove-default-keybindings)
+  )
 #+END_SRC
 
 * Dired
@@ -433,10 +374,9 @@ Pequeñas modificaciones
 (setq dired-recursive-copies 'always)
 
 ;; Tamaños en "humano"
-(setq dired-listing-switches "-alh")
+(setq dired-listing-switches "-alh --group-directories-first")
 
 #+END_SRC
-
 
 Este paquete esconde los detalles feos al mostrar el directorio
 (usr =(= para mostar y =)= para no mostrar)
@@ -465,6 +405,13 @@ Más extensiones en [[http://www.masteringemacs.org/articles/2014/04/10/dired-sh
             (load "dired-x")))
 #+END_SRC
 
+Como /sidebar/
+
+#+BEGIN_SRC emacs-lisp
+(use-package dired-sidebar
+  :ensure t
+  :bind (("C-c s" . dired-sidebar-toggle-sidebar)))
+#+END_SRC
 
 * Clipboard
 
@@ -473,9 +420,12 @@ Más extensiones en [[http://www.masteringemacs.org/articles/2014/04/10/dired-sh
 (setq x-select-enable-clipboard t)
 #+END_SRC
 
+
 * Edición
 
 ** Generalidades
+
+Mostrar el número de columna
 
 #+BEGIN_SRC emacs-lisp
 (column-number-mode t)
@@ -521,8 +471,59 @@ Seleccionar incrementalmente la sección
   :bind ("C-=" . er/expand-region))
 #+END_SRC
 
+** [[https://github.com/m00natic/vlfi][/Buffers/ grandes]]
+
+#+BEGIN_QUOTE
+This package provides the =M-x vlf command=, which visits part of
+large file without loading it entirely.  The buffer uses VLF mode,
+which provides several commands for moving around, searching,
+comparing and editing selected part of file.
+To have it offered when opening large files:
+=(require 'vlf-setup)=
+#+END_QUOTE
+
+
+#+BEGIN_SRC emacs-lisp
+  (use-package vlf
+               :ensure t
+               :config
+               (require 'vlf-setup))
+#+END_SRC
+
+** uniquify
+
+#+BEGIN_SRC emacs-lisp
+(use-package uniquify
+  :ensure nil
+  :config
+  (setq uniquify-buffer-name-style 'forward)
+  (setq uniquify-separator "/")
+  (setq uniquify-after-kill-buffer-p t)    ; rename after killing uniquified
+  (setq uniquify-ignore-buffers-re "^\\*") ; don't muck with special buffers
+)
+#+END_SRC
+
+** whitespace
+
+Espacios en blanco consistentes
+
+#+BEGIN_SRC emacs-lisp
+(global-whitespace-mode -1)
+(setq whitespace-style '(face tabs spaces trailing empty newline))
+#+END_SRC
+
+** [[https://www.emacswiki.org/emacs/MidnightMode][Midnight]]
+
+Por /default/ elimina los /buffers/ obsoletos automáticamente, pero se puede configurar
+para hacer otras cosas a la /medianoche/
+
+#+BEGIN_SRC emacs-lisp
+(require 'midnight)
+#+END_SRC
 
 ** Auto Completado
+
+*** Company-mode
 
 [[http://company-mode.github.io/][company-mode]] se encargará de todo el autocompletado
 
@@ -567,6 +568,7 @@ Obvio autocompletar en el [[https://github.com/Alexander-Miller/company-shell][s
   (add-to-list 'company-backends '(company-shell company-shell-env)))
 #+END_SRC
 
+
 *** Yasnippets
 
    [[https://github.com/capitaomorte/yasnippet][yasnippet]] crea /snippets/ de código que pueden ser insertado en un archivo
@@ -574,13 +576,21 @@ Obvio autocompletar en el [[https://github.com/Alexander-Miller/company-shell][s
    #+BEGIN_SRC emacs-lisp
      (use-package yasnippet
        :ensure t
-       :diminish yasnippet
+       :diminish yas-minor-mode
        :init
        (yas-global-mode 1)
        :config
        (add-to-list 'yas-snippet-dirs "~/.emacs.d/snippets")
        (add-to-list 'company-backends '(company-yasnippet)))
    #+END_SRC
+
+**** =yasnippet-snippets=
+
+#+BEGIN_SRC emacs-lisp
+  (use-package  yasnippet-snippets
+    :ensure t)
+#+END_SRC
+
 
 ** Corrector ortográfico
 
@@ -664,12 +674,9 @@ automáticamente actualizar los cambios
 Guardar la posición en el archivo donde me quedé
 
 #+BEGIN_SRC emacs-lisp
-(save-place-mode 1)
-  ;; (use-package saveplace
-  ;;   :init
-  ;;   (setq-default save-place t)
-     (setq save-place-forget-unreadable-files t
-           save-place-skip-check-regexp "\\`/\\(?:cdrom\\|floppy\\|mnt\\|/[0-9]\\|\\(?:[^@/:]*@\\)?[^@/:]*[^@/:.]:\\)")
+  (save-place-mode 1)
+  (setq save-place-forget-unreadable-files t
+        save-place-skip-check-regexp "\\`/\\(?:cdrom\\|floppy\\|mnt\\|/[0-9]\\|\\(?:[^@/:]*@\\)?[^@/:]*[^@/:.]:\\)")
 #+END_SRC
 
 
@@ -679,22 +686,96 @@ Emacs tiene /su/ propia versión de expresiones regulares, lo cual hace
 un poco doloroso usarlo, ya que tienes que luchar por recordar si es
 POSIX, Emacs, etc. =[[https://www.emacswiki.org/emacs/VisualRegexp][Visual regexp]]= es un paquete que ayuda con esto.
 
+Usaremos el estilo [[https://www.debuggex.com/cheatsheet/regex/pcre][PCRE]] (/[[https://pcre.org][Perl Compatible Regular Expressions]]/)
+
 
    #+BEGIN_SRC emacs-lisp
-     (use-package visual-regexp
-       :ensure t
-       :init
-       (use-package visual-regexp-steroids :ensure t)
+   (use-package pcre2el)
+   (use-package visual-regexp-steroids
+       :custom
+       (vr/engine 'pcre2el "Use PCRE regular expressions")
 
-       :bind (("C-c r" . vr/replace)
-              ("C-c q" . vr/query-replace))
-
-       ;; if you use multiple-cursors, this is for you:
-       :config (use-package  multiple-cursors
-                 :bind ("C-c m" . vr/mc-mark)))
+       :bind
+       ("C-c r" . vr/replace)
+       ("C-c q" . vr/query-replace))
    #+END_SRC
 
+** Ayuda
 
+*** =which-key=
+
+=which-key= ayuda a que descubras y explores Emacs. Si inicias a teclear
+un comando y te detienes, =which-key= abre un /buffer/ inferior con sugerencias.
+
+#+BEGIN_SRC emacs-lisp
+    (use-package which-key
+      :ensure t
+      :diminish which-key-mode
+      :config
+      ;; Reemplaza como KEY se muestra en pantalla
+      ;;   KEY → FUNCTION
+      ;; Eg: "C-c", display "right → winner-redo" as "▶ → winner-redo"
+      (setq which-key-key-replacement-alist
+            '(("<\\([[:alnum:]-]+\\)>" . "\\1")
+              ("left"                  . "◀")
+              ("right"                 . "▶")
+              ("up"                    . "▲")
+              ("down"                  . "▼")
+              ("delete"                . "DEL") ; delete key
+              ("\\`DEL\\'"             . "BS") ; backspace key
+              ("next"                  . "PgDn")
+              ("prior"                 . "PgUp"))
+
+            ;; List of "special" keys for which a KEY is displayed as just
+            ;; K but with "inverted video" face... not sure I like this.
+            which-key-special-keys '("RET" "DEL" ; delete key
+                                     "ESC" "BS" ; backspace key
+                                     "SPC" "TAB")
+
+            ;; Replacements for how part or whole of FUNCTION is replaced:
+            which-key-description-replacement-alist
+            '(("Prefix Command" . "prefix")
+              ("\\`calc-"       . "") ; Hide "calc-" prefixes when listing M-x calc keys
+              ("\\`projectile-" . "𝓟/")
+              ("\\`org-babel-"  . "ob/"))
+
+            ;; Underlines commands to emphasize some functions:
+            which-key-highlighted-command-list
+            '("\\(rectangle-\\)\\|\\(-rectangle\\)"
+              "\\`org-"))
+
+
+      (which-key-mode))
+#+END_SRC
+
+*** [[https://github.com/Wilfred/helpful][helpful]]
+Alternativa a la ayuda de Emacs
+
+#+BEGIN_SRC emacs-lisp
+  (use-package helpful
+               :ensure t
+               :bind
+               ("C-h f"   . helpful-callable)
+               ("C-h v"   . helpful-variable)
+               ("C-h k"   . helpful-key)
+               ("C-c C-d" . helpful-at-point)
+               ("C-h F"   . helpful-function)
+               ("C-h C"   . helpful-command))
+#+END_SRC
+
+*** man
+
+#+BEGIN_SRC emacs-lisp
+  (use-package man
+    :ensure t
+    :config
+    (setq Man-notify-method 'pushy)
+    (setq woman-manpath
+          `(
+            "/usr/share/man/" "/usr/local/man/" ;; System
+            (format "%s/local/man" config-basedir) ;; Private environment
+            )))
+#+END_SRC
 ** Backups
 
 Todos los backups en un sólo lugar (encontrado [[http://whattheemacsd.com/init.el-02.html][aquí]])
@@ -761,7 +842,10 @@ Usar =counsel=
   )
 #+END_SRC
 
-** Escribiendo propiamente: [[https://github.com/bnbeckwith/writegood-mode][=writegood-mode=]]
+
+** Escribiendo en serio
+
+*** Escribiendo propiamente: [[https://github.com/bnbeckwith/writegood-mode][=writegood-mode=]]
 
 Resalta las malas elecciones de palabras entre otras cosas
 
@@ -773,221 +857,20 @@ Resalta las malas elecciones de palabras entre otras cosas
   (add-to-list 'writegood-weasel-words "actionable"))
 #+END_SRC
 
-* Lenguajes de programación
-
-** Soporte general
-
-*** ElDoc
-
-[[https://www.emacswiki.org/emacs/ElDoc][ElDoc]] despliega la lista de argumentos en el mode-line
+*** "distraction-free writing mode"
 
 #+BEGIN_SRC emacs-lisp
-  (use-package eldoc
-    :diminish eldoc-mode
-    :init  (setq eldoc-idle-delay 0.1))
+(use-package writeroom-mode
+  :ensure t)
 #+END_SRC
 
-*** /Folding/
+También se puede usar =[[https://github.com/joaotavora/darkroom][darkroom]]=
 
 #+BEGIN_SRC emacs-lisp
-(use-package bicycle
-  :after outline
-  :bind (:map outline-minor-mode-map
-              ([C-tab] . bicycle-cycle)
-              ([S-tab] . bicycle-cycle-global)))
-
-(use-package prog-mode
-  :config
-  (add-hook 'prog-mode-hook 'outline-minor-mode)
-  (add-hook 'prog-mode-hook 'hs-minor-mode))
-#+END_SRC
-
-*** Resaltado
-
-#+BEGIN_SRC emacs-lisp
-(add-hook 'prog-mode-hook
-               (lambda ()
-                (font-lock-add-keywords nil
-                 '(("\\<\\(FIX\\|FIXME\\|TODO\\|BUG\\|NOTE\\|HACK\\|QUESTION\\|XXX\\):" 1 font-lock-warning-face t)))))
-#+END_SRC
-
-*** Flycheck
-
-
-#+BEGIN_SRC emacs-lisp
-(use-package flycheck
+(use-package darkroom
   :ensure t
-  :commands flycheck-mode
-  :init
-  (add-hook 'prog-mode-hook 'flycheck-mode)
-  :config
-  (set-face-underline 'flycheck-error '(:color "#dc322f" :style line))
-  (setq flycheck-highlighting-mode 'lines)
-  (setq flycheck-indication-mode nil)
-  (setq flycheck-display-errors-delay 1.5)
-  (setq flycheck-idle-change-delay 3)
-  (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
-  (setq flycheck-check-syntax-automatically '(mode-enabled save))
-
-  (flycheck-define-checker proselint
-    "A linter for prose."
-    :command ("proselint" source-inplace)
-    :error-patterns
-    ((warning line-start (file-name) ":" line ":" column ": "
-              (id (one-or-more (not (any " "))))
-              (message) line-end))
-    :modes (text-mode markdown-mode gfm-mode))
-
-  (add-to-list 'flycheck-checkers 'proselint))
-
-#+END_SRC
-
-*** Aggresive-indent
-
-#+BEGIN_SRC emacs-lisp
-(use-package aggressive-indent
-  :ensure t
-  :config
-  ;; (global-aggressive-indent-mode 1)
-  (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
-  (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
-  (add-hook 'clojure-mode-hook #'aggressive-indent-mode)
-  (add-hook 'ruby-mode-hook #'aggressive-indent-mode)
-  (add-hook 'python-mode-hook #'aggresive-indent-mode)
-  (add-hook 'css-mode-hook #'aggressive-indent-mode))
-#+END_SRC
-
-** [[file:emacs-elisp.org][Emacs Lisp]]
-
-#+BEGIN_SRC emacs-lisp
-(require 'init-elisp)
-#+END_SRC
-
-** [[file:emacs-clojure.org][Clojure]]
-
-#+BEGIN_SRC emacs-lisp :tangle no
-(require 'init-clojure)
-#+END_SRC
-
-** [[https://lispcookbook.github.io/cl-cookbook/][Common Lisp]]
-
-Instalar el =SBCL=
-
-#+BEGIN_SRC shell :dir /sudo::
-apt install -y sbcl
-#+END_SRC
-
-Para aprender más sobre como usar Emacs con Common Lisp ver [[https://lispcookbook.github.io/cl-cookbook/emacs-ide.html][aquí]]
-
-#+BEGIN_SRC emacs-lisp
-(use-package sly
-  :ensure t
-  :config
-  (setq inferior-lisp-program "sbcl")
-  )
-#+END_SRC
-
-** [[file:emacs-python.org][Python]]
-
-#+BEGIN_SRC emacs-lisp :tangle no
-(require 'init-python)
-#+END_SRC
-
-** [[file:emacs-tex.org][TeX]]
-
-#+BEGIN_SRC emacs-lisp
-(require 'init-tex)
-#+END_SRC
-
-** [[file:emacs-scala.org][Scala]]
-
-#+BEGIN_SRC emacs-lisp
-(require 'init-scala)
-#+END_SRC
-
-
-** [[file:emacs-ess.org][R]]
-
-[[https://ess.r-project.org/][Emacs Speaks Statistics]]
-
- #+BEGIN_SRC emacs-lisp
-   (use-package ess
-     :ensure t
-     :init
-     (require 'ess-site)
-     :config
-     ;; Subpackage
-     (use-package ess-R-data-view :ensure t)
-     (use-package ess-smart-equals :disabled)
-     (use-package ess-smart-underscore :ensure t)
-     (use-package ess-view :ensure t)
-
-     ;;(ess-toggle-underscore nil) ; http://stackoverflow.com/questions/2531372/how-to-stop-emacs-from-replacing-underbar-with-in-ess-mode
-     (setq ess-fancy-comments nil) ; http://stackoverflow.com/questions/780796/emacs-ess-mode-tabbing-for-comment-region
-                                           ; Make ESS use RStudio's indenting style
-     (add-hook 'ess-mode-hook (lambda() (ess-set-style 'RStudio)))
-                                           ; Make ESS use more horizontal screen
-                                           ; http://stackoverflow.com/questions/12520543/how-do-i-get-my-r-buffer-in-emacs-to-occupy-more-horizontal-space
-     (add-hook 'ess-R-post-run-hook 'ess-execute-screen-options)
-     (define-key inferior-ess-mode-map "\C-cw" 'ess-execute-screen-options)
-                                           ; Add path to Stata to Emacs' exec-path so that Stata can be found
-
-     )
-#+END_SRC
-
-Conectamos =R= con =company=
-
-#+BEGIN_SRC emacs-lisp
-(use-package company-statistics
-  :ensure t
-  :after company
-  :init
-  (add-hook 'after-init-hook 'company-statistics-mode))
-#+END_SRC
-
-
-* Bases de datos
-
-** SQL
-
-#+BEGIN_SRC emacs-lisp
-(add-to-list 'same-window-buffer-names "*SQL*")
-
-(setq sql-postgres-login-params
-      '((user :default "postgres")
-        (database :default "postgres")
-        (server :default "localhost")
-        (port :default 5432)))
-
-(add-hook 'sql-interactive-mode-hook
-          (lambda ()
-            (setq sql-prompt-regexp "^[_[:alpha:]]*[=][#>] ")
-            (setq sql-prompt-cont-regexp "^[_[:alpha:]]*[-][#>] ")
-            (toggle-truncate-lines t)))
-
-(use-package sql-indent
-:ensure t
-  ;; :hook sql-mode
-  ;; :mode ("\\.sql\\'" . sqlind-minor-mode)
-  ;; :interpreter ("sql" . sqlind-minor-mode)
-)
-#+END_SRC
-
-** Cypher (Neo4J)
-
-#+BEGIN_SRC emacs-lisp
-(use-package cypher-mode
-  :ensure t
-  :config
-  (add-to-list 'auto-mode-alist '("\\.cql\\'" . cypher-mode))
-  )
-#+END_SRC
-
-
-* [[file:emacs-org-mode.org][Org-Mode]]
-
-#+BEGIN_SRC emacs-lisp
-;;(require 'init-org-mode)
+  :bind
+  ([f7] . darkroom-tentative-mode))
 #+END_SRC
 
 
@@ -1011,17 +894,36 @@ Muestra los cambios en archivos controlados por =git=
 (use-package git-timemachine :ensure t)
 #+END_SRC
 
+** [[https://www.emacswiki.org/emacs/EdiffMode][(E)Diff]]
+
+#+BEGIN_SRC emacs-lisp
+(setq diff-switches "-u")
+(autoload 'diff-mode "diff-mode" "Diff major mode" t)
+(setq ediff-auto-refine-limit (* 2 14000))
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+(setq ediff-split-window-function (lambda (&optional arg)
+                    (if (> (frame-width) 160)
+                    (split-window-horizontally arg)
+                      (split-window-vertically arg))))
+#+END_SRC
+
 ** Docker
 
 #+BEGIN_SRC emacs-lisp
-  (use-package docker :ensure t)
-  (use-package docker-tramp :ensure t)
+  (use-package docker
+               :ensure t)
+
+  (use-package docker-tramp
+               :ensure t)
+
   (use-package dockerfile-mode
     :ensure t
     :delight dockerfile-mode "δ"
-    :mode "Dockerfile$"
-    )
-  (use-package docker-compose-mode :ensure t :mode "docker-compose.yml")
+    :mode "Dockerfile$")
+
+  (use-package docker-compose-mode
+               :ensure t
+               :mode "docker-compose.yml")
 #+END_SRC
 
 Para usar =docker-tramp=
@@ -1033,6 +935,23 @@ Para usar =docker-tramp=
     user           is the user that you want to use (optional)
     container      is the id or name of the container
 #+END_EXAMPLE
+
+** Tramp
+
+#+BEGIN_SRC emacs-lisp
+(setq tramp-default-method "ssh")
+(setq password-cache-expiry 60)
+(setq tramp-auto-save-directory temporary-file-directory)
+
+;; Debug
+;;(setq tramp-verbose 9)
+(setq tramp-debug-buffer nil)
+
+(use-package counsel-tramp
+  :ensure t)
+
+#+END_SRC
+
 
 
 ** Magit
@@ -1094,6 +1013,7 @@ Tutorial: http://jblevins.org/projects/markdown-mode/
 
 #+BEGIN_SRC emacs-lisp
 (use-package json-mode
+  :ensure t
   :delight json-mode "J"
   :mode "\\.json"
   :hook (before-save . nanounanue/json-mode-before-save-hook)
@@ -1172,9 +1092,20 @@ apt install -y graphviz
 
 #+BEGIN_SRC emacs-lisp
 (use-package ssh :ensure t)
-(use-package ssh-deploy :ensure t)
 #+END_SRC
 
+[[https://github.com/cjohansson/emacs-ssh-deploy][ssh-deploy]]
+
+#+BEGIN_QUOTE
+The ssh-deploy plug-in for Emacs makes it possible to effortlessly
+deploy local files and directories to remote hosts via Tramp
+(including but not limited to SSH, SFTP, FTP). It tries to provide
+functions that can be easily used by custom scripts.
+#+END_QUOTE
+
+#+BEGIN_SRC emacs-lisp
+(use-package ssh-deploy :ensure t)
+#+END_SRC
 
 ** Archivos de configuración
 
@@ -1234,55 +1165,6 @@ apt install -y graphviz
 
 #+END_SRC
 
-** PDF Tools
-[[https://github.com/politza/pdf-tools][
-Github page]]
-
-Dependencias:
-
-#+BEGIN_SRC shell :dir /sudo::
-apt install -y libpng-dev zlib1g-dev libpoppler-glib-dev libpoppler-private-dev
-#+END_SRC
-
-
-#+BEGIN_SRC emacs-lisp
-  (use-package  pdf-tools
-    :after org
-    :ensure t
-    :config
-    (add-to-list 'org-file-apps
-         '("\\.pdf\\'" . (lambda (file link)
-                   (org-pdfview-open link))))
-    (add-to-list 'org-file-apps
-         '("\\.pdf::\\([[:digit:]]+\\)\\'" . org-pdfview-open))
-
-    (setq ess-pdf-viewer-pref 'emacsclient)
-    )
-
-  (pdf-tools-install)
-#+END_SRC
-
-*** Integración con =org-mode=
-
-Para usr este paquete con  =org-mode=:
-
-#+BEGIN_EXAMPLE
-[[pdfview:~/Descargas/01688199.pdf::42][PDF Link]]
-#+END_EXAMPLE
-
-#+BEGIN_SRC emacs-lisp
-  (use-package org-pdfview
-    :after org
-    :ensure t
-    :config
-    (delete '("\\.pdf\\'" . default) org-file-apps)
-    (add-to-list
-     'org-file-apps
-     '("\\.pdf\\'" . (lambda (file link) (org-pdfview-open link))))
-    )
-#+END_SRC
-
-
 
 ** [[https://github.com/wasamasa/eyebrowse][eyebrowse]]
 
@@ -1294,34 +1176,15 @@ Para usr este paquete con  =org-mode=:
 | =C-c C-w [< > ']=     | navegar entre /window config/       |
 
 #+BEGIN_SRC emacs-lisp
-(use-package eyebrowse
-  :ensure t
-  )
+  (use-package eyebrowse
+    :ensure t
+    :config
+    (eyebrowse-mode))
 
-(eyebrowse-mode)
+
 #+END_SRC
 
 
-* [[file:emacs-eshell.org][Eshell]]
-
-#+BEGIN_SRC emacs-lisp
-(require 'init-eshell)
-#+END_SRC
-
-
-* Path
-
-El código que sigue (tomado de howardism) asegura que el Emacs use la
-variable =PATH= para encontrar los binarios.
-
-Es un /hack/ enorme: Crea un shell, obtiene el =PATH= y lo usa para =exec-path=
-
-#+BEGIN_SRC emacs-lisp
-  (when window-system
-    (let ((path-from-shell (shell-command-to-string "/bin/bash -l -c 'echo $PATH'")))
-      (setenv "PATH" path-from-shell)
-      (setq exec-path (split-string path-from-shell path-separator))))
-#+END_SRC
 
 
 * Presentaciones
@@ -1340,26 +1203,8 @@ Paquete para hacer demostraciones. Ver por ejemplo:
 
 
 
-
-* [[file:emacs-i3wm.org][Integración con i3wm]]
-
-#+BEGIN_SRC emacs-lisp
-(require 'init-i3wm)
-#+END_SRC
-
-
-
-* Configuración gráfica
-
-#+BEGIN_SRC emacs-lisp
-  (if (window-system)
-      (require 'init-client)
-    (require 'init-server))
-#+END_SRC
-
-
 * Finalmente ...
 
 #+BEGIN_SRC emacs-lisp
-(provide 'init-main)
+(provide 'setup-main)
 #+END_SRC

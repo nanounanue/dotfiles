@@ -676,6 +676,8 @@ apt install silversearcher-ag
             (prettify-symbols-mode t)))
 #+END_SRC
 
+
+
 **** Lisp
 
 #+BEGIN_SRC emacs-lisp
@@ -1794,9 +1796,6 @@ Finalmente [[https://github.com/emacs-helm/helm-system-packages]["A Helm interfa
 
 *** =cider=
 
-(use-package clojure-mode
-  :ensure t
-  :demand t)
 
 #+BEGIN_SRC emacs-lisp
 (use-package cider
@@ -2370,6 +2369,12 @@ A prefix arg forces clock in of the default task."
 #+RESULTS:
 : t
 
+#+BEGIN_SRC ipython
+print("Hola")
+#+END_SRC
+
+#+RESULTS:
+: # Out[1]:
 
 Integración de LaTeX con org-mode
 
@@ -3923,7 +3928,7 @@ matches. This seems to be more helpful to me."
     (if (not (s-blank-str? results))
         results
       (cond
-       ((or (null try-count) (= 0 try-count))
+       ((or (null tr
         (eshell/f (concat filename "*") dir 1))
        ((or (null try-count) (= 1 try-count))
         (eshell/f (concat "*" filename) dir 2))

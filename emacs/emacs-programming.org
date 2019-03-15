@@ -1,0 +1,288 @@
+#+TITLE: Programación
+#+AUTHOR: Adolfo De Unánue
+#+EMAIL: nanounanue@gmail.com
+#+STARTUP: showeverything
+#+STARTUP: nohideblocks
+#+STARTUP: indent
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/elisp/setup-coding.el
+#+PROPERTY:    header-args:shell  :tangle no
+#+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+
+
+
+* Programación
+
+** Soporte general
+
+*** ElDoc
+
+[[https://www.emacswiki.org/emacs/ElDoc][ElDoc]] despliega la lista de argumentos en el mode-line
+
+#+BEGIN_SRC emacs-lisp
+  (use-package eldoc
+    :diminish eldoc-mode
+    :init  (setq eldoc-idle-delay 0.1))
+#+END_SRC
+
+*** /Folding/
+
+#+BEGIN_SRC emacs-lisp
+(use-package bicycle
+  :after outline
+  :bind (:map outline-minor-mode-map
+              ([C-tab] . bicycle-cycle)
+              ([S-tab] . bicycle-cycle-global)))
+
+(use-package prog-mode
+  :ensure nil
+  :config
+  (add-hook 'prog-mode-hook 'outline-minor-mode)
+  (add-hook 'prog-mode-hook 'hs-minor-mode))
+#+END_SRC
+
+*** Resaltado
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'prog-mode-hook
+               (lambda ()
+                (font-lock-add-keywords nil
+                 '(("\\<\\(FIX\\|FIXME\\|TODO\\|BUG\\|NOTE\\|HACK\\|QUESTION\\|XXX\\):" 1 font-lock-warning-face t)))))
+#+END_SRC
+
+*** Flycheck
+
+
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck
+  :commands flycheck-mode
+  :init
+  (add-hook 'prog-mode-hook 'flycheck-mode)
+  :config
+  (set-face-underline 'flycheck-error '(:color "#dc322f" :style line))
+  (setq flycheck-highlighting-mode 'lines)
+  (setq flycheck-indication-mode nil)
+  (setq flycheck-display-errors-delay 1.5)
+  (setq flycheck-idle-change-delay 3)
+  (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
+  (setq flycheck-check-syntax-automatically '(mode-enabled save))
+
+  (flycheck-define-checker proselint
+    "A linter for prose."
+    :command ("proselint" source-inplace)
+    :error-patterns
+    ((warning line-start (file-name) ":" line ":" column ": "
+              (id (one-or-more (not (any " "))))
+              (message) line-end))
+    :modes (text-mode markdown-mode gfm-mode))
+
+  (add-to-list 'flycheck-checkers 'proselint))
+
+#+END_SRC
+
+*** Aggresive-indent
+
+#+BEGIN_SRC emacs-lisp
+  (use-package aggressive-indent
+    :ensure t
+    :config
+    ;; (global-aggressive-indent-mode 1)
+    (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
+    (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
+    (add-hook 'clojure-mode-hook #'aggressive-indent-mode)
+    (add-hook 'ruby-mode-hook #'aggressive-indent-mode)
+    ;(add-hook 'python-mode-hook #'aggresive-indent-mode)
+    (add-hook 'css-mode-hook #'aggressive-indent-mode))
+#+END_SRC
+
+*** /Jump to source/
+
+/"Zero or almost-zero configuration tags replacement"/
+
+#+BEGIN_SRC emacs-lisp
+  (use-package dumb-jump
+    :ensure t
+    :diminish dumb-jump-mode
+    :config
+    (setq dumb-jump-selector 'ivy)
+    :bind (("C-M-g" . dumb-jump-go)
+           ("C-M-p" . dumb-jump-back)
+           ("C-M-q" . dumb-jump-quick-look)))
+#+END_SRC
+
+*** [[https://github.com/Malabarba/fancy-narrow][Fancy narrow]]
+
+Una versión /fancy/ de =narrow-to-region=.
+
+
+| Key       | Descripción              |
+|-----------+--------------------------|
+| =C-x n n= | =fancy-narrow-to-region= |
+| =C-x n w= | =fancy-widen=            |
+
+
+ #+BEGIN_SRC emacs-lisp
+ (use-package fancy-narrow
+   :ensure t
+   :diminish
+   :config
+   (fancy-narrow-mode)
+   )
+ #+END_SRC
+
+*** rainbow-blocks
+
+#+BEGIN_SRC emacs-lisp
+(use-package rainbow-blocks
+:ensure t
+:config
+(require 'rainbow-blocks)
+:hook (clojure-mode))
+#+END_SRC
+
+** [[file:emacs-elisp.org][Emacs Lisp]]
+
+#+BEGIN_SRC emacs-lisp
+(require 'setup-elisp)
+#+END_SRC
+
+** [[file:emacs-clojure.org][Clojure]]
+
+#+BEGIN_SRC emacs-lisp :tangle no
+(require 'setup-clojure)
+#+END_SRC
+
+** [[https://lispcookbook.github.io/cl-cookbook/][Common Lisp]]
+
+Instalar el =SBCL=
+
+#+BEGIN_SRC shell :dir /sudo::
+apt install -y sbcl
+#+END_SRC
+
+Para aprender más sobre como usar Emacs con Common Lisp ver [[https://lispcookbook.github.io/cl-cookbook/emacs-ide.html][aquí]]
+
+#+BEGIN_SRC emacs-lisp
+(use-package sly
+  :config
+  (setq inferior-lisp-program "sbcl")
+  )
+#+END_SRC
+
+** [[file:emacs-python.org][Python]]
+
+#+BEGIN_SRC emacs-lisp
+(require 'setup-python)
+#+END_SRC
+
+** [[file:emacs-tex.org][TeX]]
+
+#+BEGIN_SRC emacs-lisp
+(require 'setup-tex)
+#+END_SRC
+
+** [[file:emacs-scala.org][Scala]]
+
+#+BEGIN_SRC emacs-lisp
+(require 'setup-scala)
+#+END_SRC
+
+
+** [[file:emacs-ess.org][R]]
+
+[[https://ess.r-project.org/][Emacs Speaks Statistics]]
+
+ #+BEGIN_SRC emacs-lisp
+   (use-package ess
+     :init
+     (require 'ess-site)
+     :config
+     ;; Subpackage
+     (use-package ess-R-data-view :ensure t)
+     (use-package ess-smart-equals :disabled)
+     (use-package ess-smart-underscore :ensure t)
+     (use-package ess-view :ensure t)
+
+     ;;(ess-toggle-underscore nil) ; http://stackoverflow.com/questions/2531372/how-to-stop-emacs-from-replacing-underbar-with-in-ess-mode
+     (setq ess-fancy-comments nil) ; http://stackoverflow.com/questions/780796/emacs-ess-mode-tabbing-for-comment-region
+                                           ; Make ESS use RStudio's indenting style
+     (add-hook 'ess-mode-hook (lambda() (ess-set-style 'RStudio)))
+                                           ; Make ESS use more horizontal screen
+                                           ; http://stackoverflow.com/questions/12520543/how-do-i-get-my-r-buffer-in-emacs-to-occupy-more-horizontal-space
+     (add-hook 'ess-R-post-run-hook 'ess-execute-screen-options)
+     (define-key inferior-ess-mode-map "\C-cw" 'ess-execute-screen-options)
+                                           ; Add path to Stata to Emacs' exec-path so that Stata can be found
+
+     )
+#+END_SRC
+
+Conectamos =R= con =company=
+
+#+BEGIN_SRC emacs-lisp
+(use-package company-statistics
+  :after company
+  :init
+  (add-hook 'after-init-hook 'company-statistics-mode))
+#+END_SRC
+
+** Bases de datos
+
+*** SQL
+
+Abre un /buffer/ cualquiera y teclea =M-x sql-postgres=
+
+| Key       | Descripción       |
+|-----------+-------------------|
+| =C-c C-r= | =sql-send-region= |
+| =C-c C-b= | =sql-send-buffer= |
+
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'same-window-buffer-names "*SQL*")
+
+(setq sql-postgres-login-params
+      '((user :default "postgres")
+        (database :default "postgres")
+        (server :default "localhost")
+        (port :default 5432)))
+
+(add-hook 'sql-interactive-mode-hook
+          (lambda ()
+            (setq sql-prompt-regexp "^[_[:alpha:]]*[=][#>] ")
+            (setq sql-prompt-cont-regexp "^[_[:alpha:]]*[-][#>] ")
+            (toggle-truncate-lines t)))
+
+
+#+END_SRC
+
+[[https://github.com/bsvingen/sql-indent][Si queremos indentar]] =SQL=
+
+#+BEGIN_SRC emacs-lisp
+  (use-package sql-indent
+               :ensure t
+               :config
+               (eval-after-load "sql"
+                 '(load-library "sql-indent"))
+               ;; :hook sql-mode
+               ;; :mode ("\\.sql\\'" . sqlind-minor-mode)
+               ;; :interpreter ("sql" . sqlind-minor-mode)
+  )
+#+END_SRC
+
+*** Cypher (Neo4J)
+
+#+BEGIN_SRC emacs-lisp
+(use-package cypher-mode
+  :ensure t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.cql\\'" . cypher-mode))
+  )
+#+END_SRC
+
+* A modo de fin
+
+#+BEGIN_SRC emacs-lisp
+(provide 'setup-coding)
+#+END_SRC
