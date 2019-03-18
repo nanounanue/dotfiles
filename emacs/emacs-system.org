@@ -47,8 +47,6 @@ Arreglando las teclas ... (Odio Mac)
   (customize-set-variable 'mac-right-option-modifier 'super)
 #+END_SRC
 
-
-
 ** Windows
 :PROPERTIES:
 :header-args:emacs-lisp: :tangle no :noweb-ref Windows settings

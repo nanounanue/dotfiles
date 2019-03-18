@@ -139,6 +139,14 @@ Esto también lo vamos a ocupar
 (use-package ob-restclient
   :ensure t)
 
+
+(use-package ob-latex
+  :ensure nil
+  :after org
+  :custom (org-latex-compiler "xelatex"))
+
+(use-package ob-makefile :ensure nil :after org)
+(use-package ob-org :ensure nil :after org)
 #+END_SRC
 
 
@@ -372,8 +380,8 @@ Emacs soporta mostrar fuentes proporcionales con
 Con fuentes variables, cortar la línea basada en el número de
 caracteres se ve /raro/ ...
   #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
-    (org-mode . visual-line-mode)
-    (org-mode . variable-pitch-mode)
+;    (org-mode . visual-line-mode)
+;    (org-mode . variable-pitch-mode)
   #+END_SRC
 
 Estos paquetes se agregan al =modeline=, hay que minimizarlos:
@@ -772,12 +780,14 @@ tar zxf /tmp/reveal.tar.gz -C ~/software/js/revealjs --strip-component 1
 
 
 #+BEGIN_SRC emacs-lisp
-  (use-package ox-reveal
-    :ensure t
-    :after org
-    :init
-    (setq org-reveal-root (concat "file://" (getenv "HOME") "/software/js/revealjs"))
-    (setq org-reveal-postamble "Adolfo De Unánue"))
+(use-package ox-reveal
+  :ensure t
+  :after org
+  :custom
+  (org-reveal-mathjax t)
+  (org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
+                                        ;(org-reveal-root (concat "file://" (getenv "HOME") "/software/js/revealjs"))
+  (org-reveal-postamble "Adolfo De Unánue"))
 #+END_SRC
 
 ** Tree Slide
@@ -824,6 +834,13 @@ tar zxf /tmp/reveal.tar.gz -C ~/software/js/revealjs --strip-component 1
                   (org-present-read-write)))))
 #+END_SRC
 
+* Table of Contents
+
+#+BEGIN_SRC emacs-lisp
+(use-package toc-org
+  :after org
+  :hook (org-mode . toc-org-enable))
+#+END_SRC
 
 * /Literate Programming/
 
@@ -904,6 +921,7 @@ Muestra automáticamente las imágenes
                                (dot        . t)
                                (css        . t)
                                (plantuml   . t)
+                               ;; (yaml       . t)
                                (jupyter    . t)))
 
 ;; Org-babel no muestra el stderr
@@ -920,8 +938,8 @@ Muestra automáticamente las imágenes
 Ejecutar /tangle/ automáticamente al guardar el /buffer/
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
-  (org-mode . (lambda () (add-hook 'after-save-hook 'org-babel-tangle
-                                   'run-at-end 'only-in-org-mode)))
+  ;(org-mode . (lambda () (add-hook 'after-save-hook 'org-babel-tangle
+  ;                                 'run-at-end 'only-in-org-mode)))
 #+END_SRC
 
 Medimos cuánto tiempo tardó en hacer el /tangle/
@@ -1002,6 +1020,22 @@ apt install -y libpng-dev zlib1g-dev libpoppler-glib-dev libpoppler-private-dev
     (pdf-tools-install :no-query))
 
 #+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package pdf-view
+  :ensure nil
+  :after pdf-tools
+  :bind (:map pdf-view-mode-map
+              ("C-s" . isearch-forward)
+              ("d" . pdf-annot-delete)
+              ("h" . pdf-annot-add-highlight-markup-annotation)
+              ("t" . pdf-annot-add-text-annotation))
+  :custom
+  (pdf-view-display-size 'fit-page)
+  (pdf-view-resize-factor 1.1)
+  (pdf-view-use-unicode-ligther nil))
+#+END_SRC
+
 
 *** Integración con =org-mode=
 

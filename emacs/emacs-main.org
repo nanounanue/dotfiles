@@ -62,11 +62,18 @@ No quiero teclear =yes= o =no= ...
 (fset 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
 
-Mantener el cursor en el centro
+/Smooth scrolling/, el principal beneficio es cuando avanzas (con =C-n=)
+al final de la página, avanza una linea, en lugar de hacer un =page down=
 
 #+BEGIN_SRC emacs-lisp
-(setq scroll-conservatively 10000
-      scroll-preserve-screen-position t)
+(setq scroll-margin 3
+      scroll-conservatively 101
+      scroll-up-aggressively 0.01
+      scroll-down-aggressively 0.01
+      scroll-preserve-screen-position t
+      auto-window-vscroll nil
+      hscroll-margin 5
+      hscroll-step 5)
 #+END_SRC
 
 Y queremos hacer /scrooling/ suave (línea por línea)
@@ -198,7 +205,6 @@ Quiero que emacs guarde en /cache/ mi contraseña
 #+END_SRC
 
 
-
 ** Formato de reloj
 
 #+BEGIN_SRC emacs-lisp
@@ -319,6 +325,19 @@ También es posible restringir a buscar en mis notas:
       (setq locate-make-command-line 'locate-my-org-files)
 #+END_SRC
 
+* Mover
+
+Mover /buffers/ en las ventanas
+
+#+BEGIN_SRC emacs-lisp
+(use-package buffer-move
+  :ensure t
+  :bind (("C-c w <up>"    . buf-move-up)
+         ("C-c w <down>"  . buf-move-down)
+         ("C-c w <left>"  . buf-move-left)
+         ("C-c w <right>" . buf-move-right)))
+#+END_SRC
+
 * Navegar
 
 ** =switch-window=
@@ -368,14 +387,21 @@ Usa =shift + arrow keys= para moverte entre /buffers/ visibles
 
 Pequeñas modificaciones
 
+
+
 #+BEGIN_SRC emacs-lisp
-;; Copiar/Borrar recursivamente
-(setq dired-recursive-deletes 'always)
-(setq dired-recursive-copies 'always)
-
-;; Tamaños en "humano"
-(setq dired-listing-switches "-alh --group-directories-first")
-
+(use-package dired
+  :ensure nil
+  :delight "Dired "
+  :custom
+  ;; Copiar/Borrar recursivamente
+  (dired-recursive-deletes 'always)
+  (dired-recursive-copies 'always)
+  (dired-ls-F-marks-symlinks nil)
+  (dired-dwim-target t)
+  ;; Tamaños en "humano"
+  (dired-listing-switches "-alh --group-directories-first")
+  )
 #+END_SRC
 
 Este paquete esconde los detalles feos al mostrar el directorio
@@ -470,6 +496,7 @@ Seleccionar incrementalmente la sección
   :ensure t
   :bind ("C-=" . er/expand-region))
 #+END_SRC
+
 
 ** [[https://github.com/m00natic/vlfi][/Buffers/ grandes]]
 
@@ -574,26 +601,45 @@ Obvio autocompletar en el [[https://github.com/Alexander-Miller/company-shell][s
    [[https://github.com/capitaomorte/yasnippet][yasnippet]] crea /snippets/ de código que pueden ser insertado en un archivo
 
    #+BEGIN_SRC emacs-lisp
-     (use-package yasnippet
-       :ensure t
-       :diminish yas-minor-mode
-       :init
-       (yas-global-mode 1)
-       :config
-       (add-to-list 'yas-snippet-dirs "~/.emacs.d/snippets")
-       (add-to-list 'company-backends '(company-yasnippet)))
+(use-package yasnippet
+  :ensure t
+  :delight yas-minor-mode " υ"
+  :diminish yas-minor-mode
+  :hook (yas-minor-mode . nanounanue/disable-yas-if-no-snippets)
+  :config
+  (yas-global-mode)
+  (add-to-list 'company-backends '(company-yasnippet))
+  :preface
+  (defun nanounanue/disable-yas-if-no-snippets ()
+    (when (and yas-minor-mode (null (yas--get-snippet-tables)))
+      (yas-minor-mode -1))))
    #+END_SRC
 
 **** =yasnippet-snippets=
 
 #+BEGIN_SRC emacs-lisp
-  (use-package  yasnippet-snippets
-    :ensure t)
+(use-package  yasnippet-snippets
+  :after yasnippet
+  :ensure t
+  :config (yasnippet-snippets-initialize))
 #+END_SRC
 
 
 ** Corrector ortográfico
 
+*** Abbrev
+#+BEGIN_SRC emacs-lisp
+(use-package abbrev
+  :ensure nil
+  :delight
+  :hook (text-mode . abbrev-mode)
+  :custom (abbrev-file-name (expand-file-name (format "%s/emacs/abbrev_defs" xdg-data)))
+  :config
+  (if (file-exists-p abbrev-file-name)
+      (quietly-read-abbrev-file)))
+#+END_SRC
+
+*** Flyspell
    [[http://www.emacswiki.org/emacs/FlySpell][FlySpell]] utiliza =ispell=, pero =aspell= está mejor en
    general. Como sea, instalamos los dos además del soporte a español.
 
@@ -628,20 +674,25 @@ Obvio autocompletar en el [[https://github.com/Alexander-Miller/company-shell][s
        (set-face-underline 'flyspell-incorrect
                            '(:color "#dc322f" :style line))
 
-       (defun change-dictionary-spanish ()
+       (defun nanounanue/change-dictionary-spanish ()
          (interactive)
          (ispell-change-dictionary "espanol"))
 
-       (defun change-dictionary-english ()
+       (defun nanounanue/change-dictionary-english ()
          (interactive)
          (ispell-change-dictionary "english"))
 
        :hook (org-mode . (lambda () (setq ispell-parser 'tex)))
        :bind (:map flyspell-mode-map
-                   ("C-c d s" . change-dictionary-spanish)
-                   ("C-c d e" . change-dictionary-english)))
+                   ("C-c d s" . nanounanue/change-dictionary-spanish)
+                   ("C-c d e" . nanounanue/change-dictionary-english)))
    #+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+(use-package flyspell-correct-ivy
+  :after (flyspell ivy)
+  :init (setq flyspell-correct-interface #'flyspell-correct-ivy))
+#+END_SRC
 
 ** Número de líneas
 
@@ -797,15 +848,15 @@ No importa si están bajo =git=
 (setq vc-make-backup-files t)
 #+END_SRC
 
-Y guardemos todos los archivos si Emacs pierde el foco
+Y guardemos todos los archivos si Emacs pierde el foco (tomado de [[http://timothypratley.blogspot.com/2015/07/seven-specialty-emacs-settings-with-big.html][aquí]])
 
 #+BEGIN_SRC emacs-lisp
-  (defun save-all ()
+  (defun nanounanue/save-all ()
     "Save all dirty buffers without asking for confirmation."
     (interactive)
     (save-some-buffers t))
 
-  (add-hook 'focus-out-hook 'save-all)
+  (add-hook 'focus-out-hook 'nanounanue/save-all)
 #+END_SRC
 
 ** [[https://www.projectile.mx/en/latest/][Projectile]]
@@ -991,6 +1042,33 @@ Incluir los =TODOs= en la ventana de =magit=
   :config (magit-todos-mode))
 #+END_SRC
 
+** EPUB
+
+Leer archivos =EPUB= en Emacs!
+
+#+BEGIN_SRC emacs-lisp
+(use-package nov
+  :mode ("\\.epub\\'" . nov-mode)
+  :custom (nov-text-width 75))
+#+END_SRC
+
+** Gnuplot
+
+Para gráficas rápidas (incluido desde las tablas de org-mode)
+
+#+BEGIN_SRC shell :dir /sudo::
+apt install gnuplot
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package gnuplot
+  :ensure-system-package gnuplot
+  :defer 2)
+
+(use-package gnuplot-mode
+  :after gnuplot
+  :mode "\\.gp\\'")
+#+END_SRC
 
 ** Markdown
 
@@ -1008,6 +1086,40 @@ Tutorial: http://jblevins.org/projects/markdown-mode/
   :init (setq markdown-command "multimarkdown"))
 #+END_SRC
 
+*** Preview
+
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-preview-mode
+  :after markdown-mode
+  :custom
+  (markdown-preview-javascript
+   (list (concat "https://github.com/highlightjs/highlight.js/"
+                 "9.15.6/highlight.min.js")
+         "<script>
+            $(document).on('mdContentChange', function() {
+              $('pre code').each(function(i, block)  {
+                hljs.highlightBlock(block);
+              });
+            });
+          </script>"))
+  (markdown-preview-stylesheets
+   (list (concat "https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/"
+                 "3.0.1/github-markdown.min.css")
+         (concat "https://github.com/highlightjs/highlight.js/"
+                 "9.15.6/styles/github.min.css")
+
+         "<style>
+            .markdown-body {
+              box-sizing: border-box;
+              min-width: 200px;
+              max-width: 980px;
+              margin: 0 auto;
+              padding: 45px;
+            }
+
+            @media (max-width: 767px) { .markdown-body { padding: 15px; } }
+          </style>")))
+#+END_SRC
 
 ** JSON
 
@@ -1179,13 +1291,54 @@ functions that can be easily used by custom scripts.
   (use-package eyebrowse
     :ensure t
     :config
-    (eyebrowse-mode))
-
-
+    (eyebrowse-mode)
+  (set-face-attribute 'eyebrowse-mode-line-active nil :underline t :bold nil))
 #+END_SRC
 
+* Pegar
 
+#+BEGIN_QUOTE
+This mode allows to paste whole buffers or parts of buffers to
+pastebin-like services. It supports more than one service and will
+failover if one service fails.
 
+[[https://github.com/etu/webpaste.el][Elis Hirwing]]
+#+END_QUOTE
+
+#+BEGIN_SRC emacs-lisp
+(use-package webpaste
+  :defer 1
+  :custom (webpaste-provider-priority '("ix.io" "dpaste.com")))
+#+END_SRC
+
+#+BEGIN_QUOTE
+ This package (=imgbb=) selects an image and upload it to imgbb, making sure to
+ display the URL of the image in the minibuffer and place it in the
+ kill ring.
+#+END_QUOTE
+
+#+BEGIN_SRC emacs-lisp
+(use-package imgbb :defer 2)
+#+END_SRC
+
+* Archivos recientes
+
+#+BEGIN_SRC emacs-lisp
+(use-package recentf
+  :bind ("C-c r" . recentf-open-files)
+  :init (recentf-mode)
+  :custom
+  (recentf-exclude (list "COMMIT_EDITMSG"
+                         "~$"
+                         "/scp:"
+                         "/ssh:"
+                         "/sudo:"
+                         "/tmp/"))
+  (recentf-max-menu-items 15)
+  (recentf-max-saved-items 200)
+  (recentf-save-file (expand-file-name (format "%s/emacs/recentf" xdg-cache)))
+  :config (run-at-time nil (* 5 60) 'recentf-save-list))
+#+END_SRC
 
 * Presentaciones
 

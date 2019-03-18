@@ -18,12 +18,21 @@
 (use-package auctex
   :ensure t
   :defer t
-  :hook
-  (LaTeX-mode . reftex-mode)
-  :config
-  (setq Tex-auto-save 1)
-  ;; Pdf activated by default
-  (TeX-global-PDF-mode 1)
+  :hook ((LaTeX-mode . reftex-mode)
+         (LaTeX-mode . LaTeX-math-mode)
+         (LaTeX-mode . outline-minor-mode)
+         (LaTeX-mode . TeX-source-correlate-mode))
+
+  :bind  (:map TeX-mode-map
+               ("C-c C-o" . TeX-recenter-output-buffer)
+               ("C-c C-l" . TeX-next-error)
+               ("C-c C-=" . align-current))
+  :preface
+  (defun nanounanue/switch-to-help-window (&optional ARG REPARSE)
+    "Switches to the *TeX Help* buffer after compilation."
+    (other-window 1))
+  :custom
+  (Tex-auto-save 1)
   (TeX-PDF-mode t)
   (TeX-auto-save t)
   (TeX-byte-compile t)
@@ -31,47 +40,44 @@
   (TeX-master 'dwim)
   (TeX-parse-self t)
   (TeX-source-correlate-mode t)
+  (TeX-source-correlate-method 'synctex)
   (TeX-view-program-selection '((output-pdf "zathura")
                                 (output-html "xdg-open")))
-  (setq Tex-parse-self t)
-  (setq TeX-save-query nil)
-  (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
-  (setq reftex-plug-into-AUCTeX t)
-  (setq reftex-default-bibliography '("~/Dropbox/bibliography/references.bib"))
+  (TeX-global-PDF-mode 1)
+  (Tex-engine 'xetex)
+  (Tex-parse-self t)
+  (TeX-save-query nil)
+  (reftex-plug-into-AUCTeX t)
+  (reftex-default-bibliography '("~/Dropbox/bibliography/references.bib"))
 
-  (setq LaTeX-indent-level 4
-	    LaTeX-item-indent 0
-	    TeX-brace-indent-level 4
-	    TeX-newline-function 'newline-and-indent)
-
-  ;; Some usefull hooks
-  (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
-  (add-hook 'LaTeX-mode-hook 'outline-minor-mode)
-
-  ;; PDF/Tex correlation
-  (setq TeX-source-correlate-method 'synctex)
-  (add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode)
-
-  ;; Keys
-  (define-key LaTeX-mode-map (kbd "C-c C-=") 'align-current)
-
-  (setq-default TeX-engine 'xetex)
-  )
-
+  (LaTeX-indent-level 4
+	              LaTeX-item-indent 0
+	              TeX-brace-indent-level 4
+	              TeX-newline-function 'newline-and-indent)
+  :config
+  (advice-add 'TeX-next-error :after #'nanounanue/switch-to-help-window)
+  (advice-add 'TeX-recenter-output-buffer :after #'nanounanue/switch-to-help-window)
+  (add-hook 'TeX-after-compilation-finished-functions 'TeX-revert-document-buffer)
+  (setq-default TeX-engine 'xetex))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-    (use-package latex-extra
-      :ensure t
-      :hook
-      (LaTeX-mode . latex-extra-mode)
-      )
+(use-package latex-extra
+  :ensure t
+  :hook
+  (LaTeX-mode . latex-extra-mode))
 #+END_SRC
 
 * Bibtex
 
 #+BEGIN_SRC emacs-lisp
 (use-package bibtex
+  :after auctex
+  :hook (bibtex-mode . nanounanue/bibtex-fill-column)
+  :preface
+  (defun nanounanue/bibtex-fill-column ()
+    "Ensures that each entry does not exceed 120 characters."
+    (setq fill-column 120))
   :config
   (defun bibtex-generate-autokey ()
     (let* ((bibtex-autokey-names nil)
@@ -111,32 +117,23 @@
   :after auctex
   :init (add-hook 'LaTeX-mode-hook 'auctex-latexmk-setup))
 
-
-;; Completion
-;;(setq TeX-auto-global (format "%s/auctex/style" generated-basedir))
-;; (add-to-list 'TeX-style-path TeX-auto-global) ;; FIXME: what is this variable
-
-
 (use-package company-auctex
   :ensure t
-  :after company
-  :after auctex
+  :after (company auctex)
   :config
   (company-auctex-init))
 
 
 (use-package company-bibtex
   :ensure t
-  :after company
-  :after auctex
+  :after (company auctex)
   :config
   (add-to-list 'company-backends 'company-bibtex))
 
 
 (use-package company-math
   :ensure t
-  :after company
-  :after auctex
+  :after (company auctex)
   :config
   ;; global activation of the unicode symbol completion
   (add-to-list 'company-backends 'company-math-symbols-unicode))

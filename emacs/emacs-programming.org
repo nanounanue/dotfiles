@@ -260,15 +260,10 @@ Abre un /buffer/ cualquiera y teclea =M-x sql-postgres=
 [[https://github.com/bsvingen/sql-indent][Si queremos indentar]] =SQL=
 
 #+BEGIN_SRC emacs-lisp
-  (use-package sql-indent
-               :ensure t
-               :config
-               (eval-after-load "sql"
-                 '(load-library "sql-indent"))
-               ;; :hook sql-mode
-               ;; :mode ("\\.sql\\'" . sqlind-minor-mode)
-               ;; :interpreter ("sql" . sqlind-minor-mode)
-  )
+(use-package sql-indent
+  :ensure t
+  :after (:any sql sql-interactive-mode)
+  :delight sql-mode "Σ " )
 #+END_SRC
 
 *** Cypher (Neo4J)

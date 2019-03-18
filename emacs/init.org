@@ -116,7 +116,8 @@ Ser /verbose/ es bueno para el /debugging/
 
 
 #+BEGIN_SRC emacs-lisp
-(use-package exec-path-from-shell :ensure t)
+(use-package exec-path-from-shell
+  :ensure t)
 
 (when (memq window-system '(mac ns x))
   (exec-path-from-shell-initialize))
@@ -154,6 +155,12 @@ Es nuevo, y forzar el autocompilar
   (paradox-automatically-start t))
 #+END_SRC
 
+*** Ensure package in system
+
+#+BEGIN_SRC emacs-lisp
+(use-package use-package-ensure-system-package
+  :ensure t)
+#+END_SRC
 
 *** delight y diminish
 
@@ -202,15 +209,53 @@ Es nuevo, y forzar el autocompilar
   (use-package f)
 #+END_SRC
 
+*** Al salir de Emacs, no preguntar si quiero mantener mis procesos corriendo
+
+Tomado de [[http://timothypratley.blogspot.com/2015/07/seven-specialty-emacs-settings-with-big.html][aquí]]
+
+#+BEGIN_SRC emacs-lisp
+(defadvice save-buffers-kill-emacs (around no-query-kill-emacs activate)
+           (cl-flet ((process-list ())) ad-do-it))
+#+END_SRC
+
 
 * Custom
 
-Emacs agrega /customised settings/ a =init.el=. No me gusta. Lo mandamos a un archivo temporal.
+Emacs agrega /customized settings/ a =init.el=. No me gusta. Lo mandamos a un archivo temporal.
 
 #+BEGIN_SRC emacs-lisp
  (setq custom-file (make-temp-file "emacs-custom"))
 #+END_SRC
 
+* Mejor manejo de directorios
+
+Tomado de [[https://github.com/rememberYou/.emacs.d/blob/master/config.org][aquí]]
+
+Especificación [[https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html][XDG]]
+
+*CUIDADO*: Emacs no crea los directorios necesarios por /default/
+
+#+BEGIN_SRC shell
+mkdir ~/.cache/emacs ~/.local/share/emacs/
+#+END_SRC
+
+
+#+BEGIN_SRC emacs-lisp
+(defvar xdg-bin (getenv "XDG_BIN_HOME")
+  "The XDG bin base directory.")
+
+(defvar xdg-cache (getenv "XDG_CACHE_HOME")
+  "The XDG cache base directory.")
+
+(defvar xdg-config (getenv "XDG_CONFIG_HOME")
+  "The XDG config base directory.")
+
+(defvar xdg-data (getenv "XDG_DATA_HOME")
+  "The XDG data base directory.")
+
+(defvar xdg-lib (getenv "XDG_LIB_HOME")
+  "The XDG lib base directory.")
+#+END_SRC
 
 * /Keybindings/
 
@@ -306,6 +351,8 @@ Regularmente quiero matar /este/ /buffer/
   (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-tex.org"))
   (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-system.org"))
   (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-programming.org"))
+  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-wm.org"))
+  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-hydra.org"))
   (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-main.org"))
   (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/init.org")))
 (bind-key "C-c T" 'nanounanue/config-tangle)
@@ -362,7 +409,23 @@ Org-mode sobre todas las cosas
 * Configuración gráfica
 
 #+BEGIN_SRC emacs-lisp
-  (if (window-system)
-      (require 'setup-client)
-    (require 'setup-server))
+(require 'setup-client)
+#+END_SRC
+
+* Configuración del servidor
+
+#+BEGIN_SRC emacs-lisp
+(require 'setup-server)
+#+END_SRC
+
+* Hydra!
+
+#+BEGIN_SRC emacs-lisp
+(require 'setup-hydra)
+#+END_SRC
+
+* Emacs como WM
+
+#+BEGIN_SRC emacs-lisp
+;(require 'setup-wm)
 #+END_SRC
