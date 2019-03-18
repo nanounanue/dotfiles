@@ -1,0 +1,20 @@
+* Mis dotfiles
+
+A lo largo de los años me he dado cuenta que he invertido mucho tiempo
+en sentirme cómodo en mi computadora.
+
+Mi computadora es mi herramienta de investigación y creación. Sentirme
+cómodo en ella significa que las cosas tienen que estar a la mano y no
+deben de limitarme, si no al contrario deben de extender mis poderes.
+
+Al principio, este repositorio eran simplemente dotfiles que había
+copiado del algún lugar de internet y modificado. Luego empecé a
+usar =org-mode=  (con =org-babel=) para llevar control de mi configuración de Emacs. Es
+decir, intentaba hacer /Literate programming/. Los resultados fueron
+espectaculares, pero sólo afectaba Emacs. ZSH, =psql=, =tmux= no obtenían
+esas ventajas y las instrucciones para poder instalarlos quedaba fuera
+del archivo de configuración, así que en cada nueva computadora, tenía
+que buscar en internet como instalar todo de nuevo.
+
+Debido a esto he decidido extenderlo a /Literate programming/ a todos
+mis dotfiles.

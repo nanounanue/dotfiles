@@ -11,6 +11,7 @@ From https://github.com/sharkdp/bat
 
 
 ** Installation
+
 #+BEGIN_SRC sh
 wget  -q -O /tmp/bat.deb https://github.com/sharkdp/bat/releases/download/v0.5.0/bat_0.5.0_amd64.deb
 # sudo dpkg -i /tmp/bat.deb
@@ -109,7 +110,6 @@ export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 #+END_SRC
 
 
-
 * ncdu
 
 #+BEGIN_SRC sh
@@ -117,10 +117,8 @@ export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 alias du="ncdu --color dark -rr -x --exclude .git --exclude node_modules"
 #+END_SRC
 
-
 * tldr
 
 #+BEGIN_SRC sh
 #sudo npm install -g tldr
-
 #+END_SRC

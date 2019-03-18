@@ -1,3 +1,17 @@
+#+TITLE:     Tmux
+#+AUTHOR:    Adolfo De Unánue
+#+EMAIL:     nanounanue@gmail.com
+#+STARTUP: showeverything
+#+STARTUP: nohideblocks
+#+STARTUP: indent
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+
+* Tmux
+
+**  Configuración local: =tmux.conf=
+#+BEGIN_SRC sh :tangle ~/.tmux.conf
 set -g history-limit 50000
 
 set -s escape 1 # Cambiando el delay al mandar comandos
@@ -287,7 +301,7 @@ set -g @open-S 'https://www.google.com/search?q='
 
 # Session is considered to be remote when we ssh into host
 if-shell 'test -n "$SSH_CLIENT"' \
-    'source-file ~/dotfiles/tmux.remote.conf'
+    'source-file ~/.tmux.remote.conf'
 
 # We want to have single prefix key "C-a", usable both for local and remote session
 # we don't want to "C-a" + "a" approach either
@@ -316,3 +330,21 @@ bind -T off F12 \
 
 # Run all plugins' scripts
 run '~/.tmux/plugins/tpm/tpm'
+
+ #+END_SRC
+
+* =tmux.remote.conf=
+
+#+BEGIN_SRC sh :tangle ~/.tmux.remote.conf
+
+# show status bar at top for remote session,
+# so it do not stack together with local session's one
+set -g status-position top
+
+# Set port of SSH remote tunnel, where tmux will pipe buffers to transfer on local machine for copy
+set -g @copy_backend_remote_tunnel_port 11988
+
+# In remote mode we don't show "clock" and "battery status" widgets
+set -g status-left "$wg_session"
+set -g status-right "#{prefix_highlight} $wg_is_keys_off $wg_is_zoomed #{sysstat_cpu} | #{sysstat_mem} | #{sysstat_loadavg} | $wg_user_host | #{online_status}"
+#+END_SRC

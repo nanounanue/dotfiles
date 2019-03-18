@@ -1,0 +1,102 @@
+#+TITLE:     ZShell Resources Startup File
+#+AUTHOR:    Adolfo De Unánue
+#+EMAIL:     nanounanue@gmail.com
+#+PROPERTY: header-args:shell :tangle ~/.zshrc :shebang #!/usr/local/bin/zsh :comments org
+#+STARTUP: showeverything
+#+STARTUP: nohideblocks
+#+STARTUP: indent
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+DESCRIPTION: Generalidades para configurar ZSH
+
+*NOTA*: Recuerda que este archivo es invocado en shells /interactivos/ ...
+
+* ZSH
+
+** Instalación
+
+Instalamos desde los repositorios
+
+#+BEGIN_SRC shell :dir /sudo:: :tangle no
+apt install zsh
+#+END_SRC
+
+Luego, establecemos =zsh= como el shell por /default/ para mi usuario
+
+#+BEGIN_SRC shell :tangle no
+chsh -s $(which zsh)
+#+END_SRC
+
+Instalamos /antigen/
+
+ #+BEGIN_SRC sh :tangle no
+curl -L git.io/antigen > ~/software/antigen.zsh && \
+chmod +x ~/software/antigen.zsh
+ #+END_SRC
+
+ La siguiente línea es necesaria para /activar/ antigen
+
+#+BEGIN_SRC shell
+source ~/software/antigen.zsh
+#+END_SRC
+
+
+** Plugins
+
+Si =ZSH_TMUX_AUTOSTART= es verdadero, siempre, al crear una terminal
+se inicializará =tmux= o se conectará a una sesión existente
+
+ #+BEGIN_SRC shell
+ ZSH_TMUX_AUTOSTART=true
+ #+END_SRC
+
+
+ #+BEGIN_SRC shell
+# Load the oh-my-zsh's library.
+antigen use oh-my-zsh
+
+# Bundles from the default repo (robbyrussell's oh-my-zsh).
+antigen bundle git
+antigen bundle pip
+antigen bundle lein
+antigen bundle command-not-found
+antigen bundle colored-man-pages
+antigen bundle dotenv
+antigen bundle docker
+antigen bundle dirhistory
+antigen bundle git-extras
+antigen bundle tmux
+antigen bundle httpie
+antigen bundle jsontools
+antigen bundle pep8
+antigen bundle pyenv
+antigen bundle python
+antigen bundle web-search
+
+
+# Syntax highlighting bundle.
+antigen bundle zsh-users/zsh-autosuggestions
+antigen bundle zsh-users/zsh-completions
+antigen bundle zsh-users/zsh-syntax-highlighting
+ #+END_SRC
+
+* Tema
+
+
+   Vamos a usar =geometry= como tema
+
+ #+BEGIN_SRC shell
+antigen theme https://github.com/jhwhite/the-time-lord
+ #+END_SRC
+
+
+Para mayor configuración ver el [[https://github.com/geometry-zsh/geometry][repositorio]]
+
+
+
+* Finalizando
+
+#+BEGIN_SRC shell
+antigen apply
+#+END_SRC

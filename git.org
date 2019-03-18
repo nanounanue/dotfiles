@@ -1,3 +1,10 @@
+#+TITLE:     Configuración de Git
+#+AUTHOR:    Adolfo De Unánue
+#+EMAIL:     nanounanue@gmail.com
+
+* =gitconfig=
+
+#+BEGIN_SRC sh :tangle ~/.gitconfig
 [user]
     name = Adolfo De Unánue
     mail = nanounanue@gmail.com
@@ -158,3 +165,48 @@
     hotfix = hotfix-
     support = support-
     versiontag = v
+
+#+END_SRC
+
+* Gitignore global
+
+#+BEGIN_SRC text :tangle ~/.gitignore
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Temporary files #
+###################
+*.swp
+*.swo
+*~
+
+# Packages #
+############
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases #
+######################
+*.log
+*.sqlite
+
+# OS generated files #
+######################
+.DS_Store*
+ehthumbs.db
+Icon?
+Thumbs.db
+
+#+END_SRC

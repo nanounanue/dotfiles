@@ -1,0 +1,235 @@
+#+TITLE: TeX y LaTeX
+#+AUTHOR: Adolfo De Unánue
+#+EMAIL: nanounanue@gmail.com
+#+STARTUP: showeverything
+#+STARTUP: nohideblocks
+#+STARTUP: indent
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/elisp/setup-tex.el
+#+PROPERTY:    header-args:shell  :tangle no
+#+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+
+
+* AucTeX
+
+#+BEGIN_SRC emacs-lisp
+(use-package auctex
+  :ensure t
+  :defer t
+  :hook ((LaTeX-mode . reftex-mode)
+         (LaTeX-mode . LaTeX-math-mode)
+         (LaTeX-mode . outline-minor-mode)
+         (LaTeX-mode . TeX-source-correlate-mode))
+
+  :bind  (:map TeX-mode-map
+               ("C-c C-o" . TeX-recenter-output-buffer)
+               ("C-c C-l" . TeX-next-error)
+               ("C-c C-=" . align-current))
+  :preface
+  (defun nanounanue/switch-to-help-window (&optional ARG REPARSE)
+    "Switches to the *TeX Help* buffer after compilation."
+    (other-window 1))
+  :custom
+  (Tex-auto-save 1)
+  (TeX-PDF-mode t)
+  (TeX-auto-save t)
+  (TeX-byte-compile t)
+  (TeX-clean-confirm nil)
+  (TeX-master 'dwim)
+  (TeX-parse-self t)
+  (TeX-source-correlate-mode t)
+  (TeX-source-correlate-method 'synctex)
+  (TeX-view-program-selection '((output-pdf "zathura")
+                                (output-html "xdg-open")))
+  (TeX-global-PDF-mode 1)
+  (Tex-engine 'xetex)
+  (Tex-parse-self t)
+  (TeX-save-query nil)
+  (reftex-plug-into-AUCTeX t)
+  (reftex-default-bibliography '("~/Dropbox/bibliography/references.bib"))
+
+  (LaTeX-indent-level 4
+	              LaTeX-item-indent 0
+	              TeX-brace-indent-level 4
+	              TeX-newline-function 'newline-and-indent)
+  :config
+  (advice-add 'TeX-next-error :after #'nanounanue/switch-to-help-window)
+  (advice-add 'TeX-recenter-output-buffer :after #'nanounanue/switch-to-help-window)
+  (add-hook 'TeX-after-compilation-finished-functions 'TeX-revert-document-buffer)
+  (setq-default TeX-engine 'xetex))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package latex-extra
+  :ensure t
+  :hook
+  (LaTeX-mode . latex-extra-mode))
+#+END_SRC
+
+* Bibtex
+
+#+BEGIN_SRC emacs-lisp
+(use-package bibtex
+  :after auctex
+  :hook (bibtex-mode . nanounanue/bibtex-fill-column)
+  :preface
+  (defun nanounanue/bibtex-fill-column ()
+    "Ensures that each entry does not exceed 120 characters."
+    (setq fill-column 120))
+  :config
+  (defun bibtex-generate-autokey ()
+    (let* ((bibtex-autokey-names nil)
+           (bibtex-autokey-year-length 2)
+           (bibtex-autokey-name-separator "\0")
+           (names (split-string (bibtex-autokey-get-names) "\0"))
+           (year (bibtex-autokey-get-year))
+           (name-char (cond ((= (length names) 1) 4)
+                            ((= (length names) 2) 2)
+                            (t 1)))
+           (existing-keys (bibtex-parse-keys))
+           key)
+      (setq names (mapconcat (lambda (x)
+                               (substring x 0 name-char))
+                             names
+                             ""))
+      (setq key (format "%s%s" names year))
+      (let ((ret key))
+        (loop for c from ?a to ?z
+              while (assoc ret existing-keys)
+              do (setq ret (format "%s%c" key c)))
+        ret)))
+
+  (setq bibtex-align-at-equal-sign t
+        bibtex-autokey-name-year-separator ""
+        bibtex-autokey-year-title-separator ""
+        bibtex-autokey-titleword-first-ignore '("the" "a" "if" "and" "an")
+        bibtex-autokey-titleword-length 100
+        bibtex-autokey-titlewords 1))
+#+END_SRC
+
+* Company (again)
+
+#+BEGIN_SRC emacs-lisp
+(use-package auctex-latexmk
+  :ensure t
+  :after auctex
+  :init (add-hook 'LaTeX-mode-hook 'auctex-latexmk-setup))
+
+(use-package company-auctex
+  :ensure t
+  :after (company auctex)
+  :config
+  (company-auctex-init))
+
+
+(use-package company-bibtex
+  :ensure t
+  :after (company auctex)
+  :config
+  (add-to-list 'company-backends 'company-bibtex))
+
+
+(use-package company-math
+  :ensure t
+  :after (company auctex)
+  :config
+  ;; global activation of the unicode symbol completion
+  (add-to-list 'company-backends 'company-math-symbols-unicode))
+
+#+END_SRC
+
+* Compilation
+
+#+BEGIN_SRC emacs-lisp
+;; Escape mode
+(defun TeX-toggle-escape nil
+  (interactive)
+  "Toggle Shell Escape"
+  (setq LaTeX-command
+        (if (string= LaTeX-command "latex") "latex -shell-escape"
+          "latex"))
+  (message (concat "shell escape "
+                   (if (string= LaTeX-command "latex -shell-escape")
+                       "enabled"
+                     "disabled"))
+           )
+  )
+;;(add-to-list 'TeX-command-list
+;;             '("Make" "make" TeX-run-command nil t))
+(setq TeX-show-compilation nil)
+
+;; Redine TeX-output-mode to get the color !
+(define-derived-mode TeX-output-mode TeX-special-mode "LaTeX Output"
+  "Major mode for viewing TeX output.
+  \\{TeX-output-mode-map} "
+  :syntax-table nil
+  (set (make-local-variable 'revert-buffer-function)
+       #'TeX-output-revert-buffer)
+
+  (set (make-local-variable 'font-lock-defaults)
+       '((("^!.*" . font-lock-warning-face) ; LaTeX error
+          ("^-+$" . font-lock-builtin-face) ; latexmk divider
+          ("^\\(?:Overfull\\|Underfull\\|Tight\\|Loose\\).*" . font-lock-builtin-face)
+          ;; .....
+          )))
+
+  ;; special-mode makes it read-only which prevents input from TeX.
+  (setq buffer-read-only nil))
+#+END_SRC
+
+* =RefTeX=
+
+#+BEGIN_SRC emacs-lisp
+(use-package reftex
+  :after auctex
+  :config
+  (add-hook 'LaTeX-mode-hook 'turn-on-reftex)   ; with AUCTeX LaTeX mode
+  (setq reftex-save-parse-info t
+        reftex-enable-partial-scans t
+        reftex-use-multiple-selection-buffers t
+        reftex-plug-into-AUCTeX t
+        reftex-vref-is-default t
+        reftex-cite-format
+        '((?\C-m . "\\cite[]{%l}")
+          (?t . "\\textcite{%l}")
+          (?a . "\\autocite[]{%l}")
+          (?p . "\\parencite{%l}")
+          (?f . "\\footcite[][]{%l}")
+          (?F . "\\fullcite[]{%l}")
+          (?x . "[]{%l}")
+          (?X . "{%l}"))
+
+        font-latex-match-reference-keywords
+        '(("cite" "[{")
+          ("cites" "[{}]")
+          ("footcite" "[{")
+          ("footcites" "[{")
+          ("parencite" "[{")
+          ("textcite" "[{")
+          ("fullcite" "[{")
+          ("citetitle" "[{")
+          ("citetitles" "[{")
+          ("headlessfullcite" "[{"))
+
+        reftex-cite-prompt-optional-args nil
+        reftex-cite-cleanup-optional-args t))
+#+END_SRC
+
+* Preview
+
+#+BEGIN_SRC emacs-lisp
+(use-package latex-math-preview
+  :ensure t
+  :config
+  (autoload 'LaTeX-preview-setup "preview")
+  (setq preview-scale-function 1.2)
+  (add-hook 'LaTeX-mode-hook 'LaTeX-preview-setup))
+#+END_SRC
+
+* Finalmente
+
+#+BEGIN_SRC emacs-lisp
+(provide 'setup-tex)
+#+END_SRC

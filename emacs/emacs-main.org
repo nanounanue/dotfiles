@@ -1,0 +1,1363 @@
+#+TITLE: Configuración de GNU EMACS
+#+AUTHOR: Adolfo De Unánue
+#+EMAIL: nanounanue@gmail.com
+#+STARTUP: showeverything
+#+STARTUP: nohideblocks
+#+STARTUP: indent
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/elisp/setup-main.el
+#+PROPERTY:    header-args:shell  :tangle no
+#+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+
+
+* Configuración general
+
+** UTF-8
+
+#+BEGIN_SRC emacs-lisp
+  (when (fboundp 'set-charset-priority)
+    (set-charset-priority 'unicode))
+  (prefer-coding-system 'utf-8)
+  (set-language-environment    'utf-8)
+  (setq locale-coding-system 'utf-8)
+  (set-default-coding-systems 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
+  (set-selection-coding-system 'utf-8)
+  (setq-default buffer-file-coding-system 'utf-8)
+  (set-input-method nil)
+#+END_SRC
+
+
+** Acentos
+
+#+BEGIN_SRC emacs-lisp
+(load-library "iso-transl")
+#+END_SRC
+
+
+** Tabs
+
+Nunca tabs
+
+#+BEGIN_SRC emacs-lisp
+(setq-default indent-tabs-mode nil)
+(setq tab-width 4)
+#+END_SRC
+
+Siempre indentar
+
+#+BEGIN_SRC emacs-lisp
+(setq-default tab-always-indent t)
+#+END_SRC
+
+** Misceláneos
+
+No quiero teclear =yes= o =no= ...
+
+#+BEGIN_SRC emacs-lisp
+(fset 'yes-or-no-p 'y-or-n-p)
+#+END_SRC
+
+/Smooth scrolling/, el principal beneficio es cuando avanzas (con =C-n=)
+al final de la página, avanza una linea, en lugar de hacer un =page down=
+
+#+BEGIN_SRC emacs-lisp
+(setq scroll-margin 3
+      scroll-conservatively 101
+      scroll-up-aggressively 0.01
+      scroll-down-aggressively 0.01
+      scroll-preserve-screen-position t
+      auto-window-vscroll nil
+      hscroll-margin 5
+      hscroll-step 5)
+#+END_SRC
+
+Y queremos hacer /scrooling/ suave (línea por línea)
+
+#+BEGIN_SRC emacs-lisp
+(use-package smooth-scrolling
+  :config
+  (smooth-scrolling-mode 1))
+#+END_SRC
+
+Línea al final del archivo
+
+#+BEGIN_SRC emacs-lisp
+(setq require-final-newline t)
+#+END_SRC
+
+Borrar selección con un /keypress/
+
+#+BEGIN_SRC emacs-lisp
+(delete-selection-mode t)
+#+END_SRC
+
+Resaltar la línea actual
+
+#+BEGIN_SRC emacs-lisp
+(global-hl-line-mode +1)
+#+END_SRC
+
+Deshabilitar que parpadeé el paréntesis que hace /match/
+
+#+BEGIN_SRC emacs-lisp
+(setq blink-matching-paren nil)
+#+END_SRC
+
+Deshabilitar /warning/ cuando matamos un /buffer/ con algún proceso
+
+#+BEGIN_SRC emacs-lisp
+(setq kill-buffer-query-functions
+  (remq 'process-kill-buffer-query-function
+         kill-buffer-query-functions))
+#+END_SRC
+
+
+* Peculiaridades de los SO
+
+#+BEGIN_SRC emacs-lisp
+(require 'setup-system)
+#+END_SRC
+
+* Cifrado
+
+#+BEGIN_SRC shell :dir /sudo::
+apt install -y gpg
+#+END_SRC
+
+Cualquier archivo que tenga una extensión =gpg= pedirá a contraseña /antes/ de ser mostrado.
+El único que debería de leerlos soy yo, así que no necesitamos el /key-ring prompt/.
+
+#+BEGIN_SRC emacs-lisp
+(setq epa-file-select-keys 2)
+#+END_SRC
+
+Quiero que emacs guarde en /cache/ mi contraseña
+
+#+BEGIN_SRC emacs-lisp
+(setq epa-file-cache-passphrase-for-symmetric-encryption t)
+#+END_SRC
+
+
+* Personal
+
+#+BEGIN_SRC emacs-lisp
+(setq user-full-name "Adolfo De Unánue")
+(setq user-mail-address "nanounanue@gmail.com")
+(setq  calendar-latitude 41.8756
+      calendar-longitude -87.6244
+      calendar-location-name "Chicago, IL")
+#+END_SRC
+
+* Administración de contraseñas
+
+#+BEGIN_SRC emacs-lisp
+(require 'auth-source)
+(require 'auth-source-pass)
+(auth-source-pass-enable)
+(setq auth-sources '("~/.gnupg/shared/.authinfo.gpg"
+                     "~/.authinfo.gpg"
+                     "~/.authinfo"
+                     "~/.netrc"))
+
+#+END_SRC
+
+* /Display/
+
+** /Defaults/
+
+#+BEGIN_SRC emacs-lisp
+  (setq
+   ad-redefinition-action 'accept                   ; Silence warnings for redefinition
+   cursor-in-non-selected-windows t                 ; No quiero un cursor en las ventanas inactivas
+   help-window-select t                             ; Enfocar las ventanas de ayuda cuando son abiertas
+   inhibit-startup-screen t                         ; No pantalla de inicio
+   initial-scratch-message ""                       ; No me gusta que el scratch buffer contenga texto
+   inhibit-startup-message t
+   load-prefer-newer t                              ; Preferir la nueva versión de un archivo
+   scroll-conservatively most-positive-fixnum       ; Siempre realizar el scroll línea a línea
+   select-enable-clipboard t                        ; Emacs y el SO comparten el clipboard
+   ring-bell-function 'ignore
+   show-trailing-whiespace t                        ; Muestra en rojo los espacios en blanco al final de un párrafo
+   kill-whole-line t                                ; Remueve la línea completa, en lugar de sólo limpiarla
+   save-abbrevs 'silent                             ; No preguntar sobre guardar abbrevs
+   vc-follow-symlinks t)                            ; Siempre seguir los symlinks
+#+END_SRC
+
+** Emacs inicia en =$HOME=
+
+#+BEGIN_SRC emacs-lisp
+  (cd "~/")                                         ; Iniciar en el $HOME
+#+END_SRC
+
+** No quiero /toolbar/, /manubar/, /scrollbar/, etc
+
+#+BEGIN_SRC emacs-lisp
+  (tool-bar-mode -1)                                ; No quiero toolbar
+  (menu-bar-mode -1)                                ; O menubar
+  (unless (frame-parameter nil 'tty)                ; O scrollbar
+      (scroll-bar-mode -1))
+  (blink-cursor-mode -1)                            ; No quiero que parpadee el cursor
+#+END_SRC
+
+
+** Formato de reloj
+
+#+BEGIN_SRC emacs-lisp
+(setq display-time-24hr-format t)
+(setq display-time-format "%H:%M - %d %B %Y")
+
+(display-time-mode 1)
+#+END_SRC
+
+** Fill mode
+
+#+BEGIN_SRC emacs-lisp
+  (use-package fill
+    :ensure nil
+    :bind
+    ("C-c F" . auto-fill-mode)
+    ;("C-c T" . toggle-truncate-lines)
+    :init (add-hook 'org-mode-hook 'turn-on-auto-fill)
+    :diminish auto-fill>-mode)
+#+END_SRC
+
+** Unfill
+
+#+BEGIN_SRC emacs-lisp
+(use-package unfill
+  :ensure nil
+  :bind
+  ("M-q" . unfill-toggle)
+  ("A-q" . unfill-paragraph))
+#+END_SRC
+
+* Búsquedas
+
+** Silver searcher
+
+#+BEGIN_SRC shell :dir /sudo::
+apt install -y silversearcher-ag
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ag
+    :ensure t
+    :init      (setq ag-highlight-search t)
+    :config    (add-to-list 'ag-arguments "--word-regexp"))
+#+END_SRC
+
+Es posible [[file:~/.agignore][crear una lista de archivos a ignorar]] en las búsquedas
+
+#+BEGIN_SRC org :tangle ~/.agignore
+#.*
+#+END_SRC
+
+
+** =[[https://github.com/mhayashi1120/Emacs-wgrep][wgrep]]=
+
+Permite editar un /grep buffer/ y aplicar los cambios al /file buffer/
+
+
+| Key     | Descripción                                                                                                                                        |
+|---------+----------------------------------------------------------------------------------------------------------------------------------------------------|
+| C-c C-e | Apply the changes to file buffers.                                                                                                                 |
+| C-c C-u | All changes are unmarked and ignored.                                                                                                              |
+| C-c C-d | Mark as delete to current line (including newline).                                                                                                |
+| C-c C-r | Remove the changes in the region (these changes are not applied to the files. Of course, the remaining changes can still be applied to the files.) |
+| C-c C-p | Toggle read-only area.                                                                                                                             |
+| C-c C-k | Discard all changes and exit.                                                                                                                      |
+| C-x C-q | Exit wgrep mode.                                                                                                                                   |
+
+
+#+BEGIN_SRC emacs-lisp
+      (use-package wgrep
+                   :ensure t
+                   :config
+                   (require 'wgrep)
+                   ;; salva los cambios automáticamente
+                   (setq wgrep-auto-save-buffer t))
+#+END_SRC
+
+
+* /Indexing/
+
+#+BEGIN_SRC shell :dir /sudo::
+apt install -y recoll
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(setq locate-command "recoll")
+
+(bind-key "C-c L" 'locate)
+#+END_SRC
+
+Es posible limitar la búsqueda a archivos =org-mode=
+
+#+BEGIN_SRC emacs-lisp
+  (defun nanounanue/locate-org-files (search-string)
+    "Busca SEARCH-STRING únicamente  dentro de archivos org-mode."
+    (interactive "sSearch string: ")
+    (locate-with-filter search-string ".org$"))
+
+  (bind-key "C-c O" 'nanounanue/locate-org-files)
+#+END_SRC
+
+También es posible restringir a buscar en mis notas:
+
+#+BEGIN_SRC emacs-lisp :tangle no
+      (defun locate-my-org-files (search-string)
+        (let ((tech (concat (getenv "HOME") "/technical"))
+              (pers (concat (getenv "HOME") "/personal"))
+              (note (concat (getenv "HOME") "/notes"))
+              (jrnl (concat (getenv "HOME") "/journal")))
+          (-flatten (list "mdfind"
+                   (if (file-exists-p tech) (list "-onlyin" tech))
+                   (if (file-exists-p pers) (list "-onlyin" pers))
+                   (if (file-exists-p note) (list "-onlyin" note))
+                   (if (file-exists-p jrnl) (list "-onlyin" jrnl))
+                   "-interpret" search-string))))
+
+      (setq locate-make-command-line 'locate-my-org-files)
+#+END_SRC
+
+* Mover
+
+Mover /buffers/ en las ventanas
+
+#+BEGIN_SRC emacs-lisp
+(use-package buffer-move
+  :ensure t
+  :bind (("C-c w <up>"    . buf-move-up)
+         ("C-c w <down>"  . buf-move-down)
+         ("C-c w <left>"  . buf-move-left)
+         ("C-c w <right>" . buf-move-right)))
+#+END_SRC
+
+* Navegar
+
+** =switch-window=
+
+#+BEGIN_SRC emacs-lisp
+(use-package switch-window
+  :ensure t
+  :config
+    (setq switch-window-input-style 'minibuffer)
+    (setq switch-window-increase 4)
+    (setq switch-window-threshold 2)
+    (setq switch-window-shortcut-style 'qwerty)
+    (setq switch-window-qwerty-shortcuts
+        '("a" "s" "d" "f" "j" "k" "l" "i" "o"))
+  :bind
+    ([remap other-window] . switch-window))
+#+END_SRC
+
+** =avy=
+
+/Quick text navigation!/ =avy= permite "brincar" a cualquier lugar del
+/buffer/
+
+#+BEGIN_SRC emacs-lisp
+(use-package avy
+    :disabled t
+    :chords (("jj" . avy-goto-char-2)
+             ("jl" . avy-goto-line)))
+#+END_SRC
+
+** windmove
+
+Usa =shift + arrow keys= para moverte entre /buffers/ visibles
+
+#+BEGIN_SRC emacs-lisp
+(use-package windmove
+  :ensure t
+  :config
+  ;;
+  (windmove-default-keybindings)
+  )
+#+END_SRC
+
+* Dired
+
+=C-x d=
+
+Pequeñas modificaciones
+
+
+
+#+BEGIN_SRC emacs-lisp
+(use-package dired
+  :ensure nil
+  :delight "Dired "
+  :custom
+  ;; Copiar/Borrar recursivamente
+  (dired-recursive-deletes 'always)
+  (dired-recursive-copies 'always)
+  (dired-ls-F-marks-symlinks nil)
+  (dired-dwim-target t)
+  ;; Tamaños en "humano"
+  (dired-listing-switches "-alh --group-directories-first")
+  )
+#+END_SRC
+
+Este paquete esconde los detalles feos al mostrar el directorio
+(usr =(= para mostar y =)= para no mostrar)
+
+#+BEGIN_SRC emacs-lisp
+  (use-package dired-details
+    :ensure t
+    :init   (setq dired-details-hidden-string "* ")
+    :config (dired-details-install))
+#+END_SRC
+
+Echar un /vistazo/ sin cargar en el /buffer/
+
+#+BEGIN_SRC emacs-lisp
+  (use-package peep-dired
+    :defer t ; don't access `dired-mode-map' until `peep-dired' is loaded
+    :bind (:map dired-mode-map
+                ("P" . peep-dired)))
+#+END_SRC
+
+Más extensiones en [[http://www.masteringemacs.org/articles/2014/04/10/dired-shell-commands-find-xargs-replacement/][dired-x]]
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'dired-load-hook
+          (lambda ()
+            (load "dired-x")))
+#+END_SRC
+
+Como /sidebar/
+
+#+BEGIN_SRC emacs-lisp
+(use-package dired-sidebar
+  :ensure t
+  :bind (("C-c s" . dired-sidebar-toggle-sidebar)))
+#+END_SRC
+
+* Clipboard
+
+#+BEGIN_SRC emacs-lisp
+(setq x-select-enable-primary nil)
+(setq x-select-enable-clipboard t)
+#+END_SRC
+
+
+* Edición
+
+** Generalidades
+
+Mostrar el número de columna
+
+#+BEGIN_SRC emacs-lisp
+(column-number-mode t)
+#+END_SRC
+
+
+Muestra el paréntesis que hace /match/
+
+#+BEGIN_SRC emacs-lisp
+  (defvar show-paren-delay)
+  (setq show-paren-delay 0.0)
+  (show-paren-mode t)
+#+END_SRC
+
+Paréntesis con color
+
+#+BEGIN_SRC emacs-lisp
+(use-package rainbow-delimiters
+  :ensure t
+  :commands rainbow-delimiters-mode
+  :init
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'LaTex-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'org-mode-hook #'rainbow-delimiters-mode))
+#+END_SRC
+
+
+Visualizar colores
+
+#+BEGIN_SRC emacs-lisp
+(use-package rainbow-mode
+  :ensure t
+  :config
+  (setq rainbow-x-colors nil)
+  :hook (prog-mode . rainbow-delimiters-mode))
+#+END_SRC
+
+Seleccionar incrementalmente la sección
+
+#+BEGIN_SRC emacs-lisp
+(use-package expand-region
+  :ensure t
+  :bind ("C-=" . er/expand-region))
+#+END_SRC
+
+
+** [[https://github.com/m00natic/vlfi][/Buffers/ grandes]]
+
+#+BEGIN_QUOTE
+This package provides the =M-x vlf command=, which visits part of
+large file without loading it entirely.  The buffer uses VLF mode,
+which provides several commands for moving around, searching,
+comparing and editing selected part of file.
+To have it offered when opening large files:
+=(require 'vlf-setup)=
+#+END_QUOTE
+
+
+#+BEGIN_SRC emacs-lisp
+  (use-package vlf
+               :ensure t
+               :config
+               (require 'vlf-setup))
+#+END_SRC
+
+** uniquify
+
+#+BEGIN_SRC emacs-lisp
+(use-package uniquify
+  :ensure nil
+  :config
+  (setq uniquify-buffer-name-style 'forward)
+  (setq uniquify-separator "/")
+  (setq uniquify-after-kill-buffer-p t)    ; rename after killing uniquified
+  (setq uniquify-ignore-buffers-re "^\\*") ; don't muck with special buffers
+)
+#+END_SRC
+
+** whitespace
+
+Espacios en blanco consistentes
+
+#+BEGIN_SRC emacs-lisp
+(global-whitespace-mode -1)
+(setq whitespace-style '(face tabs spaces trailing empty newline))
+#+END_SRC
+
+** [[https://www.emacswiki.org/emacs/MidnightMode][Midnight]]
+
+Por /default/ elimina los /buffers/ obsoletos automáticamente, pero se puede configurar
+para hacer otras cosas a la /medianoche/
+
+#+BEGIN_SRC emacs-lisp
+(require 'midnight)
+#+END_SRC
+
+** Auto Completado
+
+*** Company-mode
+
+[[http://company-mode.github.io/][company-mode]] se encargará de todo el autocompletado
+
+Además [[https://github.com/vspinu/company-math][company-math]] insertará símbolos basados en keywords de LaTeX
+(Inicia con un backslash)
+
+#+BEGIN_SRC emacs-lisp
+    (use-package company
+      :ensure t
+      :diminish
+      :init
+      (setq company-dabbrev-ignore-case t
+            company-show-numbers t)
+      (add-hook 'after-init-hook 'global-company-mode)
+      :config
+      (add-to-list 'company-backends 'company-math-symbols-unicode)
+      (setq company-idle-delay t)
+      (setq company-tooltip-limit 10)
+      (setq company-minimum-prefix-length 3)
+      :bind ("C-:" . company-complete)  ; In case I don't want to wait
+      )
+#+END_SRC
+
+Visualizar un poco de ayuda siempre es bueno ([[https://www.github.com/expez/company-quickhelp][company-quickhelp]])
+
+#+BEGIN_SRC emacs-lisp
+  (use-package company-quickhelp
+    :ensure t
+    :config
+    (company-quickhelp-mode 1))
+#+END_SRC
+
+This also requires [[https://github.com/pitkali/pos-tip/blob/master/pos-tip.el][pos-tip]].
+
+Obvio autocompletar en el [[https://github.com/Alexander-Miller/company-shell][shell...]]
+
+#+BEGIN_SRC emacs-lisp
+(use-package company-shell
+  :ensure t
+  :after company
+  :config
+  (add-to-list 'company-backends '(company-shell company-shell-env)))
+#+END_SRC
+
+
+*** Yasnippets
+
+   [[https://github.com/capitaomorte/yasnippet][yasnippet]] crea /snippets/ de código que pueden ser insertado en un archivo
+
+   #+BEGIN_SRC emacs-lisp
+(use-package yasnippet
+  :ensure t
+  :delight yas-minor-mode " υ"
+  :diminish yas-minor-mode
+  :hook (yas-minor-mode . nanounanue/disable-yas-if-no-snippets)
+  :config
+  (yas-global-mode)
+  (add-to-list 'company-backends '(company-yasnippet))
+  :preface
+  (defun nanounanue/disable-yas-if-no-snippets ()
+    (when (and yas-minor-mode (null (yas--get-snippet-tables)))
+      (yas-minor-mode -1))))
+   #+END_SRC
+
+**** =yasnippet-snippets=
+
+#+BEGIN_SRC emacs-lisp
+(use-package  yasnippet-snippets
+  :after yasnippet
+  :ensure t
+  :config (yasnippet-snippets-initialize))
+#+END_SRC
+
+
+** Corrector ortográfico
+
+*** Abbrev
+#+BEGIN_SRC emacs-lisp
+(use-package abbrev
+  :ensure nil
+  :delight
+  :hook (text-mode . abbrev-mode)
+  :custom (abbrev-file-name (expand-file-name (format "%s/emacs/abbrev_defs" xdg-data)))
+  :config
+  (if (file-exists-p abbrev-file-name)
+      (quietly-read-abbrev-file)))
+#+END_SRC
+
+*** Flyspell
+   [[http://www.emacswiki.org/emacs/FlySpell][FlySpell]] utiliza =ispell=, pero =aspell= está mejor en
+   general. Como sea, instalamos los dos además del soporte a español.
+
+   #+BEGIN_SRC shell :dir /sudo::
+     apt install -y aspell aspell-es ispell ispanish
+   #+END_SRC
+
+   Usarlo en todos los archivos de texto, excepto en los =logs=
+
+   #+BEGIN_SRC emacs-lisp
+     (use-package flyspell
+       :ensure t
+       :diminish
+       :init
+       (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+
+       (dolist (hook '(text-mode-hook org-mode-hook))
+         (add-hook hook (lambda () (flyspell-mode 1))))
+
+       (dolist (hook '(change-log-mode-hook log-edit-mode-hook org-agenda-mode-hook))
+         (add-hook hook (lambda () (flyspell-mode -1))))
+
+       :config
+       (setq ispell-program-name "aspell"
+             ispell-local-dictionary "en_US"
+             ispell-dictionary "american" ; better for aspell
+             ispell-extra-args '("--sug-mode=ultra" "--lang=en_US")
+             ispell-list-command "--list"
+             ispell-local-dictionary-alist '(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "['‘’]"
+                                           t ; Many other characters
+                                           ("-d" "en_US") nil utf-8)))
+       (set-face-underline 'flyspell-incorrect
+                           '(:color "#dc322f" :style line))
+
+       (defun nanounanue/change-dictionary-spanish ()
+         (interactive)
+         (ispell-change-dictionary "espanol"))
+
+       (defun nanounanue/change-dictionary-english ()
+         (interactive)
+         (ispell-change-dictionary "english"))
+
+       :hook (org-mode . (lambda () (setq ispell-parser 'tex)))
+       :bind (:map flyspell-mode-map
+                   ("C-c d s" . nanounanue/change-dictionary-spanish)
+                   ("C-c d e" . nanounanue/change-dictionary-english)))
+   #+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package flyspell-correct-ivy
+  :after (flyspell ivy)
+  :init (setq flyspell-correct-interface #'flyspell-correct-ivy))
+#+END_SRC
+
+** Número de líneas
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+#+END_SRC
+
+** Cosas que hacer al guardar un archivo
+
+Remover espacios al final
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+#+END_SRC
+
+Si un archivo empieza con /she-bang/ =#!= , volverlo ejecutable
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'after-save-hook
+        'executable-make-buffer-file-executable-if-script-p)
+#+END_SRC
+
+Si algún programa cambia un archivo que esta abierto en GNU/Emacs,
+automáticamente actualizar los cambios
+
+#+BEGIN_SRC emacs-lisp
+(global-auto-revert-mode t)
+#+END_SRC
+
+Guardar la posición en el archivo donde me quedé
+
+#+BEGIN_SRC emacs-lisp
+  (save-place-mode 1)
+  (setq save-place-forget-unreadable-files t
+        save-place-skip-check-regexp "\\`/\\(?:cdrom\\|floppy\\|mnt\\|/[0-9]\\|\\(?:[^@/:]*@\\)?[^@/:]*[^@/:.]:\\)")
+#+END_SRC
+
+
+** Regexp
+
+Emacs tiene /su/ propia versión de expresiones regulares, lo cual hace
+un poco doloroso usarlo, ya que tienes que luchar por recordar si es
+POSIX, Emacs, etc. =[[https://www.emacswiki.org/emacs/VisualRegexp][Visual regexp]]= es un paquete que ayuda con esto.
+
+Usaremos el estilo [[https://www.debuggex.com/cheatsheet/regex/pcre][PCRE]] (/[[https://pcre.org][Perl Compatible Regular Expressions]]/)
+
+
+   #+BEGIN_SRC emacs-lisp
+   (use-package pcre2el)
+   (use-package visual-regexp-steroids
+       :custom
+       (vr/engine 'pcre2el "Use PCRE regular expressions")
+
+       :bind
+       ("C-c r" . vr/replace)
+       ("C-c q" . vr/query-replace))
+   #+END_SRC
+
+** Ayuda
+
+*** =which-key=
+
+=which-key= ayuda a que descubras y explores Emacs. Si inicias a teclear
+un comando y te detienes, =which-key= abre un /buffer/ inferior con sugerencias.
+
+#+BEGIN_SRC emacs-lisp
+    (use-package which-key
+      :ensure t
+      :diminish which-key-mode
+      :config
+      ;; Reemplaza como KEY se muestra en pantalla
+      ;;   KEY → FUNCTION
+      ;; Eg: "C-c", display "right → winner-redo" as "▶ → winner-redo"
+      (setq which-key-key-replacement-alist
+            '(("<\\([[:alnum:]-]+\\)>" . "\\1")
+              ("left"                  . "◀")
+              ("right"                 . "▶")
+              ("up"                    . "▲")
+              ("down"                  . "▼")
+              ("delete"                . "DEL") ; delete key
+              ("\\`DEL\\'"             . "BS") ; backspace key
+              ("next"                  . "PgDn")
+              ("prior"                 . "PgUp"))
+
+            ;; List of "special" keys for which a KEY is displayed as just
+            ;; K but with "inverted video" face... not sure I like this.
+            which-key-special-keys '("RET" "DEL" ; delete key
+                                     "ESC" "BS" ; backspace key
+                                     "SPC" "TAB")
+
+            ;; Replacements for how part or whole of FUNCTION is replaced:
+            which-key-description-replacement-alist
+            '(("Prefix Command" . "prefix")
+              ("\\`calc-"       . "") ; Hide "calc-" prefixes when listing M-x calc keys
+              ("\\`projectile-" . "𝓟/")
+              ("\\`org-babel-"  . "ob/"))
+
+            ;; Underlines commands to emphasize some functions:
+            which-key-highlighted-command-list
+            '("\\(rectangle-\\)\\|\\(-rectangle\\)"
+              "\\`org-"))
+
+
+      (which-key-mode))
+#+END_SRC
+
+*** [[https://github.com/Wilfred/helpful][helpful]]
+Alternativa a la ayuda de Emacs
+
+#+BEGIN_SRC emacs-lisp
+  (use-package helpful
+               :ensure t
+               :bind
+               ("C-h f"   . helpful-callable)
+               ("C-h v"   . helpful-variable)
+               ("C-h k"   . helpful-key)
+               ("C-c C-d" . helpful-at-point)
+               ("C-h F"   . helpful-function)
+               ("C-h C"   . helpful-command))
+#+END_SRC
+
+*** man
+
+#+BEGIN_SRC emacs-lisp
+  (use-package man
+    :ensure t
+    :config
+    (setq Man-notify-method 'pushy)
+    (setq woman-manpath
+          `(
+            "/usr/share/man/" "/usr/local/man/" ;; System
+            (format "%s/local/man" config-basedir) ;; Private environment
+            )))
+#+END_SRC
+** Backups
+
+Todos los backups en un sólo lugar (encontrado [[http://whattheemacsd.com/init.el-02.html][aquí]])
+
+#+BEGIN_SRC emacs-lisp
+     (setq backup-directory-alist
+           `(("." . ,(expand-file-name
+                      (concat user-emacs-directory "backups")))))
+#+END_SRC
+
+Tramp también lo tiene que hacer
+#+BEGIN_SRC emacs-lisp
+(setq tramp-backup-directory-alist backup-directory-alist)
+#+END_SRC
+
+No importa si están bajo =git=
+
+#+BEGIN_SRC emacs-lisp
+(setq vc-make-backup-files t)
+#+END_SRC
+
+Y guardemos todos los archivos si Emacs pierde el foco (tomado de [[http://timothypratley.blogspot.com/2015/07/seven-specialty-emacs-settings-with-big.html][aquí]])
+
+#+BEGIN_SRC emacs-lisp
+  (defun nanounanue/save-all ()
+    "Save all dirty buffers without asking for confirmation."
+    (interactive)
+    (save-some-buffers t))
+
+  (add-hook 'focus-out-hook 'nanounanue/save-all)
+#+END_SRC
+
+** [[https://www.projectile.mx/en/latest/][Projectile]]
+
+#+BEGIN_SRC emacs-lisp
+  (use-package projectile
+    :demand t
+    :ensure t
+    :init
+    (setq projectile-enable-caching t
+          projectile-indexing-method 'alien
+          projectile-globally-ignored-files '(".DS_Store" "Icon" "TAGS")
+          projectile-globally-ignored-file-suffixes '(".elc" ".pyc" ".o" ".class"))
+    :bind-keymap
+    ("C-c p" . projectile-command-map)
+    ("s-p"   . projectile-command-map)
+    :config
+    (projectile-mode +1)
+    (setq projectile-completion-system 'ivy)
+    ;;(setq projectile-switch-project-action 'projectile-dired) ;; The action by default is open dired
+    (setq projectile-switch-project-action 'projectile-find-dir) ;; The action by default is select a directory inside the project
+    (setq projectile-find-dir-includes-top-level t)              ;; including the top directory
+    )
+#+END_SRC
+
+Usar =counsel=
+
+#+BEGIN_SRC emacs-lisp
+(use-package counsel-projectile
+  :ensure t
+  :after projectile
+  :config
+  (counsel-projectile-mode)
+  )
+#+END_SRC
+
+
+** Escribiendo en serio
+
+*** Escribiendo propiamente: [[https://github.com/bnbeckwith/writegood-mode][=writegood-mode=]]
+
+Resalta las malas elecciones de palabras entre otras cosas
+
+#+BEGIN_SRC emacs-lisp
+(use-package writegood-mode
+  :ensure t
+  :bind ("C-c g" . writegood-mode)
+  :config
+  (add-to-list 'writegood-weasel-words "actionable"))
+#+END_SRC
+
+*** "distraction-free writing mode"
+
+#+BEGIN_SRC emacs-lisp
+(use-package writeroom-mode
+  :ensure t)
+#+END_SRC
+
+También se puede usar =[[https://github.com/joaotavora/darkroom][darkroom]]=
+
+#+BEGIN_SRC emacs-lisp
+(use-package darkroom
+  :ensure t
+  :bind
+  ([f7] . darkroom-tentative-mode))
+#+END_SRC
+
+
+* Herramientas
+
+** Git
+
+Muestra los cambios en archivos controlados por =git=
+
+#+BEGIN_SRC emacs-lisp
+  (use-package git-gutter-fringe
+     :ensure t
+     :diminish git-gutter-mode
+     :init (setq git-gutter-fr:side 'right-fringe)
+     :config (global-git-gutter-mode t))
+#+END_SRC
+
+ [[https://github.com/pidu/git-timemachine][Git Time Machine]] permite navegar entre versiones históricas de un archivo
+
+#+BEGIN_SRC emacs-lisp
+(use-package git-timemachine :ensure t)
+#+END_SRC
+
+** [[https://www.emacswiki.org/emacs/EdiffMode][(E)Diff]]
+
+#+BEGIN_SRC emacs-lisp
+(setq diff-switches "-u")
+(autoload 'diff-mode "diff-mode" "Diff major mode" t)
+(setq ediff-auto-refine-limit (* 2 14000))
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+(setq ediff-split-window-function (lambda (&optional arg)
+                    (if (> (frame-width) 160)
+                    (split-window-horizontally arg)
+                      (split-window-vertically arg))))
+#+END_SRC
+
+** Docker
+
+#+BEGIN_SRC emacs-lisp
+  (use-package docker
+               :ensure t)
+
+  (use-package docker-tramp
+               :ensure t)
+
+  (use-package dockerfile-mode
+    :ensure t
+    :delight dockerfile-mode "δ"
+    :mode "Dockerfile$")
+
+  (use-package docker-compose-mode
+               :ensure t
+               :mode "docker-compose.yml")
+#+END_SRC
+
+Para usar =docker-tramp=
+
+#+BEGIN_EXAMPLE
+  C-x C-f /docker:user@container:/path/to/file
+
+  where
+    user           is the user that you want to use (optional)
+    container      is the id or name of the container
+#+END_EXAMPLE
+
+** Tramp
+
+#+BEGIN_SRC emacs-lisp
+(setq tramp-default-method "ssh")
+(setq password-cache-expiry 60)
+(setq tramp-auto-save-directory temporary-file-directory)
+
+;; Debug
+;;(setq tramp-verbose 9)
+(setq tramp-debug-buffer nil)
+
+(use-package counsel-tramp
+  :ensure t)
+
+#+END_SRC
+
+
+
+** Magit
+
+[[http://philjackson.github.com/magit/magit.html][Magit]] es de lo mejor que le ha pasado a Emacs. Este modo junto con
+=org-mode= hacen que mis días en Emacs sean felices.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+    :ensure t
+    :commands magit-status magit-blame
+    :init
+    (defadvice magit-status (around magit-fullscreen activate)
+      (window-configuration-to-register :magit-fullscreen)
+      ad-do-it
+      (delete-other-windows))
+    :config
+    (setq magit-branch-arguments nil
+          ;; use ido to look for branches
+          magit-completing-read-function 'magit-ido-completing-read
+          ;; don't put "origin-" in front of new branch names by default
+          magit-default-tracking-name-function 'magit-default-tracking-name-branch-only
+          magit-push-always-verify nil
+          ;; Get rid of the previous advice to go into fullscreen
+          magit-restore-window-configuration t)
+
+    :bind ("C-x g" . magit-status))
+#+END_SRC
+
+La configuración la tomé de Howard Abrams
+
+Incluir los =TODOs= en la ventana de =magit=
+
+#+BEGIN_SRC emacs-lisp
+(use-package magit-todos
+  :ensure t
+  :config (magit-todos-mode))
+#+END_SRC
+
+** EPUB
+
+Leer archivos =EPUB= en Emacs!
+
+#+BEGIN_SRC emacs-lisp
+(use-package nov
+  :mode ("\\.epub\\'" . nov-mode)
+  :custom (nov-text-width 75))
+#+END_SRC
+
+** Gnuplot
+
+Para gráficas rápidas (incluido desde las tablas de org-mode)
+
+#+BEGIN_SRC shell :dir /sudo::
+apt install gnuplot
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package gnuplot
+  :ensure-system-package gnuplot
+  :defer 2)
+
+(use-package gnuplot-mode
+  :after gnuplot
+  :mode "\\.gp\\'")
+#+END_SRC
+
+** Markdown
+
+Keybindings en [[http://jblevins.org/projects/markdown-mode/][Markdown Mode for Emacs]]
+Tutorial: http://jblevins.org/projects/markdown-mode/
+
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-mode
+  :ensure t
+  :commands (markdown-mode gfm-mode)
+  :delight markdown-mode "μ"
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
+#+END_SRC
+
+*** Preview
+
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-preview-mode
+  :after markdown-mode
+  :custom
+  (markdown-preview-javascript
+   (list (concat "https://github.com/highlightjs/highlight.js/"
+                 "9.15.6/highlight.min.js")
+         "<script>
+            $(document).on('mdContentChange', function() {
+              $('pre code').each(function(i, block)  {
+                hljs.highlightBlock(block);
+              });
+            });
+          </script>"))
+  (markdown-preview-stylesheets
+   (list (concat "https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/"
+                 "3.0.1/github-markdown.min.css")
+         (concat "https://github.com/highlightjs/highlight.js/"
+                 "9.15.6/styles/github.min.css")
+
+         "<style>
+            .markdown-body {
+              box-sizing: border-box;
+              min-width: 200px;
+              max-width: 980px;
+              margin: 0 auto;
+              padding: 45px;
+            }
+
+            @media (max-width: 767px) { .markdown-body { padding: 15px; } }
+          </style>")))
+#+END_SRC
+
+** JSON
+
+#+BEGIN_SRC emacs-lisp
+(use-package json-mode
+  :ensure t
+  :delight json-mode "J"
+  :mode "\\.json"
+  :hook (before-save . nanounanue/json-mode-before-save-hook)
+  :preface
+  (defun nanounanue/json-mode-before-save-hook ()
+    (when (eq major-mode 'json-mode)
+      (json-pretty-print-buffer-ordered)))
+  )
+
+(use-package json-navigator :ensure t)
+(use-package json-reformat :ensure t)
+#+END_SRC
+
+
+** YAML
+
+#+BEGIN_SRC emacs-lisp
+(use-package yaml-mode
+  :ensure t
+  :mode "\\.ya?ml"
+  :config
+  (add-hook 'yaml-mode-hook 'flycheck-mode)
+  (add-hook 'yaml-mode-hook 'flyspell-mode)
+  )
+(use-package yaml-tomato :ensure t)
+#+END_SRC
+
+
+** PlantUML
+
+#+BEGIN_SRC shell :dir /sudo::
+apt install -y plantuml
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package plantuml-mode
+  :mode "\\.plantuml"
+  :config
+  (setq plantuml-jar-path "~/software/org-libs/plantuml.jar")
+  )
+#+END_SRC
+
+
+** Graphviz
+
+#+BEGIN_SRC shell :dir /sudo::
+apt install -y graphviz
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package graphviz-dot-mode
+  :ensure t
+  :mode "\\.dot"
+  :init
+  (defvar default-tab-width nil)
+  )
+#+END_SRC
+
+
+** CSV
+
+#+BEGIN_SRC emacs-lisp
+(use-package csv-mode
+  :ensure t
+  :mode "\\.[PpTtCc][Ss][Vv]\\'"
+
+  :config
+  (progn
+    (setq csv-separators '("," ";" "|" " " "\t"))
+    )
+  )
+#+END_SRC
+
+
+** SSH
+
+#+BEGIN_SRC emacs-lisp
+(use-package ssh :ensure t)
+#+END_SRC
+
+[[https://github.com/cjohansson/emacs-ssh-deploy][ssh-deploy]]
+
+#+BEGIN_QUOTE
+The ssh-deploy plug-in for Emacs makes it possible to effortlessly
+deploy local files and directories to remote hosts via Tramp
+(including but not limited to SSH, SFTP, FTP). It tries to provide
+functions that can be easily used by custom scripts.
+#+END_QUOTE
+
+#+BEGIN_SRC emacs-lisp
+(use-package ssh-deploy :ensure t)
+#+END_SRC
+
+** Archivos de configuración
+
+#+BEGIN_SRC emacs-lisp
+  (use-package nginx-mode
+    :ensure t)
+
+  (use-package apache-mode
+    :ensure t
+    :mode (
+           ("\\.htaccess\\'"   . apache-mode)
+           ("httpd\\.conf\\'"  . apache-mode)
+           ("srm\\.conf\\'"    . apache-mode)
+           ("access\\.conf\\'" . apache-mode)
+           ("sites-\\(available\\|enabled\\)/" . apache-mode)
+           )
+    )
+
+
+  (use-package syslog-mode
+    :mode "\\.log$")
+
+  (use-package config-general-mode
+    :ensure t
+    :mode (
+           ("\\.conf$" . config-general-mode)
+           ("\\.*rc$"  . config-general-mode)
+           )
+    )
+
+  (use-package ssh-config-mode
+    :ensure t
+    :config
+    (autoload 'ssh-config-mode "ssh-config-mode" t)
+    :mode (("/\\.ssh/config\\'"     . ssh-config-mode)
+           ("/system/ssh\\'"        . ssh-config-mode)
+           ("/sshd?_config\\'"      . ssh-config-mode)
+           ("/known_hosts\\'"       . ssh-known-hosts-mode)
+           ("/authorized_keys2?\\'" . ssh-authorized-keys-mode)
+           )
+    :init
+    (add-hook 'ssh-config-mode-hook 'turn-on-font-lock))
+
+  (use-package logview
+    :ensure t
+    :mode (
+           ("syslog\\(?:\\.[0-9]+\\)" . logview-mode)
+           ("\\.log\\(?:\\.[0-9]+\\)?\\'" . logview-mode)
+           )
+    )
+
+  (use-package gitconfig-mode
+    :ensure t)
+
+  (use-package gitignore-mode
+    :ensure t)
+
+#+END_SRC
+
+
+** [[https://github.com/wasamasa/eyebrowse][eyebrowse]]
+
+| Key                   | Explicación                         |
+|-----------------------+-------------------------------------|
+| =C-c C-w [un número]= | mover/crear /window configurations/ |
+| =C-c C-w "=           | cerrar el /window config/           |
+| =C-c C-w ,=           | nombrar el /window config/          |
+| =C-c C-w [< > ']=     | navegar entre /window config/       |
+
+#+BEGIN_SRC emacs-lisp
+  (use-package eyebrowse
+    :ensure t
+    :config
+    (eyebrowse-mode)
+  (set-face-attribute 'eyebrowse-mode-line-active nil :underline t :bold nil))
+#+END_SRC
+
+* Pegar
+
+#+BEGIN_QUOTE
+This mode allows to paste whole buffers or parts of buffers to
+pastebin-like services. It supports more than one service and will
+failover if one service fails.
+
+[[https://github.com/etu/webpaste.el][Elis Hirwing]]
+#+END_QUOTE
+
+#+BEGIN_SRC emacs-lisp
+(use-package webpaste
+  :defer 1
+  :custom (webpaste-provider-priority '("ix.io" "dpaste.com")))
+#+END_SRC
+
+#+BEGIN_QUOTE
+ This package (=imgbb=) selects an image and upload it to imgbb, making sure to
+ display the URL of the image in the minibuffer and place it in the
+ kill ring.
+#+END_QUOTE
+
+#+BEGIN_SRC emacs-lisp
+(use-package imgbb :defer 2)
+#+END_SRC
+
+* Archivos recientes
+
+#+BEGIN_SRC emacs-lisp
+(use-package recentf
+  :bind ("C-c r" . recentf-open-files)
+  :init (recentf-mode)
+  :custom
+  (recentf-exclude (list "COMMIT_EDITMSG"
+                         "~$"
+                         "/scp:"
+                         "/ssh:"
+                         "/sudo:"
+                         "/tmp/"))
+  (recentf-max-menu-items 15)
+  (recentf-max-saved-items 200)
+  (recentf-save-file (expand-file-name (format "%s/emacs/recentf" xdg-cache)))
+  :config (run-at-time nil (* 5 60) 'recentf-save-list))
+#+END_SRC
+
+* Presentaciones
+
+** =demo-it=
+
+Paquete para hacer demostraciones. Ver por ejemplo:
+
+- [[https://www.youtube.com/watch?v=WZVZXp-i7jQ][Demostration of demo-it]]
+- [[https://github.com/howardabrams/demo-it][Repositorio de demo-it]]
+
+ #+BEGIN_SRC emacs-lisp
+ (use-package demo-it
+   :ensure t)
+ #+END_SRC
+
+
+
+* Finalmente ...
+
+#+BEGIN_SRC emacs-lisp
+(provide 'setup-main)
+#+END_SRC

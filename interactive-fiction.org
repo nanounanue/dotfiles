@@ -1,0 +1,26 @@
+* Interactive fiction
+
+** Emulators
+
+#+BEGIN_SRC sh :tangle no
+apt install dosemu dosbox frotz uudeview
+#+END_SRC
+
+** ZORK
+
+#+BEGIN_SRC sh :tangle no
+frotz ZORKI
+#+END_SRC
+
+** Mindwheel
+
+#+BEGIN_SRC sh :tangle no
+dosbox mindwheel
+#+END_SRC
+
+
+** Dunnet
+
+#+BEGIN_SRC emacs-lisp
+(dunnet)
+#+END_SRC

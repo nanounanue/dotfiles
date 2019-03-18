@@ -1,0 +1,96 @@
+#+TITLE: Fuentes
+#+AUTHOR: Adolfo De Unánue
+#+EMAIL: nanounanue@gmail.com
+#+STARTUP: showeverything
+#+STARTUP: nohideblocks
+#+STARTUP: indent
+#+PROPERTY:    header-args  :tangle no
+#+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+
+
+
+* Fonts
+
+** [[https://github.com/powerline/fonts][Powerline fonts]]
+
+#+BEGIN_SRC sh :dir /sudo::
+apt-get install fonts-powerline
+#+END_SRC
+
+#+RESULTS:
+
+** Hack
+
+#+BEGIN_SRC shell :dir ~/.fonts
+wget https://github.com/source-foundry/Hack/releases/download/v3.003/Hack-v3.003-ttf.zip && \
+unzip Hack-v3.003-ttf.zip && \
+rm Hack-3.003-ttf.zip
+#+END_SRC
+
+** Overpass (RedHat)
+
+#+BEGIN_SRC shell :dir ~/.fonts
+wget https://github.com/RedHatBrand/Overpass/releases/download/3.0.2/overpass-desktop-fonts.zip && \
+unzip overpass-desktop-fonts.zip && \
+rm overpass-desktop-fonts.zip
+#+END_SRC
+
+** Iosevka
+
+#+BEGIN_SRC shell :dir ~/.fonts
+wget  https://github.com/be5invis/Iosevka/releases/download/v2.1.0/iosevka-ss09-2.1.0.zip && \
+unzip iosevka-ss09-2.1.0.zip  && \
+rm iosevka-ss09-2.1.0.zip
+#+END_SRC
+
+** Fira
+
+#+BEGIN_SRC sh :dir /sudo::
+apt-get install -y fonts-firacode
+#+END_SRC
+
+
+** Inconsolata
+
+#+BEGIN_SRC sh :dir /sudo::
+apt-get install -y fonts-inconsolata
+#+END_SRC
+
+** Ricty
+
+#+BEGIN_SRC sh :dir /sudo::
+apt-get install -y fonts-ricty-diminished
+#+END_SRC
+
+** Source Code Pro
+
+#+BEGIN_SRC shell :dir ~/.fonts
+git clone https://github.com/adobe-fonts/source-code-pro.git scp
+#+END_SRC
+
+
+** Source Sans Pro
+
+#+BEGIN_SRC shell :dir ~/.fonts
+wget https://github.com/adobe-fonts/source-sans-pro/releases/download/2.010R-ro%2F1.065R-it/source-sans-pro-2.010R-ro-1.065R-it.zip && \
+unzip source-sans-pro-2.010R-ro-1.065R-it.zip && \
+rm source-sans-pro-2.010R-ro-1.065R-it.zip
+#+END_SRC
+
+** Haskling
+
+#+BEGIN_SRC shell :dir ~/.fonts
+wget https://github.com/i-tu/Hasklig/releases/download/1.1/Hasklig-1.1.zip && \
+unzip Hasklig-1.1.zip && \
+rm Hasklig-1.1.zip
+#+END_SRC
+
+
+* Actualizar el /cache/ de fuentes
+
+#+BEGIN_SRC shell :dir /sudo::
+fc-cache -f -v
+#+END_SRC

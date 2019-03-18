@@ -1,0 +1,172 @@
+#+TITLE:  Emacs Lisp
+#+AUTHOR: Adolfo De Unánue
+#+EMAIL:  nanounanue@gmail.coom
+#+STARTUP: showeverything
+#+STARTUP: nohideblocks
+#+STARTUP: indent
+#+PROPERTY:    header-args:shell     :tangle no
+#+PROPERTY:    header-args:emacs-lisp  :tangle ~/.emacs.d/elisp/setup-elisp.el
+#+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
+#+PROPERTY:    comments no
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+TAGS:   programming emacs-lisp
+
+* TODO Ver [[https://www.youtube.com/watch?v=QFClYrhV1z4][John Wiegley's talk]]
+
+
+* Introducción
+
+  Documentación interna de Emacs:
+
+    - =C-h i= :: Incluyendo la [[info:eintr#Top][Introducción a Elisp]] y la [[info:elisp#Top][Full Reference]]
+    - =C-h f= :: Describir una función
+    - =C-h v= :: Descripción de una variable con su valor actual y anterior
+    - =C-h S= :: Buscar Info basado en el nombre la función o de una variable
+
+* Emacs Lisp
+
+#+BEGIN_SRC emacs-lisp
+(use-package lisp-mode
+  :ensure nil
+  :init
+  (defconst lisp--prettify-symbols-alist
+    '(("lambda"  . ?λ)                  ; Shrink this
+      ("."       . ?•)))                ; Enlarge this
+
+  :bind (("C-c e i" . ielm))
+  :delight emacs-lisp-mode "ξ"
+  :config
+  (add-hook 'emacs-lisp-mode-hook 'global-prettify-symbols-mode)
+  (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
+  (add-hook 'emacs-lisp-mode-hook 'aggressive-indent-mode)
+
+  ;; Bind some prefixes to a couple of mode maps:
+  (bind-keys :map emacs-lisp-mode-map
+             :prefix-map lisp-find-map
+             :prefix "C-h e"
+             ("e" . view-echo-area-messages)
+             ("f" . find-function)
+             ("k" . find-function-on-key)
+             ("l" . find-library)
+             ("v" . find-variable)
+             ("V" . apropos-value))
+
+  (dolist (m (list emacs-lisp-mode-map lisp-interaction-mode-map))
+    (bind-keys :map m
+               :prefix-map lisp-evaluation-map
+               :prefix "C-c e"
+               ("b" . eval-buffer)
+               ("r" . eval-region)
+               ("c" . eval-and-comment-output) ;; Defined below
+               ("o" . eval-and-comment-output)
+               ("d" . toggle-debug-on-error)
+               ("f" . emacs-lisp-byte-compile-and-load))))
+#+END_SRC
+
+* /Matching/ de Paréntesis
+
+Por recomendación del [[https://lispcookbook.github.io/cl-cookbook/emacs-ide.html][Common Lisp Cookbook]], usaremos [[http://shaunlebron.github.io/parinfer/][Parinfer]]
+
+#+BEGIN_SRC emacs-lisp
+  (use-package parinfer
+    :ensure t
+    :bind
+    (("C-," . parinfer-toggle-mode))
+    :init
+    (progn
+      (setq parinfer-extensions
+            '(defaults       ; should be included.
+              pretty-parens  ; different paren styles for different modes.
+              evil           ; If you use Evil.
+              lispy          ; If you use Lispy. With this extension, you should install Lispy and do not enable lispy-mode directly.
+              paredit        ; Introduce some paredit commands.
+              smart-tab      ; C-b & C-f jump positions and smart shift with tab & S-tab.
+              smart-yank))   ; Yank behavior depend on mode.
+      (add-hook 'clojure-mode-hook #'parinfer-mode)
+      (add-hook 'emacs-lisp-mode-hook #'parinfer-mode)
+      (add-hook 'common-lisp-mode-hook #'parinfer-mode)
+      (add-hook 'scheme-mode-hook #'parinfer-mode)
+      (add-hook 'lisp-mode-hook #'parinfer-mode)))
+#+END_SRC
+
+* Paredit
+
+El mítico =paredit=.  [[http://pub.gajendra.net/src/paredit-refcard.pdf][Cheatsheet]]
+
+#+BEGIN_SRC emacs-lisp
+(use-package paredit
+  :ensure t
+  :diminish "﹙﹚"
+  :init
+  (dolist (m (list 'emacs-lisp-mode-hook 'lisp-interaction-mode-hook 'eval-expression-minibuffer-setup-hook 'ielm-mode-hook))
+    (add-hook m 'enable-paredit-mode)))
+#+END_SRC
+
+* Navegación: [[https://github.com/abo-abo/lispy][Lispy]]
+
+
+#+BEGIN_SRC emacs-lisp
+(use-package lispy
+  :ensure t
+  :defer t
+  :bind (:map lispy-mode-map
+         ("C-1" . nil)
+         ("C-2" . nil)
+         ("C-3" . nil)
+         ("C-4" . nil))
+  :init
+  (dolist (hook '(emacs-lisp-mode-hook
+                  lisp-interaction-mode-hook
+                  lisp-mode-hook
+                  clojure-mode-hook))
+    (add-hook hook (lambda () (lispy-mode 1)))))
+#+END_SRC
+
+* Evaluación
+
+Integremos [[https://www.emacswiki.org/emacs/InferiorEmacsLispMode][Inferior Emacs Lisp Mode]] (IELM) con =eldoc=
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ielm
+    :ensure nil
+    :init
+    (add-hook 'ielm-mode-hook 'turn-on-eldoc-mode))
+#+END_SRC
+
+El [[https://github.com/xiongtx/eros][EROS project]] despliega los resultados de la evaluación
+(/temporalmente/) en el /buffer/
+
+#+BEGIN_SRC emacs-lisp
+  (use-package eros
+    :ensure t
+    :init
+    (add-hook 'emacs-lisp-mode-hook (lambda () (eros-mode 1))))
+#+END_SRC
+
+Por ejemplo, en el siguiente bloque, teclea =C-x C-e=
+
+#+BEGIN_SRC emacs-lisp :tangle no
+(number-sequence 1 10)
+#+END_SRC
+
+
+* /Debugging/
+
+Incluido en Emacs. Simplemente agregar =C-u= anes de que evalues una
+función y entrarás al debugger.
+
+Algunos /key-bindings/:
+  - =SPC= :: To stop at the next /stop point/
+  - =b= :: Set a breakpoint and =q= to execute until that breakpoint
+  - =q= :: quit the debugger (other commands, hit =?= to see what is available)
+
+[[https://www.gnu.org/software/emacs/manual/html_node/elisp/Using-Edebug.html][Tutorial/Introducción]]
+
+
+* Al final
+
+#+BEGIN_SRC emacs-lisp
+(provide 'setup-elisp)
+#+END_SRC

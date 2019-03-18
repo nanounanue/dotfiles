@@ -1,0 +1,68 @@
+#+TITLE:     i3wm
+#+AUTHOR:    Adolfo De Unánue
+#+EMAIL:     nanounanue@gmail.com
+#+STARTUP: showeverything
+#+STARTUP: nohideblocks
+#+STARTUP: indent
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+
+
+* Instalación
+
+* /Key bindings/
+
+* config
+
+
+* i3blocks
+
+
+* i3status
+
+
+* scripts
+
+** bandwidth
+
+** battery
+
+** cpu_usage
+
+** disk
+
+
+** i3exit
+
+** i3lock_ffmpeg
+
+** i3lock
+
+** iface
+
+** keyindicator
+
+** key_layout
+
+** layout-toggle.sh
+
+** load_average
+** memory
+
+** openvpn
+
+** temperature
+
+** colume
+
+** wifi
+
+* Aplicaciones
+
+
+** rofi
+
+** neofetch
+
+* Gestión de monitores
