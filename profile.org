@@ -7,22 +7,47 @@
 
 * Funciones
 
-#+BEGIN_SRC sh
+#+BEGIN_SRC shell
 function projects() {
     cd ~/projects/$1
 }
 #+END_SRC
 
+
+* Estructura de archivos
+
+Intentando la estructura de archivos =XDG=
+
+Ver [[(https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html][la especificación aquí]]
+
+| Variable          | Location             |
+| ----------------- | -------------------- |
+| =XDG_BIN_HOME=      | =~/.local/bin=         |
+| =XDG_CACHE_HOME=    | =~/.cache=             |
+| =XDG_CONFIG_HOME=   | =~/.config=            |
+| =XDG_DATA_HOME=     | =~/.local/share=       |
+| =XDG_LIB_HOME=      | =~/.local/lib=         |
+
+#+BEGIN_SRC shell
+export XDG_BIN_HOME=~/.local/bin
+export XDG_CACHE_HOME=~/.cache
+export XDG_CONFIG_HOME=~/.config
+export XDG_DATA_HOME=~/.local/share
+export XDG_LIB_HOME=~/.local/lib
+#+END_SRC
+
+*NOTA*: =XDG_BIN_HOME= y =XDG_LIB_HOME= no son estándar.
+
 * Environment
 
-#+BEGIN_SRC sh
+#+BEGIN_SRC shell
 HISTSIZE=5000
 SAVEHIST=$HISTSIZE
 #+END_SRC
 
 ** Scrolling horizontal
 
- #+BEGIN_SRC sh
+ #+BEGIN_SRC shell
 export PAGER=less
 export LESS="-iMRSx4 -FX"
  #+END_SRC
@@ -31,11 +56,11 @@ export LESS="-iMRSx4 -FX"
 
 ** GNU/Emacs
 
- #+BEGIN_SRC shell
+#+BEGIN_SRC shell
 export ALTERNATE_EDITOR=emacs
 export EDITOR="emacsclient -c"
 export VISUAL="emacsclient -c"
- #+END_SRC
+#+END_SRC
 
 A veces, si abres Emacs en la terminal, se ve horrible :(, esto lo arregla:
 
