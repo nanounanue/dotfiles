@@ -3,7 +3,7 @@
 #+EMAIL:     nanounanue@gmail.com
 
 * Clientes de bases de datos
-** PostgreSQL  
+** PostgreSQL
 
  #+BEGIN_SRC text :tangle ~/.psqlrc
 -- http://www.postgresql.org/docs/9.3/static/app-psql.html#APP-PSQL-PROMPTING

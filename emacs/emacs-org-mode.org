@@ -98,8 +98,11 @@ Esto también lo vamos a ocupar
   :config
   (require 'ob-async))
 
+;;(quelpa-use-package-activate-advice)
+
 (use-package jupyter
-  :ensure t)
+  :ensure t
+  :quelpa ((jupyter :fetcher github :repo "dzop/emacs-jupyter") :upgrade t))
 
 (use-package ob-mongo
   :ensure t
@@ -155,6 +158,8 @@ Esto también lo vamos a ocupar
 
 #+BEGIN_SRC emacs-lisp :noweb yes
   (use-package org
+    :ensure org-plus-contrib
+    :pin org
     :mode
     ("\\.org\\'" . org-mode)
     ("\\.txt\\'" . org-mode)

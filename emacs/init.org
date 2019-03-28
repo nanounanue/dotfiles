@@ -139,6 +139,19 @@ Es nuevo, y forzar el autocompilar
 
 ** Paquetes de soporte
 
+*** quelpa
+
+=quelpa= es una herramienta para /build/ e instalar paquetes. Una de sus
+principales ventajas es que puede instalar desde =github=.
+
+#+BEGIN_SRC emacs-lisp
+(use-package quelpa
+  :ensure t)
+
+(use-package quelpa-use-package
+  :ensure t)
+#+END_SRC
+
 *** Paradox
 
 [[https://github.com/Malabarba/paradox][Paradox]] moderniza la lista de paquetes de Emacs
