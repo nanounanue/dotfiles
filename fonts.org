@@ -16,11 +16,16 @@
 
 ** [[https://github.com/powerline/fonts][Powerline fonts]]
 
+*** Debian based
 #+BEGIN_SRC sh :dir /sudo::
 apt-get install fonts-powerline
 #+END_SRC
 
-#+RESULTS:
+*** Archlinux based
+#+BEGIN_SRC sh :dir /sudo::
+pacman -S powerline-fonts
+#+END_SRC
+
 
 ** Hack
 
@@ -48,27 +53,58 @@ rm iosevka-ss09-2.1.0.zip
 
 ** Fira
 
+*** Debian based
 #+BEGIN_SRC sh :dir /sudo::
 apt-get install -y fonts-firacode
 #+END_SRC
 
+*** Archlinux based
+#+BEGIN_SRC sh :dir /sudo::
+pacman -S nerdfonts-fira-code
+#+END_SRC
+
+
 
 ** Inconsolata
+
+*** Debian based
 
 #+BEGIN_SRC sh :dir /sudo::
 apt-get install -y fonts-inconsolata
 #+END_SRC
 
+*** Archlinux based
+
+#+BEGIN_SRC sh :dir /sudo::
+pacman -S ttf-inconsolata
+#+END_SRC
+
+
 ** Ricty
 
+*** Debian based
 #+BEGIN_SRC sh :dir /sudo::
 apt-get install -y fonts-ricty-diminished
 #+END_SRC
+
+*** Archlinux based
+#+BEGIN_SRC sh :dir /sudo::
+pacman -S ttf-ricty
+#+END_SRC
+
+
+
 
 ** Source Code Pro
 
 #+BEGIN_SRC shell :dir ~/.fonts
 git clone https://github.com/adobe-fonts/source-code-pro.git scp
+#+END_SRC
+
+*** Archlinux based
+
+#+BEGIN_SRC sh
+ yaourt -S adobe-source-code-pro-fonts
 #+END_SRC
 
 
@@ -79,6 +115,13 @@ wget https://github.com/adobe-fonts/source-sans-pro/releases/download/2.010R-ro%
 unzip source-sans-pro-2.010R-ro-1.065R-it.zip && \
 rm source-sans-pro-2.010R-ro-1.065R-it.zip
 #+END_SRC
+
+*** Archlinux based
+
+#+BEGIN_SRC sh
+yaourt -S ttf-sourcesanspro
+#+END_SRC
+
 
 ** Haskling
 
