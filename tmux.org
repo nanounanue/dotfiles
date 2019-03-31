@@ -10,6 +10,14 @@
 
 * Tmux
 
+** Installar tmux plugins
+
+
+#+BEGIN_SRC sh :tangle no
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+#+END_SRC
+
+
 **  Configuración local: =tmux.conf=
 #+BEGIN_SRC sh :tangle ~/.tmux.conf
 set -g history-limit 50000
@@ -331,7 +339,7 @@ bind -T off F12 \
 # Run all plugins' scripts
 run '~/.tmux/plugins/tpm/tpm'
 
- #+END_SRC
+#+END_SRC
 
 * =tmux.remote.conf=
 
