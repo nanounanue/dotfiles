@@ -68,6 +68,14 @@ A veces, si abres Emacs en la terminal, se ve horrible :(, esto lo arregla:
 export TERM=xterm-256color
 #+END_SRC
 
+** i3wm
+
+=i3wm-sensible-terminal= abre el emulador de terminal definido en esta variable
+
+#+BEGIN_SRC shell
+export TERMINAL="sakura"
+#+END_SRC
+
 ** Pyenv
 
 Instalar =pyenv=

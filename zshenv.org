@@ -10,7 +10,6 @@
 
  #+BEGIN_SRC shell
 export DEFAULT_USER="$USER"
-export TERMINAL="sakura"
  #+END_SRC
 
 * Profile
