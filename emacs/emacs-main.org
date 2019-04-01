@@ -66,20 +66,22 @@ No quiero teclear =yes= o =no= ...
 al final de la página, avanza una linea, en lugar de hacer un =page down=
 
 #+BEGIN_SRC emacs-lisp
-(setq scroll-margin 3
-      scroll-conservatively 101
-      scroll-up-aggressively 0.01
-      scroll-down-aggressively 0.01
-      scroll-preserve-screen-position t
-      auto-window-vscroll nil
-      hscroll-margin 5
-      hscroll-step 5)
+;; scroll one line at a time (less "jumpy" than defaults)
+
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
+
+(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
+
+(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+
+(setq scroll-step 1) ;; keyboard scroll one line at a time
 #+END_SRC
 
 Y queremos hacer /scrooling/ suave (línea por línea)
 
 #+BEGIN_SRC emacs-lisp
 (use-package smooth-scrolling
+  :disabled t
   :config
   (smooth-scrolling-mode 1))
 #+END_SRC
