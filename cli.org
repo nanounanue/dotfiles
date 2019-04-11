@@ -4,121 +4,86 @@
 #+STARTUP: showeverything
 #+STARTUP: nohideblocks
 #+STARTUP: indent
+#+PROPERTY:    header-args:shell  :tangle no
+#+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
 
 * Bat
 
-From https://github.com/sharkdp/bat
-
-
-** Installation
+Tomado de  https://github.com/sharkdp/bat
 
 #+BEGIN_SRC sh
 wget  -q -O /tmp/bat.deb https://github.com/sharkdp/bat/releases/download/v0.5.0/bat_0.5.0_amd64.deb
-# sudo dpkg -i /tmp/bat.deb
 #+END_SRC
 
-#+RESULTS:
-
-** Configuration
-
-#+BEGIN_SRC sh
-alias cat='bat'
+#+BEGIN_SRC sh :dir /sudo::
+dpkg -i /tmp/bat.deb
 #+END_SRC
 
 * PrettyPing
 
-From http://denilson.sa.nom.br/prettyping/
+Tomado de  http://denilson.sa.nom.br/prettyping/
 
 #+BEGIN_SRC sh
-wget -q -O ~/bin/prettyping  https://raw.githubusercontent.com/denilsonsa/prettyping/master/prettyping
+wget -q -O ~/bin/prettyping  https://raw.githubusercontent.com/denilsonsa/prettyping/master/prettyping 
+#+END_SRC
+
+#+BEGIN_SRC sh
 chmod +x ~/bin/prettyping
 #+END_SRC
 
-#+RESULTS:
 
 * Htop
 
-#+BEGIN_SRC sh
-alias top="sudo htop"
+#+BEGIN_SRC sh :dir /sudo::
+apt install htop
 #+END_SRC
 
 * diff-so-fancy
 
-From https://github.com/so-fancy/diff-so-fancy
+Tomado de  https://github.com/so-fancy/diff-so-fancy
 
 #+BEGIN_SRC sh
-wget -q -O ~/bin/diff-so-fancy https://raw.githubusercontent.com/so-fancy/diff-so-fancy/master/third_party/build_fatpack/diff-so-fancy
+wget -q -O ~/bin/diff-so-fancy https://raw.githubusercontent.com/so-fancy/diff-so-fancy/master/third_party/build_fatpack/diff-so-fancy && \
 chmod +x ~/bin/diff-so-fancy
-git config --global core.pager "diff-so-fancy | less --tabs=4 -RFX"
-
-git config --global color.ui true
-
-git config --global color.diff-highlight.oldNormal    "red bold"
-git config --global color.diff-highlight.oldHighlight "red bold 52"
-git config --global color.diff-highlight.newNormal    "green bold"
-git config --global color.diff-highlight.newHighlight "green bold 22"
-
-git config --global color.diff.meta       "yellow"
-git config --global color.diff.frag       "magenta bold"
-git config --global color.diff.commit     "yellow bold"
-git config --global color.diff.old        "red bold"
-git config --global color.diff.new        "green bold"
-git config --global color.diff.whitespace "red reverse"
 #+END_SRC
-
-#+RESULTS:
-
 
 * fd
 
-From https://github.com/sharkdp/fd/
+Tomado de  https://github.com/sharkdp/fd/
 
 #+BEGIN_SRC sh
 wget -q -O /tmp/fd.deb https://github.com/sharkdp/fd/releases/download/v7.1.0/fd_7.1.0_amd64.deb
-#sudo dpkg -i /tmp/fd.deb
 #+END_SRC
 
-#+RESULTS:
-: sudo: no tty present and no askpass program specified
+#+BEGIN_SRC sh :dir /sudo::
+dpkg -i /tmp/fd.deb
+#+END_SRC
+
 
 For help use: =fd --help=
 
 
 * Fzf
 
-From https://github.com/junegunn/fzf
+Tomado de  https://github.com/junegunn/fzf
 
 #+BEGIN_SRC sh
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/software/fzf
-~/software/fzf/install
 #+END_SRC
+
+Luego de clonar, es necesario ejecutar lo siguiente:
+
+#+BEGIN_EXAMPLE sh
+~/software/fzf/install
+#+END_EXAMPLE
 
 Usage examples in https://github.com/junegunn/fzf/wiki/examples
 
-#+BEGIN_SRC sh
-alias preview="fzf --preview 'bat --color \"always\" {}'"
-# add support for ctrl+o to open selected file in VS Code
-export FZF_DEFAULT_OPTS="--bind='ctrl-o:execute(code {})+abort' --ansi --layout=reverse --inline-info"
-#+END_SRC
-
-
-And we can connect it to =fd=
-
-#+BEGIN_SRC sh
-export FZF_DEFAULT_COMMAND="fd --type file --follow --hidden --exclude .git --color=always"
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-#+END_SRC
-
-
 * ncdu
 
-#+BEGIN_SRC sh
-# sudo apt install ncdu
-alias du="ncdu --color dark -rr -x --exclude .git --exclude node_modules"
-#+END_SRC
-
-* tldr
-
-#+BEGIN_SRC sh
-#sudo npm install -g tldr
-#+END_SRC
+  #+BEGIN_SRC sh :dir /sudo::
+  apt install ncdu
+  #+END_SRC

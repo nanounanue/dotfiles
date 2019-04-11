@@ -14,6 +14,7 @@
     editor = emacsclient -t
     whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol
     excludesfile = ~/.gitignore
+    pager = diff-so-fancy | less --tabs=4 -RFX
 
 [web]
     browser = chrome
@@ -26,7 +27,7 @@
     autoupdate = 1
 
 [color]
-    ui = auto
+    ui = true
 
 [color "branch"]
     current = yellow bold
@@ -34,11 +35,18 @@
     remote = cyan bold
 
 [color "diff"]
-    meta = yellow bold
+    meta = yellow
     frag = magenta bold
+    commit = yellow bold
     old = red bold
     new = green bold
     whitespace = red reverse
+
+[color "diff-highlight"]
+    oldNormal = red bold
+    oldHighlight = red bold 52
+    newNormal = green bold
+    newHighlight = green bold 22
 
 [color "status"]
     added = green bold
@@ -167,6 +175,7 @@
     versiontag = v
 
 #+END_SRC
+
 
 * Gitignore global
 

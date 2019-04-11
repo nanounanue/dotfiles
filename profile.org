@@ -3,6 +3,10 @@
 #+EMAIL:  nanounanue@gmail.com
 #+DESCRIPTION: Configuración global para el shell
 #+PROPERTY: header-args:shell :tangle ~/.profile :shebang #!/bin/sh :comments org
+#+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
 
 
 * Funciones
@@ -27,6 +31,10 @@ Ver [[(https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.h
 | =XDG_CONFIG_HOME=   | =~/.config=            |
 | =XDG_DATA_HOME=     | =~/.local/share=       |
 | =XDG_LIB_HOME=      | =~/.local/lib=         |
+
+#+BEGIN_SRC shell :tangle no
+mkdir -p ~/.local/bin ~/local/lib
+#+END_SRC
 
 #+BEGIN_SRC shell
 export XDG_BIN_HOME=~/.local/bin
@@ -72,6 +80,11 @@ export TERM=xterm-256color
 
 =i3wm-sensible-terminal= abre el emulador de terminal definido en esta variable
 
+#+BEGIN_SRC sh :tangle no :dir /sudo::
+apt install sakura
+#+END_SRC
+
+
 #+BEGIN_SRC shell
 export TERMINAL="sakura"
 #+END_SRC
@@ -92,31 +105,80 @@ eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 #+END_SRC
 
+Python requiere algunos paquetes para poder ser instalado desde el
+código fuente (tomado de [[https://github.com/pyenv/pyenv/wiki/Common-build-problems][aquí]]):
+
+#+BEGIN_SRC sh :tangle no :dir /sudo::
+apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev \
+libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
+xz-utils tk-dev libffi-dev liblzma-dev python-openssl git
+#+END_SRC
+
+
 Y luego instalamos algunas versiones de python
 
-#+BEGIN_SRC sh :tangle no
-pyenv install 3.6.3
-pyenv global 3.6.3
+
+#+BEGIN_SRC shell :tangle no
+pyenv install 3.6.8 && \
+pyenv global 3.6.8
 #+END_SRC
 
 
 Para crear un ambiente virtual:
 
-#+BEGIN_SRC sh :tangle no
+#+BEGIN_SRC shell:tangle no
 pyenv virtualenv $NAME
 #+END_SRC
 
 Para activarlo/desactivarlo manualmente
 
-#+BEGIN_SRC sh :tangle no
+#+BEGIN_SRC shell:tangle no
 pyenv activate $NAME
 pyenv deactivate $NAME
 #+END_SRC
 
 o para activarlo de manera automática en un directorio:
 
-#+BEGIN_SRC sh :tangle no
+#+BEGIN_SRC shell:tangle no
 echo $NAME > .python-version
+#+END_SRC
+
+
+** Fzf
+
+Consulta https://github.com/junegunn/fzf#fuzzy-completion-for-bash-and-zsh
+
+#+BEGIN_SRC shell
+export FZF_DEFAULT_COMMAND="fd --type file --follow --hidden --exclude .git --color=always"
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+#+END_SRC
+
+#+BEGIN_SRC shell
+# add support for ctrl+o to open selected file in VS Code
+export FZF_DEFAULT_OPTS="--bind='ctrl-o:execute(code {})+abort' --ansi --layout=reverse --inline-info"
+#+END_SRC
+
+
+#+BEGIN_SRC shell
+# Options to fzf command
+export FZF_COMPLETION_OPTS='+c -x'
+
+# Use fd (https://github.com/sharkdp/fd) instead of the default find
+# command for listing path candidates.
+# - The first argument to the function ($1) is the base path to start traversal
+# - See the source code (completion.{bash,zsh}) for the details.
+_fzf_compgen_path() {
+  fd --hidden --follow --exclude ".git" . "$1"
+}
+
+# Use fd to generate the list for directory completion
+_fzf_compgen_dir() {
+  fd --type d --hidden --follow --exclude ".git" . "$1"
+}
+#+END_SRC
+
+#+BEGIN_SRC shell
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 #+END_SRC
 
 * Aliases
@@ -134,7 +196,6 @@ alias et="emacsclient -nw"
 alias gs="git status"
  #+END_SRC
 
-
 ** SSH Tunneling (DSaPP)
 
   #+BEGIN_SRC shell
@@ -142,6 +203,15 @@ alias gs="git status"
   alias dsapp-status='ssh -TO check dsapp-tunnel'
   alias dsapp-down='ssh -TO exit dsapp-tunnel'
   #+END_SRC
+
+** CLI
+
+#+BEGIN_SRC shell
+alias cat="bat"
+alias top="sudo htop"
+alias preview="fzf --preview 'bat --color \"always\" {}'"
+alias du="ncdu --color dark -rr -x --exclude .git --exclude node_modules"
+#+END_SRC
 
 
 * Paths

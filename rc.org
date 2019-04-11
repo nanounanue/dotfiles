@@ -78,7 +78,14 @@ escape ^Bb
 defscrollback 10000
 #+END_SRC
 
+
 * Nano
+
+#+BEGIN_SRC sh :tangle no
+mkdir -p ~/tmp/nano-backups
+#+END_SRC
+
+#+RESULTS:
 
 #+BEGIN_SRC text :tangle ~/.nanorc
 

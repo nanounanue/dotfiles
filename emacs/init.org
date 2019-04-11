@@ -11,12 +11,39 @@
 #+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
 #+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
 
-
 Basado en
 
 - https://github.com/zzamboni/dot-emacs/blob/master/init.org
 
 
+
+* Instalar GNU/Emacs
+
+#+BEGIN_SRC shell :dir ~/software
+git clone --depth 1 git://git.sv.gnu.org/emacs.git
+#+END_SRC
+
+#+BEGIN_SRC shell :tangle no :dir /sudo::
+  apt install autoconf make gcc texinfo libgtk-3-dev \
+      libxpm-dev libjpeg-dev libgif-dev libtiff5-dev \
+      libgnutls28-dev libncurses5-dev librsvg2-dev \
+      liblcms2-dev imagemagick libmagick++-dev libgpm-dev \
+      libxml2-dev libotf-dev libsystemd-dev libjansson-dev \
+      libwebkit2gtk-4.0-dev libm17n-dev
+#+END_SRC
+
+#+BEGIN_SRC shell :tangle no 
+./configure --with-modules --with-xwidgets && \
+make 
+#+END_SRC
+
+#+BEGIN_SRC shell :tangle no :dir ~/software/emacs/lisp
+make autoloads
+#+END_SRC
+
+#+BEGIN_SRC shell :tangle no :dir /sudo::~/software/emacs
+make install
+#+END_SRC
 
 * Mejorando el desempeño
 
@@ -212,14 +239,16 @@ principales ventajas es que puede instalar desde =github=.
 *** Mejoras de Emacs lisp, básicamente
 
 #+BEGIN_SRC emacs-lisp
-  (require 'cl)
+    (require 'cl)
 
-  (use-package dash
-    :config (eval-after-load "dash" '(dash-enable-font-lock)))
+    (use-package dash
+      :config (eval-after-load "dash" '(dash-enable-font-lock)))
 
-  (use-package s)
+    (use-package s
+     :ensure t)
 
-  (use-package f)
+    (use-package f
+      :ensure t)
 #+END_SRC
 
 *** Al salir de Emacs, no preguntar si quiero mantener mis procesos corriendo

@@ -10,6 +10,11 @@
 #+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
 #+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
 
+* Preliminar
+
+#+BEGIN_SRC sh
+mkdir ~/.fonts
+#+END_SRC
 
 
 * Fonts
@@ -18,7 +23,7 @@
 
 *** Debian based
 #+BEGIN_SRC sh :dir /sudo::
-apt-get install fonts-powerline
+apt install fonts-powerline
 #+END_SRC
 
 *** Archlinux based
@@ -32,7 +37,7 @@ pacman -S powerline-fonts
 #+BEGIN_SRC shell :dir ~/.fonts
 wget https://github.com/source-foundry/Hack/releases/download/v3.003/Hack-v3.003-ttf.zip && \
 unzip Hack-v3.003-ttf.zip && \
-rm Hack-3.003-ttf.zip
+rm Hack-v3.003-ttf.zip
 #+END_SRC
 
 ** Overpass (RedHat)
@@ -91,9 +96,6 @@ apt-get install -y fonts-ricty-diminished
 #+BEGIN_SRC sh :dir /sudo::
 pacman -S ttf-ricty
 #+END_SRC
-
-
-
 
 ** Source Code Pro
 

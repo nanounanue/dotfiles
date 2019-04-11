@@ -7,6 +7,7 @@
 #+STARTUP: indent
 #+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
 #+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
 #+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
 #+DESCRIPTION: Generalidades para configurar ZSH
 
@@ -18,9 +19,11 @@
 
 Instalamos desde los repositorios
 
-#+BEGIN_SRC shell :dir /sudo:: :tangle no
+#+BEGIN_SRC sh :dir /sudo:: :tangle no
 apt install zsh
 #+END_SRC
+
+#+RESULTS:
 
 Luego, establecemos =zsh= como el shell por /default/ para mi usuario
 
@@ -30,9 +33,9 @@ chsh -s $(which zsh)
 
 Instalamos /antigen/
 
- #+BEGIN_SRC sh :tangle no
-curl -L git.io/antigen > ~/software/antigen.zsh && \
-chmod +x ~/software/antigen.zsh
+ #+BEGIN_SRC sh :tangle no :dir ~/software
+curl -L git.io/antigen > antigen.zsh && \
+chmod +x antigen.zsh
  #+END_SRC
 
  La siguiente línea es necesaria para /activar/ antigen
@@ -40,7 +43,6 @@ chmod +x ~/software/antigen.zsh
 #+BEGIN_SRC shell
 source ~/software/antigen.zsh
 #+END_SRC
-
 
 ** Plugins
 
@@ -92,8 +94,6 @@ antigen theme https://github.com/jhwhite/the-time-lord
 
 
 Para mayor configuración ver el [[https://github.com/geometry-zsh/geometry][repositorio]]
-
-
 
 * Finalizando
 

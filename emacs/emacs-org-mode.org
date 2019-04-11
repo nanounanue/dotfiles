@@ -104,11 +104,6 @@ Esto también lo vamos a ocupar
   :ensure t
   :quelpa ((jupyter :fetcher github :repo "dzop/emacs-jupyter") :upgrade t))
 
-(use-package ob-mongo
-  :ensure t
-  :config
-  (require 'ob-mongo))
-
 (use-package ob-cypher
   :ensure t
   :config
@@ -908,7 +903,7 @@ Muestra automáticamente las imágenes
                                (stan       . t)
                                (sqlite     . t)
                                (sql        . t)
-                               (mongo      . t)
+                               ;; (mongo      . t)
                                (cypher     . t)
                                ;; (redis      . t)
                                (blockdiag  . t)
