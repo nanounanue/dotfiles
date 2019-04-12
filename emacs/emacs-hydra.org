@@ -271,7 +271,7 @@ Group Projectile commands.
     ("p" counsel-projectile-switch-project)
     ("r" projectile-replace)
     ("R" projectile-replace-regexp)
-    ("s" counsel-rg)
+    ("s" counsel-ag)
     ("S" projectile-save-project-buffers))
 #+END_SRC
 
