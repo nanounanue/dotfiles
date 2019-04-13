@@ -288,9 +288,19 @@ Permite editar un /grep buffer/ y aplicar los cambios al /file buffer/
 
 * /Indexing/
 
+Instalamos =recoll= y sus dependencias
+
 #+BEGIN_SRC shell :dir /sudo::
-apt install -y recoll
+apt install -y recoll unrtf untex pstotext poppler-utils xsltproc \
+antiword libwpd-tools djvulibre-bin libimage-exiftool-perl unrar python-mutagen python-rarfile python-chm
 #+END_SRC
+
+Y una dependencia más (no está en el repo por alguna razón)
+
+#+BEGIN_SRC shell
+pip install epub
+#+END_SRC
+
 
 #+BEGIN_SRC emacs-lisp
 (setq locate-command "recoll")
@@ -798,7 +808,19 @@ un comando y te detienes, =which-key= abre un /buffer/ inferior con sugerencias.
               "\\`org-"))
 
 
-      (which-key-mode))
+      (which-key-mode)
+      (which-key-setup-minibuffer))
+#+END_SRC
+
+*** bughunter
+
+Ayuda a cazar  errores en el archivo =init.el=
+
+[[https://github.com/Malabarba/elisp-bug-hunter][Ver aquí]]
+
+#+BEGIN_SRC emacs-lisp
+(use-package bug-hunter
+  :ensure t)
 #+END_SRC
 
 *** [[https://github.com/Wilfred/helpful][helpful]]
@@ -815,6 +837,9 @@ Alternativa a la ayuda de Emacs
                ("C-h F"   . helpful-function)
                ("C-h C"   . helpful-command))
 #+END_SRC
+
+
+
 
 *** man
 

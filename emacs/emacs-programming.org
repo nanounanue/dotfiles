@@ -148,18 +148,33 @@ Una versión /fancy/ de =narrow-to-region=.
 (require 'setup-elisp)
 #+END_SRC
 
+** jq
+
+
+[[https://stedolan.github.io/jq/tutorial/][jq]] es como sed, pero para =json= files
+
+#+BEGIN_SRC shell :dir /sudo::
+apt install -y jq
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package jq-mode
+  :ensure t)
+#+END_SRC
+
 ** [[file:emacs-clojure.org][Clojure]]
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp
 (require 'setup-clojure)
 #+END_SRC
 
 ** [[https://lispcookbook.github.io/cl-cookbook/][Common Lisp]]
 
-Instalar el =SBCL=
+Instalar el =SBCL= y =rlwrap= (Este último ayuda a que =sbcl= tenga
+autocompletado y movimiento con las flechas, etc Tomado de [[https://lispcookbook.github.io/cl-cookbook/getting-started.html][aquí]])
 
 #+BEGIN_SRC shell :dir /sudo::
-apt install -y sbcl
+apt install -y sbcl rlwrap
 #+END_SRC
 
 Para aprender más sobre como usar Emacs con Common Lisp ver [[https://lispcookbook.github.io/cl-cookbook/emacs-ide.html][aquí]]
@@ -169,6 +184,24 @@ Para aprender más sobre como usar Emacs con Common Lisp ver [[https://lispcookb
   :config
   (setq inferior-lisp-program "sbcl")
   )
+#+END_SRC
+
+Siguiendo las instrucciones de [[https://lispcookbook.github.io/cl-cookbook/getting-started.html][aquí]]  instalamos =quicklisp=
+
+#+BEGIN_SRC shell :tangle no :dir /tmp
+curl -O https://beta.quicklisp.org/quicklisp.lisp
+#+END_SRC
+
+En la consola de =sbcl= cargamos =quicklisp= con:
+
+#+BEGIN_SRC shell :dir /tmp :tangle no :eval no
+sbcl –load quicklisp.lisp
+#+END_SRC
+
+Y en esa sesión ejecutar
+
+#+BEGIN_SRC lisp :tangle no :eval no
+(quicklisp-quickstart:install)
 #+END_SRC
 
 ** [[file:emacs-python.org][Python]]

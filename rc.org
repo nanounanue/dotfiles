@@ -1,13 +1,26 @@
 #+TITLE:     Resource configuration files
 #+AUTHOR:    Adolfo De Unánue
 #+EMAIL:     nanounanue@gmail.com
+#+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
 
 * Clientes de bases de datos
+
 ** PostgreSQL
 
- #+BEGIN_SRC text :tangle ~/.psqlrc
+Instalamos el cliente de postgresql
+
+#+BEGIN_SRC shell :tangle no :dir /sudo::
+apt install postgresql-client libpq-dev
+#+END_SRC
+
+
+ #+BEGIN_SRC shell :tangle ~/.psqlrc
 -- http://www.postgresql.org/docs/9.3/static/app-psql.html#APP-PSQL-PROMPTING
 -- \set PROMPT1 '%[%033[1m%]%M %n@%/%R%[%033[0m%]%# '
+
 -- PROMPT2 es lo que imprime cuando está esperando más input
 -- \set PROMPT2 '[more] %R > '
 
@@ -53,16 +66,20 @@ set intervalstyle to 'postgres_verbose';
 
 ** SQLite
 
- #+BEGIN_SRC text :tangle ~/.sqliterc
+#+BEGIN_SRC shell :tangle no :dir /sudo::
+apt install sqlite3
+#=END_SRC
+
+
+ #+BEGIN_SRC shell :tangle ~/.sqliterc
 .header on
 .mode column
  #+END_SRC
 
 
-
 * GNU screen
 
-#+BEGIN_SRC text :tangle ~/.screenrc
+#+BEGIN_SRC shell :tangle ~/.screenrc
 # Turn off start message:
 startup_message off
 
@@ -85,9 +102,7 @@ defscrollback 10000
 mkdir -p ~/tmp/nano-backups
 #+END_SRC
 
-#+RESULTS:
-
-#+BEGIN_SRC text :tangle ~/.nanorc
+#+BEGIN_SRC shell :tangle ~/.nanorc
 
 set smooth
 
@@ -126,4 +141,14 @@ set keycolor cyan
 set functioncolor green
 
 include "/usr/share/nano/*.nanorc"
+#+END_SRC
+
+* SBCL
+
+#+BEGIN_SRC shell :tangle ~/.sbclrc :comments no
+#-quicklisp
+(let ((quicklisp-init (merge-pathnames "quicklisp/setup.lisp"
+                       (user-homedir-pathname))))
+ (when (probe-file quicklisp-init)
+  (load quicklisp-init)))
 #+END_SRC

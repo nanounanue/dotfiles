@@ -193,8 +193,12 @@ alias p="projects"
 alias e="emacsclient -c"
 alias ec="emacsclient -c"
 alias et="emacsclient -nw"
-alias gs="git status"
  #+END_SRC
+
+** SBCL
+#+BEGIN_SRC shell
+alias sbcl="rlwrap sbcl"
+#+END_SRC
 
 ** SSH Tunneling (DSaPP)
 
