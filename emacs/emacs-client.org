@@ -276,6 +276,43 @@ Por el momento uso [[https://github.com/Malabarba/smart-mode-line/][smart-mode-l
 #+END_SRC
 
 
+
+* Duckduckgo
+
+Lamentablemente este paquete no se puede instalar de MELPA o algo
+parecido.
+
+Creamos la carpeta =ddg= dentro de =elisp=
+
+#+BEGIN_SRC shell :tangle no :dir ~/.emacs.d/elisp
+mkdir ddg
+#+END_SRC
+
+Luego, descargamos los archivos
+
+#+BEGIN_SRC shell :tangle no :dir ~/.emacs.d/elisp/ddg
+wget http://www.emacswiki.org/emacs/download/ddg.el
+wget http://www.emacswiki.org/emacs/download/ddg-search.el && \
+wget http://www.emacswiki.org/emacs/download/ddg-mode.el
+#+END_SRC
+
+Agregamos al =load-path=
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'load-path (nanounanue/emacs-subdirectory "elisp/ddg"))
+#+END_SRC
+
+Por último cargamos la librería
+
+#+BEGIN_SRC emacs-lisp
+(use-package ddg
+  :ensure nil
+  :init
+  (require 'ddg)
+  (require 'ddg-search)
+  (require 'ddg-mode))
+#+END_SRC
+
 * Al final
 
 #+BEGIN_SRC emacs-lisp

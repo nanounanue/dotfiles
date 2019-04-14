@@ -32,9 +32,9 @@ git clone --depth 1 git://git.sv.gnu.org/emacs.git
       libwebkit2gtk-4.0-dev libm17n-dev
 #+END_SRC
 
-#+BEGIN_SRC shell :tangle no 
+#+BEGIN_SRC shell :tangle no
 ./configure --with-modules --with-xwidgets && \
-make 
+make
 #+END_SRC
 
 #+BEGIN_SRC shell :tangle no :dir ~/software/emacs/lisp
@@ -357,7 +357,7 @@ Regularmente quiero matar /este/ /buffer/
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-(let* ((subdirs '("elisp" "backups"))
+(let* ((subdirs '("elisp" "backups")
        (fulldirs (mapcar (lambda (d) (nanounanue/emacs-subdirectory d)) subdirs)))
   (dolist (dir fulldirs)
     (when (not (file-exists-p dir))
