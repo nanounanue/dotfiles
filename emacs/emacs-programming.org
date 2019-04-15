@@ -194,13 +194,13 @@ curl -O https://beta.quicklisp.org/quicklisp.lisp
 
 En la consola de =sbcl= cargamos =quicklisp= con:
 
-#+BEGIN_SRC shell :dir /tmp :tangle no :eval no
-sbcl –load quicklisp.lisp
+#+BEGIN_SRC lisp :tangle no
+(load "/tmp/quicklisp.lisp")
 #+END_SRC
 
 Y en esa sesión ejecutar
 
-#+BEGIN_SRC lisp :tangle no :eval no
+#+BEGIN_SRC lisp :tangle no
 (quicklisp-quickstart:install)
 #+END_SRC
 
