@@ -16,7 +16,12 @@ Los archivos localizados en esta carpeta deben de ser copiados a =~/.config/syst
 
 ** Emacs as a service
 
-#+BEGIN_SRC shell :tangle ~/.config/systemd/user/emacsd.service
+Lo siguiente es lo que está guardado en el archivo
+[[file:/usr/local/lib/systemd/user/emacs.service]]
+
+No es necesario hacer =tangle= desde de *Emacs 26*
+
+#+BEGIN_SRC shell :tangle no
 [Unit]
 Description=Emacs: the extensibe, self-documenting editor
 Documentation=man:emacs(1) info:Emacs https://gnu.org/software/emacs/
@@ -35,11 +40,11 @@ WantedBy=default.target
 Para habilitarlos hay que ejecutar lo siguiente (por ejemplo =emacs --daemon=):
 
 #+BEGIN_SRC shell
-systemctl --user enable emacsd
+systemctl --user enable emacs.service
 #+END_SRC
 
 Para ejecutarlos hay que reiniciar el sistema o ejecutar
 
 #+BEGIN_SRC shell
-systemctl --user start emacsd
+systemctl --user start emacs.service
 #+END_SRC
