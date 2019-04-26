@@ -1,4 +1,4 @@
-#+TITLE:
+#+TITLE: Dot profile
 #+AUTHOR: Adolfo De Unánue
 #+EMAIL:  nanounanue@gmail.com
 #+DESCRIPTION: Configuración global para el shell

@@ -32,9 +32,9 @@ git clone --depth 1 git://git.sv.gnu.org/emacs.git
       libwebkit2gtk-4.0-dev libm17n-dev
 #+END_SRC
 
-#+BEGIN_SRC shell :tangle no 
+#+BEGIN_SRC shell :tangle no
 ./configure --with-modules --with-xwidgets && \
-make 
+make
 #+END_SRC
 
 #+BEGIN_SRC shell :tangle no :dir ~/software/emacs/lisp
@@ -283,19 +283,19 @@ mkdir ~/.cache/emacs ~/.local/share/emacs/
 
 
 #+BEGIN_SRC emacs-lisp
-(defvar xdg-bin (getenv "XDG_BIN_HOME")
+(defvar xdg-bin (or (getenv "XDG_BIN_HOME") "~/.local/bin")
   "The XDG bin base directory.")
 
-(defvar xdg-cache (getenv "XDG_CACHE_HOME")
+(defvar xdg-cache (or (getenv "XDG_CACHE_HOME") "~/.cache")
   "The XDG cache base directory.")
 
-(defvar xdg-config (getenv "XDG_CONFIG_HOME")
+(defvar xdg-config (or (getenv "XDG_CONFIG_HOME") "~/.config")
   "The XDG config base directory.")
 
-(defvar xdg-data (getenv "XDG_DATA_HOME")
+(defvar xdg-data (or (getenv "XDG_DATA_HOME") "~/.local/share")
   "The XDG data base directory.")
 
-(defvar xdg-lib (getenv "XDG_LIB_HOME")
+(defvar xdg-lib (or (getenv "XDG_LIB_HOME") "~/.local/lib")
   "The XDG lib base directory.")
 #+END_SRC
 
