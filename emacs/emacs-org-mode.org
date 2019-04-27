@@ -18,6 +18,76 @@
 - [[http://sachachua.com/blog/2014/01/tips-learning-org-mode-emacs/][Some tips for learning Org Mode for Emacs]] [Sacha Chua]
 - [[https://www.youtube.com/playlist?list=PLVtKhBrRV%255FZkPnBtt%255FTD1Cs9PJlU0IIdE][OrgMode Tutorial video series]] [Rainer König]
 
+* /Hacks/
+
+Al actualizar a =org-mode= *9.2* existen [[https://emacs.stackexchange.com/questions/49055/org-mode-9-2can-t-find-the-error-on-my-dot-emacs#49056][conflictos]] en la creación de
+bloques.
+
+Para recuperar la funcionalidad anterior, usamos el siguiente código
+(tomado de [[https://emacs.stackexchange.com/questions/46795/is-it-possible-to-add-templates-other-than-begin-end-to-org-structure-temp/48974#48974][aquí]]):
+
+#+BEGIN_SRC emacs-lisp
+(defvar org-structure-template-alist)
+
+(defun org+-avoid-old-structure-templates (fun &rest args)
+  "Call FUN with ARGS with modified `org-structure-template-alist'.
+Use a copy of `org-structure-template-alist' with all
+old structure templates removed."
+  (let ((org-structure-template-alist
+     (cl-remove-if
+      (lambda (template)
+        (null (stringp (cdr template))))
+      org-structure-template-alist)))
+    (apply fun args)))
+
+(eval-after-load "org"
+  '(when (version<= "9.2" (org-version))
+     (defun org-try-structure-completion ()
+       "Try to complete a structure template before point.
+This looks for strings like \"<e\" on an otherwise empty line and
+expands them."
+       (let ((l (buffer-substring (point-at-bol) (point)))
+         a)
+     (when (and (looking-at "[ \t]*$")
+            (string-match "^[ \t]*<\\([a-zA-Z]+\\)$" l)
+            (setq a (assoc (match-string 1 l) org-structure-template-alist))
+            (null (stringp (cdr a))))
+       (org-complete-expand-structure-template (+ -1 (point-at-bol)
+                              (match-beginning 1)) a)
+       t)))
+
+     (defun org-complete-expand-structure-template (start cell)
+       "Expand a structure template."
+       (let ((rpl (nth 1 cell))
+         (ind ""))
+     (delete-region start (point))
+     (when (string-match "\\`[ \t]*#\\+" rpl)
+       (cond
+        ((bolp))
+        ((not (string-match "\\S-" (buffer-substring (point-at-bol) (point))))
+         (setq ind (buffer-substring (point-at-bol) (point))))
+        (t (newline))))
+     (setq start (point))
+     (when (string-match "%file" rpl)
+       (setq rpl (replace-match
+              (concat
+               "\""
+               (save-match-data
+             (abbreviate-file-name (read-file-name "Include file: ")))
+               "\"")
+              t t rpl)))
+     (setq rpl (mapconcat 'identity (split-string rpl "\n")
+                  (concat "\n" ind)))
+     (insert rpl)
+     (when (re-search-backward "\\?" start t) (delete-char 1))))
+
+     (advice-add 'org-tempo-add-templates :around #'org+-avoid-old-structure-templates)
+
+     (add-hook 'org-tab-after-check-for-cycling-hook #'org-try-structure-completion)
+
+     (require 'org-tempo)
+     ))
+#+END_SRC
 
 * Funciones de soporte
 
@@ -867,6 +937,7 @@ apt install -y xclip
 
 ** Reveal
 
+
 [[https://github.com/yjwen/org-reveal][ox-reveal]] para crear slides en *HTML*
 
 #+BEGIN_SRC shell :dir /tmp
@@ -877,6 +948,7 @@ tar zxf /tmp/reveal.tar.gz -C ~/software/js/revealjs --strip-component 1
 
 #+BEGIN_SRC emacs-lisp
 (use-package ox-reveal
+  :disabled t
   :ensure t
   :after org
   :custom
@@ -885,6 +957,22 @@ tar zxf /tmp/reveal.tar.gz -C ~/software/js/revealjs --strip-component 1
                                         ;(org-reveal-root (concat "file://" (getenv "HOME") "/software/js/revealjs"))
   (org-reveal-postamble "Adolfo De Unánue"))
 #+END_SRC
+
+Al parecer =ox-reveal= [[https://github.com/yjwen/org-reveal/issues/363#issuecomment-460270780][no está siendo mantenido]], la alternativa
+propuesta en el mismo lugar es el [[https://gitlab.com/oer/org-re-reveal][fork]] =org-re-reveal=:
+
+#+begin_src emacs-lisp
+(use-package org-re-reveal
+  :ensure t
+  :config
+  (require 'org-re-reveal)
+  :custom
+  (org-re-reveal-mathjax t)
+  (org-re-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
+                                        ;(org-reveal-root (concat "file://" (getenv "HOME") "/software/js/revealjs"))
+  (org-re-reveal-postamble "Adolfo De Unánue"))
+#+end_src
+
 
 ** Tree Slide
 
@@ -972,9 +1060,6 @@ Muestra automáticamente las imágenes
              '("sh" . "src shell"))
 
 (add-to-list 'org-structure-template-alist
-             '("Q" . "src sql"))
-
-(add-to-list 'org-structure-template-alist
              '("py" . "src jupyter-python"))
 
 (add-to-list 'org-structure-template-alist
@@ -984,12 +1069,11 @@ Muestra automáticamente las imágenes
              '("sr" . "src R"))
 
 (add-to-list 'org-structure-template-alist
-             '("l" . "src lisp"))
+             '("L" . "src lisp"))
 
 (add-to-list 'org-structure-template-alist
              '("cl" . "src clojure"))
 #+END_SRC
-
 
 ** Lenguajes habilitados
 
