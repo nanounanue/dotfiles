@@ -633,8 +633,14 @@ Obvio autocompletar en el [[https://github.com/Alexander-Miller/company-shell][s
 (use-package  yasnippet-snippets
   :after yasnippet
   :ensure t
-  :config (yasnippet-snippets-initialize))
+
+  :config
+  (setq yas-snippet-dirs
+        '("~/.emacs.d/snippets"                 ;; personal snippets
+          "~/.emacs.d/elpa/clojure-snippets/snippets"))
+  (yasnippet-snippets-initialize))
 #+END_SRC
+
 
 
 ** Corrector ortográfico
