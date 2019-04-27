@@ -1,0 +1,50 @@
+#+TITLE: Systemd
+#+AUTHOR: Adolfo De Unánue
+#+EMAIL:  nanounanue@gmail.com
+#+DESCRIPTION: Configuración de deamons (en particular emacs)
+#+PROPERTY: header-args:shell :tangle no :comments org
+#+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+
+* Systemd
+
+Este es un método para arrancar aplicaciones al iniciar la sesión.
+
+Los archivos localizados en esta carpeta deben de ser copiados a =~/.config/systemd/user=.
+
+** Emacs as a service
+
+Lo siguiente es lo que está guardado en el archivo
+[[file:/usr/local/lib/systemd/user/emacs.service]]
+
+No es necesario hacer =tangle= desde de *Emacs 26*
+
+#+BEGIN_SRC shell :tangle no
+[Unit]
+Description=Emacs: the extensibe, self-documenting editor
+Documentation=man:emacs(1) info:Emacs https://gnu.org/software/emacs/
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/emacs --fg-daemon
+ExecStop=/usr/local/bin/emacsclient --eval "(kill-emacs)"
+Restart=on-failure
+Environment=SSH_AUTH_SOCK=%t/keyring/ssh
+
+[Install]
+WantedBy=default.target
+#+END_SRC
+
+Para habilitarlos hay que ejecutar lo siguiente (por ejemplo =emacs --daemon=):
+
+#+BEGIN_SRC shell
+systemctl --user enable emacs.service
+#+END_SRC
+
+Para ejecutarlos hay que reiniciar el sistema o ejecutar
+
+#+BEGIN_SRC shell
+systemctl --user start emacs.service
+#+END_SRC

@@ -182,8 +182,22 @@ Guardo mis archivos =org= en =Dropbox=
 Log =DONE= automáticamente en los =TODOs=
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-custom-vars
-  (org-log-done t)
+  (org-log-done 'time)
 #+END_SRC
+
+Log /timestamp/ y una *nota* cuando la fecha o el deadline de un /task/ es modificado
+
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-custom-vars
+(org-log-reschedule 'note)
+(org-log-redeadline 'note)
+#+END_SRC
+
+
+Log todo en el /drawer/ =LOGBOOK=
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-custom-vars
+(org-log-into-drawer t)
+#+END_SRC
+
 
 Mantener la indentación de los archivos
 
@@ -403,25 +417,35 @@ ya no funcionan, el siguiente código los hace consistentes.
 * /TODO Keywords/
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-  (setq org-todo-keywords '(
-                            (sequence
-                             "TODO(t)"
-                             "WORKING(w)"
-                             "BLOCKED(b)"
-                             "REVIEW(r)"
-                             "|"
-                             "DONE(d)")
-                            (sequence "|" "CANCELLED(c@/!)"
-                                        "SOMEDAY(f)"
-                                        )))
-  (setq org-todo-keyword-faces
-        '(("TODO" . "tomato")
-          ("WORKING" . "gold2")
-          ("REVIEW" . "goldenrod")
-          ("BLOCKED" . "magenta")
-          ("CANCELLED" . "dark red")
-          ("DONE" . "green")
-          ("SOMEDAY" . "sienna")))
+(setq org-todo-keywords '(
+                          (;; TODO significa que es algo que tiene que hacerse
+                           ;; WORKING significa que estoy trabajando en alla
+                           ;; BLOCKED significa que la tarea depende de algo más para hacerse
+                           ;; DELEGATED significa que alguien más lo está haciendo y yo tengo que verificar/estar enterado de lo que está haciendo
+                           ;; ASSIGNED significa que alguien tiene completa responsabilidad sobre la tarea
+                           ;; REVIEW significa que alguien está validando el task
+                           ;; CANCELLED significa que ya no es necesario hacerse
+                           ;; DONE significa que ha sido completada
+                           sequence
+                           "TODO(t@/!)"
+                           "WORKING(w@/!)"
+                           "BLOCKED(b@/!)"
+                           "REVIEW(r@/!)"
+                           "DELEGATED(e@/!)"
+                           "|"
+                           "ASSIGNED(.@/!)"
+                           "CANCELLED(c@/!)"
+                           "DONE(d@/!)")))
+
+(setq org-todo-keyword-faces
+      '(("TODO" . "tomato")
+        ("WORKING" . "gold2")
+        ("REVIEW" . "lavender")
+        ("BLOCKED" . "magenta")
+        ("CANCELLED" . "dark red")
+        ("DELEGATED" . "powder blue")
+        ("DONE" . "green")
+        ("ASSIGNED" . "sienna")))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
@@ -435,11 +459,14 @@ ya no funcionan, el siguiente código los hace consistentes.
                ("^\\*+ \\(CANCELLED\\) "
                 (1 (progn (compose-region (match-beginning 1) (match-end 1) "✘")
                           nil)))
+               ("^\\*+ \\(CANCE\\) "
+                (1 (progn (compose-region (match-beginning 1) (match-end 1) "✘")
+                          nil)))
                ("^\\*+ \\(DONE\\) "
                 (1 (progn (compose-region (match-beginning 1) (match-end 1) "✔")
                           nil)))))
-
 #+END_SRC
+
 
 * Capture-refile-archive
 
@@ -448,35 +475,102 @@ ocurrir o que recordé (me pasa muy seguido), sin que afecte el archivo
 en el que estoy trabajando (/capture/)
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-  ;; Capture
-  (setq org-capture-templates
-        (quote (("t" "todo" entry (file "~/Dropbox/org/refile.org")
-                 "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
-                ("r" "research" entry (file "~/Dropbox/org/research.org")
-                 "* %? :IDEA:\n%U\n%a\n" :clock-in t :clock-resume t)
-                ("j" "journal" entry (file+datetree "~/Dropbox/org/diary.org")
-                 "* %?\n%U\n" :clock-in t :clock-resume t)
-                ("x" "org-protocol" entry (file "~/Dropbox/org/refile.org")
-                 "* TODO Review %c \n Added:%T\n")
-                )))
-  ;; Refile
-  (setq org-default-notes-file (nanounanue/org-file-path "personal/@SUMMARY.org"))
-  (setq org-default-tasks-file (nanounanue/org-file-path "personal/tasks.org"))
+;; Capture
+(setq org-capture-templates
+      (quote (("t" "TODO    (t)" entry (file "~/Dropbox/org/refile.org")
+               "* TODO %?
+:PROPERTIES:
+:via: %f
+:note:
+:END:"
+               :clock-in t :clock-resume t :empty-lines 1)
+              ("s" "Scheduled TODO" entry (file+headline "~/Dropbox/org/refile.org")
+               "* TODO %? %^G \nSCHEDULED: %^t\n  %U" :empty-lines 1)
+              ("d" "Deadline" entry (file+headline "~/Dropbox/org/refile.org")
+               "* TODO %? %^G \n  DEADLINE: %^t" :empty-lines 1)
+              ("r" "research" entry (file "~/Dropbox/org/research.org")
+               "* %? :IDEA:\n%U\n%a\n" :clock-in t :clock-resume t)
+              ("j" "journal" entry (file+datetree "~/Dropbox/org/diary.org")
+               "* %?\n%U\n" :clock-in t :clock-resume t)
+              ("n" "Note" entry (file "~/Dropbox/org/notes.org")
+               "* NOTE %?\n%U" :empty-lines 1)
+              ("N" "Note with Clipboard" entry (file "~/Dropbox/org/notes.org")
+               "* NOTE %?\n%U\n   %c" :empty-lines 1)
+              ("x" "org-protocol" entry (file "~/Dropbox/org/refile.org")
+               "* TODO Review %c \n Added:%T\n"))))
 
-  ;; Targets include this file and any file contributing to the agenda - up to 9 levels deep
-  (setq org-refile-targets (quote ((nil :maxlevel . 9)
-                                   (org-agenda-files :maxlevel . 9))))
-  ;; Use full outline paths for refile targets
-  (setq org-refile-use-outline-path t)
+      ;; Refile
+      (setq org-default-notes-file (nanounanue/org-file-path "personal/@SUMMARY.org"))
+      (setq org-default-tasks-file (nanounanue/org-file-path "personal/tasks.org"))
 
-  ;; Allow refile to create parent tasks with confirmatio
-  (setq org-refile-allow-creating-parent-nodes (quote confirm))
+      ;; Targets include this file and any file contributing to the agenda - up to 9 levels deep
+      (setq org-refile-targets (quote ((nil :maxlevel . 9)
+                                       (org-agenda-files :maxlevel . 9))))
+      ;; Use full outline paths for refile targets
+      (setq org-refile-use-outline-path t)
+
+      ;; Allow refile to create parent tasks with confirmatio
+      (setq org-refile-allow-creating-parent-nodes (quote confirm))
 #+END_SRC
 
 Luego de seleccionar el /template/ adecuado, tecleas la nota, =C-c C-c=
 para guardar.
 
 Por último, recuerda hacer =C-c C-w= para /refile/ la nota al lugar correspondiente.
+
+
+* [[https://github.com/sprig/org-capture-extension][Org protocol]]
+
+** Preparando el sistema operativo para el [[https://addons.mozilla.org/en-US/firefox/addon/org-capture/?src=search][add-on in de firefox]]
+
+Registramos =emacs= como el encargado de manejar las peticiones de la
+extensión de Firefox
+
+#+BEGIN_SRC shell
+mkdir -p ~/.local/share/applications
+#+END_SRC
+
+
+#+BEGIN_SRC shell :dir ~/.local/share/applications
+cat > "org-protocol.desktop" << EOF
+[Desktop Entry]
+Name=org-protocol
+Exec=emacsclient %u
+Type=Application
+Terminal=false
+Categories=System;
+MimeType=x-scheme-handler/org-protocol;
+EOF
+#+END_SRC
+
+Actualizamos la base de datos de manejadores
+
+#+BEGIN_SRC shell
+update-desktop-database ~/.local/share/applications/
+#+END_SRC
+
+** Configuración *en* emacs
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-protocol
+  :ensure nil
+  :config
+  (defun transform-square-brackets-to-round-ones(string-to-transform)
+    "Transforms [ into ( and ] into ), other chars left unchanged."
+    (concat
+     (mapcar #'(lambda (c) (if (equal c ?[) ?\( (if (equal c ?]) ?\) c))) string-to-transform))
+    )
+
+
+  (add-to-list 'org-capture-templates
+               '("p" "Protocol" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
+                 "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?"))
+
+  (add-to-list 'org-capture-templates
+               '("L" "Protocol Link" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
+                 "* %? [[%:link][%(transform-square-brackets-to-round-ones \"%:description\")]]\n")))
+#+END_SRC
+
 
 
 * Org agenda
