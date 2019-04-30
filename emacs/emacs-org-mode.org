@@ -1067,10 +1067,10 @@ Muestra automáticamente las imágenes
              '("sr" . "src R"))
 
 (add-to-list 'org-structure-template-alist
-             '("L" . "src lisp"))
+             '("cl" . "src lisp"))
 
 (add-to-list 'org-structure-template-alist
-             '("cl" . "src clojure"))
+             '("clj" . "src clojure"))
 #+END_SRC
 
 ** Lenguajes habilitados
