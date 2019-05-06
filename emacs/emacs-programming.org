@@ -316,10 +316,30 @@ Como =org-mode=, pero para =markdown=
 [[https://polymode.github.io][Documentación]]
 
 #+begin_src emacs-lisp
+(use-package polymode
+  :ensure t)
+
 (use-package poly-markdown
   :ensure t
+  :after polymode
   :config
   (add-to-list 'auto-mode-alist '("\\.md" . poly-markdown-mode)))
+
+(use-package poly-R
+  :ensure ;TODO:
+  :after polymode)
+
+(use-package poly-ansible
+  :ensure t
+  :after polymode)
+
+(use-package poly-ruby
+  :ensure t
+  :after polymode)
+
+(use-package poly-noweb
+  :ensure t
+  :after polymode)
 #+end_src
 
 * A modo de fin
