@@ -311,6 +311,10 @@ Abre un /buffer/ cualquiera y teclea =M-x sql-postgres=
 
 *** Polymode
 
+Como =org-mode=, pero para =markdown=
+
+[[https://polymode.github.io][Documentación]]
+
 #+begin_src emacs-lisp
 (use-package poly-markdown
   :ensure t
