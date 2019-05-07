@@ -356,7 +356,7 @@ Regularmente quiero matar /este/ /buffer/
 (defun nanounanue/emacs-subdirectory (d) (expand-file-name d nanounanue/emacs-directory))
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (let* ((subdirs '("elisp" "backups")
        (fulldirs (mapcar (lambda (d) (nanounanue/emacs-subdirectory d)) subdirs)))
   (dolist (dir fulldirs)

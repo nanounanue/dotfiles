@@ -179,6 +179,7 @@ Esto es una /excelente/ idea
 Integrarlo con [[file:emacs-ivy.org][ivy y counsel]]
 
 
+
 #+BEGIN_SRC emacs-lisp
   (use-package all-the-icons-ivy
     :ensure t

@@ -291,14 +291,14 @@ Permite editar un /grep buffer/ y aplicar los cambios al /file buffer/
 Instalamos =recoll= y sus dependencias
 
 #+BEGIN_SRC shell :dir /sudo::
-apt install -y recoll unrtf untex pstotext poppler-utils xsltproc \
-antiword libwpd-tools djvulibre-bin libimage-exiftool-perl unrar python-mutagen python-rarfile python-chm
+apt install -y recoll unrtf untex pstotext poppler-utils xsltproc lyx tesseract-ocr tesseract-ocr-eng tesseract-ocr-spa \
+wv antiword libwpd-tools djvulibre-bin libimage-exiftool-perl unrar libwpd-dev catdoc info catdvi
 #+END_SRC
 
 Y una dependencia más (no está en el repo por alguna razón)
 
 #+BEGIN_SRC shell
-pip install epub
+pip install epub mutagen lxml rarfile
 #+END_SRC
 
 
