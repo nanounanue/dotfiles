@@ -28,6 +28,11 @@ No usar /dialog-boxes/
 El artículo [[http://emacsninja.com/posts/making-emacs-more-presentable.html][Making Emacs More Presentable]], muestra este truco que
 cambia el tamaño de la fuente, en la /window/ no el /buffer/
 
+#+begin_src emacs-lisp
+(use-package default-text-scale
+:ensure t)
+#+end_src
+
   #+BEGIN_SRC emacs-lisp
     (defun nanounanue/text-scale-frame-change (fn)
       (let* ((current-font-name (frame-parameter nil 'font))
@@ -152,16 +157,39 @@ Agrega /face/ a los paréntesis, de tal manera que los temas puedan oscurecerlos
 #+END_SRC
 
 
+** Seleccionando el tema
+
+#+begin_src emacs-lisp
+;;(load-theme 'gruvbox-dark-hard t)
+#+end_src
+
+
 ** Tema según horario
 
 Esto es una /excelente/ idea
 
 #+BEGIN_SRC emacs-lisp
 (use-package theme-changer
-:ensure t
+:ensure nil
+:disabled t
 :config
 (change-theme 'gruvbox-light-medium 'zenburn)  ;; day and night theme
 )
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package nord-theme
+  :config
+  (add-to-list 'custom-theme-load-path (expand-file-name "~/.emacs.d/themes/"))
+  (load-theme 'nord t))
+
+(use-package doom-modeline
+  :defer 0.1
+  :config (doom-modeline-mode))
+
+(use-package fancy-battery
+  :after doom-modeline
+  :hook (after-init . fancy-battery-mode))
 #+END_SRC
 
 
@@ -222,11 +250,11 @@ Por el momento uso [[https://github.com/Malabarba/smart-mode-line/][smart-mode-l
 #+BEGIN_SRC emacs-lisp
 (use-package smart-mode-line
   :ensure t
-  :init
-  (sml/setup)
   :config
+  (setq sml/no-confirm-load-theme t)
   (setq sml/shorten-directory t
-        sml/shorten-modes t))
+        sml/shorten-modes t)
+  (sml/setup))
 #+END_SRC
 
 * Dashboard
@@ -276,43 +304,25 @@ Por el momento uso [[https://github.com/Malabarba/smart-mode-line/][smart-mode-l
   (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
 #+END_SRC
 
+* Tabs
 
+#+begin_src emacs-lisp
+(use-package centaur-tabs
+  :demand
+  :config
+  (setq centaur-tabs-style "bar")
+  (setq centaur-tabs-height 30)
+  (setq centaur-tabs-modified-marker "●")
+  (setq centaur-tabs-set-icons t)
+  (setq centaur-tabs-set-bar 'over)
+  (setq centaur-tabs-set-modified-marker t)
+  (centaur-tabs-headline-match)
+  (centaur-tabs-mode t)
+  :bind
+  ("C-<prior>" . centaur-tabs-backward)
+  ("C-<next>" . centaur-tabs-forward))
+#+end_src
 
-* Duckduckgo
-
-Lamentablemente este paquete no se puede instalar de MELPA o algo
-parecido.
-
-Creamos la carpeta =ddg= dentro de =elisp=
-
-#+BEGIN_SRC shell :tangle no :dir ~/.emacs.d/elisp
-mkdir ddg
-#+END_SRC
-
-Luego, descargamos los archivos
-
-#+BEGIN_SRC shell :tangle no :dir ~/.emacs.d/elisp/ddg
-wget http://www.emacswiki.org/emacs/download/ddg.el
-wget http://www.emacswiki.org/emacs/download/ddg-search.el && \
-wget http://www.emacswiki.org/emacs/download/ddg-mode.el
-#+END_SRC
-
-Agregamos al =load-path=
-
-#+BEGIN_SRC emacs-lisp
-(add-to-list 'load-path (nanounanue/emacs-subdirectory "elisp/ddg"))
-#+END_SRC
-
-Por último cargamos la librería
-
-#+BEGIN_SRC emacs-lisp
-(use-package ddg
-  :ensure nil
-  :init
-  (require 'ddg)
-  (require 'ddg-search)
-  (require 'ddg-mode))
-#+END_SRC
 
 * Al final
 

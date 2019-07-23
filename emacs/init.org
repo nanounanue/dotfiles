@@ -32,7 +32,8 @@ git clone --depth 1 git://git.sv.gnu.org/emacs.git
       libwebkit2gtk-4.0-dev libm17n-dev
 #+END_SRC
 
-#+BEGIN_SRC shell :tangle no
+#+BEGIN_SRC shell :tangle no :dir ~/software/emacs
+./autogen.sh && \
 ./configure --with-modules --with-xwidgets && \
 make
 #+END_SRC
@@ -64,9 +65,8 @@ make install
 Por si ocurre un error
 
 #+BEGIN_SRC emacs-lisp
-(setq debug-on-error t)
+(setq debug-on-error nil)
 #+END_SRC
-
 
 No queremos que ocurra /garbage-collection/ durante el inicio de Emacs, así que lo hacemos muy grande.
 Al acabar, lo regresamos a un tamaño razonable.
@@ -146,8 +146,11 @@ Ser /verbose/ es bueno para el /debugging/
 (use-package exec-path-from-shell
   :ensure t)
 
-(when (memq window-system '(mac ns x))
-  (exec-path-from-shell-initialize))
+(setq explicit-shell-file-name "/usr/bin/zsh")
+(setq shell-file-name "zsh")
+
+;;(when (memq window-system '(mac ns x))
+;;  (exec-path-from-shell-initialize))
 #+END_SRC
 
 
@@ -396,7 +399,8 @@ Regularmente quiero matar /este/ /buffer/
   (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-wm.org"))
   (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-hydra.org"))
   (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-main.org"))
-  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/init.org")))
+
+ (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/init.org")))
 (bind-key "C-c T" 'nanounanue/config-tangle)
 
 
@@ -414,11 +418,19 @@ Regularmente quiero matar /este/ /buffer/
 #+END_SRC
 
 
+* [[file:emacs-ivy.org][Ivy]]
+
+#+BEGIN_SRC emacs-lisp
+(require 'setup-ivy)
+#+END_SRC
+
+
 * Programación
 
 #+BEGIN_SRC emacs-lisp
 (require 'setup-coding)
 #+END_SRC
+
 
 
 * [[file:emacs-org-mode.org][Org-Mode]]
@@ -427,12 +439,6 @@ Org-mode sobre todas las cosas
 
 #+BEGIN_SRC emacs-lisp
 (require 'setup-org-mode)
-#+END_SRC
-
-* [[file:emacs-ivy.org][Ivy]]
-
-#+BEGIN_SRC emacs-lisp
-(require 'setup-ivy)
 #+END_SRC
 
 * [[file:emacs-eshell.org][Eshell]]

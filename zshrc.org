@@ -54,7 +54,7 @@ se inicializará =tmux= o se conectará a una sesión existente
  #+END_SRC
 
 
- #+BEGIN_SRC shell
+#+BEGIN_SRC shell
 # Load the oh-my-zsh's library.
 antigen use oh-my-zsh
 
@@ -81,7 +81,7 @@ antigen bundle web-search
 antigen bundle zsh-users/zsh-autosuggestions
 antigen bundle zsh-users/zsh-completions
 antigen bundle zsh-users/zsh-syntax-highlighting
- #+END_SRC
+#+END_SRC
 
 * Tema
 

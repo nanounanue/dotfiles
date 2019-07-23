@@ -130,7 +130,7 @@ set titlecolor brightwhite,blue
 
 set statuscolor brightwhite,green
 
-set errorcolor brightwhite,red
+#set errorcolor brightwhite,red
 
 set selectedcolor brightwhite,magenta
 

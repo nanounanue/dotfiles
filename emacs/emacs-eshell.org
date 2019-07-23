@@ -747,9 +747,25 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
 
   So, let's do it...
 
-  #+BEGIN_SRC emacs-lisp
-    (setq tramp-default-method "ssh")
-  #+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(setq tramp-default-method "ssh")
+(setq password-cache-expiry 60)
+(setq tramp-auto-save-directory temporary-file-directory)
+
+;; Debug
+;;(setq tramp-verbose 9)
+(setq tramp-debug-buffer nil)
+
+
+#+END_SRC
+
+
+#+begin_src emacs-lisp
+(use-package counsel-tramp
+  :after counsel
+  :ensure t)
+#+end_src
 
 Usar =counsel=
 
@@ -757,6 +773,67 @@ Usar =counsel=
 (use-package counsel-tramp
   :ensure t)
 #+END_SRC
+
+=tramp-term=  la descripción de la [[https://github.com/randymorris/tramp-term.el/blob/master/README.md][página]]:
+
+#+begin_quote
+Provides a quick way to launch an ssh session in an
+ansi-term with directory tracking pre-configured. This makes opening
+remote files via TRAMP directly from the ssh session as easy as =C-x C-f=.
+#+end_quote
+
+#+begin_src emacs-lisp
+(use-package tramp-term
+  :ensure t)
+#+end_src
+
+También podemos conectarnos a un =docker= /container:/
+
+#+BEGIN_EXAMPLE
+  C-x C-f /docker:user@container:/path/to/file
+
+  where
+    user           is the user that you want to use (optional)
+    container      is the id or name of the container
+#+END_EXAMPLE
+
+
+#+begin_src emacs-lisp
+(use-package docker-tramp
+               :ensure t)
+#+end_src
+
+O usando =vagrant=:
+
+Es necesario instalar =virtualbox=
+
+#+begin_src shell :tangle no :dir /sudo::
+apt install -y virtualbox virtualbox-dkms virtualbox-ext-pack virtualbox-guest-addtions-iso \
+               virtualbox-guest-dkms virtualbox-guest-source virtual-guest-utils virtual-guest-x11 \
+               virtualbox-qt
+#+end_src
+
+y =vagrant= desde [[https://www.vagrantup.com/downloads.html][aquí]]
+
+
+#+begin_src shell
+vagrant --version
+#+end_src
+
+[[https://github.com/dougm/vagrant-tramp][link para vagrant-tramp]]
+
+
+#+begin_src emacs-lisp
+(use-package vagrant-tramp
+               :ensure t)
+#+end_src
+
+
+#+begin_example
+C-x C-f /vagrant:box|sudo:box:/path/to/file R
+#+end_example
+
+
 
 * Helpers
 

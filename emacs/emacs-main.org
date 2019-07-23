@@ -303,7 +303,7 @@ pip install epub mutagen lxml rarfile
 
 
 #+BEGIN_SRC emacs-lisp
-(setq locate-command "recoll")
+(setq locate-command "recollq")
 
 (bind-key "C-c L" 'locate)
 #+END_SRC
@@ -622,6 +622,7 @@ Obvio autocompletar en el [[https://github.com/Alexander-Miller/company-shell][s
    #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
   :ensure t
+  :disabled t
   :delight yas-minor-mode " υ"
   :diminish yas-minor-mode
   :hook (yas-minor-mode . nanounanue/disable-yas-if-no-snippets)
@@ -902,24 +903,41 @@ Y guardemos todos los archivos si Emacs pierde el foco (tomado de [[http://timot
 ** [[https://www.projectile.mx/en/latest/][Projectile]]
 
 #+BEGIN_SRC emacs-lisp
-  (use-package projectile
-    :demand t
-    :ensure t
-    :init
-    (setq projectile-enable-caching t
-          projectile-indexing-method 'alien
-          projectile-globally-ignored-files '(".DS_Store" "Icon" "TAGS")
-          projectile-globally-ignored-file-suffixes '(".elc" ".pyc" ".o" ".class"))
-    :bind-keymap
-    ("C-c p" . projectile-command-map)
-    ("s-p"   . projectile-command-map)
-    :config
-    (projectile-mode +1)
-    (setq projectile-completion-system 'ivy)
-    ;;(setq projectile-switch-project-action 'projectile-dired) ;; The action by default is open dired
-    (setq projectile-switch-project-action 'projectile-find-dir) ;; The action by default is select a directory inside the project
-    (setq projectile-find-dir-includes-top-level t)              ;; including the top directory
-    )
+(use-package projectile
+  :demand t
+  :ensure t
+  :preface
+  (defun nanounanue/projectile-compilation-buffers (&optional project)
+    "Get a list of a project's compilation buffers.
+  If PROJECT is not specified the command acts on the current project."
+    (let* ((project-root (or project (projectile-project-root)))
+           (buffer-list (mapcar #'process-buffer compilation-in-progress))
+           (all-buffers (cl-remove-if-not
+                         (lambda (buffer)
+                           (projectile-project-buffer-p buffer project-root))
+                         buffer-list)))
+      (if projectile-buffers-filter-function
+          (funcall projectile-buffers-filter-function all-buffers)
+        all-buffers)))
+  :init
+  (setq projectile-enable-caching t
+        projectile-indexing-method 'alien
+        projectile-globally-ignored-files '(".DS_Store" "Icon" "TAGS")
+        projectile-globally-ignored-file-suffixes '(".elc" ".pyc" ".o" ".class"))
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
+  ("s-p"   . projectile-command-map)
+  :custom
+  (projectile-completion-system 'ivy)
+  (projectile-enable-caching t)
+  (projectile-mode-line '(:eval (projectile-project-name)))
+  :config
+  (projectile-mode +1)
+  (projectile-global-mode)
+  ;;(setq projectile-switch-project-action 'projectile-dired) ;; The action by default is open dired
+  (setq projectile-switch-project-action 'projectile-find-dir) ;; The action by default is select a directory inside the project
+  (setq projectile-find-dir-includes-top-level t) ;; including the top directory
+  )
 #+END_SRC
 
 Usar =counsel=
@@ -1004,8 +1022,6 @@ Muestra los cambios en archivos controlados por =git=
   (use-package docker
                :ensure t)
 
-  (use-package docker-tramp
-               :ensure t)
 
   (use-package dockerfile-mode
     :ensure t
@@ -1016,34 +1032,6 @@ Muestra los cambios en archivos controlados por =git=
                :ensure t
                :mode "docker-compose.yml")
 #+END_SRC
-
-Para usar =docker-tramp=
-
-#+BEGIN_EXAMPLE
-  C-x C-f /docker:user@container:/path/to/file
-
-  where
-    user           is the user that you want to use (optional)
-    container      is the id or name of the container
-#+END_EXAMPLE
-
-** Tramp
-
-#+BEGIN_SRC emacs-lisp
-(setq tramp-default-method "ssh")
-(setq password-cache-expiry 60)
-(setq tramp-auto-save-directory temporary-file-directory)
-
-;; Debug
-;;(setq tramp-verbose 9)
-(setq tramp-debug-buffer nil)
-
-(use-package counsel-tramp
-  :ensure t)
-
-#+END_SRC
-
-
 
 ** Magit
 
