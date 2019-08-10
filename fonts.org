@@ -19,6 +19,20 @@ mkdir ~/.fonts
 
 * Fonts
 
+** Ubuntu
+
+*** Debian based
+#+BEGIN_SRC shell :dir /sudo::
+apt install fonts-ubuntu
+#+END_SRC
+
+** DejaVu
+
+*** Debian based
+#+BEGIN_SRC shell :dir /sudo::
+apt install fonts-dejavu
+#+END_SRC
+
 ** [[https://github.com/powerline/fonts][Powerline fonts]]
 
 *** Debian based
