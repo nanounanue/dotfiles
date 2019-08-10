@@ -35,38 +35,54 @@ Un /smart/ =M-x=. Sugiere los comandos de =M-x=  basados  en frecuencia y recié
 Sistema genérico de completado. Reemplaza a =ido=
 
 #+BEGIN_SRC emacs-lisp
-(use-package ivy
-  :defer 0.1
-  :delight
-  :after ivy-rich
-  :diminish ivy-mode
-  :bind (("C-x b" . ivy-switch-buffer)
-          ("C-x B" . ivy-switch-buffer-other-window)
-          ("<f6>"   . ivy-resume)
-          :map ivy-minibuffer-map
-          ("<tab>" . ivy-alt-done)
-          ("C-i" . ivy-partial-or-done)
-          ("S-SPC" . nil)
-          :map ivy-switch-buffer-map
-          ("C-k" . ivy-switch-buffer-kill))
- :custom
-  (ivy-height 10)
-  (ivy-wrap t)
-  (ivy-case-fold-search-default t)
-  (ivy-count-format "(%d/%d) ")
-  (ivy-re-builders-alist '((t . ivy--regex-plus)))
-  (ivy-fixed-height-minibuffer t)
-  (projectile-completition-system 'ivy)
-  (ivy-initial-inputs-alist nil)                   ; don't use ^ as initial input
-  (ivy-use-virtual-buffers nil)                    ; dont' show recent files in switch-buffer
-  (ivy-format-function #'ivy-format-function-line) ; highlight til EOL
-  (ivy-virtual-abbreviate 'full)                   ; show full path if showing virtual buffer
-  (ivy-magic-slash-non-match-action nil)           ; disable magic slash on non-match
-  (ivy-on-del-error-function nil)                  ; don't quit minibuffer on delete-error
-  (ivy-use-selectable-prompt t)                    ; allow input prompt value to be selectable
-  :config
-  (ivy-mode)
-)
+  (use-package ivy
+    :delight
+    :after ivy-rich
+    :diminish ivy-mode
+    :bind (("C-x b" . ivy-switch-buffer)
+            ("C-x B" . ivy-switch-buffer-other-window)
+            ("<f6>"   . ivy-resume)
+            :map ivy-minibuffer-map
+            ("<tab>" . ivy-alt-done)
+            ("C-i" . ivy-partial-or-done)
+            ("S-SPC" . nil)
+            :map ivy-switch-buffer-map
+            ("C-k" . ivy-switch-buffer-kill))
+   :custom
+    (ivy-height 10)
+    (ivy-wrap t)
+    (ivy-case-fold-search-default t)
+    (ivy-count-format "(%d/%d) ")
+    (ivy-re-builders-alist '((t . ivy--regex-plus)))
+    (ivy-fixed-height-minibuffer t)
+    (projectile-completition-system 'ivy)
+    (ivy-initial-inputs-alist nil)                   ; don't use ^ as initial input
+    (ivy-use-virtual-buffers nil)                    ; dont' show recent files in switch-buffer
+    (ivy-format-function #'ivy-format-function-line) ; highlight til EOL
+    (ivy-virtual-abbreviate 'full)                   ; show full path if showing virtual buffer
+    (ivy-magic-slash-non-match-action nil)           ; disable magic slash on non-match
+    (ivy-on-del-error-function nil)                  ; don't quit minibuffer on delete-error
+    (ivy-use-selectable-prompt t)                    ; allow input prompt value to be selectable
+    :config
+    ;;set action options during execution of counsel-find-file
+    ;; replace "frame" with window to open in new window
+    (ivy-set-actions
+     'counsel-find-file
+     '(("j" find-file-other-frame "other frame")
+       ("b" counsel-find-file-cd-bookmark-action "cd bookmark")
+       ("x" counsel-find-file-extern "open externally")
+       ("d" delete-file "delete")
+       ("r" counsel-find-file-as-root "open as root")))
+
+    ;; set actions when running C-x b
+    ;; replace "frame" with window to open in new window
+    (ivy-set-actions
+     'ivy-switch-buffer
+     '(("j" switch-to-buffer-other-frame "other frame")
+       ("k" kill-buffer "kill")
+       ("r" ivy--rename-buffer-action "rename")))
+
+      (ivy-mode))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -77,7 +93,6 @@ Sistema genérico de completado. Reemplaza a =ido=
 
 #+BEGIN_SRC emacs-lisp
 (use-package ivy-rich
-  :defer 0.1
   :preface
   (defun ivy-rich-branch-candidate (candidate)
     "Displays the branch candidate of the candidate for ivy-rich."
@@ -199,7 +214,7 @@ Colección de comandos de emacs mejorados por =ivy=
 (use-package counsel
   :after ivy
   :delight
-  :ensure t
+  ;ensure t
   :bind (("C-x C-d" . counsel-dired-jump)
          ("C-x C-h" . counsel-minibuffer-history)
          ("C-x C-r" . counsel-recentf)
@@ -222,40 +237,6 @@ Colección de comandos de emacs mejorados por =ivy=
   )
 #+END_SRC
 
-
-#+BEGIN_SRC emacs-lisp
-  (use-package ivy
-    :delight
-    :after ivy-rich
-    :bind (("C-x b" . ivy-switch-buffer)
-          ("C-x B" . ivy-switch-buffer-other-window)
-          ("<f6>"   . ivy-resume)
-          :map ivy-minibuffer-map
-          ("<tab>" . ivy-alt-done)
-          ("C-i" . ivy-partial-or-done)
-          ("S-SPC" . nil)
-          :map ivy-switch-buffer-map
-          ("C-k" . ivy-switch-buffer-kill))
-    :config
-    ;;set action options during execution of counsel-find-file
-    ;; replace "frame" with window to open in new window
-    (ivy-set-actions
-     'counsel-find-file
-     '(("j" find-file-other-frame "other frame")
-       ("b" counsel-find-file-cd-bookmark-action "cd bookmark")
-       ("x" counsel-find-file-extern "open externally")
-       ("d" delete-file "delete")
-       ("r" counsel-find-file-as-root "open as root")))
-
-    ;; set actions when running C-x b
-    ;; replace "frame" with window to open in new window
-    (ivy-set-actions
-     'ivy-switch-buffer
-     '(("j" switch-to-buffer-other-frame "other frame")
-       ("k" kill-buffer "kill")
-       ("r" ivy--rename-buffer-action "rename"))))
-#+END_SRC
-
 #+BEGIN_SRC emacs-lisp
 (use-package all-the-icons-ivy
   :after (all-the-icons ivy)
@@ -271,23 +252,44 @@ Colección de comandos de emacs mejorados por =ivy=
 La versión mejorada de =isearch= por =ivy=
 
 #+BEGIN_SRC emacs-lisp
-(use-package swiper
+  (use-package swiper
+    :after ivy
+    :config
+    (setq swiper-faces '(swiper-match-face-1
+                         swiper-match-face-2
+                         swiper-match-face-2
+                         swiper-match-face-2))
+    :bind (("C-s" . swiper)
+           ("C-r" . swiper)
+           :map swiper-map
+           ("M-%" . swiper-query-replace)))
+#+END_SRC
+
+
+
+* Prescient
+
+#+begin_src emacs-lisp
+  ;; Package `prescient' is a library for intelligent sorting and
+  ;; filtering in various contexts.
+  (use-package prescient
+    :config
+
+    ;; Remember usage statistics across Emacs sessions.
+    (prescient-persist-mode +1))
+
+;; Package `ivy-prescient' provides intelligent sorting and filtering
+;; for candidates in Ivy menus.
+(use-package ivy-prescient
+  :demand t
   :after ivy
-  :bind (("C-s" . swiper)
-         :map swiper-map
-         ("M-%" . swiper-query-replace)))
-#+END_SRC
+  :config
+
+  ;; Use `prescient' for Ivy menus.
+  (ivy-prescient-mode +1))
+#+end_src
 
 
-* /Key bindings/
-
-#+BEGIN_SRC emacs-lisp
-(bind-key  "C-s" 'swiper)  ;; replaces i-search with swiper
-(bind-key  "C-r" 'swiper)
-
-(global-set-key [f6] 'ivy-resume)
-
-#+END_SRC
 
 
 * Al final
