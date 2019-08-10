@@ -225,6 +225,7 @@ mu mkdir ~/Maildir/nanounanue-gmail/queue && touch ~/Maildir/nanounanue-gmail/qu
                 "* TODO %a %?\nDEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+2d\"))"))
 
 
+
   ;; Org capture en header and view mode
   (define-key mu4e-headers-mode-map (kbd "C-c c") 'org-mu4e-store-and-capture)
   (define-key mu4e-view-mode-map    (kbd "C-c c") 'org-mu4e-store-and-capture))

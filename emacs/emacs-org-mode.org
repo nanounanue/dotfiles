@@ -273,7 +273,7 @@ Org Capture Templates are explained [[http://orgmode.org/manual/Capture-template
   :config
   ;; Capture
   (setq org-capture-templates
-        (quote (("t" "TODO    (t)" entry (file "~/Dropbox/org/refile.org")
+        (quote (("t" "TODO    (t)" entry (file "~/Sync/org/refile.org")
                  "* TODO %?
 :PROPERTIES:
 :via: %f
@@ -282,17 +282,17 @@ Org Capture Templates are explained [[http://orgmode.org/manual/Capture-template
                  :clock-in t :clock-resume t :empty-lines 1)
                 ("K" "Cliplink capture task" entry (file "")
                  "* TODO %(org-cliplink-capture) \n  SCHEDULED: %t\n" :empty-lines 1)
-                ("s" "Scheduled TODO" entry (file+headline "~/Dropbox/org/refile.org")
+                ("s" "Scheduled TODO" entry (file+headline "~/Sync/org/refile.org")
                  "* TODO %? %^G \nSCHEDULED: %^t\n  %U" :empty-lines 1)
-                ("d" "Deadline" entry (file+headline "~/Dropbox/org/refile.org")
+                ("d" "Deadline" entry (file+headline "~/Sync/org/refile.org")
                  "* TODO %? %^G \n  DEADLINE: %^t" :empty-lines 1)
-                ("r" "research" entry (file "~/Dropbox/org/research.org")
+                ("r" "research" entry (file "~/Sync/org/research.org")
                  "* %? :IDEA:\n%U\n%a\n" :clock-in t :clock-resume t)
-                ("j" "journal" entry (file+olp+datetree "~/Dropbox/org/diary.org")
+                ("j" "journal" entry (file+olp+datetree "~/Sync/org/diary.org")
                  "* %?\n%U\n" :clock-in t :clock-resume t)
-                ("n" "Note" entry (file "~/Dropbox/org/notes.org")
+                ("n" "Note" entry (file "~/Sync/org/notes.org")
                  "* NOTE %?\n%U" :empty-lines 1)
-                ("N" "Note with Clipboard" entry (file "~/Dropbox/org/notes.org")
+                ("N" "Note with Clipboard" entry (file "~/Sync/org/notes.org")
                  "* NOTE %?\n%U\n   %c" :empty-lines 1))))
 
   ;; Refile

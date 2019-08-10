@@ -42,8 +42,8 @@
    (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-main.org"))
    (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-pdftools.org"))
    (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-package-manager.org"))
-   (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-funtions.org"))
-   (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-global-key.org"))
+   (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-functions.org"))
+   (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-global-keys.org"))
    ;;(org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/early-init.org"))
   (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/init.org")))
  (bind-key "C-c T" 'nanounanue/config-tangle)
@@ -157,6 +157,17 @@ variable-pitch face, and MODELINE-HEIGHT for mode-line face."
                       :weight 'regular))
 #+end_src
 
+** Spelling
+
+#+begin_src emacs-lisp
+       (defun nanounanue/change-dictionary-spanish ()
+         (interactive)
+         (ispell-change-dictionary "espanol"))
+
+       (defun nanounanue/change-dictionary-english ()
+         (interactive)
+         (ispell-change-dictionary "english"))
+#+end_src
 
 ** pyenv
 
@@ -185,6 +196,8 @@ variable-pitch face, and MODELINE-HEIGHT for mode-line face."
 
 (add-hook 'after-init-hook 'nanounanue/pyenv-init)
 #+end_src
+
+** mu4e
 
 * Fin
 
