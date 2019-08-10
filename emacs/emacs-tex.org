@@ -14,9 +14,11 @@
 
 * AucTeX
 
+Package `auctex' provides major modes for TeX code, including
+compiler and viewer integration.
+
 #+BEGIN_SRC emacs-lisp
 (use-package auctex
-  :ensure t
   :defer t
   :hook ((LaTeX-mode . reftex-mode)
          (LaTeX-mode . LaTeX-math-mode)
@@ -58,12 +60,62 @@
   (advice-add 'TeX-next-error :after #'nanounanue/switch-to-help-window)
   (advice-add 'TeX-recenter-output-buffer :after #'nanounanue/switch-to-help-window)
   (add-hook 'TeX-after-compilation-finished-functions 'TeX-revert-document-buffer)
-  (setq-default TeX-engine 'xetex))
+  (setq-default TeX-engine 'xetex)
+  :hook ((LaTeX-mode . visual-line-mode)
+         (LaTeX-mode . (lambda ()
+                         (add-to-list
+                          'TeX-command-list
+                          '("XeLaTeX" "%`xelatex%(mode)%' %t" TeX-run-TeX nil t)))))
+)
 #+END_SRC
+
+#+begin_src emacs-lisp
+  ;; Feature `tex-buf' from package `auctex' provides support for
+  ;; running TeX commands and displaying their output.
+  (use-feature tex-buf
+    :config
+
+    ;; Save buffers automatically when compiling, instead of prompting.
+    (setq TeX-save-query nil))
+#+end_src
+
+
+#+begin_src emacs-lisp
+  ;; Feature `latex' from package `auctex' provides the major mode for
+  ;; LaTeX.
+  (use-feature latex
+    :config
+
+    ;; Don't be afraid to break inline math between lines.
+    (setq LaTeX-fill-break-at-separators nil)
+
+    ;; When inserting a left brace, delete the current selection first,
+    ;; as per `delete-selection-mode'.
+    (put 'LaTeX-insert-left-brace 'delete-selection t)
+
+    (put 'LaTeX-using-Biber 'safe-local-variable #'booleanp))
+
+  ;; Feature `font-latex' from package `auctex' provides the syntax
+  ;; highlighting for the LaTeX major mode.
+  (use-feature font-latex
+    :init
+
+    ;; Do the following customizations before `font-latex' is loaded,
+    ;; since otherwise we would have to call
+    ;; `font-latex-update-sectioning-faces'.
+
+    ;; Prevent superscripts and subscripts from being displayed in a
+    ;; different font size.
+    (setq font-latex-fontify-script nil)
+
+    ;; Prevent section headers from being displayed in different font
+    ;; sizes.
+    (setq font-latex-fontify-sectioning 1))
+#+end_src
+
 
 #+BEGIN_SRC emacs-lisp
 (use-package latex-extra
-  :ensure t
   :hook
   (LaTeX-mode . latex-extra-mode))
 #+END_SRC
@@ -113,26 +165,22 @@
 
 #+BEGIN_SRC emacs-lisp
 (use-package auctex-latexmk
-  :ensure t
   :after auctex
   :init (add-hook 'LaTeX-mode-hook 'auctex-latexmk-setup))
 
 (use-package company-auctex
-  :ensure t
   :after (company auctex)
   :config
   (company-auctex-init))
 
 
 (use-package company-bibtex
-  :ensure t
   :after (company auctex)
   :config
   (add-to-list 'company-backends 'company-bibtex))
 
 
 (use-package company-math
-  :ensure t
   :after (company auctex)
   :config
   ;; global activation of the unicode symbol completion
@@ -221,7 +269,6 @@
 
 #+BEGIN_SRC emacs-lisp
 (use-package latex-math-preview
-  :ensure t
   :config
   (autoload 'LaTeX-preview-setup "preview")
   (setq preview-scale-function 1.2)

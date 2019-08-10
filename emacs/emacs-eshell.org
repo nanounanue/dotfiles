@@ -762,16 +762,14 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
 
 
 #+begin_src emacs-lisp
-(use-package counsel-tramp
-  :after counsel
-  :ensure t)
+  (use-package counsel-tramp
+    :after counsel)
 #+end_src
 
 Usar =counsel=
 
 #+BEGIN_SRC emacs-lisp
-(use-package counsel-tramp
-  :ensure t)
+  (use-package counsel-tramp)
 #+END_SRC
 
 =tramp-term=  la descripción de la [[https://github.com/randymorris/tramp-term.el/blob/master/README.md][página]]:
@@ -783,8 +781,7 @@ remote files via TRAMP directly from the ssh session as easy as =C-x C-f=.
 #+end_quote
 
 #+begin_src emacs-lisp
-(use-package tramp-term
-  :ensure t)
+  (use-package tramp-term)
 #+end_src
 
 También podemos conectarnos a un =docker= /container:/
@@ -799,8 +796,7 @@ También podemos conectarnos a un =docker= /container:/
 
 
 #+begin_src emacs-lisp
-(use-package docker-tramp
-               :ensure t)
+(use-package docker-tramp)
 #+end_src
 
 O usando =vagrant=:
@@ -824,8 +820,7 @@ vagrant --version
 
 
 #+begin_src emacs-lisp
-(use-package vagrant-tramp
-               :ensure t)
+(use-package vagrant-tramp)
 #+end_src
 
 
@@ -870,7 +865,6 @@ C-x C-f /vagrant:box|sudo:box:/path/to/file R
 
   #+BEGIN_SRC emacs-lisp
     (use-package eshell-fringe-status
-      :ensure t
       :config
       (add-hook 'eshell-mode-hook 'eshell-fringe-status-mode))
   #+END_SRC

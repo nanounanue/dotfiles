@@ -16,25 +16,17 @@
 
 #+BEGIN_SRC emacs-lisp
   (use-package ensime
-    :ensure t
-    :pin melpa
     :config
     (setq ensime-startup-notification nil
           ensime-startup-snapshot-notification nil))
 
-
-  (use-package sbt-mode
-    :pin melpa)
-
-
+  (use-package sbt-mode)
 #+END_SRC
 
 * SBT
 
 #+BEGIN_SRC emacs-lisp
   (use-package sbt-mode
-               :ensure t
-               :pin melpa
                :commands sbt-start sbt-command
                :config
                ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
@@ -58,7 +50,6 @@
 
 #+BEGIN_SRC emacs-lisp
   (use-package scala-mode
-    :pin melpa
     :mode (
            ("\\.scala$" . scala-mode)
            )

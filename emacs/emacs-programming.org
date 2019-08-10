@@ -36,8 +36,7 @@
               ([C-tab] . bicycle-cycle)
               ([S-tab] . bicycle-cycle-global)))
 
-(use-package prog-mode
-  :ensure nil
+(use-feature prog-mode
   :config
   (add-hook 'prog-mode-hook 'outline-minor-mode)
   (add-hook 'prog-mode-hook 'hs-minor-mode))
@@ -86,7 +85,6 @@
 
 #+BEGIN_SRC emacs-lisp
   (use-package aggressive-indent
-    :ensure t
     :config
     ;; (global-aggressive-indent-mode 1)
     (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
@@ -97,13 +95,17 @@
     (add-hook 'css-mode-hook #'aggressive-indent-mode))
 #+END_SRC
 
-*** /Jump to source/
+*** /Jump to source/: [[https://github.com/jacktasia/dumb-jump][Dumb jump]]
 
-/"Zero or almost-zero configuration tags replacement"/
+#+begin_quote
+“Jump to definition” with support for multiple programming languages
+that favors “just working”. This means minimal – and ideally zero –
+configuration with absolutely no stored indexes (TAGS) or persistent
+background processes.
+#+end_quote
 
 #+BEGIN_SRC emacs-lisp
   (use-package dumb-jump
-    :ensure t
     :diminish dumb-jump-mode
     :config
     (setq dumb-jump-selector 'ivy)
@@ -125,7 +127,6 @@ Una versión /fancy/ de =narrow-to-region=.
 
  #+BEGIN_SRC emacs-lisp
  (use-package fancy-narrow
-   :ensure t
    :diminish
    :config
    (fancy-narrow-mode)
@@ -136,7 +137,6 @@ Una versión /fancy/ de =narrow-to-region=.
 
 #+BEGIN_SRC emacs-lisp
 (use-package rainbow-blocks
-:ensure t
 :config
 (require 'rainbow-blocks)
 :hook (clojure-mode))
@@ -158,8 +158,7 @@ apt install -y jq
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-(use-package jq-mode
-  :ensure t)
+(use-package jq-mode)
 #+END_SRC
 
 ** [[file:emacs-clojure.org][Clojure]]
@@ -233,10 +232,10 @@ Y en esa sesión ejecutar
      (require 'ess-site)
      :config
      ;; Subpackage
-     (use-package ess-R-data-view :ensure t)
+     (use-package ess-R-data-view)
      (use-package ess-smart-equals :disabled)
-     (use-package ess-smart-underscore :ensure t)
-     (use-package ess-view :ensure t)
+     (use-package ess-smart-underscore)
+     (use-package ess-view)
 
      ;;(ess-toggle-underscore nil) ; http://stackoverflow.com/questions/2531372/how-to-stop-emacs-from-replacing-underbar-with-in-ess-mode
      (setq ess-fancy-comments nil) ; http://stackoverflow.com/questions/780796/emacs-ess-mode-tabbing-for-comment-region
@@ -294,7 +293,6 @@ Abre un /buffer/ cualquiera y teclea =M-x sql-postgres=
 
 #+BEGIN_SRC emacs-lisp
 (use-package sql-indent
-  :ensure t
   :after (:any sql sql-interactive-mode)
   :delight sql-mode "Σ " )
 #+END_SRC
@@ -303,42 +301,49 @@ Abre un /buffer/ cualquiera y teclea =M-x sql-postgres=
 
 #+BEGIN_SRC emacs-lisp
 (use-package cypher-mode
-  :ensure t
   :config
   (add-to-list 'auto-mode-alist '("\\.cql\\'" . cypher-mode))
   )
 #+END_SRC
 
-*** Polymode
+
+** [[https://github.com/chiply/convention][Convention]]
+
+#+begin_quote
+ Convention aims to offer the ability to code through a consistent
+ interface in any language with no interpreters or compilers installed
+ on your machine.
+#+end_quote
+
+#+begin_src emacs-lisp
+(use-package convention
+ :quelpa (convention :fetcher github :repo "chiply/convention"))
+#+end_src
+
+** Polymode
 
 Como =org-mode=, pero para =markdown=
 
 [[https://polymode.github.io][Documentación]]
 
 #+begin_src emacs-lisp
-(use-package polymode
-  :ensure t)
+(use-package polymode)
 
 (use-package poly-markdown
-  :ensure t
   :after polymode
   :config
   (add-to-list 'auto-mode-alist '("\\.md" . poly-markdown-mode)))
 
 (use-package poly-R
-  :ensure ;TODO:
   :after polymode)
 
 (use-package poly-ansible
-  :ensure t
   :after polymode)
 
 (use-package poly-ruby
-  :ensure t
   :after polymode)
 
 (use-package poly-noweb
-  :ensure t
   :after polymode)
 #+end_src
 

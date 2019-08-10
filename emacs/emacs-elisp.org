@@ -28,8 +28,8 @@
 * Emacs Lisp
 
 #+BEGIN_SRC emacs-lisp
-(use-package lisp-mode
-  :ensure nil
+(use-feature lisp-mode
+  ;ensure nil
   :init
   (defconst lisp--prettify-symbols-alist
     '(("lambda"  . ?λ)                  ; Shrink this
@@ -71,7 +71,6 @@ Por recomendación del [[https://lispcookbook.github.io/cl-cookbook/emacs-ide.ht
 
 #+BEGIN_SRC emacs-lisp
   (use-package parinfer
-    :ensure t
     :bind
     (("C-," . parinfer-toggle-mode))
     :init
@@ -97,7 +96,6 @@ El mítico =paredit=.  [[http://pub.gajendra.net/src/paredit-refcard.pdf][Cheats
 
 #+BEGIN_SRC emacs-lisp
 (use-package paredit
-  :ensure t
   :diminish "﹙﹚"
   :init
   (dolist (m (list 'emacs-lisp-mode-hook 'lisp-interaction-mode-hook 'eval-expression-minibuffer-setup-hook 'ielm-mode-hook))
@@ -109,7 +107,6 @@ El mítico =paredit=.  [[http://pub.gajendra.net/src/paredit-refcard.pdf][Cheats
 
 #+BEGIN_SRC emacs-lisp
 (use-package lispy
-  :ensure t
   :defer t
   :bind (:map lispy-mode-map
          ("C-1" . nil)
@@ -129,8 +126,7 @@ El mítico =paredit=.  [[http://pub.gajendra.net/src/paredit-refcard.pdf][Cheats
 Integremos [[https://www.emacswiki.org/emacs/InferiorEmacsLispMode][Inferior Emacs Lisp Mode]] (IELM) con =eldoc=
 
 #+BEGIN_SRC emacs-lisp
-  (use-package ielm
-    :ensure nil
+  (use-feature ielm
     :init
     (add-hook 'ielm-mode-hook 'turn-on-eldoc-mode))
 #+END_SRC
@@ -140,7 +136,6 @@ El [[https://github.com/xiongtx/eros][EROS project]] despliega los resultados de
 
 #+BEGIN_SRC emacs-lisp
   (use-package eros
-    :ensure t
     :init
     (add-hook 'emacs-lisp-mode-hook (lambda () (eros-mode 1))))
 #+END_SRC

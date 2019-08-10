@@ -16,25 +16,33 @@
 * Requerimientos
 
 #+BEGIN_SRC shell
-pip install jedi flake8 yapf autopep8 importmagic
+pip install jedi flake8 yapf autopep8 importmagic pylint
 #+END_SRC
 
 *  Python
 
-  # #+BEGIN_SRC emacs-lisp
-  #   (use-package python
-  #     :mode ("\\.py\\'" . python-mode)
-  #           ("\\.wsgi$" . python-mode)
-  #     :interpreter ("python" . python-mode)
+#+BEGIN_SRC emacs-lisp
+(use-package python
+  :mode ("\\.py\\'" . python-mode)
+  ("\\.wsgi$" . python-mode)
+  :interpreter ("python" . python-mode)
 
-  #     :init
-  #     (setq-default indent-tabs-mode nil)
+  :init
+  (setq-default indent-tabs-mode nil)
 
-  #     :config
-  #     (setq python-indent-offset 4)
-  #     (add-hook 'python-mode-hook 'smartparens-mode)
-  #     (add-hook 'python-mode-hook 'color-identifiers-mode))
-  # #+END_SRC
+  :custom
+  (python-indent-offset 4)
+  (python-indent-guess-indent-offset nil)
+  (python-indent-guess-indent-offset-verbose nil)
+  (flycheck-python-flake8-executable "/home/nanounanue/.pyenv/shims/flake8")
+  (flycheck-python-pylint-executable "/home/nanounanue/.pyenv/shims/pylint")
+  :hook
+  (python-mode-hook . smartparens-mode)
+  :bind
+  ;; Start a new kernel or move to an existing one, like in Spacemacs.
+  ;; Note that this function will be defined when jupyter is initialized.
+  ("M-RET '" . jupyter-run-repl-or-pop-to-buffer-dwim))
+#+END_SRC
 
 *  Lint
 
@@ -49,39 +57,40 @@ pip install --upgrade flake8
  Conectemos =Jedi= to   =company-mode=:
 
   #+BEGIN_SRC emacs-lisp
-    (use-package jedi
-      :disabled t
-      :ensure t
-      :init
-      (add-to-list 'company-backends 'company-jedi)
-      :config
-      (use-package company-jedi
-        :disabled t
-        :ensure t
-        :init
-        (add-hook 'python-mode-hook (lambda () (add-to-list 'company-backends 'company-jedi)))
-        (setq company-jedi-python-bin "python")))
+(use-package jedi
+  :disabled t
+                                        ;ensure t
+  :init
+  (add-to-list 'company-backends 'company-jedi)
+  :config
+  (use-package company-jedi
+    :disabled t
+                                        ;ensure t
+    :init
+    (add-hook 'python-mode-hook (lambda () (add-to-list 'company-backends 'company-jedi)))
+    (setq company-jedi-python-bin "python")))
   #+END_SRC
 
 * Pyenv
 
+
 #+BEGIN_SRC emacs-lisp
+(use-package pyvenv)
+
+
 (use-package pyenv-mode
-  :disabled t
-  :ensure t
+  :if
+  (executable-find "pyenv")
+  :init
+  (add-to-list 'exec-path "~/.pyenv/shims")
+  (setenv "WORKON_HOME" "~/.pyenv/versions/")
   :config
-  (require 'pyenv-mode)
-  )
-
-;; (defun nanounanue/projectile-pyenv-mode-set ()
-;;   "Set pyenv version matching project name."
-;;   (let ((project (projectile-project-name)))
-;;     (if (member project (pyenv-mode-versions))
-;;         (pyenv-mode-set project)
-;;       (pyenv-mode-unset))))
+  (pyenv-mode)
+  :bind
+  ("C-x p e" . nanounanue/pyenv-activate-current-project))
 
 
-;; (add-hook 'projectile-after-switch-project-hook 'projectile-pyenv-mode-set)
+(use-package pyenv-mode-auto)
 #+END_SRC
 
 * Anaconda
@@ -90,28 +99,101 @@ pip install --upgrade flake8
   and the fact that I need to use =pyenv= (instead of =pyvenv=).
 
   #+BEGIN_SRC emacs-lisp
-    (use-package anaconda-mode
-      :ensure t
-      :init (add-hook 'python-mode-hook 'anaconda-mode)
-            (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
-      :config (use-package company-anaconda
-                :ensure t
-                :init (add-hook 'python-mode-hook 'anaconda-mode)
-                (eval-after-load "company"
-                  '(add-to-list 'company-backends '(company-anaconda :with company-capf)))))
+(use-package anaconda-mode
+  :hook ((python-mode . anaconda-mode)
+         (python-mode . anaconda-eldoc-mode))
+  :config
+  (use-package company-anaconda
+    :init
+    (eval-after-load "company"
+      '(add-to-list 'company-backends '(company-anaconda :with company-capf)))
+    :hook
+    (python-mode-hook . anaconda-mode)
+    ))
   #+END_SRC
 
   Oh, make sure we have [[https://github.com/proofit404/company-anaconda][Company-Anaconda]] configured too.
+
+* /Testing/
+
+#+begin_src emacs-lisp
+(use-package pytest
+  :commands (pytest-one
+             pytest-pdb-one
+             pytest-all
+             pytest-pdb-all
+             pytest-module
+             pytest-pdb-module)
+  :config (add-to-list 'pytest-project-root-files "setup.cfg")
+  (setq pytest-cmd-flags  "-v")
+  :bind (:map python-mode-map
+              ("C-c a" . pytest-all)
+              ("C-c m" . pytest-module)
+              ("C-c ." . pytest-one)
+              ("C-c d" . pytest-directory)))
+#+end_src
+
+* requirements
+
+#+begin_src emacs-lisp
+(use-package pip-requirements)
+  ;blackout "Requirements")
+#+end_src
+
+* [[https://en.wikipedia.org/wiki/TOML][TOML]]
+
+#+begin_quote
+TOML is a configuration file format that is intended to be easy to
+read and write due to more obvious semantics which aim to be
+"minimal", and is designed to map unambiguously to a dictionary.
+#+end_quote
+
+Si lo vas a usar en =python=, es necesario instalar =toml=
+
+#+begin_src shell
+pip install toml
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package toml-mode
+  :mode "Pipfile\\'")
+  ;; Correct the capitalization from "Toml" to "TOML".
+  ;blackout "TOML")
+#+end_src
+
+
+* Formateador de código:[[https://pypi.org/project/black/][ Black]]
+
+#+begin_quote
+Black is the uncompromising Python code formatter. By using it, you
+agree to cede control over minutiae of hand-formatting. In return,
+Black gives you speed, determinism, and freedom from pycodestyle
+nagging about formatting. You will save time and mental energy for
+more important matters.
+#+end_quote
+
+#+begin_src shell
+pip install black
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package blacken
+  :after python
+  :demand t
+  :commands blacken-buffer
+  :bind (:map python-mode-map
+              ("C-c =" . blacken-buffer)))
+#+end_src
 
 * Documentación
 
 #+BEGIN_SRC emacs-lisp
 (use-package sphinx-doc
-  :ensure t
+  ;ensure t
   :hook (python-mode . sphinx-doc-mode))
 
 (use-package python-docstring
-  :ensure t
+  ;ensure t
   :config (setq python-docstring-sentence-end-double-space nil)
   :hook (python-mode . python-docstring-mode))
 #+END_SRC

@@ -157,6 +157,35 @@ variable-pitch face, and MODELINE-HEIGHT for mode-line face."
                       :weight 'regular))
 #+end_src
 
+
+** pyenv
+
+#+begin_src emacs-lisp
+(defun nanounanue/pyenv-init()
+  "Setup pyenv in Emacs."
+  (setq global-pyenv (replace-regexp-in-string "\n" "" (shell-command-to-string "pyenv global")))
+  (message (concat "Setting pyenv version to " global-pyenv))
+  (pyenv-mode-set global-pyenv)
+  (defvar pyenv-current-version nil global-pyenv))
+
+(defun nanounanue/pyenv-activate-current-project ()
+  "Automatically activates pyenv version if .python-version file exists."
+  (interactive)
+  (f-traverse-upwards
+   (lambda (path)
+     (message path)
+     (let ((pyenv-version-path (f-expand ".python-version" path)))
+       (if (f-exists? pyenv-version-path)
+          (progn
+            (setq pyenv-current-version (s-trim (f-read-text pyenv-version-path 'utf-8)))
+            (pyenv-mode-set pyenv-current-version)
+            (pyvenv-workon pyenv-current-version)
+            (message (concat "Setting virtualenv to " pyenv-current-version))))))))
+
+
+(add-hook 'after-init-hook 'pyenv-init)
+#+end_src
+
 * Fin
 
 #+begin_src emacs-lisp

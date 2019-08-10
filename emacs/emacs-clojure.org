@@ -17,15 +17,13 @@
 
 #+BEGIN_SRC emacs-lisp
 (use-package clojure-mode
-  :ensure t
   :demand t)
 #+END_SRC
 
 * Snippets
 
 #+BEGIN_SRC emacs-lisp
-  (use-package clojure-snippets
-    :ensure t)
+  (use-package clojure-snippets)
 #+END_SRC
 
 
@@ -76,62 +74,59 @@
     everything up. Keyboard: =C-c M-j=
   - =cider= to connect to an existing nREPL server.
 
-  #+BEGIN_SRC emacs-lisp
-        (use-package cider
-          :ensure t
-          :commands (cider cider-connect cider-jack-in)
+ #+BEGIN_SRC emacs-lisp
+(use-package cider
+  :commands (cider cider-connect cider-jack-in)
 
-          :init
-          (setq cider-auto-select-error-buffer t
-                cider-repl-pop-to-buffer-on-connect nil
-                cider-repl-use-clojure-font-lock t
-                cider-repl-wrap-history t
-                cider-repl-history-size 1000
-                cider-show-error-buffer t
-                nrepl-hide-special-buffers t
-                ;; Stop error buffer from popping up while working in buffers other than the REPL:
-                nrepl-popup-stacktraces nil)
+  :init
+  (setq cider-auto-select-error-buffer t
+        cider-repl-pop-to-buffer-on-connect nil
+        cider-repl-use-clojure-font-lock t
+        cider-repl-wrap-history t
+        cider-repl-history-size 1000
+        cider-show-error-buffer t
+        nrepl-hide-special-buffers t
+        ;; Stop error buffer from popping up while working in buffers other than the REPL:
+        nrepl-popup-stacktraces nil)
 
-          ;; (add-hook 'cider-mode-hook 'cider-turn-on-eldoc-mode)
-          (add-hook 'cider-mode-hook 'company-mode)
+  ;; (add-hook 'cider-mode-hook 'cider-turn-on-eldoc-mode)
+  (add-hook 'cider-mode-hook 'company-mode)
 
-          (add-hook 'cider-repl-mode-hook 'paredit-mode)
-          (add-hook 'cider-repl-mode-hook 'superword-mode)
-          (add-hook 'cider-repl-mode-hook 'company-mode)
-          (add-hook 'cider-test-report-mode 'jcf-soft-wrap)
+  (add-hook 'cider-repl-mode-hook 'paredit-mode)
+  (add-hook 'cider-repl-mode-hook 'superword-mode)
+  (add-hook 'cider-repl-mode-hook 'company-mode)
+  (add-hook 'cider-test-report-mode 'jcf-soft-wrap)
 
-          :bind (:map cider-mode-map
-                 ("C-c C-v C-c" . cider-send-and-evaluate-sexp)
-                 ("C-c C-p"     . cider-eval-print-last-sexp))
+  :bind (:map cider-mode-map
+              ("C-c C-v C-c" . cider-send-and-evaluate-sexp)
+              ("C-c C-p"     . cider-eval-print-last-sexp))
 
-          :config
-          (use-package slamhound)
-          ;; REPL history file
-          (setq cider-repl-history-file "~/.emacs.d/cider-history")
+  :config
+  (use-package slamhound)
+  ;; REPL history file
+  (setq cider-repl-history-file "~/.emacs.d/cider-history")
 
-          ;; nice pretty printing
-          (setq cider-repl-use-pretty-printing t)
+  ;; nice pretty printing
+  (setq cider-repl-use-pretty-printing t)
 
-          ;; nicer font lock in REPL
-          (setq cider-repl-use-clojure-font-lock t)
+  ;; nicer font lock in REPL
+  (setq cider-repl-use-clojure-font-lock t)
 
-          ;; result prefix for the REPL
-          (setq cider-repl-result-prefix ";; => ")
+  ;; result prefix for the REPL
+  (setq cider-repl-result-prefix ";; => ")
 
-          ;; never ending REPL history
-          (setq cider-repl-wrap-history t)
+  ;; never ending REPL history
+  (setq cider-repl-wrap-history t)
 
-          ;; looong history
-          (setq cider-repl-history-size 3000)
+  ;; looong history
+  (setq cider-repl-history-size 3000)
 
-          ;; eldoc for clojure
-          (add-hook 'cider-mode-hook #'eldoc-mode)
+  ;; eldoc for clojure
+  (add-hook 'cider-mode-hook #'eldoc-mode)
 
 
-          ;; error buffer not popping up
-          (setq cider-show-error-buffer nil)
-
-          )
+  ;; error buffer not popping up
+  (setq cider-show-error-buffer nil))
   #+END_SRC
 
   What about doing the evaluation but re-inserting the results as a
@@ -155,8 +150,7 @@
   To get Clojure's Cider working with org-mode, do:
 
   #+BEGIN_SRC emacs-lisp
-    (use-package ob-clojure
-      :ensure nil
+    (use-feature ob-clojure
       :init
       (setq org-babel-clojure-backend 'cider))
   #+END_SRC
@@ -169,7 +163,6 @@
 
   #+BEGIN_SRC emacs-lisp
     (use-package flycheck-clojure
-      :ensure t
       :init
       (add-hook 'after-init-hook 'global-flycheck-mode)
       :config
@@ -182,7 +175,6 @@
 
   #+BEGIN_SRC emacs-lisp
     (use-package flycheck-pos-tip
-      :ensure t
       :config
       (use-package flycheck
         :config
@@ -195,7 +187,7 @@
   Finally, if you are just learning Clojure, check out [[http://www.4clojure.com/][4Clojure]] and then
   install [[https://github.com/joshuarh/4clojure.el][4clojure-mode]].
 
-  #+BEGIN_SRC emacs-lisp :tangle no
+  #+BEGIN_SRC emacs-lisp
     (use-package 4clojure
       :init
       (bind-key "<f9> a" '4clojure-check-answers clojure-mode-map)
@@ -216,7 +208,7 @@
   Got some good /advice/ from [[http://endlessparentheses.com/be-a-4clojure-hero-with-emacs.html][Endless Parens]] for dealing with
   4Clojure:
 
-  #+BEGIN_SRC emacs-lisp :tangle no
+  #+BEGIN_SRC emacs-lisp
      (defun endless/4clojure-check-and-proceed ()
        "Check the answer and show the next question if it worked."
        (interactive)
@@ -239,7 +231,7 @@
 
   And:
 
-  #+BEGIN_SRC emacs-lisp :tangle no
+  #+BEGIN_SRC emacs-lisp
      (defadvice 4clojure/start-new-problem
          (after endless/4clojure/start-new-problem-advice () activate)
          ;; Prettify the 4clojure buffer.
@@ -263,7 +255,7 @@
 
   We need a file where we can save our current question:
 
-  #+BEGIN_SRC emacs-lisp :tangle no
+  #+BEGIN_SRC emacs-lisp
    (defvar nanounanue/4clojure-place-file (concat user-emacs-directory "4clojure-place.txt"))
   #+END_SRC
 
@@ -271,7 +263,7 @@
   this, we use a temporary buffer, so that we don't have to worry
   about saving it.
 
-  #+BEGIN_SRC emacs-lisp :tangle no
+  #+BEGIN_SRC emacs-lisp
   (defun nanounanue/file-to-string (file)
     "Read the contents of FILE and return as a string."
     (with-temp-buffer
@@ -281,7 +273,7 @@
 
   Parse a file into separate lines and return a list.
 
-  #+BEGIN_SRC emacs-lisp :tangle no
+  #+BEGIN_SRC emacs-lisp
     (defun nanounanue/file-to-list (file)
       "Return a list of lines in FILE."
       (split-string (nanounanue/file-to-string file) "\n" t))
@@ -290,7 +282,7 @@
   We create a wrapper function that reads our previous "place"
   question and then calls the open question function.
 
-  #+BEGIN_SRC emacs-lisp :tangle no
+  #+BEGIN_SRC emacs-lisp
      (defun nanounanue/4clojure-last-project (file)
        (interactive "f")
        (if (file-exists-p file)
@@ -308,7 +300,7 @@
   Write a value to a file. Making this interactive makes for an
   interesting use case...we'll see if I use that.
 
-  #+BEGIN_SRC emacs-lisp :tangle no
+  #+BEGIN_SRC emacs-lisp
      (defun nanounanue/string-to-file (string file)
        (interactive "sEnter the string: \nFFile to save to: ")
        (with-temp-file file
@@ -318,7 +310,7 @@
   Whenever we load a 4clojure project or go to the next one, we store
   the project number to our "place" file:
 
-  #+BEGIN_SRC emacs-lisp :tangle no
+  #+BEGIN_SRC emacs-lisp
    (when (package-installed-p '4clojure)
      (defun nanounanue/4clojure-store-place (num)
          (nanounanue/string-to-file (int-to-string num) nanounanue/4clojure-place-file))
