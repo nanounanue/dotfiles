@@ -316,8 +316,8 @@ Abre un /buffer/ cualquiera y teclea =M-x sql-postgres=
 #+end_quote
 
 #+begin_src emacs-lisp
-(use-package convention
- :quelpa (convention :fetcher github :repo "chiply/convention"))
+(straight-use-package
+ '(convention :type git :host github :repo "chiply/convention"))
 #+end_src
 
 ** Polymode

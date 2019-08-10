@@ -1282,7 +1282,21 @@ Muestra los cambios en archivos controlados por =git=
      :config (global-git-gutter-mode t))
 #+END_SRC
 
- [[https://github.com/pidu/git-timemachine][Git Time Machine]] permite navegar entre versiones históricas de un archivo
+ [[https://github.com/pidu/git-timemachine][Git Time Machine]] permite navegar entre versiones históricas de un
+ archivo
+
+[[http://emacsredux.com/blog/2014/07/22/travel-back-and-forward-in-git-history/][Gif animado describiendo comportamiento]]
+
+| Key | description                                                             |
+|-----+-------------------------------------------------------------------------|
+| p   | Visit previous historic version                                         |
+| n   | Visit next historic version                                             |
+| w   | Copy the abbreviated hash of the current historic version               |
+| W   | Copy the full hash of the current historic version                      |
+| g   | Goto nth revision                                                       |
+| q   | Exit the time machine.                                                  |
+| b   | Run magit-blame on the currently visited revision (if magit available). |
+|     |                                                                         |
 
 #+BEGIN_SRC emacs-lisp
 (use-package git-timemachine)
@@ -1294,10 +1308,56 @@ Muestra los cambios en archivos controlados por =git=
 This package is easiest way to open particular link on github/gitlab/bitbucket/stash/git.savannah.gnu.org/sourcehut from Emacs
 #+end_quote
 
+
+
 #+begin_src emacs-lisp
 (use-package browse-at-remote
   :bind
   (("C-c b r" . browse-at-remote)))
+#+end_src
+
+
+[[https://emacsgifs.github.io/758861381898637313-smerge-mode][Merging conflicts!]]
+
+
+#+begin_src emacs-lisp
+(use-package smerge-mode
+  :after hydra
+  :hook (magit-diff-visit-file . (lambda ()
+                                   (when smerge-mode
+                                     (hydra-merge/body)))))
+#+end_src
+
+** smeargle - Highlighting Regions by Last Updated Time
+
+#+begin_src emacs-lisp
+(use-package smeargle
+:config
+(custom-set-variables
+ '(smeargle-colors '((older-than-1day   . "red")
+                     (older-than-3day   . "green")
+                     (older-than-1week  . "yellow")
+                     (older-than-2week  . nil)
+                     (older-than-1month . "orange")
+                     (older-than-3month . "pink")
+                     (older-than-6month . "cyan")
+                     (older-than-1year . "grey50"))))
+(custom-set-variables
+ '(smeargle-age-colors '((0 . nil)
+                         (1 . "grey80")
+                         (2 . "grey70")
+                         (3 . "grey60")
+                         (4 . "grey50")
+                         (5 . "grey40")
+                         (6 . "grey30")
+                         (7 . "grey20")
+                         (8 . "grey10"))))
+;; Highlight regions at opening file
+(add-hook 'find-file-hook 'smeargle)
+
+;; Updating after save buffer
+(add-hook 'after-save-hook 'smeargle))
+
 #+end_src
 
 

@@ -176,7 +176,7 @@ no sea configurado el administrador de paquetes
 
 * Programación
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 (require 'setup-coding)
 #+end_src
 
@@ -190,7 +190,7 @@ no sea configurado el administrador de paquetes
 
 * [[file:emacs-eshell.org][Eshell]]
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 (require 'setup-eshell)
 #+end_src
 
@@ -209,7 +209,7 @@ no sea configurado el administrador de paquetes
 
 * /Heil Hydra!/
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 (require 'setup-hydra)
 #+end_src
 
@@ -221,7 +221,7 @@ no sea configurado el administrador de paquetes
 
 * PDF tools
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 (require 'setup-pdftools)
 #+end_src
 

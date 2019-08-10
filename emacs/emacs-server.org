@@ -11,7 +11,22 @@
 
 * Server
 
+#+begin_src emacs-lisp
+(use-package server
+  :if (display-graphic-p)
+  :commands (server-running-p server-start)
+  :init
+  (server-mode 1)
+  :config
+  (unless (server-running-p)
+    (add-hook 'after-init-hook 'server-start t))
+;  (require 'org-protocol)
+)
+#+end_src
+
 * Systemd
+
+Ver [[file:~/dotfiles/systemd.org][Configuración aquí]]
 
 * Hacerse visible
 

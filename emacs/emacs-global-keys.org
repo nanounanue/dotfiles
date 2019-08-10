@@ -61,6 +61,14 @@ Ya viene incluido con =use-package=, sólo hay que activarlo
 (bind-key "C-c w s" 'copy-as-format-slack)
 (bind-key "C-c w g" 'copy-as-format-github)
 #+end_src
+
+** smeargle
+
+#+begin_src emacs-lisp
+(bind-key (kbd "C-x v s") 'smeargle)
+(bind-key (kbd "C-x v c") 'smeargle-commits)
+#+end_src
+
 * Fin
 
 #+begin_src emacs-lisp
