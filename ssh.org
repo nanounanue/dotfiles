@@ -12,6 +12,12 @@
 
 * SSH
 
+** Directorios necesarios
+
+#+begin_src shell :tangle no
+mkdir -p ~/.ssh/sockets
+#+end_src
+
 ** =config=
 
 Configuración y alias para servidores de uso regular
@@ -31,7 +37,6 @@ Host *
 *** Github
 
 #+begin_src shell
-# github
 Host github.com
   User nanounanue
   IdentityFile ~/.ssh/id_rsa
