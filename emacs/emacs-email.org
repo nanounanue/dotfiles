@@ -15,13 +15,58 @@
 
 * Dependencias
 
-Paquete para convertir =html= a =texto=
+** Necesitamos instalar =mu4e=
+
+#+begin_src shell :dir /sudo::
+apt install mu4e
+#+end_src
+
+** Cifrado de /passwords/
+
+#+begin_src shell :dir /sudo::
+apt install gpg2 gpg
+#+end_src
+
+*** SMTP
+Las contraseñas están cifradas en los arhivo =.authinfo.gpg= de la
+siguiente manera:
+
+#+begin_example
+machine smtp.gmail.com login <cuenta> port 587 password <password>
+machine smtp.gmail.com login <cuenta> port 993 password <password>
+#+end_example
+
+Primero hay que crear un archivo =.authinfo= con esa estructura, dos
+líneas por cuenta. Al terminar, hay que cifrar con:
+
+#+begin_example
+gpg2 -c .authinfo
+#+end_example
+
+Esto generará el archivo =.authinfo.gpg=. Ahora puedes borrar el
+archivo =.authinfo=.
+
+*NOTA*: También es posible hacerlo desde =Emacs= con
+=epa-encrypt-file=.
+
+*NOTA*: Este archivo también puede contener otras claves para
+conectarse a otros equipos.
+
+*** IMAP
+
+Existen otros dos archivos que contienen el /password/ (y nada más) de
+IMAP.
+
+El procedimiento para cifrarlo es el mismo que en el caso de =SMTP=
+
+** Paquete para convertir =html= a =texto=
+(aunque está /deprecado/)
 
 #+begin_src shell :dir /sudo::
 apt install html2text
 #+end_src
 
-Directorio para /encolar/ mensajes (cuando estoy /off-line/)
+** Directorio para /encolar/ mensajes (cuando estoy /off-line/)
 
 #+begin_src shell :dir ~
 mu mkdir ~/Maildir/adolfoaz-gmail/queue && touch ~/Maildir/adolfoaz-gmail/queue/.noindex
