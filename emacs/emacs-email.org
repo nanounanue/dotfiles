@@ -59,6 +59,10 @@ IMAP.
 
 El procedimiento para cifrarlo es el mismo que en el caso de =SMTP=
 
+En particular, estamos usando [[file:~/dotfiles/mbsyncrc.org][=mbsync=]].
+
+
+
 ** Paquete para convertir =html= a =texto=
 (aunque está /deprecado/)
 

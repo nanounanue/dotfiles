@@ -1,0 +1,235 @@
+#+TITLE: Configuración del mbsync
+#+AUTHOR: Adolfo De Unánue
+#+EMAIL: nanounanue@gmail.com
+#+STARTUP: showeverything
+#+STARTUP: nohideblocks
+#+STARTUP: indent
+#+PROPERTY: header-args:shell :tangle ~/.mbsyncrc : :comments org
+#+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+
+* Instalación
+
+El paquete a instalar es =isync=
+
+#+begin_src shell :dir /sudo:: :tangle no
+apt install -y isync
+#+end_src
+
+* Configuración
+
+** adolfoaz
+
+#+begin_src shell
+# ACCOUNT INFORMATION
+IMAPAccount adolfoaz-gmail
+# Address to connect to
+Host imap.gmail.com
+User adolfoaz@gmail.com
+PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/Sync/mu4e/.mbsyncpass-adolfoaz.gpg"
+AuthMechs LOGIN
+SSLType IMAPS
+SSLVersions TLSv1.2
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+# THEN WE SPECIFY THE LOCAL AND REMOTE STORAGE
+# - THE REMOTE STORAGE IS WHERE WE GET THE MAIL FROM (E.G., THE
+#   SPECIFICATION OF AN IMAP ACCOUNT)
+# - THE LOCAL STORAGE IS WHERE WE STORE THE EMAIL ON OUR COMPUTER
+
+# REMOTE STORAGE (USE THE IMAP ACCOUNT SPECIFIED ABOVE)
+IMAPStore adolfoaz-gmail-remote
+Account adolfoaz-gmail
+
+# LOCAL STORAGE (CREATE DIRECTORIES with mkdir -p ~/Maildir/acc1-gmail)
+MaildirStore adolfoaz-gmail-local
+Path ~/Maildir/adolfoaz-gmail/
+Inbox ~/Maildir/adolfoaz-gmail/INBOX
+# REQUIRED ONLY IF YOU WANT TO DOWNLOAD ALL SUBFOLDERS; SYNCING SLOWS DOWN
+# SubFolders Verbatim
+
+# CONNECTIONS SPECIFY LINKS BETWEEN REMOTE AND LOCAL FOLDERS
+#
+# CONNECTIONS ARE SPECIFIED USING PATTERNS, WHICH MATCH REMOTE MAIl
+# FOLDERS. SOME COMMONLY USED PATTERS INCLUDE:
+#
+# 1 "*" TO MATCH EVERYTHING
+# 2 "!DIR" TO EXCLUDE "DIR"
+# 3 "DIR" TO MATCH DIR
+
+Channel adolfoaz-gmail-inbox
+Master :adolfoaz-gmail-remote:
+Slave :adolfoaz-gmail-local:
+Patterns "INBOX"
+Create Both
+Expunge Both
+SyncState *
+
+Channel adolfoaz-gmail-trash
+Master :adolfoaz-gmail-remote:"[Gmail]/Papelera"
+Slave :adolfoaz-gmail-local:"[adolfoaz].Papelera"
+Create Both
+Expunge Both
+SyncState *
+
+Channel adolfoaz-gmail-sent
+Master :adolfoaz-gmail-remote:"[Gmail]/Enviados"
+Slave :adolfoaz-gmail-local:"[adolfoaz].Enviados"
+Create Both
+Expunge Both
+SyncState *
+
+Channel adolfoaz-gmail-all
+Master :adolfoaz-gmail-remote:"[Gmail]/Todos"
+Slave :adolfoaz-gmail-local:"[adolfoaz].Todos"
+Create Both
+Expunge Both
+SyncState *
+
+Channel adolfoaz-gmail-destacados
+Master :adolfoaz-gmail-remote:"[Gmail]/Destacados"
+Slave :adolfoaz-gmail-local:"[adolfoaz].Destacados"
+Create Both
+Expunge Both
+SyncState *
+
+Channel adolfoaz-gmail-importantes
+Master :adolfoaz-gmail-remote:"[Gmail]/Importantes"
+Slave :adolfoaz-gmail-local:"[adolfoaz].Importantes"
+Create Both
+Expunge Both
+SyncState *
+
+Channel adolfoaz-gmail-archives
+Master :adolfoaz-gmail-remote:"Archives"
+Slave :adolfoaz-gmail-local:"[adolfoaz].Archives"
+Create Both
+Expunge Both
+SyncState *
+
+Channel adolfoaz-gmail-draft
+Master :adolfoaz-gmail-remote:"Borradores"
+Slave :adolfoaz-gmail-local:"[adolfoaz].Borradores"
+Create Both
+Expunge Both
+SyncState *
+
+
+# GROUPS PUT TOGETHER CHANNELS, SO THAT WE CAN INVOKE
+# MBSYNC ON A GROUP TO SYNC ALL CHANNELS
+#
+# FOR INSTANCE: "mbsync gmail" GETS MAIL FROM
+# "gmail-inbox", "gmail-sent", and "gmail-trash"
+#
+Group adolfoaz-gmail
+Channel adolfoaz-gmail-inbox
+Channel adolfoaz-gmail-sent
+Channel adolfoaz-gmail-trash
+Channel adolfoaz-gmail-all
+Channel adolfoaz-gmail-destacados
+Channel adolfoaz-gmail-importantes
+Channel adolfoaz-gmail-archives
+Channel adolfoaz-gmail-draft
+
+# ================================================================================
+
+#+end_src
+
+** nanounanue
+
+#+begin_src shell
+
+# ACCOUNT INFORMATION
+IMAPAccount nanounanue-gmail
+# Address to connect to
+Host imap.gmail.com
+User nanounanue@gmail.com
+PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/Sync/mu4e/.mbsyncpass-nanounanue.gpg"
+AuthMechs LOGIN
+SSLType IMAPS
+SSLVersions TLSv1.2
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+# THEN WE SPECIFY THE LOCAL AND REMOTE STORAGE
+# - THE REMOTE STORAGE IS WHERE WE GET THE MAIL FROM (E.G., THE
+#   SPECIFICATION OF AN IMAP ACCOUNT)
+# - THE LOCAL STORAGE IS WHERE WE STORE THE EMAIL ON OUR COMPUTER
+
+# REMOTE STORAGE (USE THE IMAP ACCOUNT SPECIFIED ABOVE)
+IMAPStore nanounanue-gmail-remote
+Account nanounanue-gmail
+
+# LOCAL STORAGE (CREATE DIRECTORIES with mkdir -p ~/Maildir/nanounanue-gmail)
+MaildirStore nanounanue-gmail-local
+Path ~/Maildir/nanounanue-gmail/
+Inbox ~/Maildir/nanounanue-gmail/INBOX
+
+# CONNECTIONS SPECIFY LINKS BETWEEN REMOTE AND LOCAL FOLDERS
+#
+# CONNECTIONS ARE SPECIFIED USING PATTERNS, WHICH MATCH REMOTE MAIl
+# FOLDERS. SOME COMMONLY USED PATTERS INCLUDE:
+#
+# 1 "*" TO MATCH EVERYTHING
+# 2 "!DIR" TO EXCLUDE "DIR"
+# 3 "DIR" TO MATCH DIR
+
+Channel nanounanue-gmail-inbox
+Master :nanounanue-gmail-remote:
+Slave :nanounanue-gmail-local:
+Patterns "INBOX"
+Create Both
+Expunge Both
+SyncState *
+
+Channel nanounanue-gmail-trash
+Master :nanounanue-gmail-remote:"[Gmail]/Papelera"
+Slave :nanounanue-gmail-local:"[nanounanue].Papelera"
+Create Both
+Expunge Both
+SyncState *
+
+Channel nanounanue-gmail-sent
+Master :nanounanue-gmail-remote:"[Gmail]/Enviados"
+Slave :nanounanue-gmail-local:"[nanounanue].Enviados"
+Create Both
+Expunge Both
+SyncState *
+
+Channel nanounanue-gmail-all
+Master :nanounanue-gmail-remote:"[Gmail]/Todos"
+Slave :nanounanue-gmail-local:"[nanounanue].Todos"
+Create Both
+Expunge Both
+SyncState *
+
+Channel nanounanue-gmail-starred
+Master :nanounanue-gmail-remote:"[Gmail]/Importantes"
+Slave :nanounanue-gmail-local:"[nanounanue].Importantes"
+Create Both
+Expunge Both
+SyncState *
+
+Channel nanounanue-gmail-draft
+Master :nanounanue-gmail-remote:"[Gmail]/Borradores"
+Slave :nanounanue-gmail-local:"[nanounanue].Borradores"
+Create Both
+Expunge Both
+SyncState *
+
+
+# GROUPS PUT TOGETHER CHANNELS, SO THAT WE CAN INVOKE
+# MBSYNC ON A GROUP TO SYNC ALL CHANNELS
+#
+# FOR INSTANCE: "mbsync gmail" GETS MAIL FROM
+# "gmail-inbox", "gmail-sent", and "gmail-trash"
+#
+Group nanounanue-gmail
+Channel nanounanue-gmail-inbox
+Channel nanounanue-gmail-sent
+Channel nanounanue-gmail-trash
+Channel nanounanue-gmail-all
+Channel nanounanue-gmail-starred
+Channel nanounanue-gmail-draft
+#+end_src
