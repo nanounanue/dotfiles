@@ -12,481 +12,166 @@
 #+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
 #+TAGS: emacs
 
+
 * Links de interes
 - [[http://www.howardism.org/Technical/Emacs/literate-programming-tutorial.html][Introduction to Literate Programming]] [Howard Abrams]
 - [[https://github.com/nickanderson/Level-up-your-notes-with-Org][Level up your notes with Org]] [Nick Anderson] (Aunque orientado a /spacemacs/
 - [[http://sachachua.com/blog/2014/01/tips-learning-org-mode-emacs/][Some tips for learning Org Mode for Emacs]] [Sacha Chua]
 - [[https://www.youtube.com/playlist?list=PLVtKhBrRV%255FZkPnBtt%255FTD1Cs9PJlU0IIdE][OrgMode Tutorial video series]] [Rainer König]
 
-* /Hacks/
 
-Al actualizar a =org-mode= *9.2* existen [[https://emacs.stackexchange.com/questions/49055/org-mode-9-2can-t-find-the-error-on-my-dot-emacs#49056][conflictos]] en la creación de
-bloques.
+* Org-plus-contrib
 
-Para recuperar la funcionalidad anterior, usamos el siguiente código
-(tomado de [[https://emacs.stackexchange.com/questions/46795/is-it-possible-to-add-templates-other-than-begin-end-to-org-structure-temp/48974#48974][aquí]]):
-
-#+BEGIN_SRC emacs-lisp
-(defvar org-structure-template-alist)
-
-(defun org+-avoid-old-structure-templates (fun &rest args)
-  "Call FUN with ARGS with modified `org-structure-template-alist'.
-Use a copy of `org-structure-template-alist' with all
-old structure templates removed."
-  (let ((org-structure-template-alist
-     (cl-remove-if
-      (lambda (template)
-        (null (stringp (cdr template))))
-      org-structure-template-alist)))
-    (apply fun args)))
-
-(eval-after-load "org"
-  '(when (version<= "9.2" (org-version))
-     (defun org-try-structure-completion ()
-       "Try to complete a structure template before point.
-This looks for strings like \"<e\" on an otherwise empty line and
-expands them."
-       (let ((l (buffer-substring (point-at-bol) (point)))
-         a)
-     (when (and (looking-at "[ \t]*$")
-            (string-match "^[ \t]*<\\([a-zA-Z]+\\)$" l)
-            (setq a (assoc (match-string 1 l) org-structure-template-alist))
-            (null (stringp (cdr a))))
-       (org-complete-expand-structure-template (+ -1 (point-at-bol)
-                              (match-beginning 1)) a)
-       t)))
-
-     (defun org-complete-expand-structure-template (start cell)
-       "Expand a structure template."
-       (let ((rpl (nth 1 cell))
-         (ind ""))
-     (delete-region start (point))
-     (when (string-match "\\`[ \t]*#\\+" rpl)
-       (cond
-        ((bolp))
-        ((not (string-match "\\S-" (buffer-substring (point-at-bol) (point))))
-         (setq ind (buffer-substring (point-at-bol) (point))))
-        (t (newline))))
-     (setq start (point))
-     (when (string-match "%file" rpl)
-       (setq rpl (replace-match
-              (concat
-               "\""
-               (save-match-data
-             (abbreviate-file-name (read-file-name "Include file: ")))
-               "\"")
-              t t rpl)))
-     (setq rpl (mapconcat 'identity (split-string rpl "\n")
-                  (concat "\n" ind)))
-     (insert rpl)
-     (when (re-search-backward "\\?" start t) (delete-char 1))))
-
-     (advice-add 'org-tempo-add-templates :around #'org+-avoid-old-structure-templates)
-
-     (add-hook 'org-tab-after-check-for-cycling-hook #'org-try-structure-completion)
-
-     (require 'org-tempo)
-     ))
-#+END_SRC
-
-* Funciones de soporte
-
-#+BEGIN_SRC emacs-lisp
-  (defun nanounanue/org-file-path (filename)
-    "Return the absolute address of an org file, given its relative name."
-    (concat (file-name-as-directory org-directory) filename))
-
-#+END_SRC
-
-Las siguientes funciones fueron tomadas de [[https://emacs.stackexchange.com/a/29472/10848][aquí]]
-
-#+BEGIN_SRC emacs-lisp
-
-(defun nanounanue/export-tangle ()
-  "Shortcut for exporting and tangling the current org-mode buffer."
-  (interactive)
-  (org-html-export-to-html)
-  (org-babel-tangle))
-
-
-(defun nanounanue/export-tangle-file (filepath)
-  "Shortcut for exporting and tangling the org-mode file at `filepath'."
-  (find-file (expand-file-name filepath))
-  (org-html-export-to-html)
-  (org-babel-tangle)
-  (kill-buffer))
-#+END_SRC
-
-* Dependencias
-
-*NOTA* Para [[https://github.com/corpix/ob-blockdiag.el][ob-blockdiag]] es necesario ejecutar lo siguiente:
-
-#+BEGIN_SRC shell
-pip install blockdiag seqdiag actdiag nwdiag
-#+END_SRC
-
-El formato se puede consultar en la página de [[http://blockdiag.com/en/][blockdiag]].
-
-*NOTA* Para [[https://github.com/krisajenkins/ob-browser][ob-browser]]  es necesario tener =phantomjs=:
-
-#+BEGIN_SRC shell :dir /sudo::
-apt install -y phantomjs
-#+END_SRC
-
-Esto también lo vamos a ocupar
-
-#+BEGIN_SRC emacs-lisp
-  (use-package restclient
-    :ensure t
-    :mode ("\\.restclient\\'" . restclient-mode))
-
-  (use-package company-restclient
-    :ensure t
-    :config (add-to-list 'company-backends 'company-restclient))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-(require 'ob-emacs-lisp)
-
-(use-package ob-ditaa
-  :ensure nil
-  :custom
-  (org-ditaa-jar-path "~/software/org-libs/ditaa.jar"))
-
-(use-package ob-plantuml
-  :ensure nil
-  :custom
-  (org-plantuml-jar-path "~/software/org-libs/plantuml.jar"))
-
-(use-package ob-http
-  :ensure t
-  :config
-  (require 'ob-http))
-
-(use-package ob-async
-  :ensure t
-  :config
-  (require 'ob-async))
-
-;;(quelpa-use-package-activate-advice)
-
-(use-package jupyter
-  :ensure t
-  :quelpa ((jupyter :fetcher github :repo "dzop/emacs-jupyter") :upgrade t))
-
-(use-package ob-cypher
-  :ensure t
-  :config
-  (require 'ob-cypher))
-
-(use-package ob-sql-mode
-  :ensure t
-  :config
-  (require 'ob-sql-mode))
-
-(use-package ob-prolog
-  :ensure t
-  :config
-  (require 'ob-prolog))
-
-(use-package ob-blockdiag
-  :ensure t
-  :config
-  (require 'ob-blockdiag))
-
-(use-package ob-browser
-  :ensure t
-  :config
-  (require 'ob-browser))
-
-(use-package ob-async
-  :ensure t
-  :config
-  (setq ob-async-no-async-languages-alist '("jupyter-python" "jupyter-julia")))
-
-(use-package ob-restclient
-  :ensure t)
-
-
-(use-package ob-latex
-  :ensure nil
-  :after org
-  :custom (org-latex-compiler "xelatex"))
-
-(use-package ob-makefile :ensure nil :after org)
-(use-package ob-org :ensure nil :after org)
-#+END_SRC
-
-
+#+begin_src emacs-lisp
+(use-package org-plus-contrib)
+#+end_src
 
 * Org-mode
 
-#+BEGIN_SRC emacs-lisp :noweb yes
-  (use-package org
-    :ensure org-plus-contrib
-    :pin org
+#+begin_src emacs-lisp
+  (use-feature org
     :mode
     ("\\.org\\'" . org-mode)
     ("\\.txt\\'" . org-mode)
     (".*/[0-9]*$" . org-mode)
     :bind
-      <<org-mode-keybindings>>
+    ("C-c l"   . org-store-link)
+    ("M-h"     . org-mark-element)
+    ("C-c c"   . org-capture)
+    ("C-c C-w" . org-regile)
+    ("C-c a"   . org-agenda)
+    ("C-c C-v t". org-babel-tangle)
+    ("C-c C-v f" . org-babel-tangle-file)
     :custom
-      <<org-mode-custom-vars>>
-    :custom-face
-      <<org-mode-faces>>
-    :hook
-      <<org-mode-hooks>>
+    (org-directory "~/Sync/org")
+    (org-startup-indented t)
+    (org-catch-invisible-edits 'smart)
+    (org-blank-before-new-entry '((heading . t) (plain-list-item . nil)))
+    (org-log-done 'time)
+    (org-return-follows-link t)
+    (org-list-allow-alphabetical t)  ;; Allow ‘a.’, ‘A.’, ‘a)’ and ‘A) as list elements
+
+    (org-log-reschedule 'note)
+    (org-log-redeadline 'note)
+    (org-log-into-drawer t)
+
+    (org-special-ctrl-a/e t)
+
+    ;; Aesthetics
+    (org-hide-emphasis-markers t)
+    (org-pretty-entities t)
+    (org-image-actual-width '(400))
+    (org-fontify-whole-heading-line t)
+    (org-fontify-quote-and-verse-blocks t)
+    (org-fontify-done-headline t)
+    (org-highlight-latex-and-related '(latex))
+    (org-hide-macro-markers t)
+    (org-hide-emphasis-markers nil)
+
     :config
-      <<org-mode-config>>)
-#+END_SRC
+    (font-lock-add-keywords 'org-mode
+                            '(("^ *\\([-]\\) "
+                               (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "▶"))))))
 
-* Configuración general
+    :hook
+    (org-mode . org-display-inline-images)
+    (org-after-todo-statistics . org-summary-todo)
+    (org-mode . visual-line-mode)
+;    (org-mode . visual-fill-column-mode)
+    (org-mode . flycheck-mode))
+#+end_src
 
-Guardo mis archivos =org= en =Dropbox=
+* /Speed keys/
 
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-custom-vars
-(org-directory "~/Dropbox/org")
-#+END_SRC
+Por /default/ no están habilitados
 
-Log =DONE= automáticamente en los =TODOs=
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-custom-vars
-  (org-log-done 'time)
-#+END_SRC
-
-Log /timestamp/ y una *nota* cuando la fecha o el deadline de un /task/ es modificado
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-custom-vars
-(org-log-reschedule 'note)
-(org-log-redeadline 'note)
-#+END_SRC
-
-
-Log todo en el /drawer/ =LOGBOOK=
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-custom-vars
-(org-log-into-drawer t)
-#+END_SRC
-
-
-Mantener la indentación de los archivos
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-custom-vars
-  (org-startup-indented t)
-#+END_SRC
-
-No queremos que aparezca en el =modeline=
-
-#+BEGIN_SRC emacs-lisp
-  (use-package org-indent
-    :ensure nil
-    :diminish)
-#+END_SRC
-
- =Enter=, sigue el /link/
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-custom-vars
-(org-return-follows-link t)
-#+END_SRC
-
-** /Key bindings/
-
-La contraparte de =C-c C-l=
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-keybindings
-  ("C-c l" . org-store-link)
-#+END_SRC
-
-Seleccionar (/mark/)
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-keybindings
-  ("M-h" . org-mark-element)
-#+END_SRC
-
-capture-refile
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-keybindings
-  ("C-c c" . org-capture)
-  ("C-c C-w" . org-refile)
-#+END_SRC
-
-Otro /key bind/ para la agenda
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-keybindings
-  ("C-c a" . org-agenda)
-#+END_SRC
-
-/Tangle/
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-keybindings
-("C-c C-v t" . org-babel-tangle)
-("C-c C-v f" . org-babel-tangle-file)
-#+END_SRC
+| Key   | Action                                       |
+|-------+----------------------------------------------|
+| n,p   | Move to the next/previous visible heading    |
+| f, b  | Move to the next/previous same level heading |
+| F, B  | Next/previous block                          |
+| j     | Goto                                         |
+| s     | Toggle narrow to subtree                     |
+| k     | Cut subtree                                  |
+| w     | Refile                                       |
+| @     | Mark subtree                                 |
+| \#    | Toggle comment                               |
+| I,O   | CLock-in, Clock-out                          |
+| :     | Tags command                                 |
+| ,     | Set priority                                 |
+| 1,2,3 | Priority A,B,C                               |
+| e     | Effort                                       |
+| E     | Increment effort                             |
+| v     | org-agenda                                   |
+| \/    | Sparse tree                                  |
+| \?    | Speed command help                           |
 
 
+#+begin_src emacs-lisp
+  (use-feature org-speed-keys
+    :after org
+    :custom
+    (org-use-speed-commands
+     (lambda () (and (looking-at org-outline-regexp) (looking-back "^\**")))))
+#+end_src
 
-** /Speed keys/
+* Imágenes
 
+Habilitando mas tipos de imágenes a desplegar en =org-mode=
 
-#+BEGIN_QUOTE
-  *Speed Commands:* If point is at the beginning of a headline or
-  code block in org-mode, single keys do fun things. See
-  =org-speed-command-help= for details (or hit the ? key at a
-  headline).
-#+END_QUOTE
+#+begin_src emacs-lisp
+(use-feature org-images
+  :after org
+  :config
+  ;; * Enable pdf and eps images in org-mode
+  ;; Suggested on the org-mode maillist by Julian Burgos
+  (add-to-list 'image-file-name-extensions "pdf")
+  (add-to-list 'image-file-name-extensions "eps")
 
- Habilitar  [[https://orgmode.org/manual/Speed-keys.html][Speed Keys]]. Por /default/ el cursor tiene que estar al
- principio del /headline/, pero podemos mejorarlo ...
+  (add-to-list 'image-type-file-name-regexps '("\\.eps\\'" . imagemagick))
+  (add-to-list 'image-file-name-extensions "eps")
+  (add-to-list 'image-type-file-name-regexps '("\\.pdf\\'" . imagemagick))
+  (add-to-list 'image-file-name-extensions "pdf")
 
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-custom-vars
-  (org-use-speed-commands (lambda () (and (looking-at org-outline-regexp) (looking-back "^\**"))))
-#+END_SRC
-
-y luego agregamos unos pocos más
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-  (add-to-list 'org-speed-commands-user (cons "P" 'org-set-property))
-  (add-to-list 'org-speed-commands-user (cons "d" 'org-deadline))
-
-  ;; Mark a subtree
-  (add-to-list 'org-speed-commands-user (cons "m" 'org-mark-subtree))
-
-  ;; Widen
-  (add-to-list 'org-speed-commands-user (cons "S" 'widen))
-
-  ;; kill a subtree
-  (add-to-list 'org-speed-commands-user (cons "k" (lambda ()
-                                                    (org-mark-subtree)
-                                                    (kill-region
-                                                     (region-beginning)
-                                                     (region-end)))))
-#+END_SRC
+  (setq imagemagick-types-inhibit (remove 'PDF imagemagick-types-inhibit))
+  )
+#+end_src
 
 
-* Un Org-mode bonito
-
-*NOTE*: Basado en [[http://www.howardism.org/Technical/Emacs/orgmode-wordprocessor.html][Org as a Word Processor]] y en [[https://zzamboni.org/post/beautifying-org-mode-in-emacs/][Beautifying Org Mode in Emacs]]
-
-Eliminar el /markup/ de énfasis
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-custom-vars
-(org-hide-emphasis-markers t)
-#+END_SRC
-
-Mostrar símbolos e.g. α β γ as UTF-8 characters.
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-custom-vars
-(org-pretty-entities t)
-#+END_SRC
-
-Podemos tener un símbolo de elemento en lista más bonito (en lugar de =-=)
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-(font-lock-add-keywords 'org-mode
-                        '(("^ *\\([-]\\) "
-                           (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-#+END_SRC
-
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
-(org-mode . org-display-inline-images)
-(org-mode . org-babel-result-hide-all)
-;; (org-mode . turn-on-auto-fill)
-(org-mode . flyspell-mode)
-#+END_SRC
-
-Podemos controlar el tamaño de las imágenes para que no ocupen la
-tamaño de la pantalla. El tamaño máximo es de 800px.
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-custom-vars
-(org-image-actual-width 800)
-#+END_SRC
-
-
-Hace más grandes las imágenes de ecuaciones de LaTeX cuando tienes
-activado en tu org-mode /buffer/ lo siguiente
-(Solución tomada desde: https://tex.stackexchange.com/a/78587/24453)
-#+BEGIN_SRC org :tangle no
-#+OPTIONS: LaTeX:t
-#+OPTIONS: tex:imagemagick
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-(plist-put org-format-latex-options :scale 1.5)
-#+END_SRC
-
-
-Los /bullets/ hacen más presentable =org-mode=
+* Agenda
 
 #+BEGIN_SRC emacs-lisp
-  (use-package org-bullets
-       :ensure t
-       :after org
-       :hook
-       (org-mode . (lambda () (org-bullets-mode 1))))
-#+END_SRC
+  (use-feature org-agenda
+    :config
+    (setq org-agenda-files (list (nanounanue/org-file-path "research.org")
+                                 (nanounanue/org-file-path "dsapp.org")
+                                 (nanounanue/org-file-path "proyectos.org")
+                                 (nanounanue/org-file-path "diary.org")
+                                 (nanounanue/org-file-path "refile.org")
+                                 (nanounanue/org-file-path "personal")
+                                 (nanounanue/org-file-path "research")
+                                 (nanounanue/org-file-path "projects")
+                                 ))
 
-Las siguientes fuentes (¿o es tipografías?) se usarán en secuencia:
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-  ;; (let* ((variable-tuple
-  ;;         (cond ((x-list-fonts   "Source Sans Pro") '(:font   "Source Sans Pro"))
-  ;;               ((x-list-fonts   "Lucida Grande")   '(:font   "Lucida Grande"))
-  ;;               ((x-list-fonts   "Verdana")         '(:font   "Verdana"))
-  ;;               ((x-family-fonts "Sans Serif")      '(:family "Sans Serif"))
-  ;;               (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
-  ;;        (base-font-color (face-foreground 'default nil 'default))
-  ;;        (headline       `(:inherit default :weight bold :foreground ,base-font-color)))
-
-  ;;   (custom-theme-set-faces
-  ;;    'user
-  ;;    `(org-level-8        ((t (,@headline ,@variable-tuple))))
-  ;;    `(org-level-7        ((t (,@headline ,@variable-tuple))))
-  ;;    `(org-level-6        ((t (,@headline ,@variable-tuple))))
-  ;;    `(org-level-5        ((t (,@headline ,@variable-tuple))))
-  ;;    `(org-level-4        ((t (,@headline ,@variable-tuple :height 1.1))))
-  ;;    `(org-level-3        ((t (,@headline ,@variable-tuple :height 1.25))))
-  ;;    `(org-level-2        ((t (,@headline ,@variable-tuple :height 1.5))))
-  ;;    `(org-level-1        ((t (,@headline ,@variable-tuple :height 1.75))))
-  ;;    `(org-document-title ((t (,@headline ,@variable-tuple :height 2.0 :underline nil))))))
-#+END_SRC
-
-Emacs soporta mostrar fuentes proporcionales con
-=variable-pitch-mode=. Y también hay que configurar las fuentes
-/monofont/, con =fixed-pitch=
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-faces
-;(variable-pitch ((t (:family "Source Sans Pro" ))))
-;(fixed-pitch ((t ( :family "Inconsolata" ))))
-;(org-indent ((t (:inherit (org-hide fixed-pitch)))))
+    ;; No queremos ver aquello que ya acabó en la agenda
+    ;; http://orgmode.org/manual/Global-TODO-list.html#Global-TODO-list
+    (setq org-agenda-skip-scheduled-if-done t)
+    (setq org-agenda-skip-deadline-if-done t)
+    (setq org-agenda-skip-timestamp-if-done t)
+    (setq org-agenda-todo-ignore-scheduled t)
+    (setq org-agenda-todo-ignore-deadlines t)
+    (setq org-agenda-todo-ignore-timestamp t)
+    (setq org-agenda-todo-ignore-with-date t)
+    (setq org-agenda-start-on-weekday nil))
 #+END_SRC
 
 
-Con fuentes variables, cortar la línea basada en el número de
-caracteres se ve /raro/ ...
-  #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
-;    (org-mode . visual-line-mode)
-;    (org-mode . variable-pitch-mode)
-  #+END_SRC
 
-Estos paquetes se agregan al =modeline=, hay que minimizarlos:
-
-  #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-    (eval-after-load 'face-remap '(diminish 'buffer-face-mode))
-    (eval-after-load 'simple '(diminish 'visual-line-mode))
-  #+END_SRC
-
-
-Usando =variable-pitch=, el /default right-alignment/ para los /headlines/
-ya no funcionan, el siguiente código los hace consistentes.
-
-  #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-custom-vars
-    (org-tags-column 0)
-  #+END_SRC
-
-
-* /TODO Keywords/
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
+** TODOs templates
+#+begin_src emacs-lisp
+(use-feature org-todos
+:after org
+:config
 (setq org-todo-keywords '(
                           (;; TODO significa que es algo que tiene que hacerse
                            ;; WORKING significa que estoy trabajando en alla
@@ -516,26 +201,60 @@ ya no funcionan, el siguiente código los hace consistentes.
         ("DELEGATED" . "powder blue")
         ("DONE" . "green")
         ("ASSIGNED" . "sienna")))
+(font-lock-add-keywords            ; A bit silly but my headers are now
+ 'org-mode `(("^\\*+ \\(TODO\\) "  ; shorter, and that is nice canceled
+              (1 (progn (compose-region (match-beginning 1) (match-end 1) "⚑")
+                        nil)))
+             ("^\\*+ \\(WORKING\\) "
+              (1 (progn (compose-region (match-beginning 1) (match-end 1) "⚐")
+                        nil)))
+             ("^\\*+ \\(CANCELLED\\) "
+              (1 (progn (compose-region (match-beginning 1) (match-end 1) "✘")
+                        nil)))
+             ("^\\*+ \\(CANCE\\) "
+              (1 (progn (compose-region (match-beginning 1) (match-end 1) "✘")
+                        nil)))
+             ("^\\*+ \\(DONE\\) "
+              (1 (progn (compose-region (match-beginning 1) (match-end 1) "✔")
+                        nil)))))
+)
+
+#+end_src
+
+* Clock
+
+
+#+BEGIN_SRC emacs-lisp
+  (use-feature org-clock
+    ;; We have to autoload these functions in order for the below code
+    ;; that enables clock persistence without slowing down startup to
+    ;; work.
+    :commands (org-clock-load org-clock-save)
+    :config
+    (org-clock-persistence-insinuate)
+    ;; Show lot of clocking history so it's easy to pick items off the C-F11 list
+    (setq org-clock-history-length 23)
+    ;; Resume clocking task on clock-in if the clock is open
+    (setq org-clock-in-resume t)
+    ;; Separate drawers for clocking and logs
+    (setq org-drawers (quote ("PROPERTIES" "LOGBOOK")))
+    ;; Save clock data and state changes and notes in the LOGBOOK drawer
+    (setq org-clock-into-drawer t)
+    ;; Sometimes I change tasks I'm clocking quickly - this removes clocked tasks with 0:00 duration
+    (setq org-clock-out-remove-zero-time-clocks t)
+    ;; Clock out when moving task to a done state
+    (setq org-clock-out-when-done t)
+    ;; Save the running clock and all clock history when exiting Emacs, load it on startup
+    (setq org-clock-persist t)
+    ;; Do not prompt to resume an active clock
+    (setq org-clock-persist-query-resume nil)
+    ;; Enable auto clock resolution for finding open clocks
+    (setq org-clock-auto-clock-resolution (quote when-no-clock-is-running))
+    ;; Include current clocking task in clock reports
+    (setq org-clock-report-include-clocking-task t))
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-  (font-lock-add-keywords            ; A bit silly but my headers are now
-   'org-mode `(("^\\*+ \\(TODO\\) "  ; shorter, and that is nice canceled
-                (1 (progn (compose-region (match-beginning 1) (match-end 1) "⚑")
-                          nil)))
-               ("^\\*+ \\(WORKING\\) "
-                      (1 (progn (compose-region (match-beginning 1) (match-end 1) "⚐")
-                                nil)))
-               ("^\\*+ \\(CANCELLED\\) "
-                (1 (progn (compose-region (match-beginning 1) (match-end 1) "✘")
-                          nil)))
-               ("^\\*+ \\(CANCE\\) "
-                (1 (progn (compose-region (match-beginning 1) (match-end 1) "✘")
-                          nil)))
-               ("^\\*+ \\(DONE\\) "
-                (1 (progn (compose-region (match-beginning 1) (match-end 1) "✔")
-                          nil)))))
-#+END_SRC
+
 
 
 * Capture-refile-archive
@@ -544,41 +263,52 @@ Si estoy trabajando en algo y quiero anotar algo que se me acaba de
 ocurrir o que recordé (me pasa muy seguido), sin que afecte el archivo
 en el que estoy trabajando (/capture/)
 
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-;; Capture
-(setq org-capture-templates
-      (quote (("t" "TODO    (t)" entry (file "~/Dropbox/org/refile.org")
-               "* TODO %?
+
+Org Capture Templates are explained [[http://orgmode.org/manual/Capture-templates.html][here]], Org Template expansion [[http://orgmode.org/manual/Template-expansion.html#Template-expansion][here.]]
+
+
+#+BEGIN_SRC emacs-lisp
+(use-feature org-capture-refile
+  :after org
+  :config
+  ;; Capture
+  (setq org-capture-templates
+        (quote (("t" "TODO    (t)" entry (file "~/Dropbox/org/refile.org")
+                 "* TODO %?
 :PROPERTIES:
 :via: %f
 :note:
 :END:"
-               :clock-in t :clock-resume t :empty-lines 1)
-              ("s" "Scheduled TODO" entry (file+headline "~/Dropbox/org/refile.org")
-               "* TODO %? %^G \nSCHEDULED: %^t\n  %U" :empty-lines 1)
-              ("d" "Deadline" entry (file+headline "~/Dropbox/org/refile.org")
-               "* TODO %? %^G \n  DEADLINE: %^t" :empty-lines 1)
-              ("r" "research" entry (file "~/Dropbox/org/research.org")
-               "* %? :IDEA:\n%U\n%a\n" :clock-in t :clock-resume t)
-              ("j" "journal" entry (file+olp+datetree "~/Dropbox/org/diary.org")
-               "* %?\n%U\n" :clock-in t :clock-resume t)
-              ("n" "Note" entry (file "~/Dropbox/org/notes.org")
-               "* NOTE %?\n%U" :empty-lines 1)
-              ("N" "Note with Clipboard" entry (file "~/Dropbox/org/notes.org")
-               "* NOTE %?\n%U\n   %c" :empty-lines 1))))
+                 :clock-in t :clock-resume t :empty-lines 1)
+                ("K" "Cliplink capture task" entry (file "")
+                 "* TODO %(org-cliplink-capture) \n  SCHEDULED: %t\n" :empty-lines 1)
+                ("s" "Scheduled TODO" entry (file+headline "~/Dropbox/org/refile.org")
+                 "* TODO %? %^G \nSCHEDULED: %^t\n  %U" :empty-lines 1)
+                ("d" "Deadline" entry (file+headline "~/Dropbox/org/refile.org")
+                 "* TODO %? %^G \n  DEADLINE: %^t" :empty-lines 1)
+                ("r" "research" entry (file "~/Dropbox/org/research.org")
+                 "* %? :IDEA:\n%U\n%a\n" :clock-in t :clock-resume t)
+                ("j" "journal" entry (file+olp+datetree "~/Dropbox/org/diary.org")
+                 "* %?\n%U\n" :clock-in t :clock-resume t)
+                ("n" "Note" entry (file "~/Dropbox/org/notes.org")
+                 "* NOTE %?\n%U" :empty-lines 1)
+                ("N" "Note with Clipboard" entry (file "~/Dropbox/org/notes.org")
+                 "* NOTE %?\n%U\n   %c" :empty-lines 1))))
 
-      ;; Refile
-      (setq org-default-notes-file (nanounanue/org-file-path "personal/@SUMMARY.org"))
-      (setq org-default-tasks-file (nanounanue/org-file-path "personal/tasks.org"))
+  ;; Refile
+  (setq org-default-notes-file (nanounanue/org-file-path "personal/@SUMMARY.org"))
+  (setq org-default-tasks-file (nanounanue/org-file-path "personal/tasks.org"))
 
-      ;; Targets include this file and any file contributing to the agenda - up to 9 levels deep
-      (setq org-refile-targets (quote ((nil :maxlevel . 9)
-                                       (org-agenda-files :maxlevel . 9))))
-      ;; Use full outline paths for refile targets
-      (setq org-refile-use-outline-path t)
+  ;; Targets include this file and any file contributing to the agenda - up to 9 levels deep
+  (setq org-refile-targets (quote ((nil :maxlevel . 9)
+                                   (org-agenda-files :maxlevel . 9))))
+  ;; Use full outline paths for refile targets
+  (setq org-refile-use-outline-path t)
 
-      ;; Allow refile to create parent tasks with confirmatio
-      (setq org-refile-allow-creating-parent-nodes (quote confirm))
+  ;; Allow refile to create parent tasks with confirmatio
+  (setq org-refile-allow-creating-parent-nodes (quote confirm))
+  )
+
 #+END_SRC
 
 Luego de seleccionar el /template/ adecuado, tecleas la nota, =C-c C-c=
@@ -587,118 +317,266 @@ para guardar.
 Por último, recuerda hacer =C-c C-w= para /refile/ la nota al lugar correspondiente.
 
 
-* [[https://github.com/sprig/org-capture-extension][Org protocol]]
+* Literate Programming
 
-** Preparando el sistema operativo para el [[https://addons.mozilla.org/en-US/firefox/addon/org-capture/?src=search][add-on in de firefox]]
-
-Registramos =emacs= como el encargado de manejar las peticiones de la
-extensión de Firefox
-
-#+BEGIN_SRC shell
-mkdir -p ~/.local/share/applications
-#+END_SRC
+Larga vida al [[http://orgmode.org/worg/org-contrib/babel/intro.html][proyecto Babel]], el cual permite la ejecución de bloques
+códigos y /tangle out/ bloques hacia archivos
 
 
-#+BEGIN_SRC shell :dir ~/.local/share/applications
-cat > "org-protocol.desktop" << EOF
-[Desktop Entry]
-Name=org-protocol
-Exec=emacsclient %u
-Type=Application
-Terminal=false
-Categories=System;
-MimeType=x-scheme-handler/org-protocol;
-EOF
-#+END_SRC
 
-Actualizamos la base de datos de manejadores
-
-#+BEGIN_SRC shell
-update-desktop-database ~/.local/share/applications/
-#+END_SRC
-
-** Configuración *en* emacs
-
-#+BEGIN_SRC emacs-lisp
-(use-package org-protocol
-  :ensure nil
-  :config
-  (defun transform-square-brackets-to-round-ones(string-to-transform)
-    "Transforms [ into ( and ] into ), other chars left unchanged."
-    (concat
-     (mapcar #'(lambda (c) (if (equal c ?[) ?\( (if (equal c ?]) ?\) c))) string-to-transform))
+#+begin_src emacs-lisp
+  (use-feature org-src
+    :after org
+    :demand t
+    :custom
+    (org-edit-src-content-indentation 0)
+    (org-src-preserve-indentation t)
+    (org-src-fontify-natively t)
+    :config
+    (add-to-list 'org-src-lang-modes
+                 '("dot" . "graphviz-dot")
+                 )
     )
+#+end_src
 
+** Requisitos
 
-  (add-to-list 'org-capture-templates
-               '("p" "Protocol" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
-                 "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?"))
+*NOTA* Para [[https://github.com/corpix/ob-blockdiag.el][ob-blockdiag]] es necesario ejecutar lo siguiente:
 
-  (add-to-list 'org-capture-templates
-               '("L" "Protocol Link" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
-                 "* %? [[%:link][%(transform-square-brackets-to-round-ones \"%:description\")]]\n")))
+#+BEGIN_SRC shell
+pip install blockdiag seqdiag actdiag nwdiag
+#+END_SRC
+
+El formato se puede consultar en la página de [[http://blockdiag.com/en/][blockdiag]].
+
+*NOTA* Para [[https://github.com/krisajenkins/ob-browser][ob-browser]]  es necesario tener =phantomjs=:
+
+#+BEGIN_SRC shell :dir /sudo::
+apt install -y phantomjs
+#+END_SRC
+
+Esto también lo vamos a ocupar
+
+#+BEGIN_SRC emacs-lisp :tangle no
+(use-package restclient
+  :mode ("\\.restclient\\'" . restclient-mode))
+
+(use-package company-restclient
+  :config (add-to-list 'company-backends 'company-restclient))
 #+END_SRC
 
 
+#+begin_src emacs-lisp
+(use-feature ob-ditaa
+  :custom
+  (org-ditaa-jar-path "~/Sync/org-libs/ditaa.jar"))
 
-* Org agenda
+(use-feature ob-plantuml
+  :custom
+  (org-plantuml-jar-path "~/Sync/org-libs/plantuml.jar"))
 
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-  (setq org-agenda-files (list (nanounanue/org-file-path "research.org")
-                               (nanounanue/org-file-path "dsapp.org")
-                               (nanounanue/org-file-path "proyectos.org")
-                               (nanounanue/org-file-path "diary.org")
-                               (nanounanue/org-file-path "refile.org")
-                               (nanounanue/org-file-path "personal")
-                               (nanounanue/org-file-path "research")
-                               (nanounanue/org-file-path "projects")
-                               ))
-
-  ;; No queremos ver aquello que ya acabó en la agenda
-  ;; http://orgmode.org/manual/Global-TODO-list.html#Global-TODO-list
-  (setq org-agenda-skip-scheduled-if-done t)
-  (setq org-agenda-skip-deadline-if-done t)
-  (setq org-agenda-skip-timestamp-if-done t)
-  (setq org-agenda-todo-ignore-scheduled t)
-  (setq org-agenda-todo-ignore-deadlines t)
-  (setq org-agenda-todo-ignore-timestamp t)
-  (setq org-agenda-todo-ignore-with-date t)
-  (setq org-agenda-start-on-weekday nil) ;; start on current day
-#+END_SRC
+(use-package ob-mongo)
+(use-package ob-cypher)
+(use-package ob-blockdiag)
+#+end_src
 
 
-* Org clock
+** ob
+
+#+begin_src emacs-lisp :noweb yes
+(use-feature ob
+  :after org
+  :demand t
+  :custom
+  (org-confirm-babel-evaluate nil)
+  (org-src-tab-acts-natively t)
+  ;; [[elisp:(shell-command "ls ~")][My files]]
+  (org-link-elisp-confirm-function nil)
+
+  ;; [[shell:ls ~][My file]]
+  (org-link-shell-confirm-function nil)
+
+  :config
+  ;; Set better default settings for org-babel.
+  ;;(setf (alist-get :async org-babel-default-header-args:jupyter-python) "yes")
+  ;;(setf (alist-get :session org-babel-default-header-args:jupyter-python) "py3")
+
+  ;; Usamos sly para Lisp
+  (setq org-babel-lisp-eval-fn 'sly-eval)
 
 
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-  ;; Org-clock
-  ;; Resume clocking task when emacs is restarted
-  (org-clock-persistence-insinuate)
-  ;;
-  ;; Show lot of clocking history so it's easy to pick items off the C-F11 list
-  (setq org-clock-history-length 23)
-  ;; Resume clocking task on clock-in if the clock is open
-  (setq org-clock-in-resume t)
-  ;; Separate drawers for clocking and logs
-  (setq org-drawers (quote ("PROPERTIES" "LOGBOOK")))
-  ;; Save clock data and state changes and notes in the LOGBOOK drawer
-  (setq org-clock-into-drawer t)
-  ;; Sometimes I change tasks I'm clocking quickly - this removes clocked tasks with 0:00 duration
-  (setq org-clock-out-remove-zero-time-clocks t)
-  ;; Clock out when moving task to a done state
-  (setq org-clock-out-when-done t)
-  ;; Save the running clock and all clock history when exiting Emacs, load it on startup
-  (setq org-clock-persist t)
-  ;; Do not prompt to resume an active clock
-  (setq org-clock-persist-query-resume nil)
-  ;; Enable auto clock resolution for finding open clocks
-  (setq org-clock-auto-clock-resolution (quote when-no-clock-is-running))
-  ;; Include current clocking task in clock reports
-  (setq org-clock-report-include-clocking-task t)
-#+END_SRC
+  (dolist (language    '((org . t)
+                         (shell . t)
+                         (awk        . t)
+                         (sed        . t)
+                         (js         . t)
+                         (emacs-lisp . t)
+                         (lisp       . t)
+                         (perl       . t)
+                         (R          . t)
+                                        ;(scala      . t)
+                         (clojure    . t)
+                         (latex      . t)
+                         (C          . t)
+                         (fortran    . t)
+                         (stan       . t)
+                         (sqlite     . t)
+                         (sql        . t)
+                         (mongo      . t)
+                         (cypher     . t)
+                         (redis      . t)
+                         (blockdiag  . t)
+                         (calc       . t)
+                         (python     . t)
+                         (ruby       . t)
+                         (dot        . t)
+                         (css        . t)
+                         (jq         . t)
+                         (plantuml   . t)))
+    (add-to-list 'org-babel-load-languages language))
 
+   (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
+
+   <<ob-templates>>
+
+  :hook (org-babel-after-execute . org-display-inline-images))
+#+end_src
+
+
+*** Templates para bloques =org-babel=
+
+#+begin_src emacs-lisp :tangle no :noweb-ref ob-templates
+(add-to-list 'org-structure-template-alist
+             '("el" . "src emacs-lisp"))
+
+(add-to-list 'org-structure-template-alist
+             '("sh" . "src shell"))
+
+(add-to-list 'org-structure-template-alist
+             '("py" . "src jupyter-python"))
+
+(add-to-list 'org-structure-template-alist
+             '("md" . "src markdown"))
+
+(add-to-list 'org-structure-template-alist
+             '("sr" . "src R"))
+
+(add-to-list 'org-structure-template-alist
+             '("sq" . "src sql"))
+
+(add-to-list 'org-structure-template-alist
+             '("cl" . "src lisp"))
+
+(add-to-list 'org-structure-template-alist
+             '("clj" . "src clojure"))
+#+end_src
+
+
+** Python: Emacs-jupyter
+
+#+begin_src emacs-lisp
+
+(straight-use-package '(simple-httpd :type git :host github :repo "skeeto/emacs-web-server" :local-repo "simple-httpd"))
+
+(use-package zmq)
+
+(use-package jupyter
+  :after ob
+  :demand t
+  :requires (zmq simple-httpd)
+  :init
+  (defun jupyter-run-repl-or-pop-to-buffer-dwim ()
+    "If a buffer is already associated with a jupyter buffer,
+then pop to it. Otherwise start a jupyter kernel."
+    (interactive)
+    (if (bound-and-true-p jupyter-current-client)
+        (jupyter-repl-pop-to-buffer)
+      (call-interactively #'jupyter-run-repl)))
+
+  ;; * eldoc integration
+  (defun scimax-jupyter-signature ()
+    "Try to return a function signature for the thing at point."
+    (when (and (eql major-mode 'org-mode)
+               (string= (or (get-text-property (point) 'lang) "") "jupyter-python"))
+      (save-window-excursion
+     ;;; Essentially copied from (jupyter-inspect-at-point).
+        (jupyter-org-with-src-block-client
+         (cl-destructuring-bind (code pos)
+             (jupyter-code-context 'inspect)
+           (jupyter-inspect code pos nil 0)))
+        (when (get-buffer "*Help*")
+          (with-current-buffer "*Help*"
+            (goto-char (point-min))
+            (prog1
+                (cond
+                 ((re-search-forward "Signature:" nil t 1)
+                  (buffer-substring (line-beginning-position) (line-end-position)))
+                 ((re-search-forward "Docstring:" nil t 1)
+                  (forward-line)
+                  (buffer-substring (line-beginning-position) (line-end-position)))
+                 (t
+                  nil))
+              ;; get rid of this so we don't accidentally show old results later
+              (with-current-buffer "*Help*"
+                (toggle-read-only)
+                (erase-buffer))))))))
+
+  (defun scimax-jupyter-eldoc-advice (orig-func &rest args)
+    "Advice function to get eldoc signatures in blocks in org-mode."
+    (or (scimax-jupyter-signature) (apply orig-func args)))
+
+
+  (defun scimax-jupyter-turn-on-eldoc ()
+    "Turn on eldoc signatures."
+    (interactive)
+    (advice-add 'org-eldoc-documentation-function :around #'scimax-jupyter-eldoc-advice))
+
+  :config
+
+  (add-to-list 'org-babel-load-languages '(jupyter . t))
+  (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
+
+
+  (scimax-jupyter-turn-on-eldoc)
+
+  ;; More readable repl traceback for Spacemacs Theme.
+  (set-face-attribute 'jupyter-repl-traceback nil :background "wheat1")
+
+  (jupyter-org-define-key (kbd "RET") #'newline-and-indent)
+
+  :bind (:map jupyter-repl-mode-map
+              ;; Use only C-n and C-p to move through candidates.
+              ;; This unshadows C-n and C-p to move through lines in the REPL.
+              ("C-n" . nil)
+              ("C-p" . nil)))
+#+end_src
+
+
+** Async
+
+#+begin_src emacs-lisp
+;; Package `ob-async' allows executing ob commands asynchronously.
+(use-package ob-async
+  :after ob
+  :config
+  ;; Jupyter defines its own async that conflicts with ob-async.
+  (setq ob-async-no-async-languages-alist '("jupyter-python" "jupyter-julia")))
+#+end_src
 
 * Exportar
+
+#+begin_src emacs-lisp
+(use-feature ox
+  :after org
+  :demand t
+  :config
+  ;; This is so that we are not queried if bind-keywords are safe when we set
+  ;; org-export-allow-bind to t.
+  (put 'org-export-allow-bind-keywords 'safe-local-variable #'booleanp)
+  (setq org-export-with-sub-superscripts '{}
+        org-export-coding-system 'utf-8
+        org-html-checkbox-type 'html))
+#+end_src
 
 ** Imágenes
 
@@ -715,8 +593,8 @@ como sigue:
 ** HTML
 
 #+BEGIN_SRC emacs-lisp
-(use-package ox-html
-  :ensure nil
+(use-feature ox-html
+  :after ox
   :init
   (setq org-html-postamble nil)
   (setq org-export-with-section-numbers nil)
@@ -734,20 +612,24 @@ como sigue:
           </style>"))
 #+END_SRC
 
-
 ** LaTeX
 
 #+BEGIN_SRC emacs-lisp
-(use-package ox-latex
-  :ensure nil
+(use-feature ox-latex
+  :after ox
   :demand
-  :after org
   :custom
   (org-latex-compiler "xelatex")
   (org-latex-pdf-process '("%latex -shell-escape -interaction nonstopmode -output-directory %o %f" "%latex -interaction nonstopmode -output-directory %o %f" "%latex -interaction nonstopmode -output-directory %o %f"))
   :config
   (setq org-export-latex-listings 'minted)
                                         ;(add-to-list 'org-latex-minted-langs '(jupyter "python"))
+  ;; Need to let ox know about ipython and jupyter
+  (add-to-list 'org-latex-minted-langs '(ipython "python"))
+  (add-to-list 'org-babel-tangle-lang-exts '("ipython" . "py"))
+  (add-to-list 'org-latex-minted-langs '(jupyter-python "python"))
+  (add-to-list 'org-babel-tangle-lang-exts '("jupyter-python" . "py"))
+
   (setq org-export-latex-minted-options
         '(("frame" "lines")
           ("fontsize" "\\scriptsize")
@@ -957,17 +839,60 @@ como sigue:
                  ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 
 
+  ;; Mimore class is a latex class for writing articles.
+  (add-to-list 'org-latex-classes
+               '("mimore"
+                 "\\documentclass{mimore}
+ [NO-DEFAULT-PACKAGES]
+ [PACKAGES]
+ [EXTRA]"
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+
+  ;; Mimosis is a class I used to write my Ph.D. thesis.
+  (add-to-list 'org-latex-classes
+               '("mimosis"
+                 "\\documentclass{mimosis}
+ [NO-DEFAULT-PACKAGES]
+ [PACKAGES]
+ [EXTRA]
+\\newcommand{\\mboxparagraph}[1]{\\paragraph{#1}\\mbox{}\\\\}
+\\newcommand{\\mboxsubparagraph}[1]{\\subparagraph{#1}\\mbox{}\\\\}"
+                 ("\\chapter{%s}" . "\\chapter*{%s}")
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\mboxparagraph{%s}" . "\\mboxparagraph*{%s}")
+                 ("\\mboxsubparagraph{%s}" . "\\mboxsubparagraph*{%s}")))
+
+  ;; Elsarticle is Elsevier class for publications.
+  (add-to-list 'org-latex-classes
+               '("elsarticle"
+                 "\\documentclass{elsarticle}
+ [NO-DEFAULT-PACKAGES]
+ [PACKAGES]
+ [EXTRA]"
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+
+
   )
 
 
 #+END_SRC
+
 
 Para usar un /template/ agregar al archivo
 
 #+BEGIN_SRC org :tangle no
 #+LATEX_CLASS: tufte-book
 #+END_SRC
-
 
 ** Pandoc
 
@@ -982,70 +907,55 @@ dpkg -i /tmp/pandoc.deb
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-  (use-package ox-pandoc
-    :ensure t
-    :after org
-    :config
-    (require 'ox-pandoc))
+(use-package ox-pandoc
+  :after org)
 #+END_SRC
 
 
 ** TWBS
 
 #+BEGIN_SRC emacs-lisp
-  (use-package ox-twbs
-    :after org
-    :ensure t
-    :config (require 'ox-twbs))
+(use-package ox-twbs
+  :after org)
 #+END_SRC
 
 
 ** Github Markdown
 #+BEGIN_SRC emacs-lisp
-  (use-package ox-gfm
-    :ensure t
-    :after org
-    :config (require 'ox-gfm))
+(use-package ox-gfm
+  :after org)
 #+END_SRC
 
 
 ** Tufte
 
 #+BEGIN_SRC emacs-lisp
-  (use-package ox-tufte
-    :ensure t
-    :after org
-    :config (require 'ox-tufte))
+(use-package ox-tufte
+  :after org)
 #+END_SRC
 
 
 ** EPUB
 
 #+BEGIN_SRC emacs-lisp
-  (use-package ox-epub
-    :ensure t
-    :after org
-    :config (require 'ox-epub))
+(use-package ox-epub
+  :after org)
 #+END_SRC
 
 
 ** RST
 
 #+BEGIN_SRC emacs-lisp
-  (use-package ox-rst
-    :ensure t
-    :after org
-    :config (require 'ox-rst))
+(use-package ox-rst
+  :after org)
 #+END_SRC
 
 
 ** AsciiDoc
 
 #+BEGIN_SRC emacs-lisp
-  (use-package ox-asciidoc
-    :ensure t
-    :after org
-    :config (require 'ox-asciidoc))
+(use-package ox-asciidoc
+  :after org)
 #+END_SRC
 
 
@@ -1059,10 +969,8 @@ apt install -y xclip
 
 #+BEGIN_SRC emacs-lisp
   (use-package ox-clip
-    :ensure t
     :after ox)
 #+END_SRC
-
 
 * Presentaciones
 
@@ -1077,10 +985,9 @@ tar zxf /tmp/reveal.tar.gz -C ~/software/js/revealjs --strip-component 1
 #+END_SRC
 
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (use-package ox-reveal
   :disabled t
-  :ensure t
   :after org
   :custom
   (org-reveal-mathjax t)
@@ -1094,7 +1001,6 @@ propuesta en el mismo lugar es el [[https://gitlab.com/oer/org-re-reveal][fork]]
 
 #+begin_src emacs-lisp
 (use-package org-re-reveal
-  :ensure t
   :config
   (require 'org-re-reveal)
   :custom
@@ -1104,284 +1010,48 @@ propuesta en el mismo lugar es el [[https://gitlab.com/oer/org-re-reveal][fork]]
   (org-re-reveal-postamble "Adolfo De Unánue"))
 #+end_src
 
+** epresent
 
-** Tree Slide
+/Simple presentation mode for Emacs Org-mode/
 
-   A quick way to display an org-mode file is using [[https://github.com/takaxp/org-tree-slide][org-tree-slide]].
-
-   * org-tree-slide-move-next-tree (C->)
-   * org-tree-slide-move-previous-tree (C-<)
-   * org-tree-slide-content (C-x s c)
-
-
-   #+BEGIN_SRC emacs-lisp
-     (use-package org-tree-slide
-        :ensure t
-        :init
-        (setq org-tree-slide-skip-outline-level 4)
-        (org-tree-slide-simple-profile))
-   #+END_SRC
+ - Call epresent-run on an org-buffer.
+ - press t / 1 to view the top level of the presentation
+ - navigate the presentation with n/f, p/b
+ - go to a specific page with v <num> RET
+ - scroll with k and l
+ - use c and C to navigate between code blocks, e to edit them, x to
+  make it run, and s / S to toggle their visibility
+ - quit with q
 
 
-** =org-present=
 
-#+BEGIN_SRC emacs-lisp
-  (use-package org-present
-    :defer t
-    :ensure t
-    :after (org)
-    :init
-    (progn
+#+begin_src emacs-lisp
+(use-package epresent)
+#+end_src
 
-      (add-hook 'org-present-mode-hook
-                (lambda ()
-                  (global-linum-mode -1)
-                  (org-present-big)
-                  (org-display-inline-images)
-                  (org-present-hide-cursor)
-                  (org-present-read-only)))
-      (add-hook 'org-present-mode-quit-hook
-                (lambda ()
-                  (global-linum-mode -1)
-                  (org-present-small)
-                  (org-remove-inline-images)
-                  (org-present-show-cursor)
-                  (org-present-read-write)))))
-#+END_SRC
+** [[https://zck.me/zpresent][zpresent]]
 
+/A presentation framework for Emacs/
 
-* Table of Contents
+[[https://bitbucket.org/zck/zpresent.el/src/default/tutorial.org][Tutorial]]
+
+#+begin_src emacs-lisp
+(use-package zpresent)
+#+end_src
+
+* Apariencia
+
+Los /bullets/ hacen más presentable =org-mode=
 
 #+BEGIN_SRC emacs-lisp
-(use-package toc-org
-  :after org
-  :hook (org-mode . toc-org-enable))
+  (use-package org-bullets
+       ;ensure t
+       :after org
+       :hook
+       (org-mode . (lambda () (org-bullets-mode 1))))
 #+END_SRC
 
-* /Literate Programming/
-
-Larga vida al [[http://orgmode.org/worg/org-contrib/babel/intro.html][proyecto Babel]], el cual permite la ejecución de bloques
-códigos y /tangle out/ bloques hacia archivos
-
-** Configuración general
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-custom-vars
-(org-src-fontify-natively t)   ;; Pretty code blocks
-(org-src-tab-acts-natively t)
-(org-confirm-babel-evaluate nil)  ;; No quiero que me pregunte, si quiero ejecutar
-(org-confirm-elisp-link-function nil)
-(org-confirm-shell-link-function nil)
-(org-src-preserve-indentation t)
-#+END_SRC
-
-Muestra automáticamente las imágenes
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
-  (org-babel-after-execute . org-redisplay-inline-images)
-#+END_SRC
-
-
-
-** Templates para bloques =org-babel=
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-(add-to-list 'org-structure-template-alist
-             '("el" . "src emacs-lisp"))
-
-(add-to-list 'org-structure-template-alist
-             '("sh" . "src shell"))
-
-(add-to-list 'org-structure-template-alist
-             '("py" . "src jupyter-python"))
-
-(add-to-list 'org-structure-template-alist
-             '("md" . "src markdown"))
-
-(add-to-list 'org-structure-template-alist
-             '("sr" . "src R"))
-
-(add-to-list 'org-structure-template-alist
-             '("cl" . "src lisp"))
-
-(add-to-list 'org-structure-template-alist
-             '("clj" . "src clojure"))
-#+END_SRC
-
-** Lenguajes habilitados
-
-
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-(add-to-list 'org-src-lang-modes '("dot" . "graphviz-dot"))
-
-
-;; Usamos sly
-(setq org-babel-lisp-eval-fn 'sly-eval)
-
-
-(org-babel-do-load-languages 'org-babel-load-languages
-                             '((shell      . t)
-                               (awk        . t)
-                               (sed        . t)
-                               (js         . t)
-                               (emacs-lisp . t)
-                               (lisp       . t)
-                               (perl       . t)
-                               (R          . t)
-                               (scala      . t)
-                               (clojure    . t)
-                               (latex      . t)
-                               (C          . t)
-                               (fortran    . t)
-                               (stan       . t)
-                               (sqlite     . t)
-                               (sql        . t)
-                               ;; (mongo      . t)
-                               (cypher     . t)
-                               ;; (redis      . t)
-                               (blockdiag  . t)
-                               (calc       . t)
-                               (python     . t)
-                               (ruby       . t)
-                               (dot        . t)
-                               (css        . t)
-                               (plantuml   . t)
-                               ;; (yaml       . t)
-                               (jupyter    . t)))
-
-;; Org-babel no muestra el stderr
-;; http://kitchingroup.cheme.cmu.edu/blog/2015/01/04/Redirecting-stderr-in-org-mode-shell-blocks/
-(setq org-babel-default-header-args:sh
-      '((:prologue . "exec 2>&1") (:epilogue . ":")))
-
-
-
-  #+END_SRC
-
-
-** Algunos /hooks/ que ayudan al /workdlow/
-
-Ejecutar /tangle/ automáticamente al guardar el /buffer/
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
-  ;(org-mode . (lambda () (add-hook 'after-save-hook 'org-babel-tangle
-  ;                                 'run-at-end 'only-in-org-mode)))
-#+END_SRC
-
-Medimos cuánto tiempo tardó en hacer el /tangle/
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
-  (org-babel-pre-tangle  . (lambda ()
-                             (setq nanounanue/pre-tangle-time (current-time))))
-  (org-babel-post-tangle . (lambda ()
-                             (message "org-babel-tangle took %s"
-                                             (format "%.2f seconds"
-                                                     (float-time (time-since nanounanue/pre-tangle-time))))))
-#+END_SRC
-
-* Imágenes
-
-Habilitando mas tipos de imágenes a desplegar en =org-mode=
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-  ;; * Enable pdf and eps images in org-mode
-  ;; Suggested on the org-mode maillist by Julian Burgos
-  (add-to-list 'image-file-name-extensions "pdf")
-  (add-to-list 'image-file-name-extensions "eps")
-
-  (add-to-list 'image-type-file-name-regexps '("\\.eps\\'" . imagemagick))
-  (add-to-list 'image-file-name-extensions "eps")
-  (add-to-list 'image-type-file-name-regexps '("\\.pdf\\'" . imagemagick))
-  (add-to-list 'image-file-name-extensions "pdf")
-
-  (setq imagemagick-types-inhibit (remove 'PDF imagemagick-types-inhibit))
-#+END_SRC
-
-* Misceláneos
-
-** [[https://github.com/gizmomogwai/org-kanban][org-kanban]]
-
-#+BEGIN_SRC emacs-lisp
-  (use-package org-kanban
-    :ensure t
-    :after org)
-#+END_SRC
-
-** [[https://github.com/abo-abo/org-download][org-download]]
-
-#+BEGIN_SRC emacs-lisp
-  (use-package org-download
-    :ensure t
-    :after org
-    :init
-    (require 'org-download)
-    :config
-    ;; Drag-and-drop to `dired`
-    (add-hook 'dired-mode-hook 'org-download-enable))
-#+END_SRC
-
-** PDF Tools
-[[https://github.com/politza/pdf-tools][
-Github page]]
-
-Dependencias:
-
-#+BEGIN_SRC shell :dir /sudo::
-apt install -y libpng-dev zlib1g-dev libpoppler-glib-dev libpoppler-private-dev
-#+END_SRC
-
-
-#+BEGIN_SRC emacs-lisp
-  (use-package  pdf-tools
-    :after org
-    :ensure t
-    :config
-    (add-to-list 'org-file-apps
-         '("\\.pdf\\'" . (lambda (file link)
-                   (org-pdfview-open link))))
-    (add-to-list 'org-file-apps
-         '("\\.pdf::\\([[:digit:]]+\\)\\'" . org-pdfview-open))
-
-    (setq ess-pdf-viewer-pref 'emacsclient)
-    (pdf-tools-install :no-query))
-
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-(use-package pdf-view
-  :ensure nil
-  :after pdf-tools
-  :bind (:map pdf-view-mode-map
-              ("C-s" . isearch-forward)
-              ("d" . pdf-annot-delete)
-              ("h" . pdf-annot-add-highlight-markup-annotation)
-              ("t" . pdf-annot-add-text-annotation))
-  :custom
-  (pdf-view-display-size 'fit-page)
-  (pdf-view-resize-factor 1.1)
-  (pdf-view-use-unicode-ligther nil))
-#+END_SRC
-
-
-*** Integración con =org-mode=
-
-Para usr este paquete con  =org-mode=:
-
-#+BEGIN_EXAMPLE
-[[pdfview:~/Descargas/01688199.pdf::42][PDF Link]]
-#+END_EXAMPLE
-
-#+BEGIN_SRC emacs-lisp
-  (use-package org-pdfview
-    :after org
-    :ensure t
-    :config
-    (delete '("\\.pdf\\'" . default) org-file-apps)
-    (add-to-list
-     'org-file-apps
-     '("\\.pdf\\'" . (lambda (file link) (org-pdfview-open link))))
-    )
-#+END_SRC
+* Tomar notas
 
 ** =interleave=
 
@@ -1424,13 +1094,156 @@ In a later step it should be possible to create truly interleaved PDFs of your n
 #+begin_src emacs-lisp
 (use-package org-noter
   :after org
-  :ensure t
+  ;ensure t
   :config
   (setq org-noter-default-notes-file-names '("notes.org")
-        org-noter-notes-search-path '("~/Sync/org/research-notes/notes"))
+        org-noter-notes-search-path '("~/Sync/org/research/notes"))
   (setq org-noter-separate-notes-from-heading t)
   )
 #+end_src
+
+**  =org-ref=
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-ref
+  :defer t
+  :after org
+  :demand t
+  :init
+  (setq reftex-default-bibliography '("~/Sync/org/research/research.bib"))
+
+  ;; see org-ref for use of these variables
+  (setq org-ref-bibliography-notes "~/Sync/org/research/notes.org"
+        org-ref-pdf-directory "~/Sync/org/referencias/"
+        org-latex-prefer-user-labels t
+        bibtex-completion-pdf-field "file"
+        org-ref-default-citation-link "parencite"
+        org-latex-pdf-process
+        '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+          "bibtex %b"
+          "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+          "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f")))
+:config
+
+  (defun org-ref-grep-pdf (&optional _candidate)
+    "Search pdf files of marked CANDIDATEs."
+    (interactive)
+    (let ((keys (helm-marked-candidates))
+          (get-pdf-function org-ref-get-pdf-filename-function))
+      (helm-do-pdfgrep-1
+       (-remove (lambda (pdf)
+                  (string= pdf ""))
+                (mapcar (lambda (key)
+                          (funcall get-pdf-function key))
+                        keys)))))
+
+  (defun org-ref-open-pdf-at-point-in-emacs ()
+    "Open the pdf for bibtex key under point if it exists."
+    (interactive)
+    (let* ((results (org-ref-get-bibtex-key-and-file))
+           (key (car results))
+           (pdf-file (funcall org-ref-get-pdf-filename-function key)))
+      (if (file-exists-p pdf-file)
+          (find-file-other-window pdf-file)
+        (message "no pdf found for %s" key))))
+
+#+END_SRC
+
+
+
+* [[https://github.com/sprig/org-capture-extension][Org protocol]]
+
+** Preparando el sistema operativo para el [[https://addons.mozilla.org/en-US/firefox/addon/org-capture/?src=search][add-on in de firefox]]
+
+Registramos =emacs= como el encargado de manejar las peticiones de la
+extensión de Firefox
+
+#+BEGIN_SRC shell
+mkdir -p ~/.local/share/applications
+#+END_SRC
+
+
+#+BEGIN_SRC shell :dir ~/.local/share/applications
+cat > "org-protocol.desktop" << EOF
+[Desktop Entry]
+Name=org-protocol
+Exec=emacsclient %u
+Type=Application
+Terminal=false
+Categories=System;
+MimeType=x-scheme-handler/org-protocol;
+EOF
+#+END_SRC
+
+Actualizamos la base de datos de manejadores
+
+#+BEGIN_SRC shell
+update-desktop-database ~/.local/share/applications/
+#+END_SRC
+
+** Configuración *en* emacs
+
+#+BEGIN_SRC emacs-lisp
+(use-feature org-protocol
+  :config
+  (defun transform-square-brackets-to-round-ones(string-to-transform)
+    "Transforms [ into ( and ] into ), other chars left unchanged."
+    (concat
+     (mapcar #'(lambda (c) (if (equal c ?[) ?\( (if (equal c ?]) ?\) c))) string-to-transform))
+    )
+
+
+  (add-to-list 'org-capture-templates
+               '("p" "Protocol" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
+                 "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?"))
+
+  (add-to-list 'org-capture-templates
+               '("L" "Protocol Link" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
+                 "* %? [[%:link][%(transform-square-brackets-to-round-ones \"%:description\")]]\n")))
+#+END_SRC
+
+
+
+* Misceláneos
+
+** [[https://github.com/rexim/org-cliplink][org-cliplink]]
+
+#+begin_quote
+A simple command that takes a URL from the clipboard and inserts an
+org-mode link with a title of a page found by the URL into the current
+buffer.
+#+end_quote
+
+#+begin_src emacs-lisp
+(use-package org-cliplink)
+#+end_src
+
+** [[https://github.com/gizmomogwai/org-kanban][org-kanban]]
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-kanban
+  :after org)
+#+END_SRC
+
+** [[https://github.com/abo-abo/org-download][org-download]]
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-download
+  ;ensure t
+  :after org
+  :init
+  (require 'org-download)
+  :commands (org-download-enable
+             org-download-yank
+             org-download-screenshot)
+
+  :config
+  (setq-default org-download-image-dir "./img")
+  (setq org-download-screenshot-method "screencapture -i %s")
+  :hook ((org-mode dired-mode) . org-download-enable))
+#+END_SRC
+
+
 
 ** =org-attach-screenshot=
 
@@ -1442,53 +1255,42 @@ In a later step it should be possible to create truly interleaved PDFs of your n
   (("C-c S" . org-attach-screenshot)))
 #+END_SRC
 
-**  =org-ref=
+** ox-extra
+#+begin_src emacs-lisp
+;; Feature `ox-extra' is a library from the org-plus-contrib package.
+;; It adds extra keywords and tagging functionality for org export.
+(use-feature ox-extra
+  ;; Demand so that ignore headlines is always active.
+  :demand t
+  :after ox
+  ;; The ignore-headlines allows Org to understand the tag :ignore: and simply
+  ;; remove tagged headings on export, but leave their content in.
+  ;; See my blog post about writing thesis with org mode here:
+  ;; https://write.as/dani/writing-a-phd-thesis-with-org-mode
+  :config (ox-extras-activate '(ignore-headlines)))
+#+end_src
+
+**  org-compat
+
+#+begin_src emacs-lisp
+;; Feature `org-compat' is a adapter layer so that org can communicate with other Emacs
+;; built-in packages.
+(use-feature org-compat
+  :demand t
+  :after org
+  :config (setq org-imenu-depth 3))
+#+end_src
+
+** Table of Contents
 
 #+BEGIN_SRC emacs-lisp
-  (use-package org-ref
-    :defer t
-    :after org
-    :init
-    (setq reftex-default-bibliography '("~/Dropbox/bibliography/references.bib"))
-
-    ;; see org-ref for use of these variables
-    (setq org-ref-bibliography-notes "~/Dropbox/bibliography/notes.org"
-          org-ref-default-bibliography '("~/Dropbox/bibliography/references.bib")
-          org-ref-pdf-directory "~/Dropbox/bibliography/bibtex-pdfs/"
-          org-latex-prefer-user-labels t
-          org-latex-pdf-process
-          '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-            "bibtex %b"
-            "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-            "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f")))
+(use-package toc-org
+  :after org
+  :hook (org-mode . toc-org-enable))
 #+END_SRC
-
-
-** /Pasting/
-
-Si =pandoc= está instalado, podemos copiar código HTML, ponerlo en el
-/clipboard/ y convertirlo a =org-mode= antes de /yanking it/ al /buffer/
-
-
-  #+BEGIN_SRC emacs-lisp
-    (defun nanounanue/paste-html-to-org ()
-      "Assumes the contents of the system clip/paste-board to be
-    HTML, this calls out to `pandoc' to convert it for the org-mode
-    format."
-      (interactive)
-      (let* ((clip (if (eq system-type 'darwin)
-                       "pbpaste -Prefer rts"
-                     "xclip -out -selection 'clipboard' -t text/html"))
-             (format (if (eq mode-name "Org") "org" "markdown"))
-             (pandoc (concat "pandoc -f rts -t " format))
-             (cmd    (concat clip " | " pandoc))
-             (text   (shell-command-to-string cmd)))
-        (kill-new text)
-        (yank)))
-  #+END_SRC
 
 * Proveer
 
   #+BEGIN_SRC emacs-lisp
-    (provide 'setup-org-mode)
+  (provide 'setup-org-mode)
   #+END_SRC
