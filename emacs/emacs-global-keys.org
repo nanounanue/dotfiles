@@ -1,0 +1,68 @@
+#+TITLE: Global Keybindings
+#+AUTHOR: Adolfo De Unánue
+#+EMAIL: nanounanue@gmail.com
+#+STARTUP: showeverything
+#+STARTUP: nohideblocks
+#+STARTUP: indent
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/elisp/setup-global-keys.el
+#+PROPERTY:    header-args:shell  :tangle no
+#+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+
+* /Keybindings/
+
+Uso =bind-key= para mis /keybindings/. La principal razón para usarlo en lugar de =define-key= o =global-set-key=
+es que puedes consultar tus /keybindings/ con =M-x= =describe-personal-keybindings=
+
+Ya viene incluido con =use-package=, sólo hay que activarlo
+
+#+begin_src emacs-lisp
+(require 'bind-key)
+#+end_src
+
+** Misceláneos
+
+#+begin_src emacs-lisp
+(bind-key "M-g" 'goto-line)   ;; Pregunta por la línea y "brinca"
+(bind-key "M-`" 'other-frame) ;; Enfoca el siguiente frame
+(bind-key "C-x m" 'eshell)    ;; Inicia eshell o cambia a eshell si ya está activo
+(bind-key "C-x M" (lambda () (interactive) (eshell t))) ;; Inicia un nuevo eshell aunque haya uno activo
+(bind-key "M-<" 'beginning-of-buffer)
+(bind-key "M->" 'end-of-buffer)
+(bind-key "C-c C-c" 'compile)
+(bind-key "C-c C-;" 'comment-region)
+(bind-key "C-c C-:" 'uncomment-region)
+(bind-key "C-+" 'text-scale-increase)
+(bind-key "C--" 'text-scale-decrease)
+(bind-key "C-0" 'text-scale-adjust)
+#+end_src
+
+** Ivy
+
+#+begin_src emacs-lisp
+(bind-key  "C-s" 'swiper)  ;; replaces i-search with swiper
+(bind-key  "C-r" 'swiper)
+
+(global-set-key [f6] 'ivy-resume)
+#+end_src
+
+** Org
+
+#+begin_src emacs-lisp
+(bind-key "C-c c" 'org-capture)
+(bind-key [f12] 'org-agenda)
+#+end_src
+
+** Copy as format
+
+#+begin_src emacs-lisp
+(bind-key "C-c w s" 'copy-as-format-slack)
+(bind-key "C-c w g" 'copy-as-format-github)
+#+end_src
+* Fin
+
+#+begin_src emacs-lisp
+(provide 'setup-global-keys)
+#+end_src

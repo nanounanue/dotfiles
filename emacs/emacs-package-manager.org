@@ -1,0 +1,112 @@
+#+TITLE: Administración de paquetes
+#+AUTHOR: Adolfo De Unánue
+#+EMAIL: nanounanue@gmail.com
+#+STARTUP: showeverything
+#+STARTUP: nohideblocks
+#+STARTUP: indent
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/elisp/setup-package-manager.el
+#+PROPERTY:    header-args:shell  :tangle no
+#+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+
+
+* Admnistrador de paquetes
+
+#+begin_src emacs-lisp :tangle no
+(package-initialize)
+(add-to-list 'package-archives
+	     '("melpa" . "https://melpa.org/packages/")
+             '("elpy" . "http://jorgenschaefer.github.io/packages/"))
+
+(when (not package-archive-contents)
+  (package-refresh-contents))
+
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
+(require 'use-package)
+
+(defconst private-dir  (expand-file-name "private" user-emacs-directory))
+(defconst temp-dir (format "%s/cache" private-dir)
+  "Hostname-based elisp temp directories")
+#+end_src
+
+
+
+* Gestión de paquetes: =straight.el=
+
+=straight.el= es un administrador de paquetes para GNU/Emacs
+
+#+begin_src emacs-lisp
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+#+end_src
+
+* =use-package=
+
+=use-package= permite configurar paquetes de manera declarativa
+
+** /Bootstrap/ =use-package=
+#+begin_src emacs-lisp
+(straight-use-package 'use-package)
+(setq straight-use-package-by-default t)
+#+end_src
+
+** Configuración
+
+No cargar los paquetes por default cuando Emacs está iniciando, sólo
+cuando son requeridos. Si no funciona bien, agregar al bloque de
+=use-package :defer nil=
+
+#+begin_src emacs-lisp
+(setq-default use-package-always-defer t)
+#+end_src
+
+Ser /verbose/ es bueno para el /debugging/
+
+#+begin_src emacs-lisp
+(setq-default use-package-verbose t)
+#+end_src
+
+** Integración con =imenu=
+
+#+begin_src emacs-lisp
+(setq-default use-package-enable-imenu-support t
+              use-package-form-regexp-eval
+              `(concat ,(eval-when-compile
+                          (concat "^\\s-*("
+                                  (regexp-opt '("use-package" "use-feature" "require") t)
+                                  "\\s-+\\("))
+                       (or (bound-and-true-p lisp-mode-symbol-regexp)
+                           "\\(?:\\sw\\|\\s_\\|\\\\.\\)+") "\\)"))
+#+end_src
+
+** =use-feature=
+
+#+begin_src emacs-lisp
+(defmacro use-feature (name &rest args)
+  "Like `use-package', but with `straight-use-package-by-default' disabled."
+  (declare (indent defun))
+  `(use-package ,name
+     :straight nil
+     ,@args))
+#+end_src
+
+
+
+* Finalizar
+
+#+begin_src emacs-lisp
+(provide 'setup-package-manager)
+#+end_src
