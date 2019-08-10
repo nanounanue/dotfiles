@@ -29,8 +29,7 @@ El artículo [[http://emacsninja.com/posts/making-emacs-more-presentable.html][M
 cambia el tamaño de la fuente, en la /window/ no el /buffer/
 
 #+begin_src emacs-lisp
-(use-package default-text-scale
-:ensure t)
+(use-package default-text-scale)
 #+end_src
 
   #+BEGIN_SRC emacs-lisp
@@ -58,15 +57,29 @@ cambia el tamaño de la fuente, en la /window/ no el /buffer/
      ("A-C--" . nanounanue/text-scale-frame-decrease))
   #+END_SRC
 
-Nunca abandonamos Emacs...
-
-
-#+BEGIN_SRC emacs-lisp
-(setq confirm-kill-emacs 'yes-or-no-p)
-#+END_SRC
-
 
 * Fuentes
+
+Definimos algunas variables
+
+#+begin_src emacs-lisp
+(defvar  nanounanue-font-default)
+(defvar  nanounanue-font-variable)
+(defvar  nanounanue-font-modeline)
+#+end_src
+
+Asignamos las variables
+
+
+#+begin_src emacs-lisp
+(setq
+ nanounanue-font-default "Fira Code"
+ nanounanue-font-variable "Ubuntu Mono" ;; Noto Mono
+ nanounanue-font-modeline "DejaVu Sans Mono")
+#+end_src
+
+
+
 
 Activar /syntax highlighting/ globalmente
 
@@ -77,28 +90,63 @@ Activar /syntax highlighting/ globalmente
 ¡Hay tantas opciones! Y yo  nunca me decido. Ver [[file:~/dotfiles/fonts.org][aquí]] para instalarlas.
 
 
-Para ver que familias de fuentes están disposnibles:
+Para ver que familias de fuentes están disponibles:
 
 #+BEGIN_SRC emacs-lisp :tangle no
 (message "%s" (font-family-list))
 #+END_SRC
 
+
+Instrucciones [[http://ergoemacs.org/emacs/emacs_list_and_set_font.html][aquí]]
+
 #+BEGIN_SRC emacs-lisp
-(set-face-attribute 'default nil :family "Iosevka" :height 130)
-(set-face-attribute 'fixed-pitch nil :family "Iosevka")
-(set-face-attribute 'variable-pitch nil :family "Baskerville")
+(set-face-attribute 'default nil
+                    :family nanounanue-font-default
+                    :height 140
+                    :weight 'normal)
+(set-face-attribute 'mode-line nil :family nanounanue-font-modeline :height 140 :weight 'regular)
+(set-face-attribute 'fixed-pitch nil :family nanounanue-font-default :height 140)
+(set-face-attribute 'variable-pitch nil :family nanounanue-font-variable)
+#+END_SRC
+
+Ajustando las fuentes dependiendo del tamaño del monitor
+
+#+begin_src emacs-lisp
+(when (display-graphic-p)
+  (if (> (x-display-pixel-width) 1800)
+      (if ;; very large number of pixels in display. side-by-side?
+          (> (x-display-pixel-width) 5000)
+	      (nanounanue/setup-main-fonts 140 140 120)
+        (if (or
+             (and             ;; specific display
+              (= (x-display-pixel-width) 2560)
+              (= (x-display-pixel-height) 1600))
+             (and ;; another specific display setup
+              (= (x-display-pixel-width) 3840)
+              (= (x-display-pixel-height) 1080)))
+            (nanounanue/setup-main-fonts 140 140 120)
+
+          ;; other large display
+	      (nanounanue/setup-main-fonts 140 140 120)
+          ))
+	(nanounanue-setup/main-fonts 140 140 120)))
+#+end_src
+
+
+#+begin_src emacs-lisp :tangle no
+(set-frame-font "Fira Code-14" t)
+#+end_src
+
+#+BEGIN_SRC emacs-lisp
+  (use-feature text-mode
+    :hook (text-mode . (lambda ()
+                         (variable-pitch-mode 1))))
 #+END_SRC
 
 
-#+BEGIN_SRC emacs-lisp
-    (add-hook 'text-mode-hook
-               (lambda ()
-                (variable-pitch-mode 1)))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (use-package typo
-  :ensure t
+  ;ensure t
   :config
   (typo-global-mode 1)
   (add-hook 'text-mode-hook 'typo-mode))
@@ -110,7 +158,7 @@ Agrega /face/ a los paréntesis, de tal manera que los temas puedan oscurecerlos
 
 #+BEGIN_SRC emacs-lisp
 (use-package paren-face
-  :ensure t
+  ;ensure t
   :init (global-paren-face-mode))
 #+END_SRC
 
@@ -120,7 +168,7 @@ Agrega /face/ a los paréntesis, de tal manera que los temas puedan oscurecerlos
 
 #+BEGIN_SRC emacs-lisp
   (use-package zenburn-theme
-    :ensure t
+    ;ensure t
     :config
     ;; use variable-pitch fonts for some headings and titles
     (setq zenburn-use-variable-pitch t)
@@ -136,7 +184,7 @@ Agrega /face/ a los paréntesis, de tal manera que los temas puedan oscurecerlos
 
 #+BEGIN_SRC emacs-lisp
   (use-package solarized-theme
-    :ensure t
+    ;ensure t
     :config
     (setq x-underline-at-descent-line t))
 #+END_SRC
@@ -144,38 +192,17 @@ Agrega /face/ a los paréntesis, de tal manera que los temas puedan oscurecerlos
 ** Gruvbox
 
 #+BEGIN_SRC emacs-lisp
-(use-package gruvbox-theme
-  :ensure t)
+(use-package gruvbox-theme)
 #+END_SRC
 
 
 ** Poet
 
 #+BEGIN_SRC emacs-lisp
-(use-package poet-theme
-:ensure t)
+(use-package poet-theme)
 #+END_SRC
 
-
-** Seleccionando el tema
-
-#+begin_src emacs-lisp
-;;(load-theme 'gruvbox-dark-hard t)
-#+end_src
-
-
-** Tema según horario
-
-Esto es una /excelente/ idea
-
-#+BEGIN_SRC emacs-lisp
-(use-package theme-changer
-:ensure nil
-:disabled t
-:config
-(change-theme 'gruvbox-light-medium 'zenburn)  ;; day and night theme
-)
-#+END_SRC
+** Nord
 
 #+BEGIN_SRC emacs-lisp
 (use-package nord-theme
@@ -192,12 +219,26 @@ Esto es una /excelente/ idea
   :hook (after-init . fancy-battery-mode))
 #+END_SRC
 
+** Zerodark
+
+#+begin_src emacs-lisp
+(use-package zerodark-theme)
+#+end_src
+
+** Seleccionando el tema dependiendo del ambiente
+
+#+begin_src emacs-lisp
+(if (display-graphic-p)
+    ;; (load-theme 'abyss 'no-confirm)
+    (load-theme 'zerodark 'no-confirm)
+  (load-theme 'wheatgrass))  ;; wheatgrass included in emacs
+#+end_src
+
 
 * all-the-icons
 
 #+BEGIN_SRC emacs-lisp
-(use-package all-the-icons
-:ensure t)
+(use-package all-the-icons)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle no
@@ -210,7 +251,7 @@ Integrarlo con [[file:emacs-ivy.org][ivy y counsel]]
 
 #+BEGIN_SRC emacs-lisp
   (use-package all-the-icons-ivy
-    :ensure t
+    ;ensure t
     :after (all-the-icons ivy)
     :custom (all-the-icons-ivy-file-commands '(counsel-dired-jump
                                                counsel-find-file
@@ -227,7 +268,7 @@ Integrarlo con [[file:emacs-ivy.org][ivy y counsel]]
 
 #+BEGIN_SRC emacs-lisp
  (use-package all-the-icons-dired
-        :ensure t
+        ;ensure t
         :config
         (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
         )
@@ -249,13 +290,14 @@ Por el momento uso [[https://github.com/Malabarba/smart-mode-line/][smart-mode-l
 
 #+BEGIN_SRC emacs-lisp
 (use-package smart-mode-line
-  :ensure t
+  ;ensure t
   :config
   (setq sml/no-confirm-load-theme t)
   (setq sml/shorten-directory t
         sml/shorten-modes t)
   (sml/setup))
 #+END_SRC
+
 
 * Dashboard
 
@@ -276,7 +318,6 @@ Por el momento uso [[https://github.com/Malabarba/smart-mode-line/][smart-mode-l
 
 #+BEGIN_SRC emacs-lisp
 (use-package dashboard
-  :ensure t
   :preface
   (defun nanounanue/dashboard-banner ()
     "Sets a dashboard banner including information on package initialization
@@ -285,30 +326,35 @@ Por el momento uso [[https://github.com/Malabarba/smart-mode-line/][smart-mode-l
           (format "Emacs ready in %.2f seconds with %d garbage collections."
                   (float-time
                    (time-subtract after-init-time before-init-time)) gcs-done)))
-  :init
-  (add-hook 'after-init-hook 'dashboard-refresh-buffer)
-  (add-hook 'dashboard-mode-hook 'nanounanue/dashboard-banner)
-  :config
-  (dashboard-setup-startup-hook)
-  (setq dashboard-startup-banner 'official)
+  :hook
+  (dashboard-mode . nanounanue/dashboard-banner)
+  :custom
+  (dashboard-startup-banner 'official)
   ;; Content is not centered by default. To center, set
-  (setq dashboard-center-content t)
+  (dashboard-center-content t)
 
   ;; To disable shortcut "jump" indicators for each section, set
-  (setq dashboard-show-shortcuts t)
-  (setq dashboard-items '((recents  . 5)
-                          (projects . 5)))
-  (setq dashboard-banner-logo-title "")
+  (dashboard-show-shortcuts t)
+  (dashboard-set-heading-icons t)
+  (dashboard-set-file-icons t)
+  (dashboard-items '((recents  . 5)
+                     (projects . 5)))
 
-  ;; Muestra el dashboard en los frames de emacsclient
-  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
+  ;;To show info about the packages loaded and the init time:
+  (dashboard-set-init-info t)
+
+  :config
+  (dashboard-setup-startup-hook))
 #+END_SRC
+
 
 * Tabs
 
+*NOTA*: Deshabilitado, no agrega valor y ocupa mucho espacio
+
 #+begin_src emacs-lisp
 (use-package centaur-tabs
-  :demand
+  :disabled t
   :config
   (setq centaur-tabs-style "bar")
   (setq centaur-tabs-height 30)
@@ -322,6 +368,7 @@ Por el momento uso [[https://github.com/Malabarba/smart-mode-line/][smart-mode-l
   ("C-<prior>" . centaur-tabs-backward)
   ("C-<next>" . centaur-tabs-forward))
 #+end_src
+
 
 
 * Al final
