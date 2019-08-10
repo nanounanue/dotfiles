@@ -20,9 +20,12 @@ Configuración y alias para servidores de uso regular
 
 #+begin_src shell
 Host *
-  ControlMaster auto                   # Reusa conexiones existentes al servidor
-  ControlPath ~/.ssh/sockets/%r@%h-%p  # Donde crear el socket
-  ControlPersist 600                   # La conexión permanerá abierta por 600 s después de que la última sesión ha sido cerrada
+  # Reusa conexiones existentes al servidor
+  ControlMaster auto
+  # Locación del socket
+  ControlPath ~/.ssh/sockets/%r@%h-%p
+  # La conexión permanerá abierta por 600 s después de que la última sesión ha sido cerrada
+  ControlPersist 600
 #+end_src
 
 *** Github
@@ -30,8 +33,8 @@ Host *
 #+begin_src shell
 # github
 Host github.com
-    User nanounanue
-    IdentityFile ~/.ssh/id_rsa
+  User nanounanue
+  IdentityFile ~/.ssh/id_rsa
 #+end_src
 
 *** SSH Tunnels
@@ -49,7 +52,7 @@ Host github.com
 
 #+begin_src shell
 Host wmca
-    HostName 51.105.29.96
-    Port 22
-    User adolfo_deunanue
+  HostName 51.105.29.96
+  Port 22
+  User adolfo_deunanue
 #+end_src
