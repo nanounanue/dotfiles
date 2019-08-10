@@ -1,0 +1,350 @@
+#+TITLE: Email
+#+AUTHOR: Adolfo De Unánue
+#+EMAIL:  nanounanue@gmail.com
+#+STARTUP: showeverything
+#+STARTUP: nohideblocks
+#+STARTUP: indent
+#+PROPERTY:    header-args:emacs-lisp  :tangle ~/.emacs.d/elisp/setup-email.el
+#+PROPERTY:    header-args:shell  :tangle no
+#+PROPERTY:    header-args:python :tangle no
+#+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+TAGS:   emacs python
+
+* Dependencias
+
+Paquete para convertir =html= a =texto=
+
+#+begin_src shell :dir /sudo::
+apt install html2text
+#+end_src
+
+Directorio para /encolar/ mensajes (cuando estoy /off-line/)
+
+#+begin_src shell :dir ~
+mu mkdir ~/Maildir/adolfoaz-gmail/queue && touch ~/Maildir/adolfoaz-gmail/queue/.noindex
+#+end_src
+
+#+begin_src shell :dir ~
+mu mkdir ~/Maildir/nanounanue-gmail/queue && touch ~/Maildir/nanounanue-gmail/queue/.noindex
+#+end_src
+
+
+* Mu4e
+
+- [[https://www.djcbsoftware.nl/code/mu/mu4e/EV-Keybindings.html#EV-Keybindings][/Keybindings/ en el mensaje a enviar]]
+- [[https://www.djcbsoftware.nl/code/mu/mu4e/MSGV-Keybindings.html#MSGV-Keybindings][/Keybindings/ en el cuerpo del mensaje]]
+- [[https://www.djcbsoftware.nl/code/mu/mu4e/Keybindings.html#Keybindings][/Keybindings/ en el header]]
+- [[https://www.djcbsoftware.nl/code/mu/mu4e/Queries.html#Queries][Queries]]
+
+
+#+begin_src emacs-lisp
+(use-package org-mime)
+
+  (use-feature mu4e
+    :init (require 'mu4e)
+    :load-path "/usr/share/emacs/site-lisp/mu4e/"
+    :config
+    (setq mu4e-use-fancy-chars t)
+    (setq mail-user-agent 'mu4e-user-agent)
+    (setq mu4e-mu-binary "/usr/bin/mu")
+    (setq mu4e-maildir "~/Maildir")
+    (setq mu4e-get-mail-command "mbsync -c ~/.mbsyncrc -a")
+    (setq mu4e-view-prefer-html t)
+    (setq mu4e-update-interval 300)
+    (setq mu4e-compose-format-flowed t)
+    (setq mu4e-headers-include-related t)
+    (setq mu4e-headers-auto-update t)
+    (setq mu4e-attachment-dir  "~/Downloads")
+    ;; This prevents saving the email to the Sent folder since gmail will do this for us on their end.
+    (setq mu4e-sent-messages-behavior 'delete)
+    (setq message-kill-buffer-on-exit t)
+    ;; Enable inline images.
+    (setq mu4e-view-show-images t)
+    ;; Use imagemagick, if available.
+    (when (fboundp 'imagemagick-register-types)
+      (imagemagick-register-types))
+
+    ;; to view selected message in the browser, no signin, just html mail
+    (add-to-list 'mu4e-view-actions
+                 '("ViewInBrowser" . mu4e-action-view-in-browser) t)
+
+    (add-hook 'mu4e-view-mode-hook #'visual-line-mode)
+
+    ;; every new email composition gets its own frame!
+    (setq mu4e-compose-in-new-frame t)
+
+    ;; list of my email addresses.
+    (setq mu4e-user-mail-address-list '("adolfoaz@gmail.com"
+                                        "nanounanue@gmail.com"
+                                        "adolfo@uchicago.edu"))
+
+
+;; from https://www.reddit.com/r/emacs/comments/bfsck6/mu4e_for_dummies/elgoumx
+(add-hook 'mu4e-headers-mode-hook
+      (defun nanounanue/mu4e-change-headers ()
+	(interactive)
+	(setq mu4e-headers-fields
+	      `((:human-date . 25) ;; alternatively, use :date
+		(:flags . 6)
+		(:from . 22)
+		(:thread-subject . ,(- (window-body-width) 70)) ;; alternatively, use :subject
+		(:size . 7)))))
+
+;; spell check
+(add-hook 'mu4e-compose-mode-hook
+          (defun nanounanue/do-compose-stuff ()
+            "My settings for message composition."
+            (visual-line-mode)
+            (org-mu4e-compose-org-mode)
+            (use-hard-newlines -1)
+            (flyspell-mode)))
+
+
+;; Try to automatically decrypt emails
+(setq mu4e-decryption-policy t)
+
+;;Kill message buffer after sending the email
+(setq message-kill-buffer-on-exit t)
+
+(setq  mu4e-headers-date-format "%Y-%m-%d %H:%M")
+
+;; don't ask when quitting
+(setq mu4e-confirm-quit nil)
+
+
+;; Use the correct account context when sending mail based on the from header.
+(setq message-sendmail-envelope-from 'header)
+(add-hook 'message-send-mail-hook 'choose-msmtp-account)
+
+
+;; This sets up my two different context for my personal and work emails.
+(setq mu4e-context-policy 'pick-first)
+(setq mu4e-compose-context-policy 'always-ask)
+(setq mu4e-contexts
+      (list
+       (make-mu4e-context
+        :name "adolfoaz"
+        :enter-func (lambda () (mu4e-message "Switch to the adolfoaz context"))
+        :match-func (lambda (msg)
+                      (when msg
+                        (mu4e-message-contact-field-matches msg '(:from :to :cc :bcc) "adolfoaz@gmail.com")))
+        :leave-func (lambda () (mu4e-clear-caches))
+        :vars '((user-mail-address     . "adolfoaz@gmail.com")
+                (user-full-name        . "Adolfo De Unanue")
+                (mu4e-sent-folder      . "/adolfoaz-gmail/[adolfoaz].Enviados")
+                (mu4e-compose-signature . (concat "Adolfo De Unánue\n" "\n"))
+                (mu4e-drafts-folder    . "/adolfoaz-gmail/[adolfoaz].Borradores")
+                (mu4e-trash-folder     . "/adolfoaz-gmail/[adolfoaz].Papelera")
+                (mu4e-refile-folder    . "/adolfoaz-gmail/[adolfoaz].Todos")
+
+                (mu4e-compose-format-flowed . t)
+	        (smtpmail-queue-dir . "~/Maildir/adolfoaz-gmail/queue/cur")
+	        (message-send-mail-function . smtpmail-send-it)
+	        (smtpmail-smtp-user . "adolfoaz")
+	        (smtpmail-starttls-credentials . (("smtp.gmail.com" 587 nil nil)))
+	        (smtpmail-auth-credentials . (expand-file-name "~/.authinfo.gpg"))
+	        (smtpmail-default-smtp-server . "smtp.gmail.com")
+	        (smtpmail-smtp-server . "smtp.gmail.com")
+	        (smtpmail-smtp-service . 587)
+	        (smtpmail-debug-info . t)
+	        (smtpmail-debug-verbose . t)
+                (mu4e-maildir-shortcuts . ( ("/adolfoaz-gmail/INBOX"            . ?i)
+				            ("/adolfoaz-gmail/[adolfoaz].Enviados" . ?s)
+				            ("/adolfoaz-gmail/[adolfoaz].Papelera"       . ?t)
+				            ("/adolfoaz-gmail/[adolfoaz].Todos"  . ?a)
+				            ("/adolfoaz-gmail/[adolfoaz].Destacados"   . ?r)
+				            ("/adolfoaz-gmail/[adolfoaz].Borradores"    . ?d)
+				            )))
+
+        )
+       (make-mu4e-context
+        :name "nanounanue"
+        :enter-func (lambda () (mu4e-message "Switch to the nanounanue context"))
+        :match-func (lambda (msg)
+                      (when msg
+                        (mu4e-message-contact-field-matches msg '(:from :to :cc :bcc) "nanounanue@gmail.com")))
+        :leave-func (lambda () (mu4e-clear-caches))
+        :vars '((user-mail-address     . "nanounanue@gmail.com")
+                (user-full-name        . "Adolfo De Unanue")
+                (mu4e-compose-signature . (concat "Adolfo De Unánue\n" "\n"))
+                (mu4e-sent-folder      . "/nanounanue-gmail/[nanounanue].Enviados")
+                (mu4e-drafts-folder    . "/nanounanue-gmail/[nanounanue].Borradores")
+                (mu4e-trash-folder     . "/nanounanue-gmail/[nanounanue].Papelera")
+                (mu4e-refile-folder    . "/nanounanue-gmail/[nanounanue].Todos")
+                (mu4e-compose-format-flowed . t)
+                (smtpmail-queue-dir . "~/Maildir/nanounanue-gmail/queue/cur")
+	        (message-send-mail-function . smtpmail-send-it)
+	        (smtpmail-smtp-user . "nanounanue")
+	        (smtpmail-starttls-credentials . (("smtp.gmail.com" 587 nil nil)))
+	        (smtpmail-auth-credentials . (expand-file-name "~/.authinfo.gpg"))
+	        (smtpmail-default-smtp-server . "smtp.gmail.com")
+	        (smtpmail-smtp-server . "smtp.gmail.com")
+	        (smtpmail-smtp-service . 587)
+	        (smtpmail-debug-info . t)
+	        (smtpmail-debug-verbose . t)
+                (mu4e-maildir-shortcuts . ( ("/nanounanue-gmail/INBOX"            . ?i)
+					    ("/nanounanue-gmail/[nanounanue].Enviados" . ?s)
+					    ("/nanounanue-gmail/[nanounanue].Papelera"     . ?t)
+					    ("/nanounanue-gmail/[nanounanue].Todos"  . ?a)
+					    ("/nanounanue-gmail/[nanounanue].Destacados"   . ?r)
+					    ("/nanounanue-gmail/[nanounanue].Borradores"    . ?d))))
+        )))
+
+
+
+;; Bookmarks for common searches that I use.
+(setq mu4e-bookmarks '(("\\\\Todos" "Inbox" ?i)
+                       ("\\\\Borradores" "Borradores" ?d)
+                       ("flag:unread" "Mensajes sin leer" ?u)
+                       ("date:today..now" "Mensajes de hoy" ?t)
+                       ("date:7d..now" "Última semana" ?w)
+                       ("mime:image/*" "Mensajes con imágenes" ?p))))
+
+
+;;(use-package mu4e-conversation
+;;:config
+;;(global-mu4e-conversation-mode))
+#+end_src
+
+
+* Org-mu4e
+
+#+begin_src emacs-lisp
+(use-feature org-mu4e
+  :after org
+  :config
+  (require 'org-mu4e)
+
+
+  ;; Agregando un template para contestar correos luego
+  (add-to-list 'org-capture-templates
+               ("P" "contestar pronto" entry (file+headline ,(concat org-directory "todo.org") "Inbox")
+                "* TODO %a %?\nDEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+2d\"))"))
+
+
+  ;; Org capture en header and view mode
+  (define-key mu4e-headers-mode-map (kbd "C-c c") 'org-mu4e-store-and-capture)
+  (define-key mu4e-view-mode-map    (kbd "C-c c") 'org-mu4e-store-and-capture))
+
+
+#+end_src
+
+* Send mail
+
+#+begin_src emacs-lisp
+(use-package smtpmail)
+
+(use-feature mu4e-sentmail
+:after mu4e
+:config
+;;rename files when moving
+;;NEEDED FOR MBSYNC
+(setq mu4e-change-filenames-when-moving t)
+
+;;set up queue for offline email
+;;use mu mkdir  ~/Maildir/acc/queue to set up first
+(setq smtpmail-queue-mail nil)  ;; start in normal mode
+
+;;from the info manual
+(setq mu4e-attachment-dir  "~/Downloads")
+
+(setq message-kill-buffer-on-exit t)
+(setq mu4e-compose-dont-reply-to-self t)
+
+(require 'org-mu4e)
+
+;; convert org mode to HTML automatically
+(setq org-mu4e-convert-to-html t)
+
+
+;; don't ask when quitting
+(setq mu4e-confirm-quit nil)
+
+
+
+
+
+)
+
+#+end_src
+
+*
+
+
+* [[https://github.com/flexibeast/org-vcard][Contactos]]
+
+#+begin_src emacs-lisp
+  (use-package org-vcard
+    :config
+    (setq org-contacts-files '("~/Sync/org/contactos.org"))
+    (setq mu4e-org-contacts-file '("~/Sync/org/contactos.org"))
+    (add-to-list 'mu4e-headers-actions
+                 '("agregar contacto" . mu4e-action-add-org-contact) t)
+    (add-to-list 'mu4e-view-actions
+                 '("agregar contacto" . mu4e-action-add-org-contact) t))
+#+end_src
+
+* /Workflow/
+
+I am trying to avoid use C-x m to write/sent email directy, unless it
+is really short. otherwise, if it relates to a project, I will make an
+org headline to keep track the project communciation, to do that, I
+compose email/message in org mode, then sent the whole subtree by C-c
+M-o.
+
+#+begin_src emacs-lisp
+  (use-package org-mime
+    :config
+    (setq org-mime-library 'mml)
+    (add-hook 'message-mode-hook
+              (lambda ()
+                (local-set-key "\C-c\M-o" 'org-mime-htmlize)))
+    (add-hook 'org-mode-hook
+              (lambda ()
+                (local-set-key "\C-c\M-o" 'org-mime-org-buffer-htmlize)))
+    (add-hook 'org-mime-html-hook
+              (lambda ()
+                (insert-file-contents "~/Sync/css/office.css")
+                ;; (goto-char 5)
+                )
+              t)
+
+    (add-hook 'org-mode-hook
+              (lambda ()
+                (local-set-key (kbd "C-c M-o") 'org-mime-subtree))
+              'append))
+
+#+end_src
+
+
+just in case I didn’t get the format right at the first place and need
+some quick fix in message mode, save me few seconds in going back to
+org-mode.
+
+#+begin_src emacs-lisp
+(add-hook 'message-mode-hook 'orgstruct++-mode 'append)
+(add-hook 'message-mode-hook 'turn-on-auto-fill 'append)
+;; (add-hook 'message-mode-hook 'bbdb-define-all-aliases 'append)
+(add-hook 'message-mode-hook 'orgtbl-mode 'append)
+(add-hook 'message-mode-hook 'turn-on-flyspell 'append)
+;; (add-hook 'message-mode-hook
+;;           '(lambda () (setq fill-column 270))
+;;           'append)
+#+end_src
+
+* Mu4e como el cliente de correo por /default/ de GNU/Emacs
+
+#+begin_src emacs-lisp
+(setq mail-user-agent 'mu4e-user-agent)
+#+end_src
+
+
+
+* Fin
+
+#+BEGIN_SRC emacs-lisp
+(provide 'setup-email)
+#+END_SRC
