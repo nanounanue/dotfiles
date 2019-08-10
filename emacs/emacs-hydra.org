@@ -24,8 +24,8 @@
          ("C-c g" . hydra-go-to-file/body)
          ("C-c m" . hydra-magit/body)
          ("C-c o" . hydra-org/body)
-         ("C-c p" . hydra-projectile/body)
-         ("C-c P" . hydra-python/body)
+         ("C-c P" . hydra-projectile/body)
+         ("C-c y" . hydra-python/body)
          ("C-c g" . hydra-straight-helper/body)
          ("C-c s" . hydra-spelling/body)
          ("C-c t" . hydra-tex/body)
@@ -230,14 +230,14 @@ Group Magit commands.
     ("s" magit-status nil))
    "Git timemachine"
     (("t" git-timemachine-toggle)
-    ("2" git-gutter:previous-hunk nil :color red)
-    ("3" git-gutter:next-hunk nil :color red)
-    ("S" git-gutter:stage-hunk nil)
-    ("R" git-gutter:revert-hunk nil))
+    ("2" git-gutter:previous-hunk :color red)
+    ("3" git-gutter:next-hunk :color red)
+    ("S" git-gutter:stage-hunk )
+    ("R" git-gutter:revert-hunk ))
     "Smeargle"
-    (("h" smeargle nil :color red)
-    ("c" smeargle-commits nil :color red)
-    ("C" smeargle-clear nil))))
+    (("h" smeargle :color red "activate")
+    ("c" smeargle-commits "commits")
+    ("C" smeargle-clear "reset"))))
 #+END_SRC
 
 ** Hydra / Org
@@ -281,7 +281,7 @@ Group Projectile commands.
    "Search"
    (("r" projectile-replace "replace")
     ("R" projectile-replace-regexp "regexp replace")
-    ("s" counsel-rg "search"))))
+    ("s" counsel-ag "search"))))
 #+END_SRC
 
 ** Hydra / Spelling
@@ -313,7 +313,7 @@ Group spelling commands.
   ("Action"
    (("g" reftex-goto-label "goto")
     ("r" reftex-query-replace-document "replace")
-    ("s" counsel-rg "search")
+    ("s" counsel-ag "search")
     ("t" reftex-toc "table of content"))))
 #+end_src
 

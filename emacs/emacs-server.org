@@ -11,7 +11,7 @@
 
 * Server
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package server
   :if (display-graphic-p)
   :commands (server-running-p server-start)

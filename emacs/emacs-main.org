@@ -1226,7 +1226,7 @@ Usar =counsel=
 (use-package counsel-projectile
   :after projectile
   :config
-  (counsel-projectile-on))
+  (counsel-projectile-mode))
 #+END_SRC
 
 
@@ -1353,10 +1353,10 @@ This package is easiest way to open particular link on github/gitlab/bitbucket/s
                          (7 . "grey20")
                          (8 . "grey10"))))
 ;; Highlight regions at opening file
-(add-hook 'find-file-hook 'smeargle)
+; (add-hook 'find-file-hook 'smeargle)
 
 ;; Updating after save buffer
-(add-hook 'after-save-hook 'smeargle))
+;(add-hook 'after-save-hook 'smeargle))
 
 #+end_src
 
