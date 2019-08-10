@@ -1,0 +1,55 @@
+#+TITLE: Configuración de SSH
+#+AUTHOR: Adolfo De Unánue
+#+EMAIL: nanounanue@gmail.com
+#+STARTUP: showeverything
+#+STARTUP: nohideblocks
+#+STARTUP: indent
+#+PROPERTY: header-args:shell :tangle ~/.ssh/config : :comments org
+#+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+
+* SSH
+
+** =config=
+
+Configuración y alias para servidores de uso regular
+
+*** /Speed up SSH by reusing connections/
+
+#+begin_src shell
+Host *
+  ControlMaster auto                   # Reusa conexiones existentes al servidor
+  ControlPath ~/.ssh/sockets/%r@%h-%p  # Donde crear el socket
+  ControlPersist 600                   # La conexión permanerá abierta por 600 s después de que la última sesión ha sido cerrada
+#+end_src
+
+*** Github
+
+#+begin_src shell
+# github
+Host github.com
+    User nanounanue
+    IdentityFile ~/.ssh/id_rsa
+#+end_src
+
+*** SSH Tunnels
+
+#+begin_src shell
+# A ssh tunnel!
+# Host tunnel
+#     HostName database.example.com
+#     IdentityFile ~/.ssh/coolio.example.key
+#     LocalForward 9906 127.0.0.1:3306
+#     User coolio
+#+end_src
+
+*** Servidores
+
+#+begin_src shell
+Host wmca
+    HostName 51.105.29.96
+    Port 22
+    User adolfo_deunanue
+#+end_src
