@@ -15,42 +15,60 @@ Basado en
 
 - https://github.com/zzamboni/dot-emacs/blob/master/init.org
 
-
-
 * Instalar GNU/Emacs
 
-#+BEGIN_SRC shell :dir ~/software
+#+begin_src shell :dir ~/software
 git clone --depth 1 git://git.sv.gnu.org/emacs.git
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC shell :tangle no :dir /sudo::
+#+begin_src shell :tangle no :dir /sudo::
   apt install autoconf make gcc texinfo libgtk-3-dev \
       libxpm-dev libjpeg-dev libgif-dev libtiff5-dev \
       libgnutls28-dev libncurses5-dev librsvg2-dev \
       liblcms2-dev imagemagick libmagick++-dev libgpm-dev \
       libxml2-dev libotf-dev libsystemd-dev libjansson-dev \
       libwebkit2gtk-4.0-dev libm17n-dev
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC shell :tangle no :dir ~/software/emacs
+#+begin_src shell :tangle no :dir ~/software/emacs
 ./autogen.sh && \
 ./configure --with-modules --with-xwidgets && \
 make
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC shell :tangle no :dir ~/software/emacs/lisp
+#+begin_src shell :tangle no :dir ~/software/emacs/lisp
 make autoloads
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC shell :tangle no :dir /sudo::~/software/emacs
+#+begin_src shell :tangle no :dir /sudo::~/software/emacs
 make install
-#+END_SRC
+#+end_src
+
+* /Bytecode/ viejo?
+
+Si la versión de =GNU/Emacs= cambió, el bytecode ya no es válido
+y debe de ser recompilado.
+
+([[https://github.com/raxod502/radian/blob/1ce41f45932b35291cc746e35d47b2798120cc22/emacs/radian.el#L14][Fuente]])
+
+#+begin_src emacs-lisp
+(eval
+ `(unless (equal
+           (list
+            (emacs-version)
+            )
+           ',(eval-when-compile
+               (list
+                (emacs-version)
+                )))
+    (throw 'stale-bytecode nil)))
+#+end_src
 
 * Mejorando el desempeño
 
 /Hook/ para contar el número de /garbage-collections/ que ocurrieron durante el /startup/
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 ;; Use a hook so the message doesn't get clobbered by other messages.
 (add-hook 'emacs-startup-hook
           (lambda ()
@@ -59,421 +77,156 @@ make install
                              (float-time
                               (time-subtract after-init-time before-init-time)))
                      gcs-done)))
-#+END_SRC
+#+end_src
 
 
 Por si ocurre un error
 
-#+BEGIN_SRC emacs-lisp
-(setq debug-on-error nil)
-#+END_SRC
+#+begin_src emacs-lisp
+(setq debug-on-error t)
+#+end_src
 
 No queremos que ocurra /garbage-collection/ durante el inicio de Emacs, así que lo hacemos muy grande.
 Al acabar, lo regresamos a un tamaño razonable.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (setq gc-cons-threshold  most-positive-fixnum)
   (add-hook 'emacs-startup-hook
             (lambda () (setq gc-cons-threshold  (* 20 1024 1024))))
-#+END_SRC
+#+end_src
 
+* Network
 
-* Gestión de paquetes
 
-Emacs tiene un gestionador de paquetes (como cualquier otro sistema operativo).
+*NOTA*: Estamos usando =with-eval-after-load= en lugar de =use-package= porque aún
+no sea configurado el administrador de paquetes
 
-Primero ¿Qué repositorios usar?
+#+begin_src emacs-lisp
+;; Feature `gnutls' provides support for SSL/TLS connections, using
+;; the GnuTLS library.
+(with-eval-after-load 'gnutls
+  (eval-when-compile
+    (require 'gnutls))
 
-#+BEGIN_SRC emacs-lisp
-(customize-set-variable 'package-archives
-                        '(("org"       . "https://orgmode.org/elpa/")
-                          ("marmalade" . "https://marmalade-repo.org/packages/")
-                          ("melpa"     . "https://melpa.org/packages/")
-                          ("gnu"       . "https://elpa.gnu.org/packages/")))
-#+END_SRC
+  ;; Do not allow insecure TLS connections.
+  (setq gnutls-verify-error t)
 
-Inicializamos el sistema de paquetería (si es necesario)
+  ;; Bump the required security level for TLS to an acceptably modern
+  ;; value.
+(setq gnutls-min-prime-bits 3072))
+#+end_src
 
-#+BEGIN_SRC emacs-lisp
-(require 'package)
-(unless package--initialized (package-initialize t))
-#+END_SRC
 
 
-Refrescamos la lista de paquetes disponibles e instalamos =use-package=
 
-#+BEGIN_SRC emacs-lisp
-(when (not package-archive-contents)
-  (package-refresh-contents))
 
-(when (not (package-installed-p 'use-package))
-  (package-install 'use-package))
-#+END_SRC
 
-Cargamos =use-package=
 
-#+BEGIN_SRC emacs-lisp
-(eval-when-compile
-  (require 'use-package))
-#+END_SRC
 
 
-** Configuración de =use-package=
 
-Siempre tratar de instalar los paquetes no instalados.
-En alguno casos esto /no/ es lo apropiado (quizá no es un paquete que se pueda instalar),
-en esas ocasiones agrear =:ensure nil= al bloque de =use-package=
 
-#+BEGIN_SRC emacs-lisp
-(customize-set-variable 'use-package-always-ensure t)
-#+END_SRC
 
-No cargar los paquetes por /default/ cuando Emacs está iniciando, sólo cuando son requeridos.
-Si no funciona bien, agregar al  bloque de =use-package= =:defer nil=
-
-#+BEGIN_SRC emacs-lisp
-(customize-set-variable 'use-package-always-defer nil)
-#+END_SRC
-
-Ser /verbose/ es bueno para el /debugging/
-
-#+BEGIN_SRC emacs-lisp
-(customize-set-variable 'use-package-verbose t)
-#+END_SRC
-
-
-#+BEGIN_SRC emacs-lisp
-(use-package exec-path-from-shell
-  :ensure t)
-
-(setq explicit-shell-file-name "/usr/bin/zsh")
-(setq shell-file-name "zsh")
-
-;;(when (memq window-system '(mac ns x))
-;;  (exec-path-from-shell-initialize))
-#+END_SRC
-
-
-
-** Preferir el código fuente si ...
-
-Es nuevo, y forzar el autocompilar
-
-#+BEGIN_SRC emacs-lisp
-(customize-set-variable 'load-prefer-newer t)
-(use-package auto-compile
-  :config (auto-compile-on-load-mode))
-#+END_SRC
-
-
-
-** Paquetes de soporte
-
-*** quelpa
-
-=quelpa= es una herramienta para /build/ e instalar paquetes. Una de sus
-principales ventajas es que puede instalar desde =github=.
-
-#+BEGIN_SRC emacs-lisp
-(use-package quelpa
-  :ensure t)
-
-(use-package quelpa-use-package
-  :ensure t)
-#+END_SRC
-
-*** Paradox
-
-[[https://github.com/Malabarba/paradox][Paradox]] moderniza la lista de paquetes de Emacs
-
-
-#+BEGIN_SRC emacs-lisp
-(use-package paradox
-  :defer 1
-  :after auth-source-pass
-  :config
-  (paradox-enable)
-  (setq paradox-spinner-type 'progress-bar)
-  :custom
-  (paradox-automatically-start t))
-#+END_SRC
-
-*** Ensure package in system
-
-#+BEGIN_SRC emacs-lisp
-(use-package use-package-ensure-system-package
-  :ensure t)
-#+END_SRC
-
-*** delight y diminish
-
-#+BEGIN_SRC emacs-lisp
-(use-package delight
-  :config
-  (delight '((emacs-lisp-mode       "ξ" :major)
-             (lisp-interaction-mode "λ" :major)
-             (python-mode           "π" :major)
-             (org-mode              "ομ" :major)
-             (company-mode          " C"  company)
-             (ivy-mode              " ι"  ivy)
-             (sql-mode              "Σ"  sql)
-             (projectile-mode       " ρ"  projectile)
-             (eldoc-mode            " ε"  eldoc)
-             (flycheck-mode         " ƒ"  flycheck)
-             (flyspell-mode         ""    flyspell)))
-  )
-
-
-(use-package diminish)
-#+END_SRC
-
-*** Chords
-
-=Key chords= liga funciones a secuencias de teclas, como =jj=.
-
-#+BEGIN_SRC emacs-lisp
-  (use-package use-package-chords
-    :ensure t
-    :config
-    (key-chord-mode 1))
-#+END_SRC
-
-
-*** Mejoras de Emacs lisp, básicamente
-
-#+BEGIN_SRC emacs-lisp
-    (require 'cl)
-
-    (use-package dash
-      :config (eval-after-load "dash" '(dash-enable-font-lock)))
-
-    (use-package s
-     :ensure t)
-
-    (use-package f
-      :ensure t)
-#+END_SRC
-
-*** Al salir de Emacs, no preguntar si quiero mantener mis procesos corriendo
-
-Tomado de [[http://timothypratley.blogspot.com/2015/07/seven-specialty-emacs-settings-with-big.html][aquí]]
-
-#+BEGIN_SRC emacs-lisp
-(defadvice save-buffers-kill-emacs (around no-query-kill-emacs activate)
-           (cl-flet ((process-list ())) ad-do-it))
-#+END_SRC
-
-
-* Custom
-
-Emacs agrega /customized settings/ a =init.el=. No me gusta. Lo mandamos a un archivo temporal.
-
-#+BEGIN_SRC emacs-lisp
- (setq custom-file (make-temp-file "emacs-custom"))
-#+END_SRC
-
-* Mejor manejo de directorios
-
-Tomado de [[https://github.com/rememberYou/.emacs.d/blob/master/config.org][aquí]]
-
-Especificación [[https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html][XDG]]
-
-*CUIDADO*: Emacs no crea los directorios necesarios por /default/
-
-#+BEGIN_SRC shell
-mkdir ~/.cache/emacs ~/.local/share/emacs/
-#+END_SRC
-
-
-#+BEGIN_SRC emacs-lisp
-(defvar xdg-bin (or (getenv "XDG_BIN_HOME") "~/.local/bin")
-  "The XDG bin base directory.")
-
-(defvar xdg-cache (or (getenv "XDG_CACHE_HOME") "~/.cache")
-  "The XDG cache base directory.")
-
-(defvar xdg-config (or (getenv "XDG_CONFIG_HOME") "~/.config")
-  "The XDG config base directory.")
-
-(defvar xdg-data (or (getenv "XDG_DATA_HOME") "~/.local/share")
-  "The XDG data base directory.")
-
-(defvar xdg-lib (or (getenv "XDG_LIB_HOME") "~/.local/lib")
-  "The XDG lib base directory.")
-#+END_SRC
-
-* /Keybindings/
-
-Uso =bind-key= para mis /keybindings/. La principal razón para usarlo en lugar de =define-key= o =global-set-key=
-es que puedes consultar tus /keybindings/ con =M-x= =describe-personal-keybindings=
-
-Ya viene incluido con =use-package=, sólo hay que activarlo
-
-#+BEGIN_SRC emacs-lisp
-(require 'bind-key)
-#+END_SRC
-
-** Misceláneos
-
-#+BEGIN_SRC emacs-lisp
-(bind-key "M-g" 'goto-line)   ;; Pregunta por la línea y "brinca"
-(bind-key "M-`" 'other-frame) ;; Enfoca el siguiente frame
-(bind-key "C-x m" 'eshell)    ;; Inicia eshell o cambia a eshell si ya está activo
-(bind-key "C-x M" (lambda () (interactive) (eshell t))) ;; Inicia un nuevo eshell aunque haya uno activo
-(bind-key "M-<" 'beginning-of-buffer)
-(bind-key "M->" 'end-of-buffer)
-(bind-key "C-c C-c" 'compile)
-(bind-key "C-c c" 'org-capture)
-(bind-key [f12] 'org-agenda)
-(bind-key "C-c C-;" 'comment-region)
-(bind-key "C-c C-:" 'uncomment-region)
-(bind-key "C-+" 'text-scale-increase)
-(bind-key "C--" 'text-scale-decrease)
-(bind-key "C-0" 'text-scale-adjust)
-#+END_SRC
-
-Regularmente quiero matar /este/ /buffer/
-
-=kill-this-buffer= ya no existe (era inestable)
-
-[[http://pragmaticemacs.com/emacs/dont-kill-buffer-kill-this-buffer-instead/][Aquí]] sugieren lo siguiente:
-
-#+BEGIN_SRC emacs-lisp
-(defun nanounanue/kill-this-buffer ()
-  "Kill the current buffer."
-  (interactive)
-  (kill-buffer (current-buffer)))
-#+END_SRC
-
-
-#+BEGIN_SRC emacs-lisp
-(bind-key "C-x k" 'nanounanue/kill-this-buffer)
-(bind-key "C-x K" 'kill-buffer)
-#+END_SRC
 
 * /Load path/
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (defconst nanounanue/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
 
 (defun nanounanue/emacs-subdirectory (d) (expand-file-name d nanounanue/emacs-directory))
-#+END_SRC
 
-#+BEGIN_SRC emacs-lisp :tangle no
-(let* ((subdirs '("elisp" "backups")
-       (fulldirs (mapcar (lambda (d) (nanounanue/emacs-subdirectory d)) subdirs)))
-  (dolist (dir fulldirs)
-    (when (not (file-exists-p dir))
-      (message "Make directory: %s" dir)
-      (make-directory dir))))
-#+END_SRC
+(defconst temp-dir (format "%s/cache" nanounanue/emacs-directory)
+  "Hostname-based elisp temp directories")
+#+end_src
 
-
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (add-to-list 'load-path (nanounanue/emacs-subdirectory "elisp"))
-#+END_SRC
+#+end_src
 
-* /Bootstrap/
+* Gestión de paquetes
 
-#+BEGIN_SRC emacs-lisp
-(defun nanounanue/config-open ()
-  (interactive)
-  (find-file "~/dotfiles/emacs/init.org"))
-(bind-key "C-c E" 'nanounanue/config-open)
-
-(defun nanounanue/config-tangle ()
-  (interactive)
-  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-i3wm.org"))
-  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-client.org"))
-  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-clojure.org"))
-  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-elisp.org"))
-  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-eshell.org"))
-  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-ivy.org"))
-  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-org-mode.org"))
-  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-python.org"))
-  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-scala.org"))
-  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-server.org"))
-  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-tex.org"))
-  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-system.org"))
-  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-programming.org"))
-  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-wm.org"))
-  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-hydra.org"))
-  (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-main.org"))
-
- (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/init.org")))
-(bind-key "C-c T" 'nanounanue/config-tangle)
+#+begin_src emacs-lisp
+(require 'setup-package-manager)
+#+end_src
 
 
-(defun nanounanue/config-reload ()
-  "Reloads ~/dotfiles/emacs/nano-emacs.org"
-  (interactive)
-  (org-babel-load-file (expand-file-name "~/dotfiles/emacs/init.org")))
-(bind-key "C-c R" 'nanounanue/config-reload)
-#+END_SRC
+* /Global Keybindings/
+
+#+begin_src emacs-lisp
+(require 'setup-global-keys)
+#+end_src
+
+* Funciones
+
+#+begin_src emacs-lisp
+(require 'setup-functions)
+#+end_src
 
 * Generalidades
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (require 'setup-main)
-#+END_SRC
-
+#+end_src
 
 * [[file:emacs-ivy.org][Ivy]]
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (require 'setup-ivy)
-#+END_SRC
-
+#+end_src
 
 * Programación
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (require 'setup-coding)
-#+END_SRC
-
-
+#+end_src
 
 * [[file:emacs-org-mode.org][Org-Mode]]
 
-Org-mode sobre todas las cosas
+=Org-mode= sobre todas las cosas
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (require 'setup-org-mode)
-#+END_SRC
+#+end_src
 
 * [[file:emacs-eshell.org][Eshell]]
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (require 'setup-eshell)
-#+END_SRC
+#+end_src
 
 * [[file:emacs-i3wm.org][Integración con i3wm]]
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (require 'setup-i3wm)
-#+END_SRC
+#+end_src
 
-
-* Configuración gráfica
-
-#+BEGIN_SRC emacs-lisp
-(require 'setup-client)
-#+END_SRC
 
 * Configuración del servidor
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (require 'setup-server)
-#+END_SRC
+#+end_src
 
-* Hydra!
+* /Heil Hydra!/
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (require 'setup-hydra)
-#+END_SRC
+#+end_src
 
-* Emacs como WM
+* Email client
 
-#+BEGIN_SRC emacs-lisp
-;(require 'setup-wm)
-#+END_SRC
+#+begin_src emacs-lisp
+(require 'setup-email)
+#+end_src
+
+* PDF tools
+
+#+begin_src emacs-lisp :tangle no
+(require 'setup-pdftools)
+#+end_src
+
+* Configuración gráfica
+
+#+begin_src emacs-lisp
+(require 'setup-client)
+#+end_src
