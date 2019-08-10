@@ -9,6 +9,49 @@
 #+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
 #+TAGS:   emacs
 
+* ¿En que SO estamos?
+
+#+begin_src emacs-lisp
+(defconst win32-p
+    (eq system-type 'windows-nt)
+  "Are we running on a WinTel system?")
+
+
+;; https://emacs.stackexchange.com/questions/32079/how-do-i-test-if-my-emacs-is-in-mingw-environment#comment49373_32079
+(defconst platform-msys2-p
+
+  (and
+   ;; MINGW64, e.g.
+   (string-prefix-p "MINGW" (getenv "MSYSTEM"))
+   (or (eq system-type 'windows-nt)
+        ()))
+  "Are we running under MSYS2?")
+
+(defconst platform-wsl-p
+  (and
+   (string-match-p "Windows" (getenv "PATH"))
+   (or (eq system-type 'gnu/linux)
+        (eq system-type 'linux)))
+  "Are we running under WSL?")
+
+
+(defconst linux-p
+    (or (eq system-type 'gnu/linux)
+        (eq system-type 'linux))
+  "Are we running on a GNU/Linux system?")
+
+(defconst macos-p
+    (eq system-type 'darwin)
+  "Are we running on a macOS system?")
+
+
+(defconst linux-x-p
+  (and window-system linux-p)
+  "Are we running under X on a GNU/Linux system?")
+;; window-system as boolean is deprecated
+
+#+end_src
+
 * Resolviendo problemas del SO
 
 Algunas configuraciones pueden ser dependientes del SO. Yo no uso (por
