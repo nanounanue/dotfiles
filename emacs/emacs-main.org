@@ -435,6 +435,12 @@ Permite editar un /grep buffer/ y aplicar los cambios al /file buffer/
 
 * History
 
+#+begin_quote
+Provides the ability to have commands and their history saved so that
+whenever you return to work, you can re-run things as you need
+them. This is not a radical function, it is part of a  good user experience.
+#+end_quote
+
 #+begin_src emacs-lisp
 (use-package savehist
   :custom
@@ -1289,6 +1295,15 @@ También se puede usar =[[https://github.com/joaotavora/darkroom][darkroom]]=
   ([f7] . darkroom-tentative-mode))
 #+END_SRC
 
+
+** Lorem ipsum
+
+#+begin_src emacs-lisp
+(use-package lorem-ipsum
+  :bind (("C-c C-v l" . lorem-ipsum-insert-list)
+         ("C-c C-v p" . lorem-ipsum-insert-paragraphs)
+         ("C-c C-v s" . lorem-ipsum-insert-sentences)))
+#+end_src
 
 ** [[https://github.com/sshaw/copy-as-format][copy as format]]
 
