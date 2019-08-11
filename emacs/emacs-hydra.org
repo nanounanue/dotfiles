@@ -15,23 +15,23 @@
 
 #+BEGIN_SRC emacs-lisp
 (use-package hydra
-  :bind (("C-c I" . hydra-image/body)
-         ("C-c M" . hydra-merge/body)
-         ("C-c t" . hydra-tool/body)
-         ("C-c e" . hydra-mu4e-headers/body)
-         ("C-c b" . hydra-btoggle/body)
-         ("C-c c" . hydra-clock/body)
-         ("C-c f" . hydra-flycheck/body)
-         ("C-c g" . hydra-go-to-file/body)
-         ("C-c m" . hydra-magit/body)
-         ("C-c o" . hydra-org/body)
-         ("C-c P" . hydra-projectile/body)
-         ("C-c y" . hydra-python/body)
-         ("C-c g" . hydra-straight-helper/body)
-         ("C-c s" . hydra-spelling/body)
-         ("C-c x" . hydra-tex/body)
-         ("C-c u" . hydra-upload/body)
-         ("C-c w" . hydra-windows/body)))
+  :bind (("C-c h i" . hydra-image/body)
+         ("C-c h m" . hydra-merge/body)
+         ("C-c h e" . hydra-mu4e-headers/body)
+         ("C-c h t" . hydra-toggle/body)
+         ("C-c h c" . hydra-clock/body)
+         ("C-c h f" . hydra-flycheck/body)
+         ("C-c h b" . hydra-go-to-buffer/body)
+         ("C-c h m" . hydra-magit/body)
+         ("C-c h o" . hydra-org/body)
+         ("C-c h p" . hydra-projectile/body)
+         ("C-c h P" . hydra-python/body)
+         ("C-c h g" . hydra-straight-helper/body)
+         ("C-c h s" . hydra-spelling/body)
+         ("C-c h x" . hydra-tex/body)
+         ("C-c h a" . hydra-avy/body)
+         ("C-c h u" . hydra-upload/body)
+         ("C-c h w" . hydra-windows/body)))
 
 (use-package major-mode-hydra
   :after hydra
@@ -137,7 +137,7 @@ _o_: org-cap | _C--_: show less   | _*_: *thing  | _q_: quit hdrs | _j_: jump2ma
 ** Hydra / Toggle
 
 #+begin_src emacs-lisp
-(pretty-hydra-define hydra-btoggle
+(pretty-hydra-define hydra-toggle
   (:hint nil :color amaranth :quit-key "q" :title (with-faicon "toggle-on" "Toggle" 1 -0.05))
   ("Basic"
    (("a" abbrev-mode "abbrev" :toggle t)
@@ -255,25 +255,20 @@ Group Flycheck commands.
 Group jump-to-files commands.
 
 #+BEGIN_SRC emacs-lisp
-(pretty-hydra-define hydra-go-to-file
+(pretty-hydra-define hydra-go-to-buffer
   (:hint nil :color teal :quit-key "q" :title (with-faicon "file-text-o" "Go To" 1 -0.05))
   ("Agenda"
    (("ac" (find-file "~/Sync/org/contactos.org") "contactos"))
+   "Proyectos"
+   (("pi" (find-file "~/Sync/org/ITAM.org") "itam")
+    ("pp" (find-file "~/Sync/org/proyectos.org")  "proyectos"))
    "Config"
    (
-    ("cA" (find-file (format "%s/sh/aliases" xdg-config)) "aliases")
-    ("cd" (find-file (format "%s/dunst/dunstrc" xdg-config)))
-    ("ce" (find-file "~/.emacs.d/config.org") "emacs")
-    ("cE" (find-file (format "%s/sh/environ" xdg-config)) "environ")
-    ("ci" (find-file (format "%s/i3/config" xdg-config))"i3")
-    ("cn" (find-file (format "%s/neofetch/config.conf" xdg-config)) "neofetch")
-    ("cp" (find-file (format "%s/polybar/config" xdg-config)) "polybar")
-    ("cq" (find-file (format "%s/qutebrowser/config.py" xdg-config)) "qutebrowser")
-    ("cR" (find-file (format "%s/rofi/config.rasi" xdg-config)) "rofi")
-    ("cr" (find-file (format "%s/ranger/rc.conf" xdg-config)) "ranger")
-    ("cs" (find-file (format "%s/sway/config" xdg-config)) "sway")
-    ("ct" (find-file (format "%s/tmux/tmux.conf" xdg-config)) "tmux")
-    ("cx" (find-file (format "%s/sh/xdg" xdg-config)) "xdg"))
+    ("ce" (find-file "~/dotfiles/emacs/init.org") "emacs")
+    ("cp" (find-file "~/dotfiles/profile.org") "profile")
+    ("ci" (find-file "~/dotfiles/i3wm.org") "i3")
+    ("cr" (find-file "~/dotfiles/rc.org") "rc")
+    ("ct" (find-file "~/dotfiles/tmux.org") "tmux"))
    "Research"
    (("rb" (find-file "~/Sync/org/books.org") "books")
     ("rr" (find-file "~/Sync/org/research/research.org") "research")
@@ -399,15 +394,6 @@ Group spelling commands.
     ("t" reftex-toc "table of content"))))
 #+end_src
 
-** Hydra / Tools
-
-#+begin_src emacs-lisp
-(pretty-hydra-define hydra-tool
-  (:hint nil :color teal :quit-key "q" :title (with-faicon "briefcase" "Tool" 1 -0.05))
-  ("Network"
-   (("c" ipcalc "subnet calculator")
-    ("i" ipinfo "ip info"))))
-#+end_src
 
 ** Hydra / Upload
 
@@ -482,6 +468,30 @@ Group window-related commands.
     ("+" text-scale-increase "in")
     ("=" (text-scale-increase 0) "reset"))))
 #+END_SRC
+
+** Hydra / avy
+
+#+begin_src emacs-lisp
+(defhydra hydra-avy (:exit t :hint nil)
+  "
+ Line^^       Region^^        Goto
+----------------------------------------------------------
+ [_y_] yank   [_Y_] yank      [_c_] timed char  [_C_] char
+ [_m_] move   [_M_] move      [_w_] word        [_W_] any word
+ [_k_] kill   [_K_] kill      [_l_] line        [_L_] end of line"
+  ("c" avy-goto-char-timer)
+  ("C" avy-goto-char)
+  ("w" avy-goto-word-1)
+  ("W" avy-goto-word-0)
+  ("l" avy-goto-line)
+  ("L" avy-goto-end-of-line)
+  ("m" avy-move-line)
+  ("M" avy-move-region)
+  ("k" avy-kill-whole-line)
+  ("K" avy-kill-region)
+  ("y" avy-copy-line)
+  ("Y" avy-copy-region))
+#+end_src
 
 * Proveer
 

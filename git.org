@@ -1,6 +1,10 @@
 #+TITLE:     Configuración de Git
 #+AUTHOR:    Adolfo De Unánue
 #+EMAIL:     nanounanue@gmail.com
+#+STARTUP: showeverything
+#+STARTUP: nohideblocks
+#+STARTUP: indent
+#+TAGS: git
 
 * =gitconfig=
 
@@ -151,7 +155,7 @@
     trim = !git reflog expire --expire=now --all && git gc --prune=now
 
     ## Taken from https://gist.github.com/pksunkara/988716
-    
+
     ours = "!f() { git checkout --ours $@ && git add $@; }; f"
     theirs = "!f() { git checkout --theirs $@ && git add $@; }; f"
     #############

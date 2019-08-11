@@ -10,7 +10,7 @@
 #+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
 #+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
 #+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
-
+#+TAGS: emacs
 
 
 * Configuración general
@@ -451,7 +451,7 @@ pip install epub mutagen lxml rarfile
 
 
 #+BEGIN_SRC emacs-lisp
-(setq locate-command "recollq")
+(setq locate-command "recoll")
 
 (bind-key "C-c L" 'locate)
 #+END_SRC
