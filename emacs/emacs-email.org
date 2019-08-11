@@ -102,7 +102,7 @@ mu mkdir ~/Maildir/nanounanue-gmail/queue && touch ~/Maildir/nanounanue-gmail/qu
     (setq mu4e-maildir "~/Maildir")
     (setq mu4e-get-mail-command "mbsync -c ~/.mbsyncrc -a")
     (setq mu4e-view-prefer-html t)
-    (setq mu4e-update-interval 300)
+    (setq mu4e-update-interval 7200)    # Revisar correo cada 2h
     (setq mu4e-compose-format-flowed t)
     (setq mu4e-headers-include-related t)
     (setq mu4e-headers-auto-update t)
