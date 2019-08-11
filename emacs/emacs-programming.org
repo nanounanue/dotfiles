@@ -37,6 +37,7 @@
               ([S-tab] . bicycle-cycle-global)))
 
 (use-feature prog-mode
+  :demand t
   :config
   (add-hook 'prog-mode-hook 'outline-minor-mode)
   (add-hook 'prog-mode-hook 'hs-minor-mode))

@@ -318,7 +318,6 @@ gpg2 --list-keys Adolfo
 
 #+BEGIN_SRC emacs-lisp
   (use-feature fill
-;    :ensure nil
     :bind
     ("C-c F" . auto-fill-mode)
     ;("C-c T" . toggle-truncate-lines)
@@ -330,7 +329,6 @@ gpg2 --list-keys Adolfo
 
 #+BEGIN_SRC emacs-lisp
 (use-feature unfill
-  ;ensure nil
   :bind
   ("M-q" . unfill-toggle)
   ("A-q" . unfill-paragraph))
@@ -585,7 +583,7 @@ Pequeñas modificaciones
 
 #+BEGIN_SRC emacs-lisp
 (use-feature dired
-  ;ensure nil
+  :demand t
   :delight "Dired "
   :custom
   ;; Copiar/Borrar recursivamente
@@ -734,6 +732,7 @@ To have it offered when opening large files:
 
 #+BEGIN_SRC emacs-lisp
 (use-feature uniquify
+  :demand t
   :config
   (setq uniquify-buffer-name-style 'forward)
   (setq uniquify-separator "/")
@@ -857,7 +856,7 @@ Obvio autocompletar en el [[https://github.com/Alexander-Miller/company-shell][s
 
 #+BEGIN_SRC emacs-lisp
 (use-feature abbrev
-  ;ensure nil
+  :demand t
   :delight
   :hook (text-mode . abbrev-mode)
   :custom (abbrev-file-name (expand-file-name (format "%s/emacs/abbrev_defs" xdg-data)))
@@ -1028,7 +1027,7 @@ Ayuda a cazar  errores en el archivo =init.el=
 
 [[https://github.com/Malabarba/elisp-bug-hunter][Ver aquí]]
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (use-package bug-hunter)
 #+END_SRC
 

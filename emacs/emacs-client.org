@@ -102,10 +102,10 @@ Instrucciones [[http://ergoemacs.org/emacs/emacs_list_and_set_font.html][aquí]]
 #+BEGIN_SRC emacs-lisp
 (set-face-attribute 'default nil
                     :family nanounanue-font-default
-                    :height 140
+                    :height 150
                     :weight 'normal)
-(set-face-attribute 'mode-line nil :family nanounanue-font-modeline :height 140 :weight 'regular)
-(set-face-attribute 'fixed-pitch nil :family nanounanue-font-default :height 140)
+(set-face-attribute 'mode-line nil :family nanounanue-font-modeline :height 150 :weight 'regular)
+(set-face-attribute 'fixed-pitch nil :family nanounanue-font-default :height 150)
 (set-face-attribute 'variable-pitch nil :family nanounanue-font-variable)
 #+END_SRC
 
@@ -139,6 +139,7 @@ Ajustando las fuentes dependiendo del tamaño del monitor
 
 #+BEGIN_SRC emacs-lisp
   (use-feature text-mode
+    :demand t
     :hook (text-mode . (lambda ()
                          (variable-pitch-mode 1))))
 #+END_SRC
@@ -290,7 +291,7 @@ Por el momento uso [[https://github.com/Malabarba/smart-mode-line/][smart-mode-l
 
 #+BEGIN_SRC emacs-lisp
 (use-package smart-mode-line
-  ;ensure t
+  :demand t
   :config
   (setq sml/no-confirm-load-theme t)
   (setq sml/shorten-directory t
@@ -318,6 +319,7 @@ Por el momento uso [[https://github.com/Malabarba/smart-mode-line/][smart-mode-l
 
 #+BEGIN_SRC emacs-lisp
 (use-package dashboard
+  :demand t
   :preface
   (defun nanounanue/dashboard-banner ()
     "Sets a dashboard banner including information on package initialization

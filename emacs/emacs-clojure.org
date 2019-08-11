@@ -150,9 +150,10 @@
   To get Clojure's Cider working with org-mode, do:
 
   #+BEGIN_SRC emacs-lisp
-    (use-feature ob-clojure
-      :init
-      (setq org-babel-clojure-backend 'cider))
+(use-feature ob-clojure
+  :demand t
+  :init
+  (setq org-babel-clojure-backend 'cider))
   #+END_SRC
 
 

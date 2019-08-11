@@ -29,56 +29,56 @@
 * Org-mode
 
 #+begin_src emacs-lisp
-  (use-feature org
-    :mode
-    ("\\.org\\'" . org-mode)
-    ("\\.txt\\'" . org-mode)
-    (".*/[0-9]*$" . org-mode)
-    :bind
-    ("C-c l"   . org-store-link)
-    ("M-h"     . org-mark-element)
-    ("C-c c"   . org-capture)
-    ("C-c C-w" . org-regile)
-    ("C-c a"   . org-agenda)
-    ("C-c C-v t". org-babel-tangle)
-    ("C-c C-v f" . org-babel-tangle-file)
-    :custom
-    (org-directory "~/Sync/org")
-    (org-startup-indented t)
-    (org-catch-invisible-edits 'smart)
-    (org-blank-before-new-entry '((heading . t) (plain-list-item . nil)))
-    (org-log-done 'time)
-    (org-return-follows-link t)
-    (org-list-allow-alphabetical t)  ;; Allow ‘a.’, ‘A.’, ‘a)’ and ‘A) as list elements
+(use-feature org
+  :demand t
+  :mode
+  ("\\.org\\'" . org-mode)
+  ("\\.txt\\'" . org-mode)
+  (".*/[0-9]*$" . org-mode)
+  :bind
+  ("C-c l"   . org-store-link)
+  ("M-h"     . org-mark-element)
+  ("C-c c"   . org-capture)
+  ("C-c C-w" . org-regile)
+  ("C-c a"   . org-agenda)
+  ("C-c C-v t". org-babel-tangle)
+  ("C-c C-v f" . org-babel-tangle-file)
+  :custom
+  (org-directory "~/Sync/org")
+  (org-startup-indented t)
+  (org-catch-invisible-edits 'smart)
+  (org-blank-before-new-entry '((heading . t) (plain-list-item . nil)))
+  (org-log-done 'time)
+  (org-return-follows-link t)
+  (org-list-allow-alphabetical t)  ;; Allow ‘a.’, ‘A.’, "a)" and "A)" as list elements
 
-    (org-log-reschedule 'note)
-    (org-log-redeadline 'note)
-    (org-log-into-drawer t)
+  (org-log-reschedule 'note)
+  (org-log-redeadline 'note)
+  (org-log-into-drawer t)
 
-    (org-special-ctrl-a/e t)
+  (org-special-ctrl-a/e t)
 
-    ;; Aesthetics
-    (org-hide-emphasis-markers t)
-    (org-pretty-entities t)
-    (org-image-actual-width '(400))
-    (org-fontify-whole-heading-line t)
-    (org-fontify-quote-and-verse-blocks t)
-    (org-fontify-done-headline t)
-    (org-highlight-latex-and-related '(latex))
-    (org-hide-macro-markers t)
-    (org-hide-emphasis-markers nil)
+  ;; Aesthetics
+  (org-hide-emphasis-markers t)
+  (org-pretty-entities t)
+  (org-image-actual-width '(400))
+  (org-fontify-whole-heading-line t)
+  (org-fontify-quote-and-verse-blocks t)
+  (org-fontify-done-headline t)
+  (org-highlight-latex-and-related '(latex))
+  (org-hide-macro-markers t)
+  (org-hide-emphasis-markers nil)
 
-    :config
-    (font-lock-add-keywords 'org-mode
-                            '(("^ *\\([-]\\) "
-                               (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "▶"))))))
+  :config
+  (font-lock-add-keywords 'org-mode
+                          '(("^ *\\([-]\\) "
+                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "▶"))))))
 
-    :hook
-    (org-mode . org-display-inline-images)
-    (org-after-todo-statistics . org-summary-todo)
-    (org-mode . visual-line-mode)
-;    (org-mode . visual-fill-column-mode)
-    (org-mode . flycheck-mode))
+  :hook
+  (org-mode . org-display-inline-images)
+  (org-after-todo-statistics . org-summary-todo)
+  (org-mode . visual-line-mode)
+  (org-mode . flycheck-mode))
 #+end_src
 
 * /Speed keys/
@@ -108,8 +108,7 @@ Por /default/ no están habilitados
 
 
 #+begin_src emacs-lisp
-  (use-feature org-speed-keys
-    :after org
+  (use-feature org
     :custom
     (org-use-speed-commands
      (lambda () (and (looking-at org-outline-regexp) (looking-back "^\**")))))
@@ -120,8 +119,7 @@ Por /default/ no están habilitados
 Habilitando mas tipos de imágenes a desplegar en =org-mode=
 
 #+begin_src emacs-lisp
-(use-feature org-images
-  :after org
+(use-feature org
   :config
   ;; * Enable pdf and eps images in org-mode
   ;; Suggested on the org-mode maillist by Julian Burgos
@@ -142,6 +140,7 @@ Habilitando mas tipos de imágenes a desplegar en =org-mode=
 
 #+BEGIN_SRC emacs-lisp
   (use-feature org-agenda
+    :demand t
     :config
     (setq org-agenda-files (list (nanounanue/org-file-path "research.org")
                                  (nanounanue/org-file-path "dsapp.org")
@@ -168,9 +167,9 @@ Habilitando mas tipos de imágenes a desplegar en =org-mode=
 
 
 ** TODOs templates
+
 #+begin_src emacs-lisp
-(use-feature org-todos
-:after org
+(use-feature org
 :config
 (setq org-todo-keywords '(
                           (;; TODO significa que es algo que tiene que hacerse
@@ -229,6 +228,7 @@ Habilitando mas tipos de imágenes a desplegar en =org-mode=
     ;; We have to autoload these functions in order for the below code
     ;; that enables clock persistence without slowing down startup to
     ;; work.
+    :demand t
     :commands (org-clock-load org-clock-save)
     :config
     (org-clock-persistence-insinuate)
@@ -268,8 +268,7 @@ Org Capture Templates are explained [[http://orgmode.org/manual/Capture-template
 
 
 #+BEGIN_SRC emacs-lisp
-(use-feature org-capture-refile
-  :after org
+(use-feature org
   :config
   ;; Capture
   (setq org-capture-templates
@@ -282,12 +281,18 @@ Org Capture Templates are explained [[http://orgmode.org/manual/Capture-template
                  :clock-in t :clock-resume t :empty-lines 1)
                 ("K" "Cliplink capture task" entry (file "")
                  "* TODO %(org-cliplink-capture) \n  SCHEDULED: %t\n" :empty-lines 1)
+                ("P" "Research project" entry (file "~/Sync/org/inbox.org")
+	         "* TODO %^{Project title} :%^G:\n:PROPERTIES:\n:CREATED: %U\n:END:\n%^{Project description}\n** TODO Literature review\n** TODO %?\n** TODO Summary\n** TODO Reports\n** Ideas\n" :clock-in t :clock-resume t)
                 ("s" "Scheduled TODO" entry (file+headline "~/Sync/org/refile.org")
                  "* TODO %? %^G \nSCHEDULED: %^t\n  %U" :empty-lines 1)
                 ("d" "Deadline" entry (file+headline "~/Sync/org/refile.org")
                  "* TODO %? %^G \n  DEADLINE: %^t" :empty-lines 1)
                 ("r" "research" entry (file "~/Sync/org/research.org")
                  "* %? :IDEA:\n%U\n%a\n" :clock-in t :clock-resume t)
+                ("b" "Link from browser" entry (file "~/Sync/org/inbox.org")
+	         "* TODO %? |- (%:description) :BOOKMARK:\n:PROPERTIES:\n:CREATED: %U\n:Source: %:link\n:END:\n%i\n" :clock-in t :clock-resume t)
+            	        ("s" "Selection from browser" entry (file "~/Sync/org/inbox.org")
+	         "* TODO %? :BOOKMARK:\n%(replace-regexp-in-string \"\n.*\" \"\" \"%i\")\n:PROPERTIES:\n:CREATED: %U\n:Source: %:link\n:END:\n%i\n" :clock-in t :clock-resume t)
                 ("j" "journal" entry (file+olp+datetree "~/Sync/org/diary.org")
                  "* %?\n%U\n" :clock-in t :clock-resume t)
                 ("n" "Note" entry (file "~/Sync/org/notes.org")
@@ -357,7 +362,7 @@ apt install -y phantomjs
 
 Esto también lo vamos a ocupar
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp
 (use-package restclient
   :mode ("\\.restclient\\'" . restclient-mode))
 
@@ -368,10 +373,12 @@ Esto también lo vamos a ocupar
 
 #+begin_src emacs-lisp
 (use-feature ob-ditaa
+  :demand t
   :custom
   (org-ditaa-jar-path "~/Sync/org-libs/ditaa.jar"))
 
 (use-feature ob-plantuml
+  :demand t
   :custom
   (org-plantuml-jar-path "~/Sync/org-libs/plantuml.jar"))
 
@@ -595,6 +602,7 @@ como sigue:
 #+BEGIN_SRC emacs-lisp
 (use-feature ox-html
   :after ox
+  :demand t
   :init
   (setq org-html-postamble nil)
   (setq org-export-with-section-numbers nil)
@@ -617,7 +625,7 @@ como sigue:
 #+BEGIN_SRC emacs-lisp
 (use-feature ox-latex
   :after ox
-  :demand
+  :demand t
   :custom
   (org-latex-compiler "xelatex")
   (org-latex-pdf-process '("%latex -shell-escape -interaction nonstopmode -output-directory %o %f" "%latex -interaction nonstopmode -output-directory %o %f" "%latex -interaction nonstopmode -output-directory %o %f"))
@@ -908,7 +916,8 @@ dpkg -i /tmp/pandoc.deb
 
 #+BEGIN_SRC emacs-lisp
 (use-package ox-pandoc
-  :after org)
+  :demand t
+  :after ox)
 #+END_SRC
 
 
@@ -916,14 +925,16 @@ dpkg -i /tmp/pandoc.deb
 
 #+BEGIN_SRC emacs-lisp
 (use-package ox-twbs
-  :after org)
+  :demand t
+  :after ox)
 #+END_SRC
 
 
 ** Github Markdown
 #+BEGIN_SRC emacs-lisp
 (use-package ox-gfm
-  :after org)
+  :demand t
+  :after ox)
 #+END_SRC
 
 
@@ -931,7 +942,8 @@ dpkg -i /tmp/pandoc.deb
 
 #+BEGIN_SRC emacs-lisp
 (use-package ox-tufte
-  :after org)
+  :demand t
+  :after ox)
 #+END_SRC
 
 
@@ -939,7 +951,8 @@ dpkg -i /tmp/pandoc.deb
 
 #+BEGIN_SRC emacs-lisp
 (use-package ox-epub
-  :after org)
+  :demand t
+  :after ox)
 #+END_SRC
 
 
@@ -947,7 +960,8 @@ dpkg -i /tmp/pandoc.deb
 
 #+BEGIN_SRC emacs-lisp
 (use-package ox-rst
-  :after org)
+  :demand t
+  :after ox)
 #+END_SRC
 
 
@@ -955,7 +969,8 @@ dpkg -i /tmp/pandoc.deb
 
 #+BEGIN_SRC emacs-lisp
 (use-package ox-asciidoc
-  :after org)
+  :demand t
+  :after ox)
 #+END_SRC
 
 
@@ -1079,7 +1094,6 @@ In a later step it should be possible to create truly interleaved PDFs of your n
 
 #+BEGIN_SRC emacs-lisp
   (use-package interleave
-    :defer t
     :after org
     :bind ("C-x i" . interleave-mode)
     :config
@@ -1185,6 +1199,8 @@ update-desktop-database ~/.local/share/applications/
 
 #+BEGIN_SRC emacs-lisp
 (use-feature org-protocol
+  :after org
+  :demand t
   :config
   (defun transform-square-brackets-to-round-ones(string-to-transform)
     "Transforms [ into ( and ] into ), other chars left unchanged."
@@ -1199,7 +1215,8 @@ update-desktop-database ~/.local/share/applications/
 
   (add-to-list 'org-capture-templates
                '("L" "Protocol Link" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
-                 "* %? [[%:link][%(transform-square-brackets-to-round-ones \"%:description\")]]\n")))
+                 "* %? [[%:link][%(transform-square-brackets-to-round-ones \"%:description\")]]\n"))
+)
 #+END_SRC
 
 

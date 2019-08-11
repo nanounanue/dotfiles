@@ -84,7 +84,7 @@ y debe de ser recompilado.
 Por si ocurre un error
 
 #+begin_src emacs-lisp
-(setq debug-on-error t)
+(setq debug-on-error nil)
 #+end_src
 
 No queremos que ocurra /garbage-collection/ durante el inicio de Emacs, así que lo hacemos muy grande.

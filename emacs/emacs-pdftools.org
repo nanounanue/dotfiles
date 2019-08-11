@@ -41,6 +41,7 @@ apt install -y libpng-dev zlib1g-dev libpoppler-glib-dev libpoppler-private-dev
 
 #+BEGIN_SRC emacs-lisp
 (use-feature pdf-view
+  :demand t
   :after pdf-tools
   :bind (:map pdf-view-mode-map
               ("C-s" . isearch-forward)
