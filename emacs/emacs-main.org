@@ -417,12 +417,11 @@ Permite editar un /grep buffer/ y aplicar los cambios al /file buffer/
 
 
 #+BEGIN_SRC emacs-lisp
-      (use-package wgrep
-                   ;ensure t
-                   :config
-                   (require 'wgrep)
-                   ;; salva los cambios automáticamente
-                   (setq wgrep-auto-save-buffer t))
+(use-package wgrep
+  :config
+  (require 'wgrep)
+  ;; salva los cambios automáticamente
+  (setq wgrep-auto-save-buffer t))
 #+END_SRC
 
 * /Bookmarks/
@@ -432,6 +431,19 @@ Permite editar un /grep buffer/ y aplicar los cambios al /file buffer/
  ;; persistent bookmarks
  bookmark-save-flag                      t
  bookmark-default-file              (concat temp-dir "/bookmarks"))
+#+end_src
+
+* History
+
+#+begin_src emacs-lisp
+(use-package savehist
+  :custom
+  (history-delete-duplicates t)
+  (history-length t)
+  (savehist-additional-variables '(kill-ring search-ring regexp-search-ring))
+  (savehist-file (expand-file-name (format "%s/emacs/history" xdg-cache)))
+  (savehist-save-minibuffer-history 1)
+  :config (savehist-mode 1))
 #+end_src
 
 * /Indexing/
