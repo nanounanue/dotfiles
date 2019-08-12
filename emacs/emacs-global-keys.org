@@ -69,6 +69,12 @@ Ya viene incluido con =use-package=, sólo hay que activarlo
 (bind-key (kbd "C-x v c") 'smeargle-commits)
 #+end_src
 
+** EWW
+
+#+begin_src emacs-lisp
+(global-set-key (kbd "C-x w") 'browse-url-at-point)
+#+end_src
+
 * Fin
 
 #+begin_src emacs-lisp

@@ -20,6 +20,7 @@
 - [[https://www.youtube.com/playlist?list=PLVtKhBrRV%255FZkPnBtt%255FTD1Cs9PJlU0IIdE][OrgMode Tutorial video series]] [Rainer König]
 
 
+
 * Org-plus-contrib
 
 #+begin_src emacs-lisp
@@ -78,8 +79,12 @@
   (org-mode . org-display-inline-images)
   (org-after-todo-statistics . org-summary-todo)
   (org-mode . visual-line-mode)
-  (org-mode . flycheck-mode))
+  ;(org-mode . variable-pitch-mode)
+  ;(org-mode . flycheck-mode)
+)
 #+end_src
+
+
 
 * /Speed keys/
 
@@ -142,15 +147,7 @@ Habilitando mas tipos de imágenes a desplegar en =org-mode=
   (use-feature org-agenda
     :demand t
     :config
-    (setq org-agenda-files (list (nanounanue/org-file-path "research.org")
-                                 (nanounanue/org-file-path "dsapp.org")
-                                 (nanounanue/org-file-path "proyectos.org")
-                                 (nanounanue/org-file-path "diary.org")
-                                 (nanounanue/org-file-path "refile.org")
-                                 (nanounanue/org-file-path "personal")
-                                 (nanounanue/org-file-path "research")
-                                 (nanounanue/org-file-path "projects")
-                                 ))
+    (setq org-agenda-files (directory-files-recursively org-directory "\\.org$"))
 
     ;; No queremos ver aquello que ya acabó en la agenda
     ;; http://orgmode.org/manual/Global-TODO-list.html#Global-TODO-list
@@ -266,54 +263,71 @@ en el que estoy trabajando (/capture/)
 
 Org Capture Templates are explained [[http://orgmode.org/manual/Capture-templates.html][here]], Org Template expansion [[http://orgmode.org/manual/Template-expansion.html#Template-expansion][here.]]
 
+* Capture
+
 
 #+BEGIN_SRC emacs-lisp
 (use-feature org
   :config
-  ;; Capture
+  ;; Usado por org-capture cuando el template no define un archivo target
+  (setq org-default-notes-file (nanounanue/org-file-path "refile.org"))
+  (setq org-default-tasks-file (nanounanue/org-file-path "tasks.org"))
+
   (setq org-capture-templates
         (quote (("t" "TODO    (t)" entry (file "~/Sync/org/refile.org")
-                 "* TODO %?
-:PROPERTIES:
-:via: %f
-:note:
-:END:"
-                 :clock-in t :clock-resume t :empty-lines 1)
+                 "* TODO %? \n:PROPERTIES:\n:via: %f\n:note:\n:END:":clock-in t :clock-resume t :empty-lines 1)
                 ("K" "Cliplink capture task" entry (file "")
                  "* TODO %(org-cliplink-capture) \n  SCHEDULED: %t\n" :empty-lines 1)
-                ("P" "Research project" entry (file "~/Sync/org/inbox.org")
-	         "* TODO %^{Project title} :%^G:\n:PROPERTIES:\n:CREATED: %U\n:END:\n%^{Project description}\n** TODO Literature review\n** TODO %?\n** TODO Summary\n** TODO Reports\n** Ideas\n" :clock-in t :clock-resume t)
+                ("r" "Research")
+                ("rp" "Research project" entry (file "~/Sync/org/inbox.org")
+	         "* TODO %^{Project title} :research::%^G:\n:PROPERTIES:\n:CREATED: %U\n:END:\n%^{Project description}\n** TODO Literature review\n** TODO %?\n** TODO Summary\n** TODO Reports\n** Ideas\n" :clock-in t :clock-resume t)
+                ("ri" "Research Idea" entry (file "~/Sync/org/research.org")
+                 "* %? :research::IDEA:\n%U\n%a\n" :clock-in t :clock-resume t)
                 ("s" "Scheduled TODO" entry (file+headline "~/Sync/org/refile.org")
                  "* TODO %? %^G \nSCHEDULED: %^t\n  %U" :empty-lines 1)
                 ("d" "Deadline" entry (file+headline "~/Sync/org/refile.org")
                  "* TODO %? %^G \n  DEADLINE: %^t" :empty-lines 1)
-                ("r" "research" entry (file "~/Sync/org/research.org")
-                 "* %? :IDEA:\n%U\n%a\n" :clock-in t :clock-resume t)
                 ("b" "Link from browser" entry (file "~/Sync/org/inbox.org")
 	         "* TODO %? |- (%:description) :BOOKMARK:\n:PROPERTIES:\n:CREATED: %U\n:Source: %:link\n:END:\n%i\n" :clock-in t :clock-resume t)
-            	        ("s" "Selection from browser" entry (file "~/Sync/org/inbox.org")
+             	("s" "Selection from browser" entry (file "~/Sync/org/inbox.org")
 	         "* TODO %? :BOOKMARK:\n%(replace-regexp-in-string \"\n.*\" \"\" \"%i\")\n:PROPERTIES:\n:CREATED: %U\n:Source: %:link\n:END:\n%i\n" :clock-in t :clock-resume t)
-                ("j" "journal" entry (file+olp+datetree "~/Sync/org/diary.org")
-                 "* %?\n%U\n" :clock-in t :clock-resume t)
+                                        ;("j" "Journal" entry (file+olp+datetree "~/Sync/org/diary.org")
+                                        ; "**** %U \n %? \n %a \n" :clock-in t :clock-resume t :tree-type week)
+                ("j" "Journal" entry (function nanounanue/org-journal-find-location)
+                 "* %(format-time-string org-journal-time-format)%^{Title}\n%i%?")
+                ("c" "Contactos") ;; Tomado de https://joshrollinswrites.com/help-desk-head-desk/sub-menus-in-org/
+                ("ca" "Amistades"  entry
+                 (file+headline "~/Sync/org/contactos.org" "Amistades") nanounanue/org-contacts-template :empty-lines 1 :clock-in t)
+                ("ct" "Trabajo" entry
+                 (file+headline "~/Sync/org/contactos.org" "Trabajo")
+                 nanounanue/org-contacts-template :empty-lines 1 :clock-in t)
+                ("cf" "Familia" entry
+                 (file+headline "~/Sync/org/contactos.org" "Familia") nanounanue/org-contacts-template :empty-lines 1 :clock-in t)
+                ("b" "Book/Bibliography" entry (file+headline "~/Sync/org/research/bibliography.org" "Refile")
+                 "* %?%^{TITLE}p%^{AUTHOR}p%^{TYPE}p")
                 ("n" "Note" entry (file "~/Sync/org/notes.org")
-                 "* NOTE %?\n%U" :empty-lines 1)
+                 "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t :empty-lines 1)
                 ("N" "Note with Clipboard" entry (file "~/Sync/org/notes.org")
-                 "* NOTE %?\n%U\n   %c" :empty-lines 1))))
+                 "* %? :NOTE:\n%U\n%a\n %c" :empty-lines 1))))
+  )
+#+end_src
 
-  ;; Refile
-  (setq org-default-notes-file (nanounanue/org-file-path "personal/@SUMMARY.org"))
-  (setq org-default-tasks-file (nanounanue/org-file-path "personal/tasks.org"))
+* Refile
 
+#+begin_src emacs-lisp
+(use-feature org
+  :demand t
+  :config
   ;; Targets include this file and any file contributing to the agenda - up to 9 levels deep
   (setq org-refile-targets (quote ((nil :maxlevel . 9)
                                    (org-agenda-files :maxlevel . 9))))
+
   ;; Use full outline paths for refile targets
   (setq org-refile-use-outline-path t)
 
   ;; Allow refile to create parent tasks with confirmatio
   (setq org-refile-allow-creating-parent-nodes (quote confirm))
   )
-
 #+END_SRC
 
 Luego de seleccionar el /template/ adecuado, tecleas la nota, =C-c C-c=
@@ -490,7 +504,6 @@ Esto también lo vamos a ocupar
 (use-package jupyter
   :after ob
   :demand t
-  :requires (zmq simple-httpd)
   :init
   (defun jupyter-run-repl-or-pop-to-buffer-dwim ()
     "If a buffer is already associated with a jupyter buffer,
@@ -1059,11 +1072,11 @@ propuesta en el mismo lugar es el [[https://gitlab.com/oer/org-re-reveal][fork]]
 Los /bullets/ hacen más presentable =org-mode=
 
 #+BEGIN_SRC emacs-lisp
-  (use-package org-bullets
-       ;ensure t
-       :after org
-       :hook
-       (org-mode . (lambda () (org-bullets-mode 1))))
+(use-package org-bullets
+  :demand t
+  :after org
+  :hook
+  (org-mode . (lambda () (org-bullets-mode 1))))
 #+END_SRC
 
 * Tomar notas
@@ -1197,7 +1210,7 @@ update-desktop-database ~/.local/share/applications/
 
 ** Configuración *en* emacs
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (use-feature org-protocol
   :after org
   :demand t
@@ -1260,8 +1273,6 @@ buffer.
   :hook ((org-mode dired-mode) . org-download-enable))
 #+END_SRC
 
-
-
 ** =org-attach-screenshot=
 
 #+BEGIN_SRC emacs-lisp
@@ -1305,6 +1316,100 @@ buffer.
   :after org
   :hook (org-mode . toc-org-enable))
 #+END_SRC
+
+** [[https://github.com/alphapapa/org-web-tools/blob/master/README.org][org-web-tools]]
+
+#+begin_quote
+This file contains library functions and commands useful for
+retrieving web page content and processing it into Org-mode content.
+#+end_quote
+
+| Comando                                     | Descripción                                                                                                                                                                                                                                                        |
+|---------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| org-web-tools-insert-link-for-url           | Insert an Org-mode link to the URL in the clipboard or kill-ring. Downloads the page to get the HTML title.                                                                                                                                                        |
+| org-web-tools-insert-web-page-as-entry      | Insert the web page for the URL in the clipboard or kill-ring as an Org-mode entry, as a sibling heading of the current entry.                                                                                                                                     |
+| org-web-tools-read-url-as-org               | Display the web page for the URL in the clipboard or kill-ring as Org-mode text in a new buffer, processed with =eww-readable=.                                                                                                                                    |
+| org-web-tools-convert-links-to-page-entries | Convert all URLs and Org links in current Org entry to Org headings, each containing the web page content of that URL, converted to Org-mode text and processed with eww-readable. This should be called on an entry that solely contains a list of URLs or links. |
+| org-web-tools-archive-attach                | Download archive of page at URL and attach with org-attach. If VIEW is non-nil (interactively, with prefix), view the archive immediately after attaching. If CHOOSE-FN is non-nil (interactively, with double-prefix), prompt for the archive function to use     |
+| org-web-tools-archive-view                  | Open Zip file archive of web page. Extracts to a temp directory and opens with browse-url-default-browser. Note: the extracted files are left on-disk in the temp directory.                                                                                       |
+
+
+
+Ver [[https://www.reddit.com/r/emacs/comments/cnzj7d/org_mode_update_broke_orgcapture/][esta discusión en reddit]]
+
+#+begin_src emacs-lisp
+(use-package org-web-tools)
+#+end_src
+
+** [[https://github.com/scallywag/org-board][org-board]]
+
+#+begin_quote
+org-board is a bookmarking and web archival system for Emacs Org
+ mode, building on ideas from [[https://pinboard.in][Pinboard]].  It
+ archives your bookmarks so that you can access them even when
+ you're not online, or when the site hosting them goes down.
+ `wget' is used as a backend for archival, so any of its options
+ can be used directly from org-board.  This means you can download
+ whole sites for archival with a couple of keystrokes, while
+ keeping track of your archives from a simple Org file.
+#+end_quote
+
+ | Key | Command                              |
+ |-----+--------------------------------------|
+ | a   | org-board-archive                    |
+ | r   | org-board-archive-dry-run            |
+ | n   | org-board-new                        |
+ | k   | org-board-delete-all                 |
+ | o   | org-board-open                       |
+ | d   | org-board-diff                       |
+ | 3   | org-board-diff3                      |
+ | c   | org-board-cancel                     |
+ | x   | org-board-run-after-archive-function |
+ | O   | org-attach-reveal-in-emacs           |
+ | ?   | Show help for this keymap.           |
+
+#+begin_src emacs-lisp
+(use-package org-board
+  :config
+  (global-set-key (kbd "C-c o") org-board-keymap)
+  (setq org-board-capture-file "~/Sync/org/board.org")
+
+  (add-to-list 'org-capture-templates
+               ("c" "capture through org protocol" entry
+                (file+headline ,org-board-capture-file "Unsorted")
+                "* %?%:description\n:PROPERTIES:\n:URL: %:link\n:END:\n\n Added %U"))
+
+  (defun nanounanue/do-org-board-dl-hook ()
+    (when (equal (buffer-name)
+                 (concat "CAPTURE-" org-board-capture-file))
+      (org-board-archive)))
+
+  (add-hook 'org-capture-before-finalize-hook 'nanounanue/do-org-board-dl-hook)
+  )
+#+end_src
+
+** [[https://github.com/alphapapa/org-recent-headings][org-recent-headings]]
+
+#+begin_quote
+This package lets you quickly jump to recently used Org headings using Helm, Ivy, or plain-ol’ completing-read.
+#+end_quote
+
+#+begin_src emacs-lisp
+(use-package org-recent-headings
+  :demand t
+  :config (org-recent-headings-mode))
+#+end_src
+
+** [[https://github.com/bastibe/org-journal][Org-journal]]
+
+#+begin_src emacs-lisp
+(use-package org-journal
+  :demand t
+  :custom
+  (org-journal-dir "~/Sync/org/journal/")
+  (org-journal-file-type 'yearly)
+  (org-journal-date-format "%A, %d %B %Y"))
+#+end_src
 
 * Proveer
 

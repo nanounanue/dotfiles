@@ -12,6 +12,8 @@
 #+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
 
 
+
+
 * Funciones
 
 ** /Bootstrap/
@@ -40,6 +42,7 @@
    (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-email.org"))
    (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-hydra.org"))
    (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-main.org"))
+   (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-remote.org"))
    (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-pdftools.org"))
    (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-package-manager.org"))
    (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-functions.org"))
@@ -112,6 +115,42 @@ Las siguientes funciones fueron tomadas de [[https://emacs.stackexchange.com/a/2
   (org-babel-tangle)
   (kill-buffer))
 #+END_SRC
+
+
+Integrando =org-journal= con =org-capture=
+
+#+begin_src emacs-lisp
+(defun nanounanue/org-journal-find-location ()
+  ;; Open today's journal, but specify a non-nil prefix argument in order to
+  ;; inhibit inserting the heading; org-capture will insert the heading.
+  (org-journal-new-entry t)
+  ;; Position point on the journal's top-level heading so that org-capture
+  ;; will add the new entry as a child entry.
+  (goto-char (point-min)))
+#+end_src
+
+
+*** Templates
+
+*NOTA* También es posible definir el /template/ en un archivo:
+       - [[https://joshrollinswrites.com/help-desk-head-desk/org-capture-in-files/][Org-capture in Files]]
+       - [[https://emacsnyc.org/assets/documents/how-i-use-org-capture-and-stuff.pdf][How I use org-capture and stuff, Jonathan E. Magen]]
+
+**** Contactos
+
+Tomado de [[https://www.reddit.com/r/emacs/comments/8toivy/tip_how_to_manage_your_contacts_with_orgcontacts/][aquí]]
+
+#+begin_src emacs-lisp
+(defvar nanounanue/org-contacts-template "* %(org-contacts-template-name)
+:PROPERTIES:
+:ADDRESS: %^{289 Cleveland St. Brooklyn, 11206 NY, USA}
+:BIRTHDAY: %^{yyyy-mm-dd}
+:EMAIL: %(org-contacts-template-email)
+:NOTE: %^{NOTE}
+:END:" "Template for org-contacts.")
+#+end_src
+
+
 
 
 *** /Pasting/

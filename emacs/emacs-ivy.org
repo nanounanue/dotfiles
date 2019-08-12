@@ -213,8 +213,8 @@ Colección de comandos de emacs mejorados por =ivy=
 #+BEGIN_SRC emacs-lisp
 (use-package counsel
   :after ivy
+  :demand t
   :delight
-  ;ensure t
   :bind (("C-x C-d" . counsel-dired-jump)
          ("C-x C-h" . counsel-minibuffer-history)
          ("C-x C-r" . counsel-recentf)
@@ -237,16 +237,6 @@ Colección de comandos de emacs mejorados por =ivy=
   )
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
-(use-package all-the-icons-ivy
-  :after (all-the-icons ivy)
-  :custom (all-the-icons-ivy-buffer-commands '(ivy-switch-buffer-other-window))
-  :config
-  (add-to-list 'all-the-icons-ivy-file-commands 'counsel-dired-jump)
-  (add-to-list 'all-the-icons-ivy-file-commands 'counsel-find-library)
-  (all-the-icons-ivy-setup))
-#+END_SRC
-
 * Swiper
 
 La versión mejorada de =isearch= por =ivy=
@@ -254,6 +244,7 @@ La versión mejorada de =isearch= por =ivy=
 #+BEGIN_SRC emacs-lisp
   (use-package swiper
     :after ivy
+    :demand t
     :config
     (setq swiper-faces '(swiper-match-face-1
                          swiper-match-face-2
@@ -269,14 +260,17 @@ La versión mejorada de =isearch= por =ivy=
 
 * Prescient
 
-#+begin_src emacs-lisp
-  ;; Package `prescient' is a library for intelligent sorting and
-  ;; filtering in various contexts.
-  (use-package prescient
-    :config
+#+begin_quote
+Package `prescient' is a library for intelligent sorting and
+filtering in various contexts.
+#+end_quote
 
-    ;; Remember usage statistics across Emacs sessions.
-    (prescient-persist-mode +1))
+#+begin_src emacs-lisp
+(use-package prescient
+  :demand t
+  :config
+  ;; Remember usage statistics across Emacs sessions.
+  (prescient-persist-mode +1))
 
 ;; Package `ivy-prescient' provides intelligent sorting and filtering
 ;; for candidates in Ivy menus.
@@ -284,13 +278,9 @@ La versión mejorada de =isearch= por =ivy=
   :demand t
   :after ivy
   :config
-
   ;; Use `prescient' for Ivy menus.
   (ivy-prescient-mode +1))
 #+end_src
-
-
-
 
 * Al final
 

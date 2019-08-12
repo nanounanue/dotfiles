@@ -362,8 +362,10 @@ información.
 
 #+begin_src emacs-lisp
 (use-package persistent-scratch
+  :demand t
   :config
-  (persistent-scratch-setup-default))
+  (persistent-scratch-setup-default)
+  (setq persistent-scratch-autosave-mode t))
 #+end_src
 
 
@@ -1258,6 +1260,7 @@ Usar =counsel=
 #+BEGIN_SRC emacs-lisp
 (use-package counsel-projectile
   :after projectile
+  :demand t
   :config
   (counsel-projectile-mode 1))
 #+END_SRC
@@ -1896,6 +1899,89 @@ Ver [[http://emacs.stackexchange.com/questions/7432/make-visual-line-mode-more-c
   (setq visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow))
   (setq-default adaptive-wrap-extra-indent 2))
 #+end_src
+
+** EWW: /Emacs Web Wowser/
+
+Copiado desde [[https://github.com/dakrone/eos/blob/master/eos-web.org][EOS]]
+
+#+begin_src emacs-lisp
+(use-package eww
+  :init
+  (setq browse-url-browser-function
+        '((".*google.*maps.*" . browse-url-generic)
+          ;; Github goes to firefox, but not gist
+          ("http.*\/\/github.com" . browse-url-generic)
+          ("groups.google.com" . browse-url-generic)
+          ("docs.google.com" . browse-url-generic)
+          ("melpa.org" . browse-url-generic)
+          ("build.*\.elastic.co" . browse-url-generic)
+          (".*-ci\.elastic.co" . browse-url-generic)
+          ("internal-ci\.elastic\.co" . browse-url-generic)
+          ("zendesk\.com" . browse-url-generic)
+          ("salesforce\.com" . browse-url-generic)
+          ("stackoverflow\.com" . browse-url-generic)
+          ("apache\.org\/jira" . browse-url-generic)
+          ("thepoachedegg\.net" . browse-url-generic)
+          ("zoom.us" . browse-url-generic)
+          ("t.co" . browse-url-generic)
+          ("twitter.com" . browse-url-generic)
+          ("\/\/a.co" . browse-url-generic)
+          ("youtube.com" . browse-url-generic)
+          ("amazon.com" . browse-url-generic)
+          ("slideshare.net" . browse-url-generic)
+          ("." . eww-browse-url)))
+  (setq shr-external-browser 'browse-url-generic)
+  (setq browse-url-generic-program (executable-find "firefox"))
+  (add-hook 'eww-mode-hook #'toggle-word-wrap)
+  (add-hook 'eww-mode-hook #'visual-line-mode)
+  :config
+  (define-key eww-mode-map "o" 'eww)
+  (define-key eww-mode-map "O" 'eww-browse-with-external-browser)
+  (define-key eww-mode-map "j" 'next-line)
+  (define-key eww-mode-map "k" 'previous-line)
+
+
+  (use-package eww-lnum
+    :config
+    (bind-key "f" #'eww-lnum-follow eww-mode-map)
+    (bind-key "U" #'eww-lnum-universal eww-mode-map)))
+#+end_src
+
+** Search engines
+
+#+begin_src emacs-lisp
+(use-package engine-mode
+  :demand t
+  :init (engine-mode 1)
+  :config
+  ;; Use an external browser for these
+  (setq engine/browser-function 'browse-url-generic)
+
+  (defengine duckduckgo
+    "https://duckduckgo.com/?q=%s"
+    :keybinding "d")
+
+  (defengine elasticsearch
+    "https://github.com/elastic/elasticsearch/search?q=%s&type="
+    :keybinding "e")
+
+  (defengine x-pack
+    "https://github.com/elastic/x-pack-elasticsearch/search?q=%s&type="
+    :keybinding "x")
+
+  (defengine google-maps
+    "http://maps.google.com/maps?q=%s"
+    :keybinding "m")
+
+  (defengine stack-overflow
+    "https://stackoverflow.com/search?q=%s"
+    :keybinding "s")
+
+  (defengine wikipedia
+    "http://www.wikipedia.org/search-redirect.php?language=en&go=Go&search=%s"
+    :keybinding "w"))
+#+end_src
+
 
 
 * Finalmente ...

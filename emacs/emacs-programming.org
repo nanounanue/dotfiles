@@ -333,7 +333,13 @@ Como =org-mode=, pero para =markdown=
 (use-package poly-markdown
   :after polymode
   :config
-  (add-to-list 'auto-mode-alist '("\\.md" . poly-markdown-mode)))
+  (add-to-list 'auto-mode-alist '("\\.md" . poly-markdown-mode))
+
+  ;; R modes
+  (add-to-list 'auto-mode-alist '("\\.Snw" . poly-noweb+r-mode))
+  (add-to-list 'auto-mode-alist '("\\.Rnw" . poly-noweb+r-mode))
+  (add-to-list 'auto-mode-alist '("\\.Rmd" . poly-markdown+r-mode))
+  )
 
 (use-package poly-R
   :after polymode)

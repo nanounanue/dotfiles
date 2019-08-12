@@ -334,7 +334,10 @@ Group Org commands.
     ("o" org-open-at-point-global "open-link")
     ("r" org-refile "refile")
     ("s" org-store-link "store-link")
-    ("t" org-show-todo-tree "todo-tree"))))
+    ("ra" avy-org-refile-as-child)
+    ("il" org-web-tools-insert-link-for-url :exit t)
+    ("iw" org-web-tools-insert-web-page-as-entry :exit t)
+    ("t" org-show-todo-tree "todo-treeq"))))
 #+END_SRC
 
 ** Hydra / Projectile

@@ -10,7 +10,7 @@
 #+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
 #+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
 #+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
-#+TAGS: emacs
+#+TAGS: emacs eshell
 
 
 * Arreglar el Path
@@ -727,109 +727,6 @@ Eshell se confunde si se ejecutan los siguientes comandos, mejor que ansiterm se
     Check out this [[https://www.youtube.com/watch?v=pSjrwSI4OHk][YouTube video recording]] of this section in action.
 
 
-* Tramp
-
-  The ability to edit files on remote systems is a wonderful win,
-  since it means I don't need to have my Emacs environment running on
-  remote machines (still a possibility, just not a requirement).
-
-  According to [[http://www.gnu.org/software/emacs/manual/html_node/tramp/Filename-Syntax.html][the manual]], I can access a file over SSH, via:
-
-  #+BEGIN_EXAMPLE
-  /ssh:10.52.224.67:blah
-  #+END_EXAMPLE
-
-  However, if I set the default method to SSH, I can do this:
-
-  #+BEGIN_EXAMPLE
-  /10.52.224.67:blah
-  #+END_EXAMPLE
-
-  So, let's do it...
-
-
-#+BEGIN_SRC emacs-lisp
-(setq tramp-default-method "ssh")
-(setq password-cache-expiry 60)
-(setq tramp-auto-save-directory temporary-file-directory)
-
-;; Debug
-;;(setq tramp-verbose 9)
-(setq tramp-debug-buffer nil)
-
-
-#+END_SRC
-
-
-#+begin_src emacs-lisp
-  (use-package counsel-tramp
-    :after counsel)
-#+end_src
-
-Usar =counsel=
-
-#+BEGIN_SRC emacs-lisp
-  (use-package counsel-tramp)
-#+END_SRC
-
-=tramp-term=  la descripción de la [[https://github.com/randymorris/tramp-term.el/blob/master/README.md][página]]:
-
-#+begin_quote
-Provides a quick way to launch an ssh session in an
-ansi-term with directory tracking pre-configured. This makes opening
-remote files via TRAMP directly from the ssh session as easy as =C-x C-f=.
-#+end_quote
-
-#+begin_src emacs-lisp
-  (use-package tramp-term)
-#+end_src
-
-También podemos conectarnos a un =docker= /container:/
-
-#+BEGIN_EXAMPLE
-  C-x C-f /docker:user@container:/path/to/file
-
-  where
-    user           is the user that you want to use (optional)
-    container      is the id or name of the container
-#+END_EXAMPLE
-
-
-#+begin_src emacs-lisp
-(use-package docker-tramp)
-#+end_src
-
-O usando =vagrant=:
-
-Es necesario instalar =virtualbox=
-
-#+begin_src shell :tangle no :dir /sudo::
-apt install -y virtualbox virtualbox-dkms virtualbox-ext-pack virtualbox-guest-addtions-iso \
-               virtualbox-guest-dkms virtualbox-guest-source virtual-guest-utils virtual-guest-x11 \
-               virtualbox-qt
-#+end_src
-
-y =vagrant= desde [[https://www.vagrantup.com/downloads.html][aquí]]
-
-
-#+begin_src shell
-vagrant --version
-#+end_src
-
-[[https://github.com/dougm/vagrant-tramp][link para vagrant-tramp]]
-
-
-#+begin_src emacs-lisp
-(use-package vagrant-tramp)
-#+end_src
-
-
-#+begin_example
-C-x C-f /vagrant:box|sudo:box:/path/to/file R
-#+end_example
-
-
-
 * Helpers
 
   Sometimes you just need to change something about the current file
@@ -863,11 +760,11 @@ C-x C-f /vagrant:box|sudo:box:/path/to/file R
   (instead of seeing a red mark, and needing to scroll back in order
   to wonder what command it was that made it). Still...
 
-  #+BEGIN_SRC emacs-lisp
-    (use-package eshell-fringe-status
-      :config
-      (add-hook 'eshell-mode-hook 'eshell-fringe-status-mode))
-  #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(use-package eshell-fringe-status
+  :config
+  (add-hook 'eshell-mode-hook 'eshell-fringe-status-mode))
+#+END_SRC
 
 * Para terminar
 
