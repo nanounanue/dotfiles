@@ -1,0 +1,154 @@
+#+TITLE: Emacs Remoto: Tramp y Pass
+#+AUTHOR: Adolfo De Unánue
+#+EMAIL: nanounanue@gmail.com
+#+STARTUP: showeverything
+#+STARTUP: nohideblocks
+#+STARTUP: indent
+#+PROPERTY:    header-args:emacs-lisp  :tangle ~/.emacs.d/elisp/setup-remote.el
+#+PROPERTY:    header-args:shell  :tangle no
+#+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+TAGS: emacs tramp
+
+
+
+* Tramp
+
+  The ability to edit files on remote systems is a wonderful win,
+  since it means I don't need to have my Emacs environment running on
+  remote machines (still a possibility, just not a requirement).
+
+  According to [[http://www.gnu.org/software/emacs/manual/html_node/tramp/Filename-Syntax.html][the manual]], I can access a file over SSH, via:
+
+  #+BEGIN_EXAMPLE
+  /ssh:10.52.224.67:blah
+  #+END_EXAMPLE
+
+  However, if I set the default method to SSH, I can do this:
+
+  #+BEGIN_EXAMPLE
+  /10.52.224.67:blah
+  #+END_EXAMPLE
+
+  So, let's do it...
+
+
+#+BEGIN_SRC emacs-lisp
+(use-package tramp
+  :config
+  (setq tramp-default-method "ssh")
+  (setq password-cache-expiry 60)
+  (setq tramp-auto-save-directory temporary-file-directory)
+  ;; use the settings in ~/.ssh/config instead of Tramp's
+  (setq tramp-use-ssh-controlmaster-options nil)
+  ;; Debug
+  ;;(setq tramp-verbose 9)
+  (setq tramp-debug-buffer nil)
+  )
+#+END_SRC
+
+
+#+begin_src emacs-lisp
+  (use-package counsel-tramp
+    :after counsel)
+#+end_src
+
+Usar =counsel=
+
+#+BEGIN_SRC emacs-lisp
+  (use-package counsel-tramp)
+#+END_SRC
+
+=tramp-term=  la descripción de la [[https://github.com/randymorris/tramp-term.el/blob/master/README.md][página]]:
+
+#+begin_quote
+Provides a quick way to launch an ssh session in an
+ansi-term with directory tracking pre-configured. This makes opening
+remote files via TRAMP directly from the ssh session as easy as =C-x C-f=.
+#+end_quote
+
+#+begin_src emacs-lisp
+(use-package tramp-term)
+#+end_src
+
+También podemos conectarnos a un =docker= /container:/
+
+#+BEGIN_EXAMPLE
+  C-x C-f /docker:user@container:/path/to/file
+
+  where
+    user           is the user that you want to use (optional)
+    container      is the id or name of the container
+#+END_EXAMPLE
+
+
+#+begin_src emacs-lisp
+(use-package docker-tramp)
+#+end_src
+
+O usando =vagrant=:
+
+Es necesario instalar =virtualbox=
+
+#+begin_src shell :tangle no :dir /sudo::
+apt install -y virtualbox virtualbox-dkms virtualbox-ext-pack virtualbox-guest-addtions-iso \
+               virtualbox-guest-dkms virtualbox-guest-source virtual-guest-utils virtual-guest-x11 \
+               virtualbox-qt
+#+end_src
+
+y =vagrant= desde [[https://www.vagrantup.com/downloads.html][aquí]]
+
+
+#+begin_src shell
+vagrant --version
+#+end_src
+
+[[https://github.com/dougm/vagrant-tramp][link para vagrant-tramp]]
+
+
+#+begin_src emacs-lisp
+(use-package vagrant-tramp)
+#+end_src
+
+
+#+begin_example
+C-x C-f /vagrant:box|sudo:box:/path/to/file R
+#+end_example
+
+* [[https://www.passwordstore.org/][Pass]]
+
+#+begin_quote
+Password management should be simple and follow Unix philosophy. With
+pass, each password lives inside of a gpg encrypted file whose
+filename is the title of the website or resource that requires the
+password. These encrypted files may be organized into meaningful
+folder hierarchies, copied from computer to computer, and, in general,
+manipulated using standard  command line file management utilities.
+#+end_quote
+
+Instalación
+
+#+begin_src shell :dir /sudo::
+apt install -y pass
+#+end_src
+
+Configuración
+
+#+begin_src shell
+pass init
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package pass
+  :demand t)
+#+end_src
+
+
+* Para terminar
+
+#+BEGIN_SRC emacs-lisp
+(provide 'setup-remote)
+#+END_SRC
