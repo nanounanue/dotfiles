@@ -185,6 +185,7 @@ _fzf_compgen_dir() {
 
 #+BEGIN_SRC shell
 alias p="projects"
+alias s="software"
 #+END_SRC
 
 ** Emacs
