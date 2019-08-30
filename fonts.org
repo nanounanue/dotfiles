@@ -82,7 +82,13 @@ apt-get install -y fonts-firacode
 pacman -S nerdfonts-fira-code
 #+END_SRC
 
+** [[https://www.fontsquirrel.com/fonts/fira-sans][Fira Sans]]
 
+#+begin_src shell :dir ~/.fonts
+wget https://www.fontsquirrel.com/fonts/download/fira-sans && \
+unzip fira-sans && \
+rm fira-sans
+#+end_src
 
 ** Inconsolata
 
@@ -97,6 +103,14 @@ apt-get install -y fonts-inconsolata
 #+BEGIN_SRC sh :dir /sudo::
 pacman -S ttf-inconsolata
 #+END_SRC
+
+** [[https://www.fontsquirrel.com/fonts/cabin][Cabin]]
+
+#+begin_src shell :dir ~/.fonts
+wget https://www.fontsquirrel.com/fonts/download/cabin && \
+unzip cabin && \
+rm cabin
+#+end_src
 
 
 ** Ricty
@@ -147,8 +161,16 @@ unzip Hasklig-1.1.zip && \
 rm Hasklig-1.1.zip
 #+END_SRC
 
+** Garamond
 
-* Actualizar el /cache/ de fuentes
+#+begin_src shell :dir /sudo::
+apt install -y fonts-ebgaramond fonts-ebgaramond-extra
+#+end_src
+
+** [[https://github.com/sebschub/FontPro][FontPro]]
+
+* Actualizar el /cac
+he/ de fuentes
 
 #+BEGIN_SRC shell :dir /sudo::
 fc-cache -f -v
