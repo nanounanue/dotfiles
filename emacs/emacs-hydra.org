@@ -28,6 +28,7 @@
          ("C-c h P" . hydra-python/body)
          ("C-c h g" . hydra-straight-helper/body)
          ("C-c h s" . hydra-spelling/body)
+         ("C-c h f" . hydra-nanounanue/body)
          ("C-c h x" . hydra-tex/body)
          ("C-c h a" . hydra-avy/body)
          ("C-c h u" . hydra-upload/body)
@@ -150,6 +151,34 @@ _o_: org-cap | _C--_: show less   | _*_: *thing  | _q_: quit hdrs | _j_: jump2ma
     ("s" smartparens-mode "smartparens" :toggle t))
    "UI"
    (("i" ivy-rich-mode "ivy-rich" :toggle t))))
+#+end_src
+
+
+** Hydra / Nanounanue
+
+
+Originalmente:
+#+begin_example
+(eval-after-load 'latex-mode
+  '(define-key latex-mode-map (kbd "C-c r") 'nanounanue/latex-compile-and-update-other-buffer))
+
+(define-key org-mode-map (kbd "C-c lr") 'nanounanue/org-compile-latex-and-update-other-buffer)
+(define-key org-mode-map (kbd "C-c br") 'nanounanue/org-compile-beamer-and-update-other-buffer)
+
+(eval-after-load 'markdown-mode
+  '(define-key markdown-mode-map (kbd "C-c r") 'nanounanue/md-compile-and-update-other-buffer))
+#+end_example
+
+#+begin_src emacs-lisp
+(pretty-hydra-define hydra-nanounanue
+  (:hint nil :color amaranth :quit-key "q" :title (with-faicon "user" "Mis funciones" 1 -0.05))
+  ("LaTeX"
+    (("lr"  nanounanue/latex-compile-and-update-ther-buffer "compile LaTeXand update other buffer"))
+   "Org"
+    (("ol" nanounanue/org-compile-latex-and-update-ther-buffer "compile LaTeX and update other buffer")
+    ("ob" nanounanue/org-compile-beamer-and-update-ther-buffer "compile Beamer and update other buffer"))
+   "Markdown"
+    (("mr" nanounanue/md-compile-and-update-ther-buffer "compile and update other buffer"))))
 #+end_src
 
 ** Hydra / Merge
@@ -333,11 +362,11 @@ Group Org commands.
     ("k" org-cut-subtree "cut-subtree")
     ("o" org-open-at-point-global "open-link")
     ("r" org-refile "refile")
-    ("s" org-store-link "store-link")
-    ("ra" avy-org-refile-as-child)
-    ("il" org-web-tools-insert-link-for-url :exit t)
-    ("iw" org-web-tools-insert-web-page-as-entry :exit t)
-    ("t" org-show-todo-tree "todo-treeq"))))
+    ("s" org-store-link "store-link"))
+   "Webtools"
+    (("I" org-web-tools-insert-link-for-url :exit t)
+    ("W" org-web-tools-insert-web-page-as-entry :exit t))
+    ))
 #+END_SRC
 
 ** Hydra / Projectile

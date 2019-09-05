@@ -84,7 +84,7 @@ y debe de ser recompilado.
 Por si ocurre un error
 
 #+begin_src emacs-lisp
-(setq debug-on-error nil)
+(setq debug-on-error t)
 #+end_src
 
 No queremos que ocurra /garbage-collection/ durante el inicio de Emacs, así que lo hacemos muy grande.
@@ -116,18 +116,6 @@ no sea configurado el administrador de paquetes
   ;; value.
 (setq gnutls-min-prime-bits 3072))
 #+end_src
-
-
-
-
-
-
-
-
-
-
-
-
 
 * /Load path/
 
@@ -195,6 +183,18 @@ no sea configurado el administrador de paquetes
 (require 'setup-eshell)
 #+end_src
 
+* Elfeed
+
+#+begin_src emacs-lisp
+(require 'setup-elfeed)
+#+end_src
+
+* Tramp
+
+#+begin_src emacs-lisp
+(require 'setup-remote)
+#+end_src
+
 * [[file:emacs-i3wm.org][Integración con i3wm]]
 
 #+begin_src emacs-lisp :tangle no
@@ -204,7 +204,7 @@ no sea configurado el administrador de paquetes
 
 * Configuración del servidor
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (require 'setup-server)
 #+end_src
 

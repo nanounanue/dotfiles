@@ -1,0 +1,78 @@
+#+TITLE: Elfeed
+#+AUTHOR: Adolfo De Unánue
+#+EMAIL: nanounanue@gmail.com
+#+STARTUP: showeverything
+#+STARTUP: nohideblocks
+#+STARTUP: indent
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/elisp/setup-elfeed.el
+#+PROPERTY:    header-args:shell  :tangle no
+#+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+
+* [[https://github.com/skeeto/elfeed][Elfeed]]
+
+Elfeed Tips and Tricks: http://nullprogram.com/blog/2013/11/26/
+
+ | RET    | Display the currently selected item in a buffer.            |
+ | +      | Apply TAG to all selected entries.                          |
+ | -      | Remove TAG from all selected entries.                       |
+ | 0 .. 9 | Part of the numeric argument for the next command.          |
+ | G      | Update all the feeds in `elfeed-feeds'.                     |
+ | S      | Set a new search filter for the elfeed-search buffer.       |
+ | b      | Visit the current entry in your browser using `browse-url'. |
+ | g      | `elfeed-search-update--force' (not documented)              |
+ | n      | Move cursor vertically down ARG lines.                      |
+ | p      | Move cursor vertically up ARG lines.                        |
+ | q      | Quit WINDOW and bury its buffer.                            |
+ | r      | `elfeed-search-untag-all-unread' (not documented)           |
+ | s      | Filter the elfeed-search buffer as the filter is written.   |
+ | u      | `elfeed-search-tag-all-unread' (not documented)             |
+ | y      | Copy the selected feed item URL to clipboard                |
+
+
+
+#+begin_src emacs-lisp
+(use-package elfeed
+  :commands (elfeed)
+  :config
+  (setq elfeed-feeds
+        '(
+           ("http://stackexchange.com/feeds/tagsets/152198/emacs?sort=active" emacs)
+           ("http://nullprogram.com/feed/" emacs)
+           ("http://planet.emacsen.org/atom.xml" emacs)
+           ("http://emacsredux.com/atom.xml" emacs)
+           ("http://www.masteringemacs.org/feed/" emacs)
+           ("http://endlessparentheses.com/atom.xml" emacs)
+           ("http://www.lunaryorn.com/feed.atom" emacs)
+
+           ))
+  ;; Entries older than 4 weeks are marked as read
+  (add-hook 'elfeed-new-entry-hook
+            (elfeed-make-tagger :before "4 weeks ago"
+                                :remove 'unread))
+  ;;  Mark all as read
+  (defun elfeed-mark-all-as-read ()
+    (interactive)
+    (mark-whole-buffer)
+    (elfeed-search-untag-all-unread))
+
+  (add-hook 'elfeed-new-entry-hook
+            (elfeed-make-tagger :feed-url "youtube\\.com"
+                                :add '(video youtube)))
+
+  (bind-keys
+   :map elfeed-search-mode-map
+   ("R" . elfeed-mark-all-as-read))
+
+  )
+
+#+end_src
+
+
+* Aprovisionamiento
+
+#+begin_src emacs-lisp
+(provide 'setup-elfeed)
+#+end_src

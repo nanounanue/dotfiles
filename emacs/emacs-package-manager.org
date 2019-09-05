@@ -129,13 +129,14 @@ Ser /verbose/ es bueno para el /debugging/
 #+end_src
 
 ** Hack para org-mode
+
 #+begin_src emacs-lisp
-;; Our real configuration for Org comes much later. Doing this now
-;; means that if any packages that are installed in the meantime
-;; depend on Org, they will not accidentally cause the Emacs-provided
-;; (outdated and duplicated) version of Org to be loaded before the
-;; real one is registered.
-(straight-use-package 'org)
+(straight-use-package
+ '(org-plus-contrib
+   :repo "https://code.orgmode.org/bzg/org-mode.git"
+   :local-repo "org"
+   :files (:defaults "contrib/lisp/*.el")
+   :includes (org)))
 #+end_src
 
 

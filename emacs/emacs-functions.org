@@ -11,7 +11,11 @@
 #+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
 #+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
 
+* Variables
 
+#+begin_src emacs-lisp
+(setq nanounanue/projects-directory (concat (getenv "HOME") "/projects/"))
+#+end_src
 
 
 * Funciones
@@ -46,6 +50,7 @@
    (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-pdftools.org"))
    (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-package-manager.org"))
    (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-functions.org"))
+   (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-elfeed.org"))
    (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/emacs-global-keys.org"))
    ;;(org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/early-init.org"))
   (org-babel-tangle-file (expand-file-name "~/dotfiles/emacs/init.org")))
@@ -130,6 +135,24 @@ Integrando =org-journal= con =org-capture=
 #+end_src
 
 
+*** Refile
+
+Tomado de [[https://yiming.dev/blog/2018/03/02/my-org-refile-workflow/][aquí]]
+
+#+begin_src emacs-lisp
+(defun nanounanue/org-opened-buffer-files ()
+  "Return the list of files currently opened in emacs"
+  (delq nil
+        (mapcar (lambda (x)
+                  (if (and (buffer-file-name x)
+                           (string-match "\\.org$"
+                                         (buffer-file-name x)))
+                      (buffer-file-name x)))
+                (buffer-list))))
+
+#+end_src
+
+
 *** Templates
 
 *NOTA* También es posible definir el /template/ en un archivo:
@@ -140,12 +163,12 @@ Integrando =org-journal= con =org-capture=
 
 Tomado de [[https://www.reddit.com/r/emacs/comments/8toivy/tip_how_to_manage_your_contacts_with_orgcontacts/][aquí]]
 
-#+begin_src emacs-lisp
-(defvar nanounanue/org-contacts-template "* %(org-contacts-template-name)
+#+begin_src emacs-lisp :tangle no
+(defvar nanounanue/org-contacts-template "* %^{Name Last Name}
 :PROPERTIES:
 :ADDRESS: %^{289 Cleveland St. Brooklyn, 11206 NY, USA}
 :BIRTHDAY: %^{yyyy-mm-dd}
-:EMAIL: %(org-contacts-template-email)
+:EMAIL: %^{email@host.com}
 :NOTE: %^{NOTE}
 :END:" "Template for org-contacts.")
 #+end_src
@@ -235,6 +258,60 @@ variable-pitch face, and MODELINE-HEIGHT for mode-line face."
 
 (add-hook 'after-init-hook 'nanounanue/pyenv-init)
 #+end_src
+
+** JSON
+
+#+begin_src emacs-lisp
+(defun nanounanue/json-mode-before-save-hook ()
+    (when (eq major-mode 'json-mode)
+      (json-pretty-print-buffer-ordered)))
+#+end_src
+
+** PDFTools
+
+Tomadas de [[https://github.com/munen/emacs.d#convenience-functions-when-working-with-pdf-exports][aquí]] y del video https://youtu.be/gfZDwYeBlO4
+
+#+begin_src emacs-lisp
+(defun nanounanue/update-other-buffer ()
+  (interactive)
+  (other-window 1)
+  (revert-buffer nil t)
+  (other-window -1))
+
+(defun nanounanue/md-compile-and-update-other-buffer ()
+  "Has as a premise that it's run from a markdown-mode buffer and the
+   other buffer already has the PDF open"
+  (interactive)
+  (nanounanue/md-compile)
+  (nanounanue/update-other-buffer))
+
+(defun nanounanue/latex-compile-and-update-other-buffer ()
+  "Has as a premise that it's run from a latex-mode buffer and the
+   other buffer already has the PDF open"
+  (interactive)
+  (save-buffer)
+  (shell-command (concat "pdflatex " (buffer-file-name)))
+  (switch-to-buffer (other-buffer))
+  (kill-buffer)
+  (nanounanue/update-other-buffer))
+
+(defun nanounanue/org-compile-beamer-and-update-other-buffer ()
+  "Has as a premise that it's run from an org-mode buffer and the
+   other buffer already has the PDF open"
+  (interactive)
+  (org-beamer-export-to-pdf)
+  (nanounanue/update-other-buffer))
+
+(defun nanounanue/org-compile-latex-and-update-other-buffer ()
+  "Has as a premise that it's run from an org-mode buffer and the
+   other buffer already has the PDF open"
+  (interactive)
+  (org-latex-export-to-pdf)
+  (nanounanue/update-other-buffer))
+
+#+end_src
+
+
 
 ** mu4e
 

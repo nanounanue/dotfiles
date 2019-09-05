@@ -387,10 +387,28 @@ apt install -y silversearcher-ag
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-  (use-package ag
-    ;ensure t
-    :init      (setq ag-highlight-search t)
-    :config    (add-to-list 'ag-arguments "--word-regexp"))
+(use-package ag
+  :init      (setq ag-highlight-search t)
+  :config
+  (setq ag-reuse-window nil)
+  (setq ag-reuse-buffers t)
+  (setq ag-arguments '(
+                       ;; Mandatory arguments for ag.el
+                       ;; As per https://github.com/Wilfred/ag.el/issues/41
+                       "--nogroup"
+                       "--column"
+                       ;; Other args
+                       "--skip-vcs-ignores"
+                       "--line-numbers"
+                       "--smart-case"
+                       "--follow"       ; follow symlinks
+                       "--stats"
+                       ;; It looks like the ~/.agignore is used when
+                       ;; launching ag from emacs too. So the ignores from
+                       ;; ~/.agignore don't have to be set here again.
+                       ))
+  (add-to-list 'ag-arguments "--word-regexp")
+  )
 #+END_SRC
 
 Es posible [[file:~/.agignore][crear una lista de archivos a ignorar]] en las búsquedas
@@ -400,7 +418,7 @@ Es posible [[file:~/.agignore][crear una lista de archivos a ignorar]] en las b�
 #+END_SRC
 
 
-** =[[https://github.com/mhayashi1120/Emacs-wgrep][wgrep]]=
+** [[https://github.com/mhayashi1120/Emacs-wgrep][wgrep]]
 
 Permite editar un /grep buffer/ y aplicar los cambios al /file buffer/
 
@@ -419,9 +437,12 @@ Permite editar un /grep buffer/ y aplicar los cambios al /file buffer/
 #+BEGIN_SRC emacs-lisp
 (use-package wgrep
   :config
-  (require 'wgrep)
-  ;; salva los cambios automáticamente
   (setq wgrep-auto-save-buffer t))
+
+(use-package wgrep-ag
+  :commands (wgrep-ag-setup)
+  :hook
+  (ag-mode . wgrep-ag-setup))
 #+END_SRC
 
 * /Bookmarks/
@@ -761,7 +782,7 @@ para hacer otras cosas a la /medianoche/
 (require 'midnight)
 #+END_SRC
 
-** Auto Completado
+** Auto Completa
 
 *** Company-mode
 
@@ -771,85 +792,54 @@ Además [[https://github.com/vspinu/company-math][company-math]] insertará sím
 (Inicia con un backslash)
 
 #+BEGIN_SRC emacs-lisp
-  (use-package company
-    :diminish
-    :init
-    (setq company-dabbrev-ignore-case t
-          company-show-numbers t)
-    (add-hook 'after-init-hook 'global-company-mode)
-    :config
-     (setq company-idle-delay t)
-    (setq company-tooltip-limit 10)
-    (setq company-minimum-prefix-length 3)
-    :bind ("C-:" . company-complete)  ; In case I don't want to wait
-)
+(use-package company
+  :diminish
+  :init
+  (add-hook 'after-init-hook 'global-company-mode)
+  :custom
+  (company-dabbrev-ignore-case 'keep-prefix)
+  (company-show-numbers t)
+  (company-idle-delay 1)
+  (company-tooltip-limit 10)
+  (company-minimum-prefix-length 3)
+  :bind ("C-:" . company-complete)  ; In case I don't want to wait
+  )
 #+END_SRC
 
-Visualizar un poco de ayuda siempre es bueno ([[https://www.github.com/expez/company-quickhelp][company-quickhelp]])
+Visualizar un poco de ayuda siempre es bueno ([[https://www.github.com/expez/company-quickhelp][company-quickhelp]]),
+(requiere [[https://github.com/pitkali/pos-tip/blob/master/pos-tip.el][pos-tip]]).
 
 #+BEGIN_SRC emacs-lisp
-  (use-package company-quickhelp
-    :config
-    (company-quickhelp-mode 1))
-#+END_SRC
+(use-package pos-tip)
 
-This also requires [[https://github.com/pitkali/pos-tip/blob/master/pos-tip.el][pos-tip]].
+(use-package company-quickhelp
+  :config
+  (company-quickhelp-mode 1))
+#+END_SRC
 
 Obvio autocompletar en el [[https://github.com/Alexander-Miller/company-shell][shell...]]
 
 #+BEGIN_SRC emacs-lisp
 (use-package company-shell
-
   :after company
   :config
   (add-to-list 'company-backends '(company-shell company-shell-env)))
 #+END_SRC
 
+=company-prescient= ordena de manera inteligente los candidatos
+que ofrecerá =company-mode=
+
 #+begin_src emacs-lisp
-  ;; Package `company-prescient' provides intelligent sorting and
-  ;; filtering for candidates in Company completions.
-  (use-package company-prescient
-    :demand t
-    :requires (prescient)
-    :after company
-    :config
-    ;; Use `prescient' for Company menus.
-    (company-prescient-mode +1)
-    (prescient-persist-mode +1)
-    (setq prescient-save-file (expand-file-name "prescient-save.el" temp-dir)))
+(use-package company-prescient
+  :demand t
+  :requires (prescient)
+  :after company
+  :config
+  ;; Use `prescient' for Company menus.
+  (company-prescient-mode +1)
+  (prescient-persist-mode +1)
+  (setq prescient-save-file (expand-file-name "prescient-save.el" temp-dir)))
 #+end_src
-
-*** Yasnippets
-
-   [[https://github.com/capitaomorte/yasnippet][yasnippet]] crea /snippets/ de código que pueden ser insertado en un archivo
-
-   #+BEGIN_SRC emacs-lisp
-(use-package yasnippet
-  :disabled t
-  :delight yas-minor-mode " υ"
-  :diminish yas-minor-mode
-  :hook (yas-minor-mode . nanounanue/disable-yas-if-no-snippets)
-  :config
-  (yas-global-mode)
-  (add-to-list 'company-backends '(company-yasnippet))
-  :preface
-  (defun nanounanue/disable-yas-if-no-snippets ()
-    (when (and yas-minor-mode (null (yas--get-snippet-tables)))
-      (yas-minor-mode -1))))
-   #+END_SRC
-
-**** =yasnippet-snippets=
-
-#+BEGIN_SRC emacs-lisp
-(use-package  yasnippet-snippets
-  :after yasnippet
-  :config
-  (setq yas-snippet-dirs
-        '("~/.emacs.d/snippets"                 ;; personal snippets
-          "~/.emacs.d/elpa/clojure-snippets/snippets"))
-  (yasnippet-snippets-initialize))
-#+END_SRC
-
 
 
 ** Corrector ortográfico
@@ -866,6 +856,7 @@ Obvio autocompletar en el [[https://github.com/Alexander-Miller/company-shell][s
   (if (file-exists-p abbrev-file-name)
       (quietly-read-abbrev-file)))
 #+END_SRC
+
 
 *** Flyspell
    [[http://www.emacswiki.org/emacs/FlySpell][FlySpell]] utiliza =ispell=, pero =aspell= está mejor en
@@ -909,12 +900,11 @@ Obvio autocompletar en el [[https://github.com/Alexander-Miller/company-shell][s
                    ("C-c d e" . nanounanue/change-dictionary-english)))
    #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (use-package flyspell-correct-ivy
   :after (flyspell ivy)
   :init (setq flyspell-correct-interface #'flyspell-correct-ivy))
 #+END_SRC
-
 
 ** Número de líneas
 
@@ -982,45 +972,40 @@ Usaremos el estilo [[https://www.debuggex.com/cheatsheet/regex/pcre][PCRE]] (/[[
 un comando y te detienes, =which-key= abre un /buffer/ inferior con sugerencias.
 
 #+BEGIN_SRC emacs-lisp
-    (use-package which-key
+(use-package which-key
+  :demand t
+  :diminish which-key-mode
+  :config
+  (setq which-key-key-replacement-alist
+        '(("<\\([[:alnum:]-]+\\)>" . "\\1")
+          ("left"                  . "◀")
+          ("right"                 . "▶")
+          ("up"                    . "▲")
+          ("down"                  . "▼")
+          ("delete"                . "DEL") ; delete key
+          ("\\`DEL\\'"             . "BS") ; backspace key
+          ("next"                  . "PgDn")
+          ("prior"                 . "PgUp"))
 
-      :diminish which-key-mode
-      :config
-      ;; Reemplaza como KEY se muestra en pantalla
-      ;;   KEY → FUNCTION
-      ;; Eg: "C-c", display "right → winner-redo" as "▶ → winner-redo"
-      (setq which-key-key-replacement-alist
-            '(("<\\([[:alnum:]-]+\\)>" . "\\1")
-              ("left"                  . "◀")
-              ("right"                 . "▶")
-              ("up"                    . "▲")
-              ("down"                  . "▼")
-              ("delete"                . "DEL") ; delete key
-              ("\\`DEL\\'"             . "BS") ; backspace key
-              ("next"                  . "PgDn")
-              ("prior"                 . "PgUp"))
+        ;; List of "special" keys for which a KEY is displayed as just
+        ;; K but with "inverted video" face... not sure I like this.
+        which-key-special-keys '("RET" "DEL" ; delete key
+                                 "ESC" "BS" ; backspace key
+                                 "SPC" "TAB")
 
-            ;; List of "special" keys for which a KEY is displayed as just
-            ;; K but with "inverted video" face... not sure I like this.
-            which-key-special-keys '("RET" "DEL" ; delete key
-                                     "ESC" "BS" ; backspace key
-                                     "SPC" "TAB")
+        ;; Replacements for how part or whole of FUNCTION is replaced:
+        which-key-description-replacement-alist
+        '(("Prefix Command" . "prefix")
+          ("\\`calc-"       . "") ; Hide "calc-" prefixes when listing M-x calc keys
+          ("\\`projectile-" . "𝓟/")
+          ("\\`org-babel-"  . "ob/"))
 
-            ;; Replacements for how part or whole of FUNCTION is replaced:
-            which-key-description-replacement-alist
-            '(("Prefix Command" . "prefix")
-              ("\\`calc-"       . "") ; Hide "calc-" prefixes when listing M-x calc keys
-              ("\\`projectile-" . "𝓟/")
-              ("\\`org-babel-"  . "ob/"))
-
-            ;; Underlines commands to emphasize some functions:
-            which-key-highlighted-command-list
-            '("\\(rectangle-\\)\\|\\(-rectangle\\)"
-              "\\`org-"))
-
-
-      (which-key-mode)
-      (which-key-setup-minibuffer))
+        ;; Underlines commands to emphasize some functions:
+        which-key-highlighted-command-list
+        '("\\(rectangle-\\)\\|\\(-rectangle\\)"
+          "\\`org-"))
+  (which-key-mode)
+  (which-key-setup-minibuffer))
 #+END_SRC
 
 *** bughunter
@@ -1051,15 +1036,14 @@ Alternativa a la ayuda de Emacs
 *** man
 
 #+BEGIN_SRC emacs-lisp
-  (use-package man
-
-    :config
-    (setq Man-notify-method 'pushy)
-    (setq woman-manpath
-          `(
-            "/usr/share/man/" "/usr/local/man/" ;; System
-            (format "%s/local/man" config-basedir) ;; Private environment
-            )))
+(use-package man
+  :config
+  (setq Man-notify-method 'pushy)
+  (setq woman-manpath
+        `(
+          "/usr/share/man/" "/usr/local/man/" ;; System
+          (format "%s/local/man" config-basedir) ;; Private environment
+          )))
 #+END_SRC
 
 ** Backups
@@ -1067,9 +1051,9 @@ Alternativa a la ayuda de Emacs
 Todos los backups en un sólo lugar (encontrado [[http://whattheemacsd.com/init.el-02.html][aquí]])
 
 #+BEGIN_SRC emacs-lisp
-  (setq backup-directory-alist
-        `(("." . ,(expand-file-name
-                   (concat user-emacs-directory "backups")))))
+(setq backup-directory-alist
+      `(("." . ,(expand-file-name
+                 (concat user-emacs-directory "backups")))))
 #+END_SRC
 
 Tramp también lo tiene que hacer
@@ -1085,15 +1069,14 @@ No importa si están bajo =git=
 
 ** saveplace
 
-#+begin_src emacs-lisp
-  ;; Feature `saveplace' provides a minor mode for remembering the
-  ;; location of point in each file you visit, and returning it there
-  ;; when you find the file again.
-  (use-feature saveplace
-    :demand t
-    :config
+=saveplace= recuerda la posición de cada archivo que visitas,
+preservándola entre sesiones.
 
-    (save-place-mode +1))
+#+begin_src emacs-lisp
+(use-feature saveplace
+  :demand t
+  :config
+  (save-place-mode +1))
 #+end_src
 
 
@@ -1222,19 +1205,6 @@ Org-mode for non-Org buffers
 #+BEGIN_SRC emacs-lisp
 (use-package projectile
   :demand t
-  :preface
-  (defun nanounanue/projectile-compilation-buffers (&optional project)
-    "Get a list of a project's compilation buffers.
-  If PROJECT is not specified the command acts on the current project."
-    (let* ((project-root (or project (projectile-project-root)))
-           (buffer-list (mapcar #'process-buffer compilation-in-progress))
-           (all-buffers (cl-remove-if-not
-                         (lambda (buffer)
-                           (projectile-project-buffer-p buffer project-root))
-                         buffer-list)))
-      (if projectile-buffers-filter-function
-          (funcall projectile-buffers-filter-function all-buffers)
-        all-buffers)))
   :init
   (setq projectile-enable-caching t
         projectile-indexing-method 'alien
@@ -1274,7 +1244,6 @@ Resalta las malas elecciones de palabras entre otras cosas
 
 #+BEGIN_SRC emacs-lisp
 (use-package writegood-mode
-
   :bind ("C-c g" . writegood-mode)
   :config
   (add-to-list 'writegood-weasel-words "actionable"))
@@ -1283,20 +1252,16 @@ Resalta las malas elecciones de palabras entre otras cosas
 *** "distraction-free writing mode"
 
 #+BEGIN_SRC emacs-lisp
-(use-package writeroom-mode
-
-)
+(use-package writeroom-mode)
 #+END_SRC
 
-También se puede usar =[[https://github.com/joaotavora/darkroom][darkroom]]=
+También se puede usar [[https://github.com/joaotavora/darkroom][darkroom]]
 
 #+BEGIN_SRC emacs-lisp
 (use-package darkroom
-
   :bind
   ([f7] . darkroom-tentative-mode))
 #+END_SRC
-
 
 ** Lorem ipsum
 
@@ -1321,7 +1286,6 @@ Muestra los cambios en archivos controlados por =git=
 
 #+BEGIN_SRC emacs-lisp
   (use-package git-gutter-fringe
-
      :diminish git-gutter-mode
      :init (setq git-gutter-fr:side 'right-fringe)
      :config (global-git-gutter-mode t))
@@ -1341,7 +1305,6 @@ Muestra los cambios en archivos controlados por =git=
 | g   | Goto nth revision                                                       |
 | q   | Exit the time machine.                                                  |
 | b   | Run magit-blame on the currently visited revision (if magit available). |
-|     |                                                                         |
 
 #+BEGIN_SRC emacs-lisp
 (use-package git-timemachine)
@@ -1350,10 +1313,10 @@ Muestra los cambios en archivos controlados por =git=
 *** [[https://github.com/rmuslimov/browse-at-remote/tree/master][Browse at remote]]
 
 #+begin_quote
-This package is easiest way to open particular link on github/gitlab/bitbucket/stash/git.savannah.gnu.org/sourcehut from Emacs
+This package is easiest way to open particular link on
+github/gitlab/bitbucket/stash/git.savannah.gnu.org/sourcehut from
+Emacs
 #+end_quote
-
-
 
 #+begin_src emacs-lisp
 (use-package browse-at-remote
@@ -1362,7 +1325,6 @@ This package is easiest way to open particular link on github/gitlab/bitbucket/s
 #+end_src
 
 *** [[https://emacsgifs.github.io/758861381898637313-smerge-mode][Merging conflicts!]]
-
 
 #+begin_src emacs-lisp
 (use-package smerge-mode
@@ -1423,19 +1385,14 @@ This package is easiest way to open particular link on github/gitlab/bitbucket/s
 ** Docker
 
 #+BEGIN_SRC emacs-lisp
-  (use-package docker
+(use-package docker)
 
-)
+(use-package dockerfile-mode
+  :delight dockerfile-mode "δ"
+  :mode "Dockerfile$")
 
-
-  (use-package dockerfile-mode
-
-    :delight dockerfile-mode "δ"
-    :mode "Dockerfile$")
-
-  (use-package docker-compose-mode
-
-               :mode "docker-compose.yml")
+(use-package docker-compose-mode
+  :mode "docker-compose.yml")
 #+END_SRC
 
 ** Magit
@@ -1463,7 +1420,6 @@ This package is easiest way to open particular link on github/gitlab/bitbucket/s
           magit-restore-window-configuration t)
 
     :bind
-                                          ;      ("C-x g" . magit-status)
     ("C-x g s" . magit-status)
     ("C-x g x" . magit-checkout)
     ("C-x g c" . magit-commit)
@@ -1473,7 +1429,7 @@ This package is easiest way to open particular link on github/gitlab/bitbucket/s
     ("C-x g r" . magit-rebase-interactive))
 #+END_SRC
 
-La configuración la tomé de Howard Abrams
+La configuración la tomé de *Howard Abrams*
 
 *** Magit ToDos
 Incluir los =TODOs= en la ventana de =magit=
@@ -1568,12 +1524,14 @@ Tutorial: http://jblevins.org/projects/markdown-mode/
           </style>")))
 #+END_SRC
 
-*** Toc
+*** ToC
+
+Tabla de contenidos (ToC) a partir del /buffer/ de markdown
+
+Crear el ToC: =markdown-toc-generate-or-refresh-toc=
+Actualizar el ToC: =markdown-toc-refresh-toc=
 
 #+begin_src emacs-lisp
-;;; https://github.com/ardumont/markdown-toc
-;; Compute the TOC and insert it at current position: M-x markdown-toc-generate-or-refresh-toc
-;; Update the existing TOC: M-x markdown-toc-refresh-toc
 (use-package markdown-toc)
 #+end_src
 
@@ -1583,12 +1541,7 @@ Tutorial: http://jblevins.org/projects/markdown-mode/
 (use-package json-mode
   :delight json-mode "J"
   :mode "\\.json"
-  :hook (before-save . nanounanue/json-mode-before-save-hook)
-  :preface
-  (defun nanounanue/json-mode-before-save-hook ()
-    (when (eq major-mode 'json-mode)
-      (json-pretty-print-buffer-ordered)))
-  )
+  :hook (before-save . nanounanue/json-mode-before-save-hook))
 
 (use-package json-navigator)
 (use-package json-reformat)
@@ -1597,6 +1550,8 @@ Tutorial: http://jblevins.org/projects/markdown-mode/
 ** jq
 
 Para editar /scripts/ de [[https://stedolan.github.io/jq/][=jq=]]
+
+Como =sed= pero para =JSON=
 
 #+begin_src shell :dir /sudo::
 apt install -y jq
@@ -1617,14 +1572,12 @@ apt install -y jq
 
 #+BEGIN_SRC emacs-lisp
 (use-package yaml-mode
-
   :mode "\\.ya?ml"
   :config
   (add-hook 'yaml-mode-hook 'flycheck-mode)
-  (add-hook 'yaml-mode-hook 'flyspell-mode)
-  )
-(use-package yaml-tomato
-)
+  (add-hook 'yaml-mode-hook 'flyspell-mode))
+
+(use-package yaml-tomato)
 #+END_SRC
 
 
@@ -1638,8 +1591,7 @@ apt install -y plantuml
 (use-package plantuml-mode
   :mode "\\.plantuml"
   :config
-  (setq plantuml-jar-path "~/software/org-libs/plantuml.jar")
-  )
+  (setq plantuml-jar-path "~/software/org-libs/plantuml.jar"))
 #+END_SRC
 
 
@@ -1651,11 +1603,9 @@ apt install -y graphviz
 
 #+BEGIN_SRC emacs-lisp
 (use-package graphviz-dot-mode
-
   :mode "\\.dot"
   :init
-  (defvar default-tab-width nil)
-  )
+  (defvar default-tab-width nil))
 #+END_SRC
 
 
@@ -1663,22 +1613,17 @@ apt install -y graphviz
 
 #+BEGIN_SRC emacs-lisp
 (use-package csv-mode
-
   :mode "\\.[PpTtCc][Ss][Vv]\\'"
-
   :config
   (progn
-    (setq csv-separators '("," ";" "|" " " "\t"))
-    )
-  )
+    (setq csv-separators '("," ";" "|" " " "\t"))))
 #+END_SRC
 
 
 ** SSH
 
 #+BEGIN_SRC emacs-lisp
-(use-package ssh
-)
+(use-package ssh)
 #+END_SRC
 
 [[https://github.com/cjohansson/emacs-ssh-deploy][ssh-deploy]]
@@ -1752,14 +1697,15 @@ functions that can be easily used by custom scripts.
 | =C-c C-w [< > ']=     | navegar entre /window config/       |
 
 #+BEGIN_SRC emacs-lisp
-  (use-package eyebrowse
-    :config
-    (eyebrowse-mode)
+(use-package eyebrowse
+  :config
+  (eyebrowse-mode)
   (set-face-attribute 'eyebrowse-mode-line-active nil :underline t :bold nil))
 #+END_SRC
 
-
 * Pegar
+
+** Webpaste
 
 #+BEGIN_QUOTE
 This mode allows to paste whole buffers or parts of buffers to
@@ -1771,9 +1717,10 @@ failover if one service fails.
 
 #+BEGIN_SRC emacs-lisp
 (use-package webpaste
-  :defer 1
   :custom (webpaste-provider-priority '("ix.io" "dpaste.com")))
 #+END_SRC
+
+** Imgbb
 
 #+BEGIN_QUOTE
  This package (=imgbb=) selects an image and upload it to imgbb, making sure to
@@ -1782,7 +1729,7 @@ failover if one service fails.
 #+END_QUOTE
 
 #+BEGIN_SRC emacs-lisp
-(use-package imgbb :defer 2)
+(use-package imgbb)
 #+END_SRC
 
 * Archivos recientes
@@ -1981,8 +1928,6 @@ Copiado desde [[https://github.com/dakrone/eos/blob/master/eos-web.org][EOS]]
     "http://www.wikipedia.org/search-redirect.php?language=en&go=Go&search=%s"
     :keybinding "w"))
 #+end_src
-
-
 
 * Finalmente ...
 

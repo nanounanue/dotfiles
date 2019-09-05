@@ -153,6 +153,18 @@ Ajustando las fuentes dependiendo del tamaño del monitor
   (add-hook 'text-mode-hook 'typo-mode))
 #+END_SRC
 
+Por último habilitamos en el mismo /buffer/ paralabras con /pitch/
+variable (para texto) y fijas (para código)
+
+#+begin_src emacs-lisp
+(use-package mixed-pitch
+  :demand t
+  :hook
+  (text-mode . mixed-pitch-mode))
+#+end_src
+
+
+
 ** Paréntesis
 
 Agrega /face/ a los paréntesis, de tal manera que los temas puedan oscurecerlos
@@ -294,9 +306,9 @@ Por el momento uso [[https://github.com/Malabarba/smart-mode-line/][smart-mode-l
 (use-package smart-mode-line
   :demand t
   :config
+  (setq sml/shorten-directory t)
+  (setq sml/shorten-modes t)
   (setq sml/no-confirm-load-theme t)
-  (setq sml/shorten-directory t
-        sml/shorten-modes t)
   (sml/setup))
 #+END_SRC
 
@@ -372,6 +384,33 @@ Por el momento uso [[https://github.com/Malabarba/smart-mode-line/][smart-mode-l
   ("C-<next>" . centaur-tabs-forward))
 #+end_src
 
+* Clientes
+
+** [[https://github.com/syohex/emacs-emamux/][Emamux]]
+
+¡Controla =tmux= desde Emacs!
+
+#+begin_src emacs-lisp
+(use-package emamux)
+#+end_src
+
+** Pocket Reader
+
+Uno de los elementos *indispensables* para una experiencia de lectura
+rica es =pocket=:
+
+#+begin_src emacs-lisp
+(use-package pocket-reader)
+#+end_src
+
+La primera vez, ejecuta
+
+#+begin_src emacs-lisp
+(pocket-reader)
+#+end_src
+
+
+Y luego sigue las instrucciones.
 
 
 * Al final

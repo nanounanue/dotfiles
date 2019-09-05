@@ -8,17 +8,18 @@
 #+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
 #+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
 #+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+TAGS: tmux
 
 * Tmux
 
 ** Instalar tmux
 
 #+BEGIN_SRC sh :tangle no :dir /sudo::
-apt install libevent-dev
+apt install libevent-dev autotools-dev automake
 #+END_SRC
 
 #+BEGIN_SRC sh :tangle no :dir ~/software
-git clone https://github.com/tmux/tmux.git 
+git clone https://github.com/tmux/tmux.git
 #+END_SRC
 
 #+BEGIN_SRC sh :tangle no :dir ~/software/tmux
@@ -31,229 +32,102 @@ make
 make install
 #+END_SRC
 
-** Installar tmux plugins
+** Instalar tmux plugins
 
 #+BEGIN_SRC sh :tangle no
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 #+END_SRC
 
 
-**  Configuración local: =tmux.conf=
-#+BEGIN_SRC sh :tangle ~/.tmux.conf
-set -g history-limit 50000
+** Instalar =tmuxp=
+
+[[https://tmuxp.git-pull.com/en/latest/examples.html][Ejemplos]]
+
+
+#+begin_src shell :tangle no
+pip install tmuxp
+#+end_src
+
+** Configuración local: =tmux.conf=
+:PROPERTIES:
+:header-args:shell: :tangle ~/.tmux.conf
+:END:
+
+Mucho, mucho de esta configuración está basado en [[https://medium.com/free-code-camp/tmux-in-practice-series-of-posts-ae34f16cfab0][esta serie]] de
+/posts/ de *Alexey Samoshkin*
+
+*** General
+
+#+begin_src shell
+set -g default-terminal "screen-256color"
+setw -g xterm-keys on
+set -s escape-time 10                      # Secuencias de comandos más rápidas
+set -sg repeat-time 600                    # Incrementar el timeout en las repeticiones
+set -g focus-events on
+
+set -q -g status-utf8 on                   # usar utf-8 (tmux < 2.2)
+setw -q -g utf8 on
+
+set -g history-limit 50000                 # Mucha historia
 
 set -s escape 1 # Cambiando el delay al mandar comandos
 
-set -g base-index 1 # El índice de las ventanas empieza en 1
-set -g pane-base-index 1 # El índice de los páneles empieza en 1
-
-setw -g automatic-rename on # rename window to reflect current program
-set -g renumber-windows on  # renumber windows when a window is closed
-
-set -g set-titles on                        # set terminal title
-set -g set-titles-string '#h ❐ #S ● #I #W'
-
-set -g display-panes-time 800 # slightly longer pane indicators display time
-set -g display-time 1500      # slightly longer status messages display time (3s)
-
-set -g status-interval 10     # redraw status line every 10 seconds
-
-bind r source-file ~/.tmux.conf \; display "¡Recargado!"  # Ctrl-b r recarga el archivo de configuración de tmux
-
-# new window and retain cwd
-bind c new-window -c "#{pane_current_path}"
-
-# Prompt to rename window right after it's created
-set-hook -g after-new-window 'command-prompt -I "#{window_name}" "rename-window '%%'"'
-
-
-bind C-b send-prefix # Para usarlo con aplicaciones (hay que presionar dos veces)
-
-# División de la ventana
-bind | split-window -h -c "#{pane_current_path}"  # Divide la pantalla horizontalmente
-bind - split-window -v -c "#{pane_current_path}" # Divide la pantalla verticalmente
-
-
-# Movimiento entre páneles
-bind h select-pane -L
-bind j select-pane -D
-bind k select-pane -U
-bind l select-pane -R
-
-bind > swap-pane -D       # swap current pane with the next one
-bind < swap-pane -U       # swap current pane with the previous one
-
-
-# Movimiento circular entre ventanas
-bind -r C-h select-window -t :-
-bind -r C-l select-window -t :+
-
-# Cambiando el tamaño de los páneles
-bind -r H resize-pane -L 5
-bind -r J resize-pane -D 5
-bind -r K resize-pane -U 5
-bind -r L resize-pane -R 5
-
-bind b list-buffers
-bind p paste-buffer
-bind P choose-buffer
+# super useful when using "grouped sessions" and multi-monitor setup
+setw -g aggressive-resize on
 
 # Habilitando el mouse
 set -g mouse off
+set -g set-titles-string '#h ❐ #S ● #I #W'
 
-# Copiar al clipboard
+# emacs key bindings in tmux command prompt (prefix + :) are better than
+# vi keys, even for vim users
+set -g status-keys emacs
+#+end_src
+
+*** /Hooks/
+
+Prompt to rename window right after it's created
+
+#+begin_src shell
+#set-hook -g after-new-window 'command-prompt -I "#{window_name}" "rename-window '%%'"'
+#+end_src
+
+*** Copiar al /clipboard/
+
+#+begin_src shell
 bind-key -T copy-mode M-w send-keys -X copy-pipe-and-cancel "xclip -selection clipboard -i"
+#+end_src
 
-set -g default-terminal "screen-256color"
+*** /Bindings/: =Ctrl-b=
 
-set -g monitor-activity on # Monitorizar la actividad en las ventanas
-set -g visual-activity on
+Recarga el archivo de configuración de tmux
 
-
-# Despliegue de la barra de estatus
-set -g status-left-length 70
-set -g status-left "#[fg=green]: #h : #[fg=brightblue]#(curl icanhazip.com) #[fg=yellow]#(ifconfig en0 | grep 'inet ' | awk '{print \"en0 \" $2}') #(ifconfig en1 | grep 'inet ' | awk '{print \"en1 \" $2}') #[fg=red]#(ifconfig tun0 | grep 'inet ' | awk '{print \"vpn \" $2}') "
-
-# Muestra la sesión, la ventana, el panel, fecha y hora
-set -g status-right-length 60
-set -g status-right "#[fg=blue]#S #I:#P #[fg=yellow]:: %d %b %Y #[fg=green]:: %l:%M %p :: #(date -u | awk '{print $4}')::"
-
-set -g status-interval 60 # Actualización de la barra
-
-set -g status-justify centre # Centramos la lista de ventanas
-
-# =====================================
-# ===           Theme               ===
-# =====================================
-
-# Feel free to NOT use this variables at all (remove, rename)
-# this are named colors, just for convenience
-color_orange="colour166" # 208, 166
-color_purple="colour134" # 135, 134
-color_green="colour076" # 070
-color_blue="colour39"
-color_yellow="colour220"
-color_red="colour160"
-color_black="colour232"
-color_white="white" # 015
-
-# This is a theme CONTRACT, you are required to define variables below
-# Change values, but not remove/rename variables itself
-color_dark="$color_black"
-color_light="$color_white"
-color_session_text="$color_blue"
-color_status_text="colour245"
-color_main="$color_orange"
-color_secondary="$color_purple"
-color_level_ok="$color_green"
-color_level_warn="$color_yellow"
-color_level_stress="$color_red"
-color_window_off_indicator="colour088"
-color_window_off_status_bg="colour238"
-color_window_off_status_current_bg="colour254"
-
-# =====================================
-# ===    Appearence and status bar  ===
-# ======================================
-
-set -g mode-style "fg=default,bg=$color_main"
-
-# command line style
-set -g message-style "fg=$color_main,bg=$color_dark"
-
-# status line style
-set -g status-style "fg=$color_status_text,bg=$color_dark"
-
-# window segments in status line
-set -g window-status-separator ""
-separator_powerline_left=""
-separator_powerline_right=""
-
-# setw -g window-status-style "fg=$color_status_text,bg=$color_dark"
-setw -g window-status-format " #I:#W "
-setw -g window-status-current-style "fg=$color_light,bold,bg=$color_main"
-setw -g window-status-current-format "#[fg=$color_dark,bg=$color_main]$separator_powerline_right#[default] #I:#W# #[fg=$color_main,bg=$color_dark]$separator_powerline_right#[default]"
-
-# when window has monitoring notification
-setw -g window-status-activity-style "fg=$color_main"
-
-# outline for active pane
-setw -g pane-active-border-style "fg=$color_main"
-
-# general status bar settings
-set -g status on
-set -g status-interval 5
-set -g status-position bottom
-set -g status-justify left
-set -g status-right-length 100
-
-# define widgets we're going to use in status bar
-# note, that this is not the complete list, some of them are loaded from plugins
-wg_session="#[fg=$color_session_text] #S #[default]"
-wg_battery="#{battery_status_fg} #{battery_icon} #{battery_percentage}"
-wg_date="#[fg=$color_secondary]%d %b %Y :: %l:%M %p #[default]"
-wg_user_host="#[fg=$color_secondary]#(whoami)#[default]@#H"
-wg_is_zoomed="#[fg=$color_dark,bg=$color_secondary]#{?window_zoomed_flag,[Z],}#[default]"
-# TODO: highlighted for nested local session as well
-wg_is_keys_off="#[fg=$color_light,bg=$color_window_off_indicator]#([ $(tmux show-option -qv key-table) = 'off' ] && echo 'OFF')#[default]"
-
-set -g status-left "$wg_session"
-set -g status-right "#{prefix_highlight} $wg_is_keys_off $wg_is_zoomed #{sysstat_cpu} | #{sysstat_mem} | #{sysstat_loadavg} | $wg_user_host | $wg_date $wg_battery #{online_status}"
-
-# online and offline icon for tmux-online-status
-set -g @online_icon "#[fg=$color_level_ok]●#[default]"
-set -g @offline_icon "#[fg=$color_level_stress]●#[default]"
-
-# Configure view templates for tmux-plugin-sysstat "MEM" and "CPU" widget
-set -g @sysstat_mem_view_tmpl 'MEM:#[fg=#{mem.color}]#{mem.pused}#[default] #{mem.used}'
-
-# Configure colors for tmux-plugin-sysstat "MEM" and "CPU" widget
-set -g @sysstat_cpu_color_low "$color_level_ok"
-set -g @sysstat_cpu_color_medium "$color_level_warn"
-set -g @sysstat_cpu_color_stress "$color_level_stress"
-
-set -g @sysstat_mem_color_low "$color_level_ok"
-set -g @sysstat_mem_color_medium "$color_level_warn"
-set -g @sysstat_mem_color_stress "$color_level_stress"
-
-set -g @sysstat_swap_color_low "$color_level_ok"
-set -g @sysstat_swap_color_medium "$color_level_warn"
-set -g @sysstat_swap_color_stress "$color_level_stress"
+#+begin_src shell
+bind r source-file ~/.tmux.conf \; display "¡tmux.conf Recargado!"
+#+end_src
 
 
-# Configure tmux-battery widget colors
-set -g @batt_color_full_charge "#[fg=$color_level_ok]"
-set -g @batt_color_high_charge "#[fg=$color_level_ok]"
-set -g @batt_color_medium_charge "#[fg=$color_level_warn]"
-set -g @batt_color_low_charge "#[fg=$color_level_stress]"
+Limpia la pantalla y la historia
 
-# Configure tmux-prefix-highlight colors
-set -g @prefix_highlight_output_prefix '['
-set -g @prefix_highlight_output_suffix ']'
-set -g @prefix_highlight_fg "$color_dark"
-set -g @prefix_highlight_bg "$color_secondary"
-set -g @prefix_highlight_show_copy_mode 'on'
-set -g @prefix_highlight_copy_mode_attr "fg=$color_dark,bg=$color_secondary"
+#+begin_src shell
+bind -n C-l send-keys C-l \; run 'sleep 0.1' \; clear-history
+#+end_src
 
 
+Nueva ventana y retiene el /cureent working directory/
+
+#+begin_src shell
+bind c new-window -c "#{pane_current_path}"
+#+end_src
 
 
+#+begin_src shell
+bind C-b send-prefix # Para usarlo con aplicaciones (hay que presionar dos veces)
 
-# ==================================================
-# === Window monitoring for activity and silence ===
-# ==================================================
-bind m setw monitor-activity \; display-message 'Monitor window activity [#{?monitor-activity,ON,OFF}]'
-bind M if -F '#{monitor-silence}' \
-    'setw monitor-silence 0 ; display-message "Monitor window silence [OFF]"' \
-    'command-prompt -p "Monitor silence: interval (s)" "setw monitor-silence %%"'
+bind b list-buffers        # Lista paste buffers
+bind p paste-buffer        # paste from el top paste buffer
+bind P choose-buffer       # escoge a cual buffer pegar
 
-
-
-# Swap panes back and forth with 1st pane
-# When in main-(horizontal|vertical) layouts, the biggest/widest panel is always @1
-bind \ if '[ #{pane_index} -eq 1 ]' \
-     'swap-pane -s "!"' \
-     'select-pane -t:.1 ; swap-pane -d -t 1 -s "!"'
 
 # Kill pane/window/session shortcuts
 bind x kill-pane
@@ -277,10 +151,201 @@ bind D if -F '#{session_many_attached}' \
 # Hide status bar on demand
 bind C-s if -F '#{s/off//:status}' 'set status off' 'set status on'
 
+# Swap panes back and forth with 1st pane
+# When in main-(horizontal|vertical) layouts, the biggest/widest panel is always @1
+bind \ if '[ #{pane_index} -eq 1 ]' \
+     'swap-pane -s "!"' \
+     'select-pane -t:.1 ; swap-pane -d -t 1 -s "!"'
 
-# =====================================
-# ===        Renew environment      ===
-# =====================================
+# División de la ventana
+bind | split-window -h -c "#{pane_current_path}"  # Divide la pantalla horizontalmente
+bind - split-window -v -c "#{pane_current_path}" # Divide la pantalla verticalmente
+
+# Cambiando el tamaño de los páneles
+bind -r H resize-pane -L 5
+bind -r J resize-pane -D 5
+bind -r K resize-pane -U 5
+bind -r L resize-pane -R 5
+
+# create session
+bind C-c new-session
+
+# find session
+bind C-f command-prompt -p find-session 'switch-client -t %%'
+#+END_SRC
+
+*** Monitoreo de ventanas
+
+#+begin_src shell
+bind m setw monitor-activity \; display-message 'Monitor window activity [#{?monitor-activity,ON,OFF}]'
+bind M if -F '#{monitor-silence}' \
+    'setw monitor-silence 0 ; display-message "Monitor window silence [OFF]"' \
+    'command-prompt -p "Monitor silence: interval (s)" "setw monitor-silence %%"'
+#+end_src
+
+*** [[https://github.com/tmux-plugins/tpm][Plugins]]: TPM
+
+
+*Key bindings*
+
+| prefix + | Action                                                    |
+|----------+-----------------------------------------------------------|
+| i        | Instala nuevos /plugins/ desde algún repositorio de =git= |
+| u        | Actualiza los /plugins/                                   |
+| Alt + u  | Desinstala los /plugins/ que ya no están listados         |
+
+**** El siguiente /script/ instala los plugins de manera automática
+
+#+begin_src shell
+if "test ! -d ~/.tmux/plugins/tpm" \
+   "run 'git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && ~/.tmux/plugins/tpm/bin/install_plugins'"
+#+end_src
+
+
+
+**** Listado de /plugins/
+
+#+begin_src shell
+set -g @plugin 'tmux-plugins/tpm'
+#+end_src
+
+**** CPU
+#+begin_src shell
+set -g @plugin 'tmux-plugins/tmux-cpu'
+#+end_src
+
+**** Red
+
+#+begin_src shell
+set -g @plugin 'tmux-plugins/tmux-net-speed'
+set -g @net_speed_interfaces "eth0 eth1"
+
+set -g @download_speed_format "%10s"
+set -g @upload_speed_format "%10s"
+set -g @net_speed_format "D:%10s U:%10s"
+#+end_src
+
+**** [[https://github.com/tmux-plugins/tmux-battery][Batería]]
+
+#+begin_src shell
+set -g @plugin 'tmux-plugins/tmux-battery'
+#+end_src
+
+**** /Sidebar/
+
+| prefix + t         | toggle sidebar with a directory tree            |
+| prefix + w         | toggle sidebar and move cursor to it (focus it) |
+
+
+#+begin_src shell
+set -g @plugin 'tmux-plugins/tmux-sidebar'
+
+set -g @sidebar-tree 't'
+set -g @sidebar-tree-focus 'w'
+set -g @sidebar-tree-command 'tree -C'
+#+end_src
+
+**** [[https://github.com/tmux-plugins/tmux-yank][/Yank/]]
+
+#+begin_src shell
+set -g @plugin 'tmux-plugins/tmux-yank'
+#+end_src
+
+
+**** [[https://github.com/tmux-plugins/tmux-prefix-highlight][Highlight]]
+
+#+begin_src shell
+set -g @plugin 'tmux-plugins/tmux-prefix-highlight'
+
+#set -g @prefix_highlight_fg 'white' # default is 'colour231'
+#set -g @prefix_highlight_bg 'blue'  # default is 'colour04'
+set -g @prefix_highlight_show_copy_mode 'on'
+#set -g @prefix_highlight_copy_mode_attr 'fg=black,bg=yellow,bold' # default is 'fg=default,bg=yellow'
+set -g @prefix_highlight_prefix_prompt 'Wait'
+set -g @prefix_highlight_copy_prompt 'Copy'
+#+end_src
+
+**** [[https://github.com/tmux-plugins/tmux-online-status][Online]]
+
+#+begin_src shell
+set -g @plugin 'tmux-plugins/tmux-online-status'
+#+end_src
+
+
+**** [[https://github.com/tmux-plugins/tmux-resurrect][Resurrect]] and [[https://github.com/tmux-plugins/tmux-continuum][continuum]]
+
+- Resurrect
+
+| prefix + Ctrl-s | save    |
+| prefix + Ctrl-r | restore |
+
+
+
+#+begin_src shell
+set -g @plugin 'tmux-plugins/tmux-resurrect'
+set -g @plugin 'tmux-plugins/tmux-continuum'
+#+end_src
+
+**** Tema
+
+***** Nord
+
+#+begin_src shell
+set -g @plugin "arcticicestudio/nord-tmux"
+set -g @nord_tmux_no_patched_font "0"
+#+end_src
+
+***** /[[https://github.com/jimeh/tmux-themepack][Themepack]]/
+
+#+begin_src shell
+#set -g @plugin 'jimeh/tmux-themepack'
+#set -g @themepack 'powerline/block/cyan'
+#+end_src
+
+***** [[https://github.com/seebi/tmux-colors-solarized][Solarized]]
+
+#+begin_src shell
+#set -g @plugin 'seebi/tmux-colors-solarized'
+
+#set -g @colors-solarized '256'
+#set -g @colors-solarized 'dark'
+#set -g @colors-solarized 'light'
+#set -g @colors-solarized 'base16'
+#+end_src
+
+
+*** Status bar
+
+#+begin_src shell
+#set -g status-right "#{cpu_icon}"
+#set -g status-right '#{cpu_bg_color} CPU: #{cpu_icon} #{cpu_percentage} | %a %h-%d %H:%M '
+#set -g status-right "Online: #{online_status} Speed: #{net_speed} Continuum status: #{continuum_status} #{battery_status_bg} Batt: #{battery_icon} #{battery_percentage} #{battery_remain} H: #{prefix_highlight} | %a %h-%d %H:%M "
+#+end_src
+
+*** /Display/
+
+#+begin_src shell
+set -g base-index 1 # El índice de las ventanas empieza en 1
+set -g pane-base-index 1 # El índice de los páneles empieza en 1
+
+setw -g automatic-rename on # rename window to reflect current program
+set -g renumber-windows on  # renumber windows when a window is closed
+
+set -g set-titles on                        # set terminal title
+
+set -g display-panes-time 800 # slightly longer pane indicators display time
+set -g display-time 1500      # slightly longer status messages display time (1.5s)
+
+set -g status-interval 5     # redraw status line every 10 seconds
+
+set -g monitor-activity on # Monitorizar la actividad en las ventanas
+set -g visual-activity on
+#+end_src
+
+
+*** Renovar el environment
+
+#+begin_src shell
 set -g update-environment \
   "DISPLAY\
   SSH_ASKPASS\
@@ -293,40 +358,39 @@ set -g update-environment \
 
 bind '$' run "~/dotfiles/renew_env.sh"
 
+#+end_src
 
-# ==============================================
-# ===            Plugins                     ===
-# ==============================================
+*** Navegación
+
+#+begin_src shell
+# Movimiento entre páneles
+bind h select-pane -L
+bind j select-pane -D
+bind k select-pane -U
+bind l select-pane -R
+
+bind > swap-pane -D       # swap current pane with the next one
+bind < swap-pane -U       # swap current pane with the previous one
+
+# Movimiento circular entre ventanas
+unbind n
+unbind p
+bind -r C-p previous-window # select previous window
+bind -r C-n next-window     # select next window
+bind Tab last-window        # move to last active window
+
+#+end_src
+
+** Nesting Remote tmux sessions inside our local tmux
+:PROPERTIES:
+:header-args:shell: :tangle ~/.tmux.conf
+:END:
+
+Para que esto funcione, =tmux= debe de estar instalado en el servidor
+=SSH= y ambos archivos de configuración deben de estar en él.
 
 
-
-# List of plugins
-set -g @plugin 'tmux-plugins/tpm'
-
-set -g @plugin 'tmux-plugins/tmux-resurrect'
-set -g @plugin 'tmux-plugins/tmux-continuum'
-
-set -g @plugin 'tmux-plugins/tmux-battery'
-set -g @plugin 'tmux-plugins/tmux-prefix-highlight'
-set -g @plugin 'tmux-plugins/tmux-online-status'
-set -g @plugin 'tmux-plugins/tmux-sidebar'
-set -g @plugin 'tmux-plugins/tmux-copycat'
-set -g @plugin 'tmux-plugins/tmux-open'
-set -g @plugin 'samoshkin/tmux-plugin-sysstat'
-
-# Plugin properties
-set -g @sidebar-tree 't'
-set -g @sidebar-tree-focus 'T'
-set -g @sidebar-tree-command 'tree -C'
-
-set -g @open-S 'https://www.google.com/search?q='
-
-
-
-# ==============================================
-# ===   Nesting local and remote sessions     ===
-# ==============================================
-
+#+begin_src shell
 # Session is considered to be remote when we ssh into host
 if-shell 'test -n "$SSH_CLIENT"' \
     'source-file ~/.tmux.remote.conf'
@@ -342,9 +406,9 @@ if-shell 'test -n "$SSH_CLIENT"' \
 bind -T root F12  \
     set prefix None \;\
     set key-table off \;\
-    set status-style "fg=$color_status_text,bg=$color_window_off_status_bg" \;\
-    set window-status-current-format "#[fg=$color_window_off_status_bg,bg=$color_window_off_status_current_bg]$separator_powerline_right#[default] #I:#W# #[fg=$color_window_off_status_current_bg,bg=$color_window_off_status_bg]$separator_powerline_right#[default]" \;\
-    set window-status-current-style "fg=$color_dark,bold,bg=$color_window_off_status_current_bg" \;\
+    #set status-style "fg=$color_status_text,bg=$color_window_off_status_bg" \;\
+    #set window-status-current-format "#[fg=$color_window_off_status_bg,bg=$color_window_off_status_current_bg]$separator_powerline_right#[default] #I:#W# #[fg=$color_window_off_status_current_bg,bg=$color_window_off_status_bg]$separator_powerline_right#[default]" \;\
+    #set window-status-current-style "fg=$color_dark,bold,bg=$color_window_off_status_current_bg" \;\
     if -F '#{pane_in_mode}' 'send-keys -X cancel' \;\
     refresh-client -S \;\
 
@@ -355,16 +419,25 @@ bind -T off F12 \
   set -u window-status-current-style \;\
   set -u window-status-current-format \;\
   refresh-client -S
+#+end_src
 
-# Run all plugins' scripts
-run '~/.tmux/plugins/tpm/tpm'
 
-#+END_SRC
+** Run all plugins' scripts
+:PROPERTIES:
+:header-args:shell: :tangle ~/.tmux.conf
+:END:
 
-* =tmux.remote.conf=
+#+begin_src shell
+run -b '~/.tmux/plugins/tpm/tpm'
+#+end_src
 
-#+BEGIN_SRC sh :tangle ~/.tmux.remote.conf
 
+** Configuración remota: =tmux.remote.conf=
+:PROPERTIES:
+:header-args:shell: :tangle ~/.tmux.remote.conf
+:END:
+
+#+BEGIN_src shell
 # show status bar at top for remote session,
 # so it do not stack together with local session's one
 set -g status-position top
@@ -373,6 +446,6 @@ set -g status-position top
 set -g @copy_backend_remote_tunnel_port 11988
 
 # In remote mode we don't show "clock" and "battery status" widgets
-set -g status-left "$wg_session"
-set -g status-right "#{prefix_highlight} $wg_is_keys_off $wg_is_zoomed #{sysstat_cpu} | #{sysstat_mem} | #{sysstat_loadavg} | $wg_user_host | #{online_status}"
+#set -g status-left "$wg_session"
+#set -g status-right "#{prefix_highlight} $wg_is_keys_off $wg_is_zoomed #{sysstat_cpu} | #{sysstat_mem} | #{sysstat_loadavg} | $wg_user_host | #{online_status}"
 #+END_SRC

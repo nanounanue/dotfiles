@@ -14,9 +14,8 @@
 * Links de interés
 - [[https://sam217pa.github.io/2016/09/13/from-helm-to-ivy/][From helm to ivy]]
 - [[http://oremacs.com/2015/04/16/ivy-mode/][Descripción de ivy]]
-- [[https://truthseekers.io/lessons/how-to-use-ivy-swiper-counsel-in-emacs-for-noobs/][how to use ivy swiper counsel in emacs for noobs]]
+- [[https://truthseekers.io/lessons/how-to-use-ivy-swiper-counsel-in-emacs-for-noobs/][How to use ivy swiper counsel in emacs for noobs]]
 - [[https://emacs.stackexchange.com/a/37307/10848][Find and replace a text among the files of a project]]
-
 
 * smex, un reemplazo de =M-x=
 
@@ -202,7 +201,7 @@ Sistema genérico de completado. Reemplaza a =ido=
 
 ** Pegar con yasnippet
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (use-package ivy-yasnippet :after yasnippet)
 #+END_SRC
 

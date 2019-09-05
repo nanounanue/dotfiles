@@ -75,6 +75,18 @@ Ya viene incluido con =use-package=, sólo hay que activarlo
 (global-set-key (kbd "C-x w") 'browse-url-at-point)
 #+end_src
 
+** Elfeed
+
+#+begin_src emacs-lisp
+;(global-set-key (kbd "C-x ") 'elfeed)
+#+end_src
+
+** Emamux
+
+#+begin_src emacs-lisp
+;(global-set-key (kbd "C-z") emamux:keymap)
+#+end_src
+
 * Fin
 
 #+begin_src emacs-lisp

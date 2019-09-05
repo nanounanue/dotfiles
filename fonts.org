@@ -65,9 +65,9 @@ rm overpass-desktop-fonts.zip
 ** Iosevka
 
 #+BEGIN_SRC shell :dir ~/.fonts
-wget  https://github.com/be5invis/Iosevka/releases/download/v2.1.0/iosevka-ss09-2.1.0.zip && \
-unzip iosevka-ss09-2.1.0.zip  && \
-rm iosevka-ss09-2.1.0.zip
+wget  https://github.com/be5invis/Iosevka/releases/download/v2.3.0/01-iosevka-2.3.0.zip && \
+unzip 01-iosevka-2.3.0.zip  && \
+rm 01-iosevka-2.3.0.zip
 #+END_SRC
 
 ** Fira

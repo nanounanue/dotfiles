@@ -24,7 +24,7 @@
 * Org-plus-contrib
 
 #+begin_src emacs-lisp
-(use-package org-plus-contrib)
+;(use-package org-plus-contrib)
 #+end_src
 
 * Org-mode
@@ -291,18 +291,10 @@ Org Capture Templates are explained [[http://orgmode.org/manual/Capture-template
 	         "* TODO %? |- (%:description) :BOOKMARK:\n:PROPERTIES:\n:CREATED: %U\n:Source: %:link\n:END:\n%i\n" :clock-in t :clock-resume t)
              	("s" "Selection from browser" entry (file "~/Sync/org/inbox.org")
 	         "* TODO %? :BOOKMARK:\n%(replace-regexp-in-string \"\n.*\" \"\" \"%i\")\n:PROPERTIES:\n:CREATED: %U\n:Source: %:link\n:END:\n%i\n" :clock-in t :clock-resume t)
-                                        ;("j" "Journal" entry (file+olp+datetree "~/Sync/org/diary.org")
-                                        ; "**** %U \n %? \n %a \n" :clock-in t :clock-resume t :tree-type week)
                 ("j" "Journal" entry (function nanounanue/org-journal-find-location)
                  "* %(format-time-string org-journal-time-format)%^{Title}\n%i%?")
-                ("c" "Contactos") ;; Tomado de https://joshrollinswrites.com/help-desk-head-desk/sub-menus-in-org/
-                ("ca" "Amistades"  entry
-                 (file+headline "~/Sync/org/contactos.org" "Amistades") nanounanue/org-contacts-template :empty-lines 1 :clock-in t)
-                ("ct" "Trabajo" entry
-                 (file+headline "~/Sync/org/contactos.org" "Trabajo")
-                 nanounanue/org-contacts-template :empty-lines 1 :clock-in t)
-                ("cf" "Familia" entry
-                 (file+headline "~/Sync/org/contactos.org" "Familia") nanounanue/org-contacts-template :empty-lines 1 :clock-in t)
+                ("c" "Contactos" entry (file+headline "~/Sync/org/contactos.org" "Contactos")
+                 "* %^{Name Last Name}\n:PROPERTIES:\n:ADDRESS: %^{289 Cleveland St. Brooklyn, 11206 NY, USA}\n:BIRTHDAY: %^{yyyy-mm-dd}\n:EMAIL: %^{email@host.com}\n:NOTE: %^{NOTE}\n:END:" :empty-lines 1)
                 ("b" "Book/Bibliography" entry (file+headline "~/Sync/org/research/bibliography.org" "Refile")
                  "* %?%^{TITLE}p%^{AUTHOR}p%^{TYPE}p")
                 ("n" "Note" entry (file "~/Sync/org/notes.org")
@@ -318,8 +310,12 @@ Org Capture Templates are explained [[http://orgmode.org/manual/Capture-template
 (use-feature org
   :demand t
   :config
+  (setq org-projects-files (directory-files-recursively nanounanue/projects-directory "\\.org$"))
+
   ;; Targets include this file and any file contributing to the agenda - up to 9 levels deep
   (setq org-refile-targets (quote ((nil :maxlevel . 9)
+                                   (org-projects-files :maxlevel . 9)
+                                   (nanounanue/org-opened-buffer-files :maxlevel . 9)   ;; buffers abiertos
                                    (org-agenda-files :maxlevel . 9))))
 
   ;; Use full outline paths for refile targets
@@ -335,6 +331,25 @@ para guardar.
 
 Por último, recuerda hacer =C-c C-w= para /refile/ la nota al lugar correspondiente.
 
+* /Tags/
+
+#+begin_src emacs-lisp
+(setq org-tag-alist '(
+  (:startgroup . nil)
+    ("home" . ?h)
+    ("work" . ?w)
+  (:endgroup . nil)
+  (:startgroup . nil)
+    ("@errands" . ?e)
+    ("@house" . ?s)
+    ("@now" . ?n)
+    ("@online" . ?o)
+    ("@phone" . ?p)
+    ("@campus" . ?c)
+    ("@office" . ?f)
+  (:endgroup . nil)
+))
+#+end_src
 
 * Literate Programming
 
@@ -504,60 +519,12 @@ Esto también lo vamos a ocupar
 (use-package jupyter
   :after ob
   :demand t
-  :init
-  (defun jupyter-run-repl-or-pop-to-buffer-dwim ()
-    "If a buffer is already associated with a jupyter buffer,
-then pop to it. Otherwise start a jupyter kernel."
-    (interactive)
-    (if (bound-and-true-p jupyter-current-client)
-        (jupyter-repl-pop-to-buffer)
-      (call-interactively #'jupyter-run-repl)))
-
-  ;; * eldoc integration
-  (defun scimax-jupyter-signature ()
-    "Try to return a function signature for the thing at point."
-    (when (and (eql major-mode 'org-mode)
-               (string= (or (get-text-property (point) 'lang) "") "jupyter-python"))
-      (save-window-excursion
-     ;;; Essentially copied from (jupyter-inspect-at-point).
-        (jupyter-org-with-src-block-client
-         (cl-destructuring-bind (code pos)
-             (jupyter-code-context 'inspect)
-           (jupyter-inspect code pos nil 0)))
-        (when (get-buffer "*Help*")
-          (with-current-buffer "*Help*"
-            (goto-char (point-min))
-            (prog1
-                (cond
-                 ((re-search-forward "Signature:" nil t 1)
-                  (buffer-substring (line-beginning-position) (line-end-position)))
-                 ((re-search-forward "Docstring:" nil t 1)
-                  (forward-line)
-                  (buffer-substring (line-beginning-position) (line-end-position)))
-                 (t
-                  nil))
-              ;; get rid of this so we don't accidentally show old results later
-              (with-current-buffer "*Help*"
-                (toggle-read-only)
-                (erase-buffer))))))))
-
-  (defun scimax-jupyter-eldoc-advice (orig-func &rest args)
-    "Advice function to get eldoc signatures in blocks in org-mode."
-    (or (scimax-jupyter-signature) (apply orig-func args)))
-
-
-  (defun scimax-jupyter-turn-on-eldoc ()
-    "Turn on eldoc signatures."
-    (interactive)
-    (advice-add 'org-eldoc-documentation-function :around #'scimax-jupyter-eldoc-advice))
-
   :config
-
   (add-to-list 'org-babel-load-languages '(jupyter . t))
   (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
 
+  (org-babel-jupyter-override-src-block "python")
 
-  (scimax-jupyter-turn-on-eldoc)
 
   ;; More readable repl traceback for Spacemacs Theme.
   (set-face-attribute 'jupyter-repl-traceback nil :background "wheat1")
@@ -635,98 +602,520 @@ como sigue:
 
 ** LaTeX
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :noweb yes
 (use-feature ox-latex
   :after ox
   :demand t
   :custom
   (org-latex-compiler "xelatex")
-  (org-latex-pdf-process '("%latex -shell-escape -interaction nonstopmode -output-directory %o %f" "%latex -interaction nonstopmode -output-directory %o %f" "%latex -interaction nonstopmode -output-directory %o %f"))
+  (org-latex-bib-compiler "biber")
+  (org-latex-default-class "scrartcl")
+  (org-latex-pdf-process '(
+                           "%latex -shell-escape -interaction nonstopmode -output-directory %o %f"
+                           "%latex -shell-escape -interaction nonstopmode -output-directory %o %f"
+                           "%latex -shell-escape -interaction nonstopmode -output-directory %o %f"))
   :config
-  (setq org-export-latex-listings 'minted)
-                                        ;(add-to-list 'org-latex-minted-langs '(jupyter "python"))
+  ;; Bloques bonitos
+  (setq org-latex-listings 'minted)
   ;; Need to let ox know about ipython and jupyter
   (add-to-list 'org-latex-minted-langs '(ipython "python"))
   (add-to-list 'org-babel-tangle-lang-exts '("ipython" . "py"))
   (add-to-list 'org-latex-minted-langs '(jupyter-python "python"))
   (add-to-list 'org-babel-tangle-lang-exts '("jupyter-python" . "py"))
+  (add-to-list 'org-latex-minted-langs '(shell "bash"))
+  (add-to-list 'org-latex-minted-langs '(sh "bash"))
 
-  (setq org-export-latex-minted-options
-        '(("frame" "lines")
-          ("fontsize" "\\scriptsize")
-          ("linenos" "")
-          ))
-  (setq org-latex-title-command "")
+
+  ;; (setq org-export-latex-minted-options
+  ;;       '(("frame" "lines")
+  ;;         ("fontsize" "\\scriptsize")
+  ;;         ("linenos=true" "")
+  ;;         ("mathescape")
+  ;;         ))
+
+  ;;(setq org-latex-title-command "")
 
   (setq org-latex-prefer-user-labels t)
 
-  (setq org-latex-default-packages-alist
-        '(("AUTO" "inputenc" t)
-          ("" "lmodern" nil)
-          ("T1" "fontenc" t)
-          ("" "fixltx2e" nil)
-          ("" "graphicx" t)
-          ("" "longtable" nil)
-          ("" "float" nil)
-          ("" "wrapfig" nil)
-          ("" "rotating" nil)
-          ("normalem" "ulem" t)
-          ("" "amsmath" t)
-          ("" "textcomp" t)
-          ("" "marvosym" t)
-          ("" "color" t)
-          ("" "wasysym" t)
-          ("" "amssymb" t)
-          ("" "amsmath" t)
-          ("version=3" "mhchem" t)
-          ("numbers,super,sort&compress" "natbib" nil)
-          ("" "natmove" nil)
-          ("" "url" nil)
-          ("" "minted" nil)
-          ("" "listings" nil)
-          ("" "underscore" nil)
-          ("linktocpage,pdfstartview=FitH,colorlinks,
-  linkcolor=blue,anchorcolor=blue,
-  citecolor=blue,filecolor=blue,menucolor=blue,urlcolor=blue"
-           "hyperref" nil)
-          ("" "attachfile" nil)))
   ;; Borra los archivos intermedios al exportar
   (setq org-latex-logfiles-extensions
-        '("lof" "lot" "tex=" "aux" "idx" "log" "out" "toc" "nav" "snm" "vrb"
+        '("lof" "lot" "tex=" "aux" "idx" "log" "out" "toc" "nav" "snm" "vrb" "glo" "acn" "alg" "acr"
           "dvi" "fdb_latexmk" "blg" "brf" "fls" "entoc" "ps" "spl" "bbl"))
-  ;; Bloques bonitos
-  (setq org-latex-listings 'listings)
 
   ;; Templates
-  (add-to-list 'org-latex-classes
-               '("IEEEtran" "\\documentclass[11pt]{IEEEtran}"
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))
-               t)
 
+  <<ox-latex-chapter>>
+
+  <<ox-latex-KOMA>>
+
+  <<ox-latex-tufte-book>>
+
+  <<ox-latex-beamer>>
+
+  <<ox-latex-assign>>
+
+  <<ox-latex-mimore>>
+
+  <<ox-latex-mimosis>>
+
+  <<ox-latex-elsarticle>>
+
+  )
+#+END_SRC
+
+
+Para usar un /template/ agregar al archivo
+
+#+BEGIN_SRC org :tangle no
+#+LATEX_CLASS: tufte-book
+#+END_SRC
+
+** Pandoc
+
+Para aprovechar [[https://github.com/kawabata/ox-pandoc][ox-pandoc]] es necesario tener una versión reciente de
+=pandoc=.
+
+
+#+BEGIN_SRC shell :dir /sudo::
+VERSION=$(curl --silent "https://api.github.com/repos/jgm/pandoc/releases/latest" | jq -r .tag_name) && \
+wget  -q -O /tmp/pandoc.deb https://github.com/jgm/pandoc/releases/download/${VERSION}/pandoc-${VERSION}-1-amd64.deb && \
+dpkg -i /tmp/pandoc.deb
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package ox-pandoc
+  :demand t
+  :after ox)
+#+END_SRC
+
+
+** TWBS
+
+#+BEGIN_SRC emacs-lisp
+(use-package ox-twbs
+  :demand t
+  :after ox)
+#+END_SRC
+
+
+** Github Markdown
+#+BEGIN_SRC emacs-lisp
+(use-package ox-gfm
+  :demand t
+  :after ox)
+#+END_SRC
+
+
+** Tufte
+
+#+BEGIN_SRC emacs-lisp
+(use-package ox-tufte
+  :demand t
+  :after ox)
+#+END_SRC
+
+
+** EPUB
+
+#+BEGIN_SRC emacs-lisp
+(use-package ox-epub
+  :demand t
+  :after ox)
+#+END_SRC
+
+
+** RST
+
+#+BEGIN_SRC emacs-lisp
+(use-package ox-rst
+  :demand t
+  :after ox)
+#+END_SRC
+
+
+** AsciiDoc
+
+#+BEGIN_SRC emacs-lisp
+(use-package ox-asciidoc
+  :demand t
+  :after ox)
+#+END_SRC
+
+
+** Clipboard
+
+Necesita =xclip=
+
+#+BEGIN_SRC shell  :dir /sudo::
+apt install -y xclip
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ox-clip
+    :after ox)
+#+END_SRC
+
+* Presentaciones
+
+** Reveal
+
+
+[[https://github.com/yjwen/org-reveal][ox-reveal]] para crear slides en *HTML*
+
+#+BEGIN_SRC shell :dir /tmp
+wget -O reveal.tar.gz https://github.com/hakimel/reveal.js/archive/3.7.0.tar.gz && \
+tar zxf /tmp/reveal.tar.gz -C ~/software/js/revealjs --strip-component 1
+#+END_SRC
+
+
+#+BEGIN_SRC emacs-lisp :tangle no
+(use-package ox-reveal
+  :disabled t
+  :after org
+  :custom
+  (org-reveal-mathjax t)
+  (org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
+                                        ;(org-reveal-root (concat "file://" (getenv "HOME") "/software/js/revealjs"))
+  (org-reveal-postamble "Adolfo De Unánue"))
+#+END_SRC
+
+Al parecer =ox-reveal= [[https://github.com/yjwen/org-reveal/issues/363#issuecomment-460270780][no está siendo mantenido]], la alternativa
+propuesta en el mismo lugar es el [[https://gitlab.com/oer/org-re-reveal][fork]] =org-re-reveal=:
+
+#+begin_src emacs-lisp
+(use-package org-re-reveal
+  :after ox
+  :demand t
+  :custom
+  (org-re-reveal-mathjax t)
+  (org-re-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
+                                        ;(org-reveal-root (concat "file://" (getenv "HOME") "/software/js/revealjs"))
+  (org-re-reveal-postamble "Adolfo De Unánue"))
+#+end_src
+
+** epresent
+
+/Simple presentation mode for Emacs Org-mode/
+
+ - Call epresent-run on an org-buffer.
+ - press t / 1 to view the top level of the presentation
+ - navigate the presentation with n/f, p/b
+ - go to a specific page with v <num> RET
+ - scroll with k and l
+ - use c and C to navigate between code blocks, e to edit them, x to
+  make it run, and s / S to toggle their visibility
+ - quit with q
+
+
+
+#+begin_src emacs-lisp
+(use-package epresent)
+#+end_src
+
+** [[https://zck.me/zpresent][zpresent]]
+
+/A presentation framework for Emacs/
+
+[[https://bitbucket.org/zck/zpresent.el/src/default/tutorial.org][Tutorial]]
+
+#+begin_src emacs-lisp
+(use-package zpresent)
+#+end_src
+
+* Apariencia
+
+Los /bullets/ hacen más presentable =org-mode=
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-bullets
+  :demand t
+  :after org
+  :hook
+  (org-mode . (lambda () (org-bullets-mode 1))))
+#+END_SRC
+
+* Tomar notas
+
+** =interleave=
+
+Del sitio [[https://github.com/rudolfochrist/interleave][web]]:
+
+#+BEGIN_QUOTE
+Some history, what this is all about
+
+In the past, textbooks were sometimes published as interleaved
+editions. That meant, each page was followed by a blank page and
+ambitious students/scholars had the ability to take their notes
+directly in their copy of the textbook. Newton and Kant were prominent
+representatives of this technique [fn:blumbach].
+
+Nowadays textbooks (or lecture material) come in PDF format. Although
+almost every PDF Reader has the ability to add some notes to the PDF
+itself, it is not as powerful as it could be. This is what this Emacs
+minor mode tries to accomplish. It presents your PDF side by side to
+an Org Mode buffer with you notes. Narrowing down to just those
+passages that are relevant to this particular page in the document
+viewer.
+
+In a later step it should be possible to create truly interleaved PDFs of your notes.
+#+END_QUOTE
+
+#+BEGIN_SRC emacs-lisp
+  (use-package interleave
+    :after org
+    :bind ("C-x i" . interleave-mode)
+    :config
+    (setq interleave-split-direction 'horizontal
+          interleave-split-lines 20
+          interleave-disable-narrowing t))
+#+END_SRC
+
+
+** [[https://github.com/weirdNox/org-noter][org-noter]]
+
+#+begin_src emacs-lisp
+(use-package org-noter
+  :after org
+  ;ensure t
+  :config
+  (setq org-noter-default-notes-file-names '("notes.org")
+        org-noter-notes-search-path '("~/Sync/org/research/notes"))
+  (setq org-noter-separate-notes-from-heading t)
+  )
+#+end_src
+
+**  =org-ref=
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-ref
+  :defer t
+  :after org
+  :demand t
+  :init
+  (setq reftex-default-bibliography '("~/Sync/org/research/research.bib"))
+
+  ;; see org-ref for use of these variables
+  (setq org-ref-bibliography-notes "~/Sync/org/research/notes.org"
+        org-ref-pdf-directory "~/Sync/org/referencias/"
+        org-latex-prefer-user-labels t
+        bibtex-completion-pdf-field "file"
+        org-ref-default-citation-link "parencite")
+:config
+
+  (defun org-ref-grep-pdf (&optional _candidate)
+    "Search pdf files of marked CANDIDATEs."
+    (interactive)
+    (let ((keys (helm-marked-candidates))
+          (get-pdf-function org-ref-get-pdf-filename-function))
+      (helm-do-pdfgrep-1
+       (-remove (lambda (pdf)
+                  (string= pdf ""))
+                (mapcar (lambda (key)
+                          (funcall get-pdf-function key))
+                        keys)))))
+
+  (defun org-ref-open-pdf-at-point-in-emacs ()
+    "Open the pdf for bibtex key under point if it exists."
+    (interactive)
+    (let* ((results (org-ref-get-bibtex-key-and-file))
+           (key (car results))
+           (pdf-file (funcall org-ref-get-pdf-filename-function key)))
+      (if (file-exists-p pdf-file)
+          (find-file-other-window pdf-file)
+        (message "no pdf found for %s" key)))))
+#+END_SRC
+
+
+
+* [[https://github.com/sprig/org-capture-extension][Org protocol]]
+
+** Preparando el sistema operativo para el [[https://addons.mozilla.org/en-US/firefox/addon/org-capture/?src=search][add-on in de firefox]]
+
+Registramos =emacs= como el encargado de manejar las peticiones de la
+extensión de Firefox
+
+#+BEGIN_SRC shell
+mkdir -p ~/.local/share/applications
+#+END_SRC
+
+
+#+BEGIN_SRC shell :dir ~/.local/share/applications
+cat > "org-protocol.desktop" << EOF
+[Desktop Entry]
+Name=org-protocol
+Exec=emacsclient %u
+Type=Application
+Terminal=false
+Categories=System;
+MimeType=x-scheme-handler/org-protocol;
+EOF
+#+END_SRC
+
+Actualizamos la base de datos de manejadores
+
+#+BEGIN_SRC shell
+update-desktop-database ~/.local/share/applications/
+#+END_SRC
+
+** Configuración *en* emacs
+
+#+BEGIN_SRC emacs-lisp :tangle no
+(use-feature org-protocol
+  :after org
+  :demand t
+  :config
+  (defun transform-square-brackets-to-round-ones(string-to-transform)
+    "Transforms [ into ( and ] into ), other chars left unchanged."
+    (concat
+     (mapcar #'(lambda (c) (if (equal c ?[) ?\( (if (equal c ?]) ?\) c))) string-to-transform))
+    )
+
+
+  (add-to-list 'org-capture-templates
+               '("p" "Protocol" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
+                 "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?"))
+
+  (add-to-list 'org-capture-templates
+               '("L" "Protocol Link" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
+                 "* %? [[%:link][%(transform-square-brackets-to-round-ones \"%:description\")]]\n"))
+)
+#+END_SRC
+
+* Org LaTeX classes
+
+** Chapter
+
+#+begin_src emacs-lisp :tangle no :noweb-ref ox-latex-chapter
+(add-to-list 'org-latex-classes
+	     '("chapter"
+             "\\documentclass[11pt]{report}
+             [NO-DEFAULT-PACKAGES]
+             [PACKAGES]
+             [EXTRA]\n"
+	       ("\\chapter{%s}" . "\\chapter*{%s}")
+	       ("\\section{%s}" . "\\section*{%s}")
+	       ("\\subsection{%s}" . "\\subsection*{%s}")
+	       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+#+end_src
+
+** KOMA
+
+
+#+begin_src emacs-lisp :tangle no :noweb-ref ox-latex-KOMA
+(add-to-list 'org-latex-classes
+	     '("titledblocks"
+                "\\documentclass[11pt]{scrartcl}
+                [NO-DEFAULT-PACKAGES]
+                [PACKAGES]
+                [EXTRA]\n"
+	       ("\\paragraph{%s}" . "\\paragraph*{%s}")))
+
+(add-to-list 'org-latex-classes
+	     '("scrartcl"
+                "\\documentclass[11pt]{scrartcl}
+                [NO-DEFAULT-PACKAGES]
+                [PACKAGES]
+                [EXTRA]\n"
+	       ("\\section{%s}" . "\\section*{%s}")
+	       ("\\subsection{%s}" . "\\subsection*{%s}")
+	       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+	       ("\\paragraph{%s}" . "\\paragraph*{%s}")
+	       ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+
+(add-to-list 'org-latex-classes
+	     '("scrreprt"
+               "\\documentclass[11pt]{scrreprt}
+                [NO-DEFAULT-PACKAGES]
+                [PACKAGES]
+                [EXTRA]\n"
+	       ("\\chapter{%s}" . "\\chapter*{%s}")
+	       ("\\section{%s}" . "\\section*{%s}")
+	       ("\\subsection{%s}" . "\\subsection*{%s}")
+	       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+
+(add-to-list 'org-latex-classes
+	     '("scrbook"
+               "\\documentclass[11pt]{scrbook}
+               [NO-DEFAULT-PACKAGES]
+               [PACKAGES]
+               [EXTRA]\n"
+	       ("\\part{%s}" . "\\part*{%s}")
+	       ("\\chapter{%s}" . "\\chapter*{%s}")
+	       ("\\section{%s}" . "\\section*{%s}")
+	       ("\\subsection{%s}" . "\\subsection*{%s}")
+	       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+
+(add-to-list 'org-latex-classes
+	     `("scrlttr2"
+	       ,(concat "\\documentclass\[a4paper\]\{scrlttr2\}\n"
+			"\[NO-DEFAULT-PACKAGES]\n"
+			"\[NO-PACKAGES]\n"
+			"\\usepackage\{fixltx2e\}\n"
+			"\\usepackage\{fontspec\}\n"
+			"\\usepackage\{microtype\}\n"
+			"\\usepackage\{polyglossia\}\n"
+			"\\setdefaultlanguage[variant=british]\{english\}\n"
+			"\\usepackage\{libertine\}\n"
+			"\\usepackage\[normalem\]\{ulem\}\n"
+			"\\usepackage\{amsmath\}\n"
+			"\\usepackage\{hyperref\}\n")
+	       ("\\section\{%s\}" . "\\section*\{%s\}")
+	       ("\\subsection\{%s\}" . "\\subsection*\{%s\}")
+("\\subsubsection\{%s\}" . "\\subsubsection*\{%s\}")))
+#+end_src
+
+
+** [[https://tufte-latex.github.io/tufte-latex/][Tufte]]
+
+*** Tufte-book
+
+#+begin_src emacs-lisp :tangle no :noweb-ref ox-latex-tufte-book
   (add-to-list 'org-latex-classes
-               '(("tufte-book"
-                  "\\documentclass[a4paper, sfsidenotes, justified, notitlepage]{tufte-book}
-            \\input{/full/path/to/.templates/tufte-book.tex}"
+               '("tufte-book"
+                 "\\documentclass[a4paper, sfsidenotes, justified, notitlepage]{tufte-book}
+                 [NO-DEFAULT-PACKAGES]
+                 [PACKAGES]
+                 [EXTRA]"
                   ("\\part{%s}" . "\\part*{%s}")
                   ("\\chapter{%s}" . "\\chapter*{%s}")
                   ("\\section{%s}" . "\\section*{%s}")
-                  ("\\subsection{%s}" . "\\subsection*{%s}"))))
+                  ("\\subsection{%s}" . "\\subsection*{%s}")))
+#+end_src
 
+*** Tufte-handout
+
+#+begin_src emacs-lisp :tangle no :noweb-ref ox-latex-tufte-book
+  (add-to-list 'org-latex-classes
+               '("tufte-handout"
+                 "\\documentclass[a4paper]{tufte-handout}
+                  [NO-DEFAULT-PACKAGES]
+                  [PACKAGES]
+                  [EXTRA]"
+                  ("\\part{%s}" . "\\part*{%s}")
+                  ("\\chapter{%s}" . "\\chapter*{%s}")
+                  ("\\section{%s}" . "\\section*{%s}")
+                  ("\\subsection{%s}" . "\\subsection*{%s}")))
+#+end_src
+
+
+** Beamer
+
+#+begin_src emacs-lisp :tangle no :noweb-ref ox-latex-beamer
   ;; https://github.com/fniessen/refcard-org-beamer
   (add-to-list 'org-latex-classes
                `("beamer"
                  ,(concat "\\documentclass[presentation]{beamer}\n"
-                          "[DEFAULT-PACKAGES]"
+                          "[NO-DEFAULT-PACKAGES]"
                           "[PACKAGES]"
                           "[EXTRA]\n")
                  ("\\section{%s}" . "\\section*{%s}")
                  ("\\subsection{%s}" . "\\subsection*{%s}")
                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+#+end_src
 
+** Assign
+
+#+begin_src emacs-lisp :tangle no :noweb-ref ox-latex-assign
   (add-to-list 'org-latex-classes
                '("assign"
                  "\\documentclass{article}
@@ -858,381 +1247,60 @@ como sigue:
                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
                  ("\\paragraph{%s}" . "\\paragraph*{%s}")
                  ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+#+end_src
 
+** Mimore
 
+#+begin_src emacs-lisp :tangle no :noweb-ref ox-latex-mimore
   ;; Mimore class is a latex class for writing articles.
   (add-to-list 'org-latex-classes
                '("mimore"
                  "\\documentclass{mimore}
- [NO-DEFAULT-PACKAGES]
- [PACKAGES]
- [EXTRA]"
+                  [NO-DEFAULT-PACKAGES]
+                  [PACKAGES]
+                  [EXTRA]"
                  ("\\section{%s}" . "\\section*{%s}")
                  ("\\subsection{%s}" . "\\subsection*{%s}")
                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
                  ("\\paragraph{%s}" . "\\paragraph*{%s}")
                  ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+#+end_src
 
+** Mimosis
+#+begin_src emacs-lisp :tangle no :noweb-ref ox-latex-mimosis
   ;; Mimosis is a class I used to write my Ph.D. thesis.
   (add-to-list 'org-latex-classes
                '("mimosis"
                  "\\documentclass{mimosis}
- [NO-DEFAULT-PACKAGES]
- [PACKAGES]
- [EXTRA]
-\\newcommand{\\mboxparagraph}[1]{\\paragraph{#1}\\mbox{}\\\\}
-\\newcommand{\\mboxsubparagraph}[1]{\\subparagraph{#1}\\mbox{}\\\\}"
+                   [NO-DEFAULT-PACKAGES]
+                   [PACKAGES]
+                   [EXTRA]
+                   \\newcommand{\\mboxparagraph}[1]{\\paragraph{#1}\\mbox{}\\\\}
+                     \\newcommand{\\mboxsubparagraph}[1]{\\subparagraph{#1}\\mbox{}\\\\}"
                  ("\\chapter{%s}" . "\\chapter*{%s}")
                  ("\\section{%s}" . "\\section*{%s}")
                  ("\\subsection{%s}" . "\\subsection*{%s}")
                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
                  ("\\mboxparagraph{%s}" . "\\mboxparagraph*{%s}")
                  ("\\mboxsubparagraph{%s}" . "\\mboxsubparagraph*{%s}")))
+#+end_src
 
+** Elsarticle
+
+#+begin_src emacs-lisp :tangle no :noweb-ref ox-latex-elsarticle
   ;; Elsarticle is Elsevier class for publications.
   (add-to-list 'org-latex-classes
                '("elsarticle"
                  "\\documentclass{elsarticle}
- [NO-DEFAULT-PACKAGES]
- [PACKAGES]
- [EXTRA]"
+                  [NO-DEFAULT-PACKAGES]
+                  [PACKAGES]
+                  [EXTRA]"
                  ("\\section{%s}" . "\\section*{%s}")
                  ("\\subsection{%s}" . "\\subsection*{%s}")
                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
                  ("\\paragraph{%s}" . "\\paragraph*{%s}")
                  ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-
-
-  )
-
-
-#+END_SRC
-
-
-Para usar un /template/ agregar al archivo
-
-#+BEGIN_SRC org :tangle no
-#+LATEX_CLASS: tufte-book
-#+END_SRC
-
-** Pandoc
-
-Para aprovechar [[https://github.com/kawabata/ox-pandoc][ox-pandoc]] es necesario tener una versión reciente de
-=pandoc=.
-
-
-#+BEGIN_SRC shell :dir /sudo::
-VERSION=$(curl --silent "https://api.github.com/repos/jgm/pandoc/releases/latest" | jq -r .tag_name) && \
-wget  -q -O /tmp/pandoc.deb https://github.com/jgm/pandoc/releases/download/${VERSION}/pandoc-${VERSION}-1-amd64.deb && \
-dpkg -i /tmp/pandoc.deb
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-(use-package ox-pandoc
-  :demand t
-  :after ox)
-#+END_SRC
-
-
-** TWBS
-
-#+BEGIN_SRC emacs-lisp
-(use-package ox-twbs
-  :demand t
-  :after ox)
-#+END_SRC
-
-
-** Github Markdown
-#+BEGIN_SRC emacs-lisp
-(use-package ox-gfm
-  :demand t
-  :after ox)
-#+END_SRC
-
-
-** Tufte
-
-#+BEGIN_SRC emacs-lisp
-(use-package ox-tufte
-  :demand t
-  :after ox)
-#+END_SRC
-
-
-** EPUB
-
-#+BEGIN_SRC emacs-lisp
-(use-package ox-epub
-  :demand t
-  :after ox)
-#+END_SRC
-
-
-** RST
-
-#+BEGIN_SRC emacs-lisp
-(use-package ox-rst
-  :demand t
-  :after ox)
-#+END_SRC
-
-
-** AsciiDoc
-
-#+BEGIN_SRC emacs-lisp
-(use-package ox-asciidoc
-  :demand t
-  :after ox)
-#+END_SRC
-
-
-** Clipboard
-
-Necesita =xclip=
-
-#+BEGIN_SRC shell  :dir /sudo::
-apt install -y xclip
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-  (use-package ox-clip
-    :after ox)
-#+END_SRC
-
-* Presentaciones
-
-** Reveal
-
-
-[[https://github.com/yjwen/org-reveal][ox-reveal]] para crear slides en *HTML*
-
-#+BEGIN_SRC shell :dir /tmp
-wget -O reveal.tar.gz https://github.com/hakimel/reveal.js/archive/3.7.0.tar.gz && \
-tar zxf /tmp/reveal.tar.gz -C ~/software/js/revealjs --strip-component 1
-#+END_SRC
-
-
-#+BEGIN_SRC emacs-lisp :tangle no
-(use-package ox-reveal
-  :disabled t
-  :after org
-  :custom
-  (org-reveal-mathjax t)
-  (org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
-                                        ;(org-reveal-root (concat "file://" (getenv "HOME") "/software/js/revealjs"))
-  (org-reveal-postamble "Adolfo De Unánue"))
-#+END_SRC
-
-Al parecer =ox-reveal= [[https://github.com/yjwen/org-reveal/issues/363#issuecomment-460270780][no está siendo mantenido]], la alternativa
-propuesta en el mismo lugar es el [[https://gitlab.com/oer/org-re-reveal][fork]] =org-re-reveal=:
-
-#+begin_src emacs-lisp
-(use-package org-re-reveal
-  :config
-  (require 'org-re-reveal)
-  :custom
-  (org-re-reveal-mathjax t)
-  (org-re-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
-                                        ;(org-reveal-root (concat "file://" (getenv "HOME") "/software/js/revealjs"))
-  (org-re-reveal-postamble "Adolfo De Unánue"))
 #+end_src
-
-** epresent
-
-/Simple presentation mode for Emacs Org-mode/
-
- - Call epresent-run on an org-buffer.
- - press t / 1 to view the top level of the presentation
- - navigate the presentation with n/f, p/b
- - go to a specific page with v <num> RET
- - scroll with k and l
- - use c and C to navigate between code blocks, e to edit them, x to
-  make it run, and s / S to toggle their visibility
- - quit with q
-
-
-
-#+begin_src emacs-lisp
-(use-package epresent)
-#+end_src
-
-** [[https://zck.me/zpresent][zpresent]]
-
-/A presentation framework for Emacs/
-
-[[https://bitbucket.org/zck/zpresent.el/src/default/tutorial.org][Tutorial]]
-
-#+begin_src emacs-lisp
-(use-package zpresent)
-#+end_src
-
-* Apariencia
-
-Los /bullets/ hacen más presentable =org-mode=
-
-#+BEGIN_SRC emacs-lisp
-(use-package org-bullets
-  :demand t
-  :after org
-  :hook
-  (org-mode . (lambda () (org-bullets-mode 1))))
-#+END_SRC
-
-* Tomar notas
-
-** =interleave=
-
-Del sitio [[https://github.com/rudolfochrist/interleave][web]]:
-
-#+BEGIN_QUOTE
-Some history, what this is all about
-
-In the past, textbooks were sometimes published as interleaved
-editions. That meant, each page was followed by a blank page and
-ambitious students/scholars had the ability to take their notes
-directly in their copy of the textbook. Newton and Kant were prominent
-representatives of this technique [fn:blumbach].
-
-Nowadays textbooks (or lecture material) come in PDF format. Although
-almost every PDF Reader has the ability to add some notes to the PDF
-itself, it is not as powerful as it could be. This is what this Emacs
-minor mode tries to accomplish. It presents your PDF side by side to
-an Org Mode buffer with you notes. Narrowing down to just those
-passages that are relevant to this particular page in the document
-viewer.
-
-In a later step it should be possible to create truly interleaved PDFs of your notes.
-#+END_QUOTE
-
-#+BEGIN_SRC emacs-lisp
-  (use-package interleave
-    :after org
-    :bind ("C-x i" . interleave-mode)
-    :config
-    (setq interleave-split-direction 'horizontal
-          interleave-split-lines 20
-          interleave-disable-narrowing t))
-#+END_SRC
-
-
-** [[https://github.com/weirdNox/org-noter][org-noter]]
-
-#+begin_src emacs-lisp
-(use-package org-noter
-  :after org
-  ;ensure t
-  :config
-  (setq org-noter-default-notes-file-names '("notes.org")
-        org-noter-notes-search-path '("~/Sync/org/research/notes"))
-  (setq org-noter-separate-notes-from-heading t)
-  )
-#+end_src
-
-**  =org-ref=
-
-#+BEGIN_SRC emacs-lisp
-(use-package org-ref
-  :defer t
-  :after org
-  :demand t
-  :init
-  (setq reftex-default-bibliography '("~/Sync/org/research/research.bib"))
-
-  ;; see org-ref for use of these variables
-  (setq org-ref-bibliography-notes "~/Sync/org/research/notes.org"
-        org-ref-pdf-directory "~/Sync/org/referencias/"
-        org-latex-prefer-user-labels t
-        bibtex-completion-pdf-field "file"
-        org-ref-default-citation-link "parencite"
-        org-latex-pdf-process
-        '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-          "bibtex %b"
-          "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-          "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f")))
-:config
-
-  (defun org-ref-grep-pdf (&optional _candidate)
-    "Search pdf files of marked CANDIDATEs."
-    (interactive)
-    (let ((keys (helm-marked-candidates))
-          (get-pdf-function org-ref-get-pdf-filename-function))
-      (helm-do-pdfgrep-1
-       (-remove (lambda (pdf)
-                  (string= pdf ""))
-                (mapcar (lambda (key)
-                          (funcall get-pdf-function key))
-                        keys)))))
-
-  (defun org-ref-open-pdf-at-point-in-emacs ()
-    "Open the pdf for bibtex key under point if it exists."
-    (interactive)
-    (let* ((results (org-ref-get-bibtex-key-and-file))
-           (key (car results))
-           (pdf-file (funcall org-ref-get-pdf-filename-function key)))
-      (if (file-exists-p pdf-file)
-          (find-file-other-window pdf-file)
-        (message "no pdf found for %s" key))))
-
-#+END_SRC
-
-
-
-* [[https://github.com/sprig/org-capture-extension][Org protocol]]
-
-** Preparando el sistema operativo para el [[https://addons.mozilla.org/en-US/firefox/addon/org-capture/?src=search][add-on in de firefox]]
-
-Registramos =emacs= como el encargado de manejar las peticiones de la
-extensión de Firefox
-
-#+BEGIN_SRC shell
-mkdir -p ~/.local/share/applications
-#+END_SRC
-
-
-#+BEGIN_SRC shell :dir ~/.local/share/applications
-cat > "org-protocol.desktop" << EOF
-[Desktop Entry]
-Name=org-protocol
-Exec=emacsclient %u
-Type=Application
-Terminal=false
-Categories=System;
-MimeType=x-scheme-handler/org-protocol;
-EOF
-#+END_SRC
-
-Actualizamos la base de datos de manejadores
-
-#+BEGIN_SRC shell
-update-desktop-database ~/.local/share/applications/
-#+END_SRC
-
-** Configuración *en* emacs
-
-#+BEGIN_SRC emacs-lisp :tangle no
-(use-feature org-protocol
-  :after org
-  :demand t
-  :config
-  (defun transform-square-brackets-to-round-ones(string-to-transform)
-    "Transforms [ into ( and ] into ), other chars left unchanged."
-    (concat
-     (mapcar #'(lambda (c) (if (equal c ?[) ?\( (if (equal c ?]) ?\) c))) string-to-transform))
-    )
-
-
-  (add-to-list 'org-capture-templates
-               '("p" "Protocol" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
-                 "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?"))
-
-  (add-to-list 'org-capture-templates
-               '("L" "Protocol Link" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
-                 "* %? [[%:link][%(transform-square-brackets-to-round-ones \"%:description\")]]\n"))
-)
-#+END_SRC
-
-
 
 * Misceláneos
 

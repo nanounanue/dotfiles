@@ -26,7 +26,7 @@ apt install -y libpng-dev zlib1g-dev libpoppler-glib-dev libpoppler-private-dev
 #+BEGIN_SRC emacs-lisp
   (use-package  pdf-tools
     :after org
-    ;ensure t
+    :demand t
     :config
     (add-to-list 'org-file-apps
          '("\\.pdf\\'" . (lambda (file link)
@@ -65,6 +65,7 @@ Para usr este paquete con  =org-mode=:
 
 #+BEGIN_SRC emacs-lisp
   (use-package org-pdfview
+    :demand t
     :after org
     :config
     (delete '("\\.pdf\\'" . default) org-file-apps)
@@ -74,68 +75,6 @@ Para usr este paquete con  =org-mode=:
     )
 #+END_SRC
 
-
-* Funciones de soporte
-
-Tomadas de [[https://github.com/munen/emacs.d#convenience-functions-when-working-with-pdf-exports][aquí]] y del video https://youtu.be/gfZDwYeBlO4
-
-#+begin_src emacs-lisp
-(use-feature org-pdftools-funcs
-:after org
-:config
-(defun nanounanue/md-compile ()
-  "Compiles the currently loaded markdown file using pandoc into a PDF"
-  (interactive)
-  (save-buffer)
-  (shell-command (concat "pandoc " (buffer-file-name) " -o "
-                         (replace-regexp-in-string "md" "pdf" (buffer-file-name)))))
-
-(defun nanounanue/update-other-buffer ()
-  (interactive)
-  (other-window 1)
-  (revert-buffer nil t)
-  (other-window -1))
-
-(defun nanounanue/md-compile-and-update-other-buffer ()
-  "Has as a premise that it's run from a markdown-mode buffer and the
-   other buffer already has the PDF open"
-  (interactive)
-  (nanounanue/md-compile)
-  (nanounanue/update-other-buffer))
-
-(defun nanounanue/latex-compile-and-update-other-buffer ()
-  "Has as a premise that it's run from a latex-mode buffer and the
-   other buffer already has the PDF open"
-  (interactive)
-  (save-buffer)
-  (shell-command (concat "pdflatex " (buffer-file-name)))
-  (switch-to-buffer (other-buffer))
-  (kill-buffer)
-  (nanounanue/update-other-buffer))
-
-(defun nanounanue/org-compile-beamer-and-update-other-buffer ()
-  "Has as a premise that it's run from an org-mode buffer and the
-   other buffer already has the PDF open"
-  (interactive)
-  (org-beamer-export-to-pdf)
-  (nanounanue/update-other-buffer))
-
-(defun nanounanue/org-compile-latex-and-update-other-buffer ()
-  "Has as a premise that it's run from an org-mode buffer and the
-   other buffer already has the PDF open"
-  (interactive)
-  (org-latex-export-to-pdf)
-  (nanounanue/update-other-buffer))
-
-(eval-after-load 'latex-mode
-  '(define-key latex-mode-map (kbd "C-c r") 'nanounanue/latex-compile-and-update-other-buffer))
-
-(define-key org-mode-map (kbd "C-c lr") 'nanounanue/org-compile-latex-and-update-other-buffer)
-(define-key org-mode-map (kbd "C-c br") 'nanounanue/org-compile-beamer-and-update-other-buffer)
-
-(eval-after-load 'markdown-mode
-  '(define-key markdown-mode-map (kbd "C-c r") 'nanounanue/md-compile-and-update-other-buffer)))
-#+end_src
 
 * Finito
 #+begin_src emacs-lisp
