@@ -39,6 +39,8 @@
 =straight.el= es un administrador de paquetes para GNU/Emacs
 
 #+begin_src emacs-lisp
+(setq straight-repository-branch "develop")
+
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
@@ -51,6 +53,13 @@
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
+#+end_src
+
+* Hack para org-mode
+
+#+begin_src emacs-lisp
+(straight-use-package 'org)
+;(straight-use-package 'org-plus-contrib)
 #+end_src
 
 * =use-package=
@@ -128,16 +137,6 @@ Ser /verbose/ es bueno para el /debugging/
   :demand t)
 #+end_src
 
-** Hack para org-mode
-
-#+begin_src emacs-lisp
-(straight-use-package
- '(org-plus-contrib
-   :repo "https://code.orgmode.org/bzg/org-mode.git"
-   :local-repo "org"
-   :files (:defaults "contrib/lisp/*.el")
-   :includes (org)))
-#+end_src
 
 
 * Finalizar

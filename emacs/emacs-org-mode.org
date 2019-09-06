@@ -447,6 +447,10 @@ Esto también lo vamos a ocupar
                          (sed        . t)
                          (js         . t)
                          (emacs-lisp . t)
+                         (gnuplot . t)
+                         (screen  . t)
+                         (eshell  . t)
+                         (makefile . t)
                          (lisp       . t)
                          (perl       . t)
                          (R          . t)
@@ -460,7 +464,7 @@ Esto también lo vamos a ocupar
                          (sql        . t)
                          (mongo      . t)
                          (cypher     . t)
-                         (redis      . t)
+                                        ; (redis      . t)
                          (blockdiag  . t)
                          (calc       . t)
                          (python     . t)
@@ -471,9 +475,9 @@ Esto también lo vamos a ocupar
                          (plantuml   . t)))
     (add-to-list 'org-babel-load-languages language))
 
-   (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
+  (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
 
-   <<ob-templates>>
+  <<ob-templates>>
 
   :hook (org-babel-after-execute . org-display-inline-images))
 #+end_src
@@ -1352,7 +1356,7 @@ buffer.
 #+END_SRC
 
 ** ox-extra
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 ;; Feature `ox-extra' is a library from the org-plus-contrib package.
 ;; It adds extra keywords and tagging functionality for org export.
 (use-feature ox-extra
