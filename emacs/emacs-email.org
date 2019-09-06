@@ -119,13 +119,17 @@ mu mkdir ~/Maildir/itam/queue && touch ~/Maildir/itam/queue/.noindex
 
   (use-feature mu4e
     :init (require 'mu4e)
-    :load-path "/usr/share/emacs/site-lisp/mu4e/"
+    :load-path "/usr/local/share/emacs/site-lisp/mu4e"
     :config
     (setq mu4e-use-fancy-chars nil)
     (setq mail-user-agent 'mu4e-user-agent) ;; Mu4e como el cliente de correo por /default/ de GNU/Emacs
-    (setq mu4e-mu-binary "/usr/bin/mu")
+    (setq mu4e-mu-binary "/usr/local/bin/mu")
     (setq mu4e-maildir "~/Maildir")
     (setq mu4e-get-mail-command "mbsync -c ~/.mbsyncrc -a")
+    (setq mu4e-headers-skip-duplicates t)
+    (setq
+     mu4e-index-cleanup nil      ;; don't do a full cleanup check
+     mu4e-index-lazy-check t)    ;; don't consider up-to-date dirs
     (setq mu4e-view-prefer-html t)
     (setq mu4e-update-interval nil)    ;; No actualizar
     (setq mu4e-compose-format-flowed t)
@@ -152,7 +156,7 @@ mu mkdir ~/Maildir/itam/queue && touch ~/Maildir/itam/queue/.noindex
     (add-hook 'mu4e-compose-mode-hook 'flyspell-mode)
 
     ;; every new email composition gets its own frame!
-    (setq mu4e-compose-in-new-frame t)
+    (setq mu4e-compose-in-new-frame nil)
 
     ;; list of my email addresses.
     (setq mu4e-user-mail-address-list '("adolfoaz@gmail.com"
@@ -196,18 +200,16 @@ mu mkdir ~/Maildir/itam/queue && touch ~/Maildir/itam/queue/.noindex
       (list
        (make-mu4e-context
         :name "adolfoaz"
-        :enter-func (lambda () (mu4e-message "Switch to the adolfoaz context"))
         :match-func (lambda (msg)
                       (when msg
                         (mu4e-message-contact-field-matches msg '(:from :to :cc :bcc) "adolfoaz@gmail.com")))
-        :leave-func (lambda () (mu4e-clear-caches))
         :vars '((user-mail-address     . "adolfoaz@gmail.com")
                 (user-full-name        . "Adolfo De Unanue")
-                (mu4e-sent-folder      . "/adolfoaz-gmail/[adolfoaz].Enviados")
                 (mu4e-compose-signature . "Adolfo De Unanue")
-                (mu4e-drafts-folder    . "/adolfoaz-gmail/[adolfoaz].Borradores")
-                (mu4e-trash-folder     . "/adolfoaz-gmail/[adolfoaz].Papelera")
-                (mu4e-refile-folder    . "/adolfoaz-gmail/[adolfoaz].Todos")
+                (mu4e-sent-folder      . "/adolfoaz-gmail/[adolfoaz].Enviados") ;; folder sent messages
+                (mu4e-drafts-folder    . "/adolfoaz-gmail/[adolfoaz].Borradores") ;; unfinished messages
+                (mu4e-trash-folder     . "/adolfoaz-gmail/[adolfoaz].Papelera")  ;; trashed messages
+                (mu4e-refile-folder    . "/adolfoaz-gmail/[adolfoaz].Todos")     ;; saved messages
 
                 (mu4e-compose-format-flowed . t)
 	        (smtpmail-queue-dir . "~/Maildir/adolfoaz-gmail/queue/cur")
@@ -231,14 +233,12 @@ mu mkdir ~/Maildir/itam/queue && touch ~/Maildir/itam/queue/.noindex
         )
        (make-mu4e-context
         :name "nanounanue"
-        :enter-func (lambda () (mu4e-message "Switch to the nanounanue context"))
         :match-func (lambda (msg)
                       (when msg
                         (mu4e-message-contact-field-matches msg '(:from :to :cc :bcc) "nanounanue@gmail.com")))
-        :leave-func (lambda () (mu4e-clear-caches))
         :vars '((user-mail-address     . "nanounanue@gmail.com")
-                (user-full-name        . "Adolfo De Unanue")
-                (mu4e-compose-signature . "Adolfo De Unanue")
+                (user-full-name        . "Adolfo De Unánue")
+                (mu4e-compose-signature . "Adolfo De Unánue")
                 (mu4e-sent-folder      . "/nanounanue-gmail/[nanounanue].Enviados")
                 (mu4e-drafts-folder    . "/nanounanue-gmail/[nanounanue].Borradores")
                 (mu4e-trash-folder     . "/nanounanue-gmail/[nanounanue].Papelera")
@@ -263,15 +263,13 @@ mu mkdir ~/Maildir/itam/queue && touch ~/Maildir/itam/queue/.noindex
         )
        (make-mu4e-context
         :name "uchicago"
-        :enter-func (lambda () (mu4e-message "Switch to the uchicago context"))
         :match-func (lambda (msg)
                       (when msg
                         (mu4e-message-contact-field-matches msg '(:from :to :cc :bcc) "adolfo@uchicago.edu")))
-        :leave-func (lambda () (mu4e-clear-caches))
         :vars '((user-mail-address     . "adolfo@uchicago.edu")
-                (user-full-name        . "Adolfo De Unanue")
+                (user-full-name        . "Adolfo De Unánue")
+                (mu4e-compose-signature . "Adolfo De Unánue")
                 (mu4e-sent-folder      . "/uchicago/[uchicago].Sent")
-                (mu4e-compose-signature . "Adolfo De Unanue")
                 (mu4e-drafts-folder    . "/uchicago/[uchicago].Drafts")
                 (mu4e-trash-folder     . "/uchicago/[uchicago].Trash")
                 (mu4e-refile-folder    . "/uchicago/[uchicago].AllMail")
@@ -304,43 +302,48 @@ mu mkdir ~/Maildir/itam/queue && touch ~/Maildir/itam/queue/.noindex
                         (mu4e-message-contact-field-matches msg '(:from :to :cc :bcc) "unanue@itam.mx")))
         :leave-func (lambda () (mu4e-clear-caches))
         :vars '((user-mail-address     . "unanue@itam.mx")
-                (user-full-name        . "Adolfo De Unanue")
-                (mu4e-sent-folder      . "/itam/'Sent Items'")
-                (mu4e-compose-signature . "Adolfo De Unanue")
-                (mu4e-drafts-folder    . "/itam/Drafts")
-                (mu4e-trash-folder     . "/itam/'Deleted Items'")
+                (user-full-name        . "Adolfo De Unánue")
+                (mu4e-compose-signature .
+                                        (concat
+		                         "Adolfo De Unánue\n"
+		                         "ITAM, Maestría en Ciencia de Datos\n"
+                                       "Director Académicon\n"))
+                                        (mu4e-sent-folder      . "/itam/'Sent Items'")
+                                        (mu4e-drafts-folder    . "/itam/Drafts")
+                                        (mu4e-trash-folder     . "/itam/'Deleted Items'")
 
-                (mu4e-compose-format-flowed . t)
-	        (smtpmail-queue-dir . "~/Maildir/itam/queue/cur")
-	        (message-send-mail-function . smtpmail-send-it)
-	        (smtpmail-smtp-user . "unanue@itam.mx")
-	        (smtpmail-starttls-credentials . (("smtp.itam.mx" 587 nil nil)))
-	        (smtpmail-auth-credentials . (expand-file-name "~/.authinfo.gpg"))
-	        (smtpmail-default-smtp-server . "smtp.itam.mx")
-	        (smtpmail-smtp-server . "smtp.itam.mx")
-	        (smtpmail-smtp-service . 587)
-	        (smtpmail-debug-info . t)
-	        (smtpmail-debug-verbose . t)
-                (mu4e-maildir-shortcuts . ( ("/itam/INBOX"            . ?i)
-				            ("/itam/'Sent Items'" . ?s)
-				            ("/itam/'Deleted Items'"       . ?t)
-				            ("/itam/Drafts"    . ?d)
-				            )))
+                                        (mu4e-compose-format-flowed . t)
+	                                (smtpmail-queue-dir . "~/Maildir/itam/queue/cur")
+	                                (message-send-mail-function . smtpmail-send-it)
+	                                (smtpmail-smtp-user . "unanue@itam.mx")
+	                                (smtpmail-starttls-credentials . (("smtp.itam.mx" 587 nil nil)))
+	                                (smtpmail-auth-credentials . (expand-file-name "~/.authinfo.gpg"))
+	                                (smtpmail-default-smtp-server . "smtp.itam.mx")
+	                                (smtpmail-smtp-server . "smtp.itam.mx")
+	                                (smtpmail-smtp-service . 587)
+	                                (smtpmail-debug-info . t)
+	                                (smtpmail-debug-verbose . t)
+                                        (mu4e-maildir-shortcuts . ( ("/itam/INBOX"            . ?i)
+				                                    ("/itam/'Sent Items'" . ?s)
+				                                    ("/itam/'Deleted Items'"       . ?t)
+				                                    ("/itam/Drafts"    . ?d)
+				                                    )))
 
-        )))
+                )))
 
-;; Bookmarks for common searches that I use.
-(setq mu4e-bookmarks '(("\\\\Todos" "Inbox" ?i)
-                       ("\\\\Borradores" "Borradores" ?d)
-                       ("flag:unread" "Mensajes sin leer" ?u)
-                       ("date:today..now" "Mensajes de hoy" ?t)
-                       ("date:7d..now" "Última semana" ?w)
-                       ("mime:image/*" "Mensajes con imágenes" ?p))))
+      ;; Bookmarks for common searches that I use.
+      (setq mu4e-bookmarks '(("\\\\Todos" "Inbox" ?i)
+                             ("\\\\Borradores" "Borradores" ?d)
+                             ("flag:unread" "Mensajes sin leer" ?u)
+                             ("date:today..now" "Mensajes de hoy" ?t)
+                             ("date:7d..now" "Última semana" ?w)
+                             ("mime:image/*" "Mensajes con imágenes" ?p))))
 
 
-;;(use-package mu4e-conversation
-;;:config
-;;(global-mu4e-conversation-mode))
+(use-package mu4e-conversation
+  :demand t
+  :config
+  (global-mu4e-conversation-mode))
 #+end_src
 
 
@@ -348,18 +351,19 @@ mu mkdir ~/Maildir/itam/queue && touch ~/Maildir/itam/queue/.noindex
 
 #+begin_src emacs-lisp
 (use-feature org-mu4e
+  :load-path "/usr/local/share/emacs/site-lisp/mu4e"
   :demand t
-  :after org
-  :custom
-  (org-mu4e-convert-to-html t)
   :init
   (require 'org-mu4e)
+  :after (org mu4e)
+  :custom
+  (org-mu4e-convert-to-html t)
   :config
   ;; Agregando un template para contestar correos luego
   (add-to-list 'org-capture-templates
                '("P" "contestar pronto" entry
-                (file+headline "~/Sync/org/todos.org")
-                "* TODO %a %?\nDEADLINE: %^t\n %U" :empty-lines 1))
+                (file+headline "~/Sync/org/todos.org" "Todo")
+                "* TODO %a %?\nDEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+2d\"))" :empty-lines 1))
   (add-hook 'mu4e-compose-mode-hook 'org-mu4e-compose-org-mode)
   ;; Org capture en header and view mode
   (define-key mu4e-headers-mode-map (kbd "C-c c") 'org-mu4e-store-and-capture)
