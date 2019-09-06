@@ -15,11 +15,28 @@
 
 * Dependencias
 
-** Necesitamos instalar =mu4e=
+** [[https://www.djcbsoftware.nl/code/mu/mu4e.html][=mu=]]
+
+*** Clonar el repositorio
+#+begin_src shell :dir ~/software
+git clone https://github.com/djcb/mu.git
+#+end_src
+
+*** [[https://www.djcbsoftware.nl/code/mu/mu4e/Installation.html#Installation][Dependencias]]
 
 #+begin_src shell :dir /sudo::
-apt install mu4e
+apt install -y libgmime-3.0-dev libxapian-dev \
+               guile-2.0-dev html2text xdg-utils \
+               libwebkitgtk-3.0-dev
 #+end_src
+
+
+*** Instalar
+
+#+begin_src shell :dir ~/software/mu
+./autogen.sh && ./configure && make
+#+end_src
+
 
 ** Cifrado de /passwords/
 
