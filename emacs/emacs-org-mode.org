@@ -795,6 +795,23 @@ propuesta en el mismo lugar es el [[https://gitlab.com/oer/org-re-reveal][fork]]
   (org-re-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
                                         ;(org-reveal-root (concat "file://" (getenv "HOME") "/software/js/revealjs"))
   (org-re-reveal-postamble "Adolfo De Unánue"))
+
+(use-package org-re-reveal-ref
+  :after org-re-reveal
+  :demand t
+  :config
+  (setq org-ref-default-bibliography '("references.bib")
+        org-ref-bibliography-entry-format
+        '(("article" . "%a, %t, <i>%j %v(%n)</i>, %p (%y). <a href=\"%U\">%U</a>")
+          ("book" . "%a, %t, %u, %y. <a href=\"%U\">%U</a>")
+          ("inproceedings" . "%a, %t, %b, %y. <a href=\"%U\">%U</a>")
+          ("incollection" . "%a, %t, %b, %u, %y. <a href=\"%U\">%U</a>")
+          ("misc" . "%a, %t, %i, %y.  <a href=\"%U\">%U</a>")
+          ("phdthesis" . "%a, %t, %s, %y.  <a href=\"%U\">%U</a>")
+          ("techreport" . "%a, %t, %i, %u (%y).")
+          ("proceedings" . "%e, %t in %S, %u (%y).")
+          ))
+  )
 #+end_src
 
 ** epresent
