@@ -137,7 +137,7 @@ mu mkdir ~/Maildir/itam/queue && touch ~/Maildir/itam/queue/.noindex
     (setq mu4e-headers-auto-update t)
     (setq mu4e-attachment-dir  "~/Downloads")
     ;; This prevents saving the email to the Sent folder since gmail will do this for us on their end.
-    (setq mu4e-sent-messages-behavior 'delete)
+    ;;(setq mu4e-sent-messages-behavior 'delete)
     (setq message-kill-buffer-on-exit t)
     ;; Enable inline images.
     (setq mu4e-view-show-images t)
@@ -307,29 +307,30 @@ mu mkdir ~/Maildir/itam/queue && touch ~/Maildir/itam/queue/.noindex
                                         (concat
 		                         "Adolfo De Unánue\n"
 		                         "ITAM, Maestría en Ciencia de Datos\n"
-                                       "Director Académicon\n"))
-                                        (mu4e-sent-folder      . "/itam/'Sent Items'")
-                                        (mu4e-drafts-folder    . "/itam/Drafts")
-                                        (mu4e-trash-folder     . "/itam/'Deleted Items'")
+                                         "Director Académico\n"
+                                         "Tel. (55) 5628-4000 ext. 4052\n"
+                                         ))
+                (mu4e-sent-folder      . "/itam/'Sent Items'")
+                (mu4e-drafts-folder    . "/itam/Drafts")
+                (mu4e-trash-folder     . "/itam/'Deleted Items'")
+                (mu4e-compose-format-flowed . t)
+	        (smtpmail-queue-dir . "~/Maildir/itam/queue/cur")
+	        (message-send-mail-function . smtpmail-send-it)
+	        (smtpmail-smtp-user . "unanue@itam.mx")
+	        (smtpmail-starttls-credentials . (("smtp.itam.mx" 587 nil nil)))
+	        (smtpmail-auth-credentials . (expand-file-name "~/.authinfo.gpg"))
+	        (smtpmail-default-smtp-server . "smtp.itam.mx")
+	        (smtpmail-smtp-server . "smtp.itam.mx")
+	        (smtpmail-smtp-service . 587)
+	        (smtpmail-debug-info . t)
+	        (smtpmail-debug-verbose . t)
+                (mu4e-maildir-shortcuts . ( ("/itam/INBOX"            . ?i)
+				            ("/itam/'Sent Items'" . ?s)
+				            ("/itam/'Deleted Items'"       . ?t)
+				            ("/itam/Drafts"    . ?d)
+				            )))
 
-                                        (mu4e-compose-format-flowed . t)
-	                                (smtpmail-queue-dir . "~/Maildir/itam/queue/cur")
-	                                (message-send-mail-function . smtpmail-send-it)
-	                                (smtpmail-smtp-user . "unanue@itam.mx")
-	                                (smtpmail-starttls-credentials . (("smtp.itam.mx" 587 nil nil)))
-	                                (smtpmail-auth-credentials . (expand-file-name "~/.authinfo.gpg"))
-	                                (smtpmail-default-smtp-server . "smtp.itam.mx")
-	                                (smtpmail-smtp-server . "smtp.itam.mx")
-	                                (smtpmail-smtp-service . 587)
-	                                (smtpmail-debug-info . t)
-	                                (smtpmail-debug-verbose . t)
-                                        (mu4e-maildir-shortcuts . ( ("/itam/INBOX"            . ?i)
-				                                    ("/itam/'Sent Items'" . ?s)
-				                                    ("/itam/'Deleted Items'"       . ?t)
-				                                    ("/itam/Drafts"    . ?d)
-				                                    )))
-
-                )))
+        )))
 
       ;; Bookmarks for common searches that I use.
       (setq mu4e-bookmarks '(("\\\\Todos" "Inbox" ?i)
@@ -339,11 +340,6 @@ mu mkdir ~/Maildir/itam/queue && touch ~/Maildir/itam/queue/.noindex
                              ("date:7d..now" "Última semana" ?w)
                              ("mime:image/*" "Mensajes con imágenes" ?p))))
 
-
-(use-package mu4e-conversation
-  :demand t
-  :config
-  (global-mu4e-conversation-mode))
 #+end_src
 
 
