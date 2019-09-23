@@ -143,7 +143,7 @@ Habilitando mas tipos de imágenes a desplegar en =org-mode=
 
 * Agenda
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-feature org-agenda
     :demand t
     :config
@@ -161,6 +161,22 @@ Habilitando mas tipos de imágenes a desplegar en =org-mode=
     (setq org-agenda-start-on-weekday nil))
 #+END_SRC
 
+** [[https://github.com/alphapapa/org-ql][Org-ql]]
+
+#+begin_quote
+=org-ql= is a lispy query language for Org files.
+#+end_quote
+
+#+begin_src emacs-lisp
+(use-package org-ql)
+#+end_src
+
+
+** [[https://github.com/alphapapa/org-super-agenda][Org-super-agenda]]
+
+#+begin_src emacs-lisp
+(use-package org-super-agenda)
+#+end_src
 
 
 ** TODOs templates
@@ -279,7 +295,7 @@ Org Capture Templates are explained [[http://orgmode.org/manual/Capture-template
                 ("K" "Cliplink capture task" entry (file "")
                  "* TODO %(org-cliplink-capture) \n  SCHEDULED: %t\n" :empty-lines 1)
                 ("r" "Research")
-                ("rp" "Research project" entry (file "~/Sync/org/inbox.org")
+                ("rp" "Research project" entry (file "~/Sync/org/refile.org")
 	         "* TODO %^{Project title} :research::%^G:\n:PROPERTIES:\n:CREATED: %U\n:END:\n%^{Project description}\n** TODO Literature review\n** TODO %?\n** TODO Summary\n** TODO Reports\n** Ideas\n" :clock-in t :clock-resume t)
                 ("ri" "Research Idea" entry (file "~/Sync/org/research.org")
                  "* %? :research::IDEA:\n%U\n%a\n" :clock-in t :clock-resume t)
@@ -287,9 +303,9 @@ Org Capture Templates are explained [[http://orgmode.org/manual/Capture-template
                  "* TODO %? %^G \nSCHEDULED: %^t\n  %U" :empty-lines 1)
                 ("d" "Deadline" entry (file+headline "~/Sync/org/refile.org")
                  "* TODO %? %^G \n  DEADLINE: %^t" :empty-lines 1)
-                ("b" "Link from browser" entry (file "~/Sync/org/inbox.org")
+                ("b" "Link from browser" entry (file "~/Sync/org/refile.org")
 	         "* TODO %? |- (%:description) :BOOKMARK:\n:PROPERTIES:\n:CREATED: %U\n:Source: %:link\n:END:\n%i\n" :clock-in t :clock-resume t)
-             	("s" "Selection from browser" entry (file "~/Sync/org/inbox.org")
+             	("s" "Selection from browser" entry (file "~/Sync/org/refile.org")
 	         "* TODO %? :BOOKMARK:\n%(replace-regexp-in-string \"\n.*\" \"\" \"%i\")\n:PROPERTIES:\n:CREATED: %U\n:Source: %:link\n:END:\n%i\n" :clock-in t :clock-resume t)
                 ("j" "Journal" entry (function nanounanue/org-journal-find-location)
                  "* %(format-time-string org-journal-time-format)%^{Title}\n%i%?")
@@ -568,6 +584,19 @@ Esto también lo vamos a ocupar
         org-export-coding-system 'utf-8
         org-html-checkbox-type 'html))
 #+end_src
+
+** Ignorar header, pero no contenido ...
+
+A veces queremos agrupar texto por algunos /headers/ pero *NO*
+queremos exportar el /header/, para lograrlo hay que hacer:
+
+
+#+begin_src emacs-lisp
+(require 'ox-extra)
+(ox-extras-activate  '(ignore-headlines))
+#+end_src
+
+
 
 ** Imágenes
 
@@ -1498,6 +1527,12 @@ This package lets you quickly jump to recently used Org headings using Helm, Ivy
   (org-journal-dir "~/Sync/org/journal/")
   (org-journal-file-type 'yearly)
   (org-journal-date-format "%A, %d %B %Y"))
+#+end_src
+
+** [[https://github.com/alphapapa/org-sidebar][Org-sidebar]]
+
+#+begin_src emacs-lisp
+(use-package org-sidebar)
 #+end_src
 
 * Proveer
