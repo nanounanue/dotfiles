@@ -399,13 +399,13 @@ Por el momento uso [[https://github.com/Malabarba/smart-mode-line/][smart-mode-l
 Uno de los elementos *indispensables* para una experiencia de lectura
 rica es =pocket=:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package pocket-reader)
 #+end_src
 
 La primera vez, ejecuta
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (pocket-reader)
 #+end_src
 
