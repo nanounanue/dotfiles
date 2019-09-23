@@ -58,8 +58,10 @@
 * Hack para org-mode
 
 #+begin_src emacs-lisp
-(straight-use-package 'org)
-;(straight-use-package 'org-plus-contrib)
+;(straight-use-package 'org)
+(straight-use-package 'org-plus-contrib)
+
+(require 'org)
 #+end_src
 
 * =use-package=
