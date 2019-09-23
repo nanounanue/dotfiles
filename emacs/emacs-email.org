@@ -308,7 +308,7 @@ mu mkdir ~/Maildir/itam/queue && touch ~/Maildir/itam/queue/.noindex
 		                         "Adolfo De Unánue\n"
 		                         "ITAM, Maestría en Ciencia de Datos\n"
                                          "Director Académico\n"
-                                         "Tel. (55) 5628-4000 ext. 4052\n"
+                                         "Tel. (+52) 555628-4000 ext. 4052\n"
                                          ))
                 (mu4e-sent-folder      . "/itam/'Sent Items'")
                 (mu4e-drafts-folder    . "/itam/Drafts")
@@ -338,7 +338,8 @@ mu mkdir ~/Maildir/itam/queue && touch ~/Maildir/itam/queue/.noindex
                              ("flag:unread" "Mensajes sin leer" ?u)
                              ("date:today..now" "Mensajes de hoy" ?t)
                              ("date:7d..now" "Última semana" ?w)
-                             ("mime:image/*" "Mensajes con imágenes" ?p))))
+                             ("mime:application/vnd*" "Mensajes con documentos de Office" ?D)
+                             ("mime:application/pdf" "Mensajes con PDFs" ?p))))
 
 #+end_src
 
