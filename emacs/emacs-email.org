@@ -359,8 +359,12 @@ mu mkdir ~/Maildir/itam/queue && touch ~/Maildir/itam/queue/.noindex
   ;; Agregando un template para contestar correos luego
   (add-to-list 'org-capture-templates
                '("P" "contestar pronto" entry
-                (file+headline "~/Sync/org/todos.org" "Todo")
+                (file+headline "~/Sync/org/refile.org" "Todo")
                 "* TODO %a %?\nDEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+2d\"))" :empty-lines 1))
+  (add-to-list 'org-capture-templates
+               '("L" "link a correo" entry
+                (file+headline "~/Sync/org/refile.org" "Correos")
+                "* Tema: %? (%a)" :empty-lines 1))
   (add-hook 'mu4e-compose-mode-hook 'org-mu4e-compose-org-mode)
   ;; Org capture en header and view mode
   (define-key mu4e-headers-mode-map (kbd "C-c c") 'org-mu4e-store-and-capture)
