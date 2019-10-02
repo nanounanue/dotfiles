@@ -37,6 +37,9 @@ apt install -y libgmime-3.0-dev libxapian-dev \
 ./autogen.sh && ./configure && make
 #+end_src
 
+#+begin_src emacs-lisp :dir /sudo::~/software/mu
+make install
+#+end_src
 
 ** Cifrado de /passwords/
 
