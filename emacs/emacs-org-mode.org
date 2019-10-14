@@ -143,7 +143,7 @@ Habilitando mas tipos de imágenes a desplegar en =org-mode=
 
 * Agenda
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp
   (use-feature org-agenda
     :demand t
     :config
@@ -183,53 +183,53 @@ Habilitando mas tipos de imágenes a desplegar en =org-mode=
 
 #+begin_src emacs-lisp
 (use-feature org
-:config
-(setq org-todo-keywords '(
-                          (;; TODO significa que es algo que tiene que hacerse
-                           ;; WORKING significa que estoy trabajando en alla
-                           ;; BLOCKED significa que la tarea depende de algo más para hacerse
-                           ;; DELEGATED significa que alguien más lo está haciendo y yo tengo que verificar/estar enterado de lo que está haciendo
-                           ;; ASSIGNED significa que alguien tiene completa responsabilidad sobre la tarea
-                           ;; REVIEW significa que alguien está validando el task
-                           ;; CANCELLED significa que ya no es necesario hacerse
-                           ;; DONE significa que ha sido completada
-                           sequence
-                           "TODO(t@/!)"
-                           "WORKING(w@/!)"
-                           "BLOCKED(b@/!)"
-                           "REVIEW(r@/!)"
-                           "DELEGATED(e@/!)"
-                           "|"
-                           "ASSIGNED(.@/!)"
-                           "CANCELLED(c@/!)"
-                           "DONE(d@/!)")))
+  :config
+  (setq org-todo-keywords '(
+                            (;; TODO significa que es algo que tiene que hacerse
+                             ;; WORKING significa que estoy trabajando en alla
+                             ;; BLOCKED significa que la tarea depende de algo más para hacerse
+                             ;; DELEGATED significa que alguien más lo está haciendo y yo tengo que verificar/estar enterado de lo que está haciendo
+                             ;; ASSIGNED significa que alguien tiene completa responsabilidad sobre la tarea
+                             ;; REVIEW significa que alguien está validando el task
+                             ;; CANCELLED significa que ya no es necesario hacerse
+                             ;; DONE significa que ha sido completada
+                             sequence
+                             "TODO(t@/!)"
+                             "WORKING(w@/!)"
+                             "BLOCKED(b@/!)"
+                             "REVIEW(r@/!)"
+                             "DELEGATED(e@/!)"
+                             "|"
+                             "ASSIGNED(.@/!)"
+                             "CANCELLED(c@/!)"
+                             "DONE(d@/!)")))
 
-(setq org-todo-keyword-faces
-      '(("TODO" . "tomato")
-        ("WORKING" . "gold2")
-        ("REVIEW" . "lavender")
-        ("BLOCKED" . "magenta")
-        ("CANCELLED" . "dark red")
-        ("DELEGATED" . "powder blue")
-        ("DONE" . "green")
-        ("ASSIGNED" . "sienna")))
-(font-lock-add-keywords            ; A bit silly but my headers are now
- 'org-mode `(("^\\*+ \\(TODO\\) "  ; shorter, and that is nice canceled
-              (1 (progn (compose-region (match-beginning 1) (match-end 1) "⚑")
-                        nil)))
-             ("^\\*+ \\(WORKING\\) "
-              (1 (progn (compose-region (match-beginning 1) (match-end 1) "⚐")
-                        nil)))
-             ("^\\*+ \\(CANCELLED\\) "
-              (1 (progn (compose-region (match-beginning 1) (match-end 1) "✘")
-                        nil)))
-             ("^\\*+ \\(CANCE\\) "
-              (1 (progn (compose-region (match-beginning 1) (match-end 1) "✘")
-                        nil)))
-             ("^\\*+ \\(DONE\\) "
-              (1 (progn (compose-region (match-beginning 1) (match-end 1) "✔")
-                        nil)))))
-)
+  (setq org-todo-keyword-faces
+        '(("TODO" . "tomato")
+          ("WORKING" . "gold2")
+          ("REVIEW" . "lavender")
+          ("BLOCKED" . "magenta")
+          ("CANCELLED" . "dark red")
+          ("DELEGATED" . "powder blue")
+          ("DONE" . "green")
+          ("ASSIGNED" . "sienna")))
+  (font-lock-add-keywords            ; A bit silly but my headers are now
+   'org-mode `(("^\\*+ \\(TODO\\) "  ; shorter, and that is nice canceled
+                (1 (progn (compose-region (match-beginning 1) (match-end 1) "⚑")
+                          nil)))
+               ("^\\*+ \\(WORKING\\) "
+                (1 (progn (compose-region (match-beginning 1) (match-end 1) "⚐")
+                          nil)))
+               ("^\\*+ \\(CANCELLED\\) "
+                (1 (progn (compose-region (match-beginning 1) (match-end 1) "✘")
+                          nil)))
+               ("^\\*+ \\(CANCE\\) "
+                (1 (progn (compose-region (match-beginning 1) (match-end 1) "✘")
+                          nil)))
+               ("^\\*+ \\(DONE\\) "
+                (1 (progn (compose-region (match-beginning 1) (match-end 1) "✔")
+                          nil)))))
+  )
 
 #+end_src
 
