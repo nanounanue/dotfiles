@@ -260,6 +260,82 @@ Conectamos =R= con =company=
   (add-hook 'after-init-hook 'company-statistics-mode))
 #+END_SRC
 
+** Programación probabilística
+
+[[https://github.com/stan-dev/stan-mode][Stan]]
+
+#+begin_src emacs-lisp
+(use-package stan-mode
+  ;; Uncomment if directly loading from your development repo
+  ;; :load-path "your-path/stan-mode/stan-mode"
+  :mode ("\\.stan\\'" . stan-mode)
+  :hook (stan-mode . stan-mode-setup)
+  ;;
+  :config
+  ;; The officially recommended offset is 2.
+  (setq stan-indentation-offset 2))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-feature company-stan
+  ;; Uncomment if directly loading from your development repo
+  ;; :load-path "your-path/stan-mode/company-stan/"
+  :hook (stan-mode . company-stan-setup)
+  ;;
+  :config
+  ;; Whether to use fuzzy matching in `company-stan'
+  (setq company-stan-fuzzy nil))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-feature eldoc-stan
+  ;; Uncomment if directly loading from your development repo
+  ;; :load-path "your-path/stan-mode/eldoc-stan/"
+  :hook (stan-mode . eldoc-stan-setup)
+  ;;
+  :config
+  ;; No configuration options as of now.
+  )
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-feature flycheck-stan
+  ;; Uncomment if directly loading from your development repo
+  ;; :load-path "your-path/stan-mode/flycheck-stan/"
+  :hook (stan-mode . flycheck-stan-setup)
+  ;;
+  :config
+  ;; No configuration options as of now.
+  )
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-feature stan-snippets
+  ;; Uncomment if directly loading from your development repo
+  ;; :load-path "your-path/stan-mode/stan-snippets/"
+  :hook (stan-mode . stan-snippets-initialize)
+  ;;
+  :config
+  ;; No configuration options as of now.
+  )
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-feature ac-stan
+  ;; Uncomment if directly loading from your development repo
+  ;; :load-path "path-to-your-repo/stan-mode/ac-stan/"
+  ;; Delete the line below if using.
+  :disabled t
+  :hook (stan-mode . stan-ac-mode-setup)
+  ;;
+  :config
+  ;; No configuration options as of now.
+  )
+#+end_src
+
 ** Bases de datos
 
 *** SQL
