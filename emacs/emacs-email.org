@@ -280,7 +280,7 @@ mu mkdir ~/Maildir/itam/queue && touch ~/Maildir/itam/queue/.noindex
 	        (smtpmail-smtp-user . "adolfo@uchicago.edu")
 	        (smtpmail-starttls-credentials . (("smtp.gmail.com" 587 nil nil)))
 	        (smtpmail-auth-credentials . (expand-file-name "~/.authinfo.gpg"))
-	        (smtpmail-default-smtp-server . "smtp.gmail.com")
+	        (smtpmail-default-smtp-server . "smtp.gmail.com") ;
 	        (smtpmail-smtp-server . "smtp.gmail.com")
 	        (smtpmail-smtp-service . 587)
 	        (smtpmail-debug-info . t)
@@ -310,9 +310,9 @@ mu mkdir ~/Maildir/itam/queue && touch ~/Maildir/itam/queue/.noindex
                                          "Director Académico\n"
                                          "Tel. (+52) 555628-4000 ext. 4052\n"
                                          ))
-                (mu4e-sent-folder      . "/itam/'Sent Items'")
+                (mu4e-sent-folder      . "/itam/Sent Items")
                 (mu4e-drafts-folder    . "/itam/Drafts")
-                (mu4e-trash-folder     . "/itam/'Deleted Items'")
+                (mu4e-trash-folder     . "/itam/Deleted Items")
                 (mu4e-compose-format-flowed . t)
 	        (smtpmail-queue-dir . "~/Maildir/itam/queue/cur")
 	        (message-send-mail-function . smtpmail-send-it)
@@ -325,8 +325,8 @@ mu mkdir ~/Maildir/itam/queue && touch ~/Maildir/itam/queue/.noindex
 	        (smtpmail-debug-info . t)
 	        (smtpmail-debug-verbose . t)
                 (mu4e-maildir-shortcuts . ( ("/itam/INBOX"            . ?i)
-				            ("/itam/'Sent Items'" . ?s)
-				            ("/itam/'Deleted Items'"       . ?t)
+				            ("/itam/Sent Items" . ?s)
+				            ("/itam/Deleted Items"       . ?t)
 				            ("/itam/Drafts"    . ?d)
 				            )))
 
@@ -360,11 +360,11 @@ mu mkdir ~/Maildir/itam/queue && touch ~/Maildir/itam/queue/.noindex
   (add-to-list 'org-capture-templates
                '("P" "contestar pronto" entry
                 (file+headline "~/Sync/org/refile.org" "Todo")
-                "* TODO %a %?\nDEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+2d\"))" :empty-lines 1))
+                "* TODO 📪 %a %?\nDEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+2d\"))" :empty-lines 1))
   (add-to-list 'org-capture-templates
                '("L" "link a correo" entry
                 (file+headline "~/Sync/org/refile.org" "Correos")
-                "* Tema: %? (%a)" :empty-lines 1))
+                "* 📧: %? (%a)" :empty-lines 1))
   (add-hook 'mu4e-compose-mode-hook 'org-mu4e-compose-org-mode)
   ;; Org capture en header and view mode
   (define-key mu4e-headers-mode-map (kbd "C-c c") 'org-mu4e-store-and-capture)
@@ -421,6 +421,23 @@ mu mkdir ~/Maildir/itam/queue && touch ~/Maildir/itam/queue/.noindex
                '("agregar contacto" . mu4e-action-add-org-contact) t)
   (add-to-list 'mu4e-view-actions
                '("agregar contacto" . mu4e-action-add-org-contact) t))
+#+end_src
+
+* Calendario
+
+#+begin_src emacs-lisp
+(use-feature mu4e
+  :demand t
+  :config
+  (setq mu4e-view-use-gnus t)
+  (require 'mu4e-icalendar)
+  (mu4e-icalendar-setup)
+  (setq mu4e-icalendar-trash-after-reply t)
+  (require 'org-agenda)
+  (setq gnus-icalendar-org-capture-file "~/Sync/org/notes.org")
+  (setq gnus-icalendar-org-capture-headline '("Calendar"))
+  (gnus-icalendar-org-setup)
+  )
 #+end_src
 
 * /Workflow/
