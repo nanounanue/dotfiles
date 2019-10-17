@@ -362,6 +362,11 @@ Por el momento uso [[https://github.com/Malabarba/smart-mode-line/][smart-mode-l
   (dashboard-setup-startup-hook))
 #+END_SRC
 
+* Zoom
+
+#+begin_src emacs-lisp
+(use-package zoom-frm)
+#+end_src
 
 * Tabs
 
