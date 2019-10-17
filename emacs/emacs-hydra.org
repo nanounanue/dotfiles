@@ -287,10 +287,10 @@ Group jump-to-files commands.
 (pretty-hydra-define hydra-go-to-buffer
   (:hint nil :color teal :quit-key "q" :title (with-faicon "file-text-o" "Go To" 1 -0.05))
   ("Agenda"
-   (("ac" (find-file "~/Sync/org/contactos.org") "contactos"))
+   (("ac" (find-file "~/pCloudDrive/org/contactos.org") "contactos"))
    "Proyectos"
-   (("pi" (find-file "~/Sync/org/ITAM.org") "itam")
-    ("pp" (find-file "~/Sync/org/proyectos.org")  "proyectos"))
+   (("pi" (find-file "~/pCloudDrive/org/ITAM.org") "itam")
+    ("pp" (find-file "~/pCloudDrive/org/proyectos.org")  "proyectos"))
    "Config"
    (
     ("ce" (find-file "~/dotfiles/emacs/init.org") "emacs")
@@ -299,9 +299,9 @@ Group jump-to-files commands.
     ("cr" (find-file "~/dotfiles/rc.org") "rc")
     ("ct" (find-file "~/dotfiles/tmux.org") "tmux"))
    "Research"
-   (("rb" (find-file "~/Sync/org/books.org") "books")
-    ("rr" (find-file "~/Sync/org/research/research.org") "research")
-    ("rl" (find-file "~/Sync/org/research/research.bib") "referencias"))))
+   (("rb" (find-file "~/pCloudDrive/org/books.org") "books")
+    ("rr" (find-file "~/pCloudDrive/org/research/research.org") "research")
+    ("rl" (find-file "~/pCloudDrive/org/research/research.bib") "referencias"))))
 
 #+END_SRC
 

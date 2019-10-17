@@ -360,11 +360,11 @@ mu mkdir ~/pCloudDrive/Maildir/fmail/queue && touch ~/pCloudDrive/Maildir/fmail/
   ;; Agregando un template para contestar correos luego
   (add-to-list 'org-capture-templates
                '("P" "contestar pronto" entry
-                (file+headline "~/Sync/org/refile.org" "Todo")
+                (file+headline "~/pCloudDrive/org/refile.org" "Todo")
                 "* TODO 📪 %a %?\nDEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+2d\"))" :empty-lines 1))
   (add-to-list 'org-capture-templates
                '("L" "link a correo" entry
-                (file+headline "~/Sync/org/refile.org" "Correos")
+                (file+headline "~/pCloudDrive/org/refile.org" "Correos")
                 "* 📧: %? (%a)" :empty-lines 1))
   (add-hook 'mu4e-compose-mode-hook 'org-mu4e-compose-org-mode)
   ;; Org capture en header and view mode
@@ -432,8 +432,8 @@ mu mkdir ~/pCloudDrive/Maildir/fmail/queue && touch ~/pCloudDrive/Maildir/fmail/
 (use-package org-vcard
   :after mu4e
   :config
-  (setq org-contacts-files '("~/Sync/org/contactos.org"))
-  (setq mu4e-org-contacts-file '("~/Sync/org/contactos.org"))
+  (setq org-contacts-files '("~/pCloudDrive/org/contactos.org"))
+  (setq mu4e-org-contacts-file '("~/pCloudDrive/org/contactos.org"))
   (add-to-list 'mu4e-headers-actions
                '("agregar contacto" . mu4e-action-add-org-contact) t)
   (add-to-list 'mu4e-view-actions
@@ -451,7 +451,7 @@ mu mkdir ~/pCloudDrive/Maildir/fmail/queue && touch ~/pCloudDrive/Maildir/fmail/
   (mu4e-icalendar-setup)
   (setq mu4e-icalendar-trash-after-reply t)
   (require 'org-agenda)
-  (setq gnus-icalendar-org-capture-file "~/Sync/org/notes.org")
+  (setq gnus-icalendar-org-capture-file "~/pCloudDrive/org/notes.org")
   (setq gnus-icalendar-org-capture-headline '("Calendar"))
   (gnus-icalendar-org-setup)
   )
@@ -477,7 +477,7 @@ M-o.
                 (local-set-key "\C-c\M-o" 'org-mime-org-buffer-htmlize)))
     (add-hook 'org-mime-html-hook
               (lambda ()
-                (insert-file-contents "~/Sync/css/office.css")
+                (insert-file-contents "~/pCloudDrive/css/office.css")
                 ;; (goto-char 5)
                 )
               t)
