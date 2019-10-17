@@ -45,7 +45,7 @@
   ("C-c C-v t". org-babel-tangle)
   ("C-c C-v f" . org-babel-tangle-file)
   :custom
-  (org-directory "~/Sync/org")
+  (org-directory "~/pCloudDrive/org")
   (org-startup-indented t)
   (org-catch-invisible-edits 'smart)
   (org-blank-before-new-entry '((heading . t) (plain-list-item . nil)))
@@ -290,32 +290,32 @@ Org Capture Templates are explained [[http://orgmode.org/manual/Capture-template
   (setq org-default-tasks-file (nanounanue/org-file-path "tasks.org"))
 
   (setq org-capture-templates
-        (quote (("t" "TODO    (t)" entry (file "~/Sync/org/refile.org")
+        (quote (("t" "TODO    (t)" entry (file "~/pCloudDrive/org/refile.org")
                  "* TODO %? \n:PROPERTIES:\n:via: %f\n:note:\n:END:":clock-in t :clock-resume t :empty-lines 1)
                 ("K" "Cliplink capture task" entry (file "")
                  "* TODO %(org-cliplink-capture) \n  SCHEDULED: %t\n" :empty-lines 1)
                 ("r" "Research")
-                ("rp" "Research project" entry (file "~/Sync/org/refile.org")
+                ("rp" "Research project" entry (file "~/pCloudDrive/org/refile.org")
 	         "* TODO %^{Project title} :research::%^G:\n:PROPERTIES:\n:CREATED: %U\n:END:\n%^{Project description}\n** TODO Literature review\n** TODO %?\n** TODO Summary\n** TODO Reports\n** Ideas\n" :clock-in t :clock-resume t)
-                ("ri" "Research Idea" entry (file "~/Sync/org/research.org")
+                ("ri" "Research Idea" entry (file "~/pCloudDrive/org/research.org")
                  "* %? :research::IDEA:\n%U\n%a\n" :clock-in t :clock-resume t)
-                ("s" "Scheduled TODO" entry (file+headline "~/Sync/org/refile.org")
+                ("s" "Scheduled TODO" entry (file+headline "~/pCloudDrive/org/refile.org")
                  "* TODO %? %^G \nSCHEDULED: %^t\n  %U" :empty-lines 1)
-                ("d" "Deadline" entry (file+headline "~/Sync/org/refile.org")
+                ("d" "Deadline" entry (file+headline "~/pCloudDrive/org/refile.org")
                  "* TODO %? %^G \n  DEADLINE: %^t" :empty-lines 1)
-                ("b" "Link from browser" entry (file "~/Sync/org/refile.org")
+                ("b" "Link from browser" entry (file "~/pCloudDrive/org/refile.org")
 	         "*  %? |- (%:description)\n:BOOKMARK:\n:PROPERTIES:\n:CREATED: %U\n:Source: %:link\n:END:\n%i\n" :clock-in t :clock-resume t)
-             	("s" "Selection from browser" entry (file "~/Sync/org/refile.org")
+             	("s" "Selection from browser" entry (file "~/pCloudDrive/org/refile.org")
 	         "*  %? \n :BOOKMARK:\n%(replace-regexp-in-string \"\n.*\" \"\" \"%i\")\n:PROPERTIES:\n:CREATED: %U\n:Source: %:link\n:END:\n%i\n" :clock-in t :clock-resume t)
                 ("j" "Journal" entry (function nanounanue/org-journal-find-location)
                  "* %(format-time-string org-journal-time-format)%^{Title}\n%i%?")
-                ("c" "Contactos" entry (file+headline "~/Sync/org/contactos.org" "Contactos")
+                ("c" "Contactos" entry (file+headline "~/pCloudDrive/org/contactos.org" "Contactos")
                  "* %^{Name Last Name}\n:PROPERTIES:\n:ADDRESS: %^{289 Cleveland St. Brooklyn, 11206 NY, USA}\n:BIRTHDAY: %^{yyyy-mm-dd}\n:EMAIL: %^{email@host.com}\n:NOTE: %^{NOTE}\n:END:" :empty-lines 1)
-                ("b" "Book/Bibliography" entry (file+headline "~/Sync/org/research/bibliography.org" "Refile")
+                ("b" "Book/Bibliography" entry (file+headline "~/pCloudDrive/org/research/bibliography.org" "Refile")
                  "* %?%^{TITLE}p%^{AUTHOR}p%^{TYPE}p")
-                ("n" "Note" entry (file "~/Sync/org/notes.org")
+                ("n" "Note" entry (file "~/pCloudDrive/org/notes.org")
                  "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t :empty-lines 1)
-                ("N" "Note with Clipboard" entry (file "~/Sync/org/notes.org")
+                ("N" "Note with Clipboard" entry (file "~/pCloudDrive/org/notes.org")
                  "* %? :NOTE:\n%U\n%a\n %c" :empty-lines 1))))
   )
 #+end_src
@@ -420,12 +420,12 @@ Esto también lo vamos a ocupar
 (use-feature ob-ditaa
   :demand t
   :custom
-  (org-ditaa-jar-path "~/Sync/org-libs/ditaa.jar"))
+  (org-ditaa-jar-path "~/pCloudDrive/org-libs/ditaa.jar"))
 
 (use-feature ob-plantuml
   :demand t
   :custom
-  (org-plantuml-jar-path "~/Sync/org-libs/plantuml.jar"))
+  (org-plantuml-jar-path "~/pCloudDrive/org-libs/plantuml.jar"))
 
 (use-package ob-mongo)
 (use-package ob-cypher)
@@ -929,7 +929,7 @@ In a later step it should be possible to create truly interleaved PDFs of your n
   ;ensure t
   :config
   (setq org-noter-default-notes-file-names '("notes.org")
-        org-noter-notes-search-path '("~/Sync/org/research/notes"))
+        org-noter-notes-search-path '("~/pCloudDrive/org/research/notes"))
   (setq org-noter-separate-notes-from-heading t)
   )
 #+end_src
@@ -942,11 +942,11 @@ In a later step it should be possible to create truly interleaved PDFs of your n
   :after org
   :demand t
   :init
-  (setq reftex-default-bibliography '("~/Sync/org/research/research.bib"))
+  (setq reftex-default-bibliography '("~/pCloudDrive/org/research/research.bib"))
 
   ;; see org-ref for use of these variables
-  (setq org-ref-bibliography-notes "~/Sync/org/research/notes.org"
-        org-ref-pdf-directory "~/Sync/org/referencias/"
+  (setq org-ref-bibliography-notes "~/pCloudDrive/org/research/notes.org"
+        org-ref-pdf-directory "~/pCloudDrive/org/referencias/"
         org-latex-prefer-user-labels t
         bibtex-completion-pdf-field "file"
         org-ref-default-citation-link "parencite")
@@ -1490,7 +1490,7 @@ org-board is a bookmarking and web archival system for Emacs Org
 (use-package org-board
   :config
   (global-set-key (kbd "C-c o") org-board-keymap)
-  (setq org-board-capture-file "~/Sync/org/board.org")
+  (setq org-board-capture-file "~/pCloudDrive/org/board.org")
 
   (add-to-list 'org-capture-templates
                ("c" "capture through org protocol" entry
@@ -1524,7 +1524,7 @@ This package lets you quickly jump to recently used Org headings using Helm, Ivy
 (use-package org-journal
   :demand t
   :custom
-  (org-journal-dir "~/Sync/org/journal/")
+  (org-journal-dir "~/pCloudDrive/org/journal/")
   (org-journal-file-type 'yearly)
   (org-journal-date-format "%A, %d %B %Y"))
 #+end_src
