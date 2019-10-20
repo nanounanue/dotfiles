@@ -204,6 +204,15 @@ Y en esa sesión ejecutar
 (quicklisp-quickstart:install)
 #+END_SRC
 
+** Racket
+
+#+begin_src emacs-lisp
+(use-package racket-mode
+  :mode ("\\.rkt\\" . racket-mode)
+  :hook (racket-repl-mode . electric-pair-local-mode)
+  :bind (:map racket-mode-map ("C-c C-d" . racket-run-with-debugging)))
+#+end_src
+
 ** [[file:emacs-python.org][Python]]
 
 #+BEGIN_SRC emacs-lisp
