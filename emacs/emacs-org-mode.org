@@ -40,7 +40,7 @@
   ("C-c l"   . org-store-link)
   ("M-h"     . org-mark-element)
   ("C-c c"   . org-capture)
-  ("C-c C-w" . org-regile)
+  ("C-c C-w" . org-refile)
   ("C-c a"   . org-agenda)
   ("C-c C-v t". org-babel-tangle)
   ("C-c C-v f" . org-babel-tangle-file)
@@ -49,10 +49,12 @@
   (org-startup-indented t)
   (org-catch-invisible-edits 'smart)
   (org-blank-before-new-entry '((heading . t) (plain-list-item . nil)))
-  (org-log-done 'time)
   (org-return-follows-link t)
   (org-list-allow-alphabetical t)  ;; Allow ‘a.’, ‘A.’, "a)" and "A)" as list elements
 
+
+  ;; Modificar estos si quieres llevar un log del cambio de estado
+  (org-log-done 'time)
   (org-log-reschedule 'note)
   (org-log-redeadline 'note)
   (org-log-into-drawer t)
@@ -83,7 +85,6 @@
   ;(org-mode . flycheck-mode)
 )
 #+end_src
-
 
 
 * /Speed keys/
@@ -194,15 +195,15 @@ Habilitando mas tipos de imágenes a desplegar en =org-mode=
                              ;; CANCELLED significa que ya no es necesario hacerse
                              ;; DONE significa que ha sido completada
                              sequence
-                             "TODO(t@/!)"
-                             "WORKING(w@/!)"
+                             "TODO(t!)"
+                             "WORKING(w!)"
                              "BLOCKED(b@/!)"
                              "REVIEW(r@/!)"
                              "DELEGATED(e@/!)"
                              "|"
                              "ASSIGNED(.@/!)"
                              "CANCELLED(c@/!)"
-                             "DONE(d@/!)")))
+                             "DONE(d!)")))
 
   (setq org-todo-keyword-faces
         '(("TODO" . "tomato")
@@ -266,9 +267,6 @@ Habilitando mas tipos de imágenes a desplegar en =org-mode=
     ;; Include current clocking task in clock reports
     (setq org-clock-report-include-clocking-task t))
 #+END_SRC
-
-
-
 
 * Capture-refile-archive
 
@@ -367,7 +365,7 @@ Por último, recuerda hacer =C-c C-w= para /refile/ la nota al lugar correspondi
 ))
 #+end_src
 
-* Literate Programming
+* /Literate Programming/
 
 Larga vida al [[http://orgmode.org/worg/org-contrib/babel/intro.html][proyecto Babel]], el cual permite la ejecución de bloques
 códigos y /tangle out/ bloques hacia archivos
@@ -584,18 +582,6 @@ Esto también lo vamos a ocupar
         org-export-coding-system 'utf-8
         org-html-checkbox-type 'html))
 #+end_src
-
-** Ignorar header, pero no contenido ...
-
-A veces queremos agrupar texto por algunos /headers/ pero *NO*
-queremos exportar el /header/, para lograrlo hay que hacer:
-
-
-#+begin_src emacs-lisp
-(require 'ox-extra)
-(ox-extras-activate  '(ignore-headlines))
-#+end_src
-
 
 
 ** Imágenes
@@ -1402,12 +1388,20 @@ buffer.
 #+END_SRC
 
 ** ox-extra
-#+begin_src emacs-lisp :tangle no
+
+A veces queremos agrupar texto por algunos /headers/ pero *NO*
+queremos exportar el /header/, para lograrlo hay que hacer:
+
+
+
+#+begin_src emacs-lisp
 ;; Feature `ox-extra' is a library from the org-plus-contrib package.
 ;; It adds extra keywords and tagging functionality for org export.
+
 (use-feature ox-extra
   ;; Demand so that ignore headlines is always active.
   :demand t
+  :init (require 'ox-extra)
   :after ox
   ;; The ignore-headlines allows Org to understand the tag :ignore: and simply
   ;; remove tagged headings on export, but leave their content in.
@@ -1415,6 +1409,7 @@ buffer.
   ;; https://write.as/dani/writing-a-phd-thesis-with-org-mode
   :config (ox-extras-activate '(ignore-headlines)))
 #+end_src
+
 
 **  org-compat
 
