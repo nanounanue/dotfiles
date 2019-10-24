@@ -620,7 +620,7 @@ Pequeñas modificaciones
 #+END_SRC
 
 Este paquete esconde los detalles feos al mostrar el directorio
-(usr =(= para mostar y =)= para no mostrar)
+(usr =(= para mostar / no mostrar)
 
 #+BEGIN_SRC emacs-lisp
   (use-feature dired-details
@@ -628,6 +628,15 @@ Este paquete esconde los detalles feos al mostrar el directorio
     :init   (setq dired-details-hidden-string "* ")
     :config (dired-details-install))
 #+END_SRC
+
+Y también podemos agregar los logs de =git= con =)=
+
+#+begin_src emacs-lisp
+(use-package dired-git-info
+  :ensure t
+  :bind (:map dired-mode-map (")" . dired-git-info-mode)))
+#+end_src
+
 
 Echar un /vistazo/ sin cargar en el /buffer/
 
