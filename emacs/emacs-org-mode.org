@@ -815,7 +815,7 @@ propuesta en el mismo lugar es el [[https://gitlab.com/oer/org-re-reveal][fork]]
   :after org-re-reveal
   :demand t
   :config
-  (setq org-ref-default-bibliography '("references.bib")
+  (setq org-ref-default-bibliography '("~/pCloudDrive/org/research/research.bib")
         org-ref-bibliography-entry-format
         '(("article" . "%a, %t, <i>%j %v(%n)</i>, %p (%y). <a href=\"%U\">%U</a>")
           ("book" . "%a, %t, %u, %y. <a href=\"%U\">%U</a>")
@@ -915,7 +915,7 @@ In a later step it should be possible to create truly interleaved PDFs of your n
   ;ensure t
   :config
   (setq org-noter-default-notes-file-names '("notes.org")
-        org-noter-notes-search-path '("~/pCloudDrive/org/research/notes"))
+        org-noter-notes-search-path '("~/pCloudDrive/org/research"))
   (setq org-noter-separate-notes-from-heading t)
   )
 #+end_src
@@ -936,7 +936,8 @@ In a later step it should be possible to create truly interleaved PDFs of your n
         org-latex-prefer-user-labels t
         bibtex-completion-pdf-field "file"
         org-ref-default-citation-link "parencite")
-:config
+  (setq org-ref-notes-function #'org-ref-notes-function-one-file)
+  :config
 
   (defun org-ref-grep-pdf (&optional _candidate)
     "Search pdf files of marked CANDIDATEs."
@@ -950,6 +951,22 @@ In a later step it should be possible to create truly interleaved PDFs of your n
                           (funcall get-pdf-function key))
                         keys)))))
 
+  (defun org-ref-noter-at-point ()
+    "Open the pdf for bibtex key under point if it exists."
+    (interactive)
+    (let* ((results (org-ref-get-bibtex-key-and-file))
+           (key (car results))
+           (pdf-file (funcall org-ref-get-pdf-filename-function key)))
+      (if (file-exists-p pdf-file)
+          (progn
+            (find-file-other-window pdf-file)
+            (org-noter))
+        (message "no pdf found for %s" key))))
+
+
+  (add-to-list 'org-ref-helm-user-candidates
+               '("Org-Noter notes" . org-ref-noter-at-point))
+
   (defun org-ref-open-pdf-at-point-in-emacs ()
     "Open the pdf for bibtex key under point if it exists."
     (interactive)
@@ -959,6 +976,7 @@ In a later step it should be possible to create truly interleaved PDFs of your n
       (if (file-exists-p pdf-file)
           (find-file-other-window pdf-file)
         (message "no pdf found for %s" key)))))
+
 #+END_SRC
 
 
@@ -1123,14 +1141,14 @@ update-desktop-database ~/.local/share/applications/
 #+begin_src emacs-lisp :tangle no :noweb-ref ox-latex-tufte-book
   (add-to-list 'org-latex-classes
                '("tufte-handout"
-                 "\\documentclass[a4paper]{tufte-handout}
+                 "\\documentclass{tufte-handout}
                   [NO-DEFAULT-PACKAGES]
                   [PACKAGES]
                   [EXTRA]"
-                  ("\\part{%s}" . "\\part*{%s}")
-                  ("\\chapter{%s}" . "\\chapter*{%s}")
                   ("\\section{%s}" . "\\section*{%s}")
-                  ("\\subsection{%s}" . "\\subsection*{%s}")))
+                  ("\\subsection{%s}" . "\\subsection*{%s}")
+                  ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                  ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 #+end_src
 
 
