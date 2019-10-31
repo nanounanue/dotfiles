@@ -23,8 +23,8 @@
 
 * Org-plus-contrib
 
-#+begin_src emacs-lisp
-;(use-package org-plus-contrib)
+#+begin_src emacs-lisp :tangle no
+(use-package org-plus-contrib)
 #+end_src
 
 * Org-mode
@@ -77,13 +77,17 @@
                           '(("^ *\\([-]\\) "
                              (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "▶"))))))
 
+  <<org-functions>>
+
   :hook
-  (org-mode . org-display-inline-images)
-  (org-after-todo-statistics . org-summary-todo)
-  (org-mode . visual-line-mode)
-  ;(org-mode . variable-pitch-mode)
-  ;(org-mode . flycheck-mode)
-)
+  (
+   (org-after-todo-statistics . org-summary-todo)
+   (org-mode . org-display-inline-images)
+   (org-mode . visual-line-mode)
+                                        ;(org-mode . variable-pitch-mode)
+                                        ;(org-mode . flycheck-mode)
+   )
+  )
 #+end_src
 
 
@@ -114,10 +118,14 @@ Por /default/ no están habilitados
 
 
 #+begin_src emacs-lisp
-  (use-feature org
-    :custom
-    (org-use-speed-commands
-     (lambda () (and (looking-at org-outline-regexp) (looking-back "^\**")))))
+(use-feature org-keys
+  :demand t
+  :after org
+  :custom
+  (org-use-speed-commands
+   (lambda () (and (looking-at org-outline-regexp) (looking-back "^\**"))))
+  :config (setq org-use-speed-commands t
+                org-speed-commands-user '(("S" . org-store-link))))
 #+end_src
 
 * Imágenes
@@ -159,6 +167,8 @@ Habilitando mas tipos de imágenes a desplegar en =org-mode=
     (setq org-agenda-todo-ignore-deadlines t)
     (setq org-agenda-todo-ignore-timestamp t)
     (setq org-agenda-todo-ignore-with-date t)
+    (setq org-deadline-warning-days 40)
+    (setq org-deadline-past-days 21)
     (setq org-agenda-start-on-weekday nil))
 #+END_SRC
 
@@ -523,7 +533,18 @@ Esto también lo vamos a ocupar
 
 (add-to-list 'org-structure-template-alist
              '("clj" . "src clojure"))
+
+;; Tomado de https://github.com/dangom/org-thesis/blob/master/org-init.el
+;; After inserting an org template, also open a line.
+(defun org-structure-template-and-open-line (orig-func &rest args)
+  (apply orig-func args)
+  (unless mark-active
+    (open-line 1)))
+
+(advice-add 'org-insert-structure-template
+              :around #'org-structure-template-and-open-line)
 #+end_src
+
 
 
 ** Python: Emacs-jupyter
@@ -618,6 +639,20 @@ como sigue:
              }
           </style>"))
 #+END_SRC
+
+** Word
+
+#+begin_src emacs-lisp
+;; The `ox-word' library uses pandoc to export Org files to Microsoft Word via
+;; LaTeX. It is currently a part of Kitchin's awesome Scimax project.
+(use-package ox-word
+  :after (:all org-ref ox)
+  :demand t
+  :straight (ox-word :type git
+                     :host github
+                     :repo "jkitchin/scimax"
+                     :files ("ox-word.el")))
+#+end_src
 
 ** LaTeX
 
@@ -964,8 +999,16 @@ In a later step it should be possible to create truly interleaved PDFs of your n
         (message "no pdf found for %s" key))))
 
 
-  (add-to-list 'org-ref-helm-user-candidates
-               '("Org-Noter notes" . org-ref-noter-at-point))
+  (defun org-ref-open-in-scihub ()
+    "Open the bibtex entry at point in a browser using the url field or doi field.
+Not for real use, just here for demonstration purposes."
+    (interactive)
+    (let ((doi (org-ref-get-doi-at-point)))
+      (when doi
+        (if (string-match "^http" doi)
+            (browse-url doi)
+          (browse-url (format "http://sci-hub.se/%s" doi)))
+        (message "No url or doi found"))))
 
   (defun org-ref-open-pdf-at-point-in-emacs ()
     "Open the pdf for bibtex key under point if it exists."
@@ -975,8 +1018,25 @@ In a later step it should be possible to create truly interleaved PDFs of your n
            (pdf-file (funcall org-ref-get-pdf-filename-function key)))
       (if (file-exists-p pdf-file)
           (find-file-other-window pdf-file)
-        (message "no pdf found for %s" key)))))
+        (message "no pdf found for %s" key))))
 
+  (helm-add-action-to-source "Grep PDF" 'org-ref-grep-pdf helm-source-bibtex 1)
+
+  ;; The following makes it possible to grep pdfs from the org-ref Helm
+  ;; selection interface with C-s.
+  (setq helm-bibtex-map
+        (let ((map (make-sparse-keymap)))
+          (set-keymap-parent map helm-map)
+          (define-key map (kbd "C-s") (lambda () (interactive)
+                                        (helm-run-after-exit 'org-ref-grep-pdf)))
+          map))q
+  (push `(keymap . ,helm-bibtex-map) helm-source-bibtex)q
+
+
+  (add-to-list 'org-ref-helm-user-candidates
+               '(("Org-Noter notes" . org-ref-noter-at-point)
+                 ("Open in Sci-hub"  . org-ref-open-in-scihub)
+                 ("Open in Emacs" . org-ref-open-pdf-at-point-in-emacs))))
 #+END_SRC
 
 
@@ -1546,6 +1606,41 @@ This package lets you quickly jump to recently used Org headings using Helm, Ivy
 
 #+begin_src emacs-lisp
 (use-package org-sidebar)
+#+end_src
+
+
+** Funciones
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-functions
+  (defmacro unpackaged/def-org-maybe-surround (&rest keys)
+    "Define and bind interactive commands for each of KEYS that surround the region or insert text.
+  Commands are bound in `org-mode-map' to each of KEYS.  If the
+  region is active, commands surround it with the key character,
+  otherwise call `org-self-insert-command'."
+    `(progn
+       ,@(cl-loop for key in keys
+                  for name = (intern (concat "unpackaged/org-maybe-surround-" key))
+                  for docstring = (format "If region is active, surround it with \"%s\", otherwise call `org-self-insert-command'." key)
+                  collect `(defun ,name ()
+                             ,docstring
+                             (interactive)
+                             (if (region-active-p)
+                                 (let ((beg (region-beginning))
+                                       (end (region-end)))
+                                   (save-excursion
+                                     (goto-char end)
+                                     (insert ,key)
+                                     (goto-char beg)
+                                     (insert ,key)))
+                               (call-interactively #'org-self-insert-command)))
+                  collect `(define-key org-mode-map (kbd ,key) #',name))))
+
+  (unpackaged/def-org-maybe-surround "~" "=" "*" "/" "+" "$")
+
+  (defun org-summary-todo (n-done n-not-done)
+    "Switch entry to DONE when all subentries are done, to TODO otherwise."
+    (let (org-log-done org-log-states)   ; turn off logging
+      (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
 #+end_src
 
 * Proveer
