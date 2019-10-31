@@ -27,67 +27,99 @@
 (use-package org-plus-contrib)
 #+end_src
 
+
+
 * Org-mode
 
 #+begin_src emacs-lisp
-(use-feature org
-  :demand t
-  :mode
-  ("\\.org\\'" . org-mode)
-  ("\\.txt\\'" . org-mode)
-  (".*/[0-9]*$" . org-mode)
-  :bind
-  ("C-c l"   . org-store-link)
-  ("M-h"     . org-mark-element)
-  ("C-c c"   . org-capture)
-  ("C-c C-w" . org-refile)
-  ("C-c a"   . org-agenda)
-  ("C-c C-v t". org-babel-tangle)
-  ("C-c C-v f" . org-babel-tangle-file)
-  :custom
-  (org-directory "~/pCloudDrive/org")
-  (org-startup-indented t)
-  (org-catch-invisible-edits 'smart)
-  (org-blank-before-new-entry '((heading . t) (plain-list-item . nil)))
-  (org-return-follows-link t)
-  (org-list-allow-alphabetical t)  ;; Allow ‘a.’, ‘A.’, "a)" and "A)" as list elements
+  (use-feature org
+    :demand t
+    :mode
+    ("\\.org\\'" . org-mode)
+    ("\\.txt\\'" . org-mode)
+    (".*/[0-9]*$" . org-mode)
+    :bind
+    ("C-c l"   . org-store-link)
+    ("M-h"     . org-mark-element)
+    ("C-c c"   . org-capture)
+    ("C-c C-w" . org-refile)
+    ("C-c a"   . org-agenda)
+    ("C-c C-v t". org-babel-tangle)
+    ("C-c C-v f" . org-babel-tangle-file)
+    :custom
+    (org-directory "~/pCloudDrive/org")
+    (org-startup-indented t)
+    (org-catch-invisible-edits 'smart)
+    (org-blank-before-new-entry '((heading . t) (plain-list-item . nil)))
+    (org-return-follows-link t)
+    (org-list-allow-alphabetical t)  ;; Allow ‘a.’, ‘A.’, "a)" and "A)" as list elements
 
 
-  ;; Modificar estos si quieres llevar un log del cambio de estado
-  (org-log-done 'time)
-  (org-log-reschedule 'note)
-  (org-log-redeadline 'note)
-  (org-log-into-drawer t)
+    ;; Modificar estos si quieres llevar un log del cambio de estado
+    (org-log-done 'time)
+    (org-log-reschedule 'note)
+    (org-log-redeadline 'note)
+    (org-log-into-drawer t)
 
-  (org-special-ctrl-a/e t)
+    (org-special-ctrl-a/e t)
 
-  ;; Aesthetics
-  (org-hide-emphasis-markers t)
-  (org-pretty-entities t)
-  (org-image-actual-width '(400))
-  (org-fontify-whole-heading-line t)
-  (org-fontify-quote-and-verse-blocks t)
-  (org-fontify-done-headline t)
-  (org-highlight-latex-and-related '(latex))
-  (org-hide-macro-markers t)
-  (org-hide-emphasis-markers nil)
+    ;; Aesthetics
+    (org-hide-emphasis-markers t)
+    (org-pretty-entities t)
+    (org-image-actual-width '(400))
+    (org-fontify-whole-heading-line t)
+    (org-fontify-quote-and-verse-blocks t)
+    (org-fontify-done-headline t)
+    (org-highlight-latex-and-related '(latex))
+    (org-hide-macro-markers t)
+    (org-hide-emphasis-markers nil)
 
-  :config
-  (font-lock-add-keywords 'org-mode
-                          '(("^ *\\([-]\\) "
-                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "▶"))))))
+    :config
+    (font-lock-add-keywords 'org-mode
+                            '(("^ *\\([-]\\) "
+                               (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "▶"))))))
 
-  <<org-functions>>
 
-  :hook
-  (
-   (org-after-todo-statistics . org-summary-todo)
-   (org-mode . org-display-inline-images)
-   (org-mode . visual-line-mode)
-                                        ;(org-mode . variable-pitch-mode)
-                                        ;(org-mode . flycheck-mode)
-   )
-  )
+    (defmacro unpackaged/def-org-maybe-surround (&rest keys)
+      "Define and bind interactive commands for each of KEYS that surround the region or insert text.
+    Commands are bound in `org-mode-map' to each of KEYS.  If the
+    region is active, commands surround it with the key character,
+    otherwise call `org-self-insert-command'."
+      `(progn
+         ,@(cl-loop for key in keys
+                    for name = (intern (concat "unpackaged/org-maybe-surround-" key))
+                    for docstring = (format "If region is active, surround it with \"%s\", otherwise call `org-self-insert-command'." key)
+                    collect `(defun ,name ()
+                               ,docstring
+                               (interactive)
+                               (if (region-active-p)
+                                   (let ((beg (region-beginning))
+                                         (end (region-end)))
+                                     (save-excursion
+                                       (goto-char end)
+                                       (insert ,key)
+                                       (goto-char beg)
+                                       (insert ,key)))
+                                 (call-interactively #'org-self-insert-command)))
+                    collect `(define-key org-mode-map (kbd ,key) #',name))))
+
+    (unpackaged/def-org-maybe-surround "~" "=" "*" "/" "+" "$")
+
+    (defun org-summary-todo (n-done n-not-done)
+      "Switch entry to DONE when all subentries are done, to TODO otherwise."
+      (let (org-log-done org-log-states)   ; turn off logging
+        (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
+
+
+    :hook
+    (
+     (org-after-todo-statistics . org-summary-todo)
+     (org-mode . org-display-inline-images)
+     (org-mode . visual-line-mode)
+                                          ;(org-mode . variable-pitch-mode)
+                                          ;(org-mode . flycheck-mode)
+     )
+    )
 #+end_src
 
 
@@ -998,7 +1030,6 @@ In a later step it should be possible to create truly interleaved PDFs of your n
             (org-noter))
         (message "no pdf found for %s" key))))
 
-
   (defun org-ref-open-in-scihub ()
     "Open the bibtex entry at point in a browser using the url field or doi field.
 Not for real use, just here for demonstration purposes."
@@ -1009,6 +1040,7 @@ Not for real use, just here for demonstration purposes."
             (browse-url doi)
           (browse-url (format "http://sci-hub.se/%s" doi)))
         (message "No url or doi found"))))
+
 
   (defun org-ref-open-pdf-at-point-in-emacs ()
     "Open the pdf for bibtex key under point if it exists."
@@ -1029,8 +1061,8 @@ Not for real use, just here for demonstration purposes."
           (set-keymap-parent map helm-map)
           (define-key map (kbd "C-s") (lambda () (interactive)
                                         (helm-run-after-exit 'org-ref-grep-pdf)))
-          map))q
-  (push `(keymap . ,helm-bibtex-map) helm-source-bibtex)q
+          map))
+  (push `(keymap . ,helm-bibtex-map) helm-source-bibtex)
 
 
   (add-to-list 'org-ref-helm-user-candidates
@@ -1609,39 +1641,6 @@ This package lets you quickly jump to recently used Org headings using Helm, Ivy
 #+end_src
 
 
-** Funciones
-
-#+begin_src emacs-lisp :tangle no :noweb-ref org-functions
-  (defmacro unpackaged/def-org-maybe-surround (&rest keys)
-    "Define and bind interactive commands for each of KEYS that surround the region or insert text.
-  Commands are bound in `org-mode-map' to each of KEYS.  If the
-  region is active, commands surround it with the key character,
-  otherwise call `org-self-insert-command'."
-    `(progn
-       ,@(cl-loop for key in keys
-                  for name = (intern (concat "unpackaged/org-maybe-surround-" key))
-                  for docstring = (format "If region is active, surround it with \"%s\", otherwise call `org-self-insert-command'." key)
-                  collect `(defun ,name ()
-                             ,docstring
-                             (interactive)
-                             (if (region-active-p)
-                                 (let ((beg (region-beginning))
-                                       (end (region-end)))
-                                   (save-excursion
-                                     (goto-char end)
-                                     (insert ,key)
-                                     (goto-char beg)
-                                     (insert ,key)))
-                               (call-interactively #'org-self-insert-command)))
-                  collect `(define-key org-mode-map (kbd ,key) #',name))))
-
-  (unpackaged/def-org-maybe-surround "~" "=" "*" "/" "+" "$")
-
-  (defun org-summary-todo (n-done n-not-done)
-    "Switch entry to DONE when all subentries are done, to TODO otherwise."
-    (let (org-log-done org-log-states)   ; turn off logging
-      (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
-#+end_src
 
 * Proveer
 
