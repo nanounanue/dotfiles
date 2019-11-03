@@ -4,7 +4,7 @@
 #+STARTUP: showeverything
 #+STARTUP: nohideblocks
 #+STARTUP: indent
-#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/elisp/setup-main.el
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.config/emacs/elisp/setup-main.el
 #+PROPERTY:    header-args:shell  :tangle no
 #+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
 #+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
@@ -161,7 +161,7 @@ Deshabilitar /warning/ cuando matamos un /buffer/ con algún proceso
 * Mejoras a =GNU Emacs=
 
 Package `no-littering' changes the default paths for lots of
-different packages, with the net result that the ~/.emacs.d folder
+different packages, with the net result that the ~/.config/emacs folder
 is much more clean and organized.
 
 #+begin_src emacs-lisp
@@ -199,7 +199,7 @@ Tomado de [[http://timothypratley.blogspot.com/2015/07/seven-specialty-emacs-set
 * Cifrado
 
 #+BEGIN_SRC shell :dir /sudo::
-apt install -y gpg gpg2
+apt install -y gpg gnupg2
 #+END_SRC
 
 Cualquier archivo que tenga una extensión =gpg= pedirá a contraseña /antes/ de ser mostrado.

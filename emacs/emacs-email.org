@@ -4,7 +4,7 @@
 #+STARTUP: showeverything
 #+STARTUP: nohideblocks
 #+STARTUP: indent
-#+PROPERTY:    header-args:emacs-lisp  :tangle ~/.emacs.d/elisp/setup-email.el
+#+PROPERTY:    header-args:emacs-lisp  :tangle ~/.config/emacs/elisp/setup-email.el
 #+PROPERTY:    header-args:shell  :tangle no
 #+PROPERTY:    header-args:python :tangle no
 #+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
@@ -44,7 +44,7 @@ make install
 ** Cifrado de /passwords/
 
 #+begin_src shell :dir /sudo::
-apt install gpg2 gpg
+apt install gnupg2 gpg
 #+end_src
 
 *** SMTP
