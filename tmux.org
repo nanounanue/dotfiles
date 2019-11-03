@@ -15,7 +15,7 @@
 ** Instalar tmux
 
 #+BEGIN_SRC sh :tangle no :dir /sudo::
-apt install libevent-dev autotools-dev automake
+apt install libevent-dev autotools-dev automake bison
 #+END_SRC
 
 #+BEGIN_SRC sh :tangle no :dir ~/software
