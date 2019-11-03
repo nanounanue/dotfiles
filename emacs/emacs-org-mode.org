@@ -762,9 +762,12 @@ Para aprovechar [[https://github.com/kawabata/ox-pandoc][ox-pandoc]] es necesari
 =pandoc=.
 
 
-#+BEGIN_SRC shell :dir /sudo::
+#+BEGIN_SRC shell
 VERSION=$(curl --silent "https://api.github.com/repos/jgm/pandoc/releases/latest" | jq -r .tag_name) && \
-wget  -q -O /tmp/pandoc.deb https://github.com/jgm/pandoc/releases/download/${VERSION}/pandoc-${VERSION}-1-amd64.deb && \
+wget  -q -O /tmp/pandoc.deb https://github.com/jgm/pandoc/releases/download/${VERSION}/pandoc-${VERSION}-1-amd64.deb
+#+end_src
+
+#+begin_src shell :dir /sudo::
 dpkg -i /tmp/pandoc.deb
 #+END_SRC
 
