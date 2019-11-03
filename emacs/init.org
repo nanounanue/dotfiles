@@ -4,7 +4,7 @@
 #+STARTUP: showeverything
 #+STARTUP: nohideblocks
 #+STARTUP: indent
-#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/init.el
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.config/emacs/init.el
 #+PROPERTY:    header-args:shell  :tangle no
 #+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
 #+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
@@ -43,6 +43,11 @@ make autoloads
 
 #+begin_src shell :tangle no :dir /sudo::~/software/emacs
 make install
+#+end_src
+
+
+#+begin_src emacs-lisp :tangle no
+(emacs-version)
 #+end_src
 
 * /Bytecode/ viejo?
@@ -120,7 +125,7 @@ no sea configurado el administrador de paquetes
 * /Load path/
 
 #+begin_src emacs-lisp
-(defconst nanounanue/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
+(defconst nanounanue/emacs-directory (concat (getenv "HOME") "/.config/emacs/"))
 
 (defun nanounanue/emacs-subdirectory (d) (expand-file-name d nanounanue/emacs-directory))
 
@@ -165,7 +170,7 @@ no sea configurado el administrador de paquetes
 
 * Programación
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (require 'setup-coding)
 #+end_src
 

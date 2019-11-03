@@ -4,7 +4,7 @@
 #+STARTUP: showeverything
 #+STARTUP: nohideblocks
 #+STARTUP: indent
-#+PROPERTY:    header-args:emacs-lisp  :tangle ~/.emacs.d/elisp/setup-client.el
+#+PROPERTY:    header-args:emacs-lisp  :tangle ~/.config/emacs/elisp/setup-client.el
 #+PROPERTY:    header-args:shell  :tangle no
 #+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
 #+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
@@ -220,7 +220,7 @@ Agrega /face/ a los paréntesis, de tal manera que los temas puedan oscurecerlos
 #+BEGIN_SRC emacs-lisp
 (use-package nord-theme
   :config
-  (add-to-list 'custom-theme-load-path (expand-file-name "~/.emacs.d/themes/"))
+  (add-to-list 'custom-theme-load-path (expand-file-name "~/.config/emacs/themes/"))
   (load-theme 'nord t))
 
 (use-package doom-modeline

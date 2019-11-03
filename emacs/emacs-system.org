@@ -2,7 +2,7 @@
 #+AUTHOR: Adolfo De Unánue
 #+EMAIL:  nanounanue@gmail.com
 #+PROPERTY:    header-args:shell     :tangle no
-#+PROPERTY:    header-args:emacs-lisp  :tangle ~/.emacs.d/elisp/setup-system.el
+#+PROPERTY:    header-args:emacs-lisp  :tangle ~/.config/emacs/elisp/setup-system.el
 #+PROPERTY:    header-args:       :results silent   :eval no-export   :comments org
 #+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
 #+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil

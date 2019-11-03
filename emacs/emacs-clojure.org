@@ -4,7 +4,7 @@
 #+STARTUP: showeverything
 #+STARTUP: nohideblocks
 #+STARTUP: indent
-#+PROPERTY:    header-args:emacs-lisp  :tangle ~/.emacs.d/elisp/setup-clojure.el
+#+PROPERTY:    header-args:emacs-lisp  :tangle ~/.config/emacs/elisp/setup-clojure.el
 #+PROPERTY:    header-args:shell  :tangle no
 #+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
 #+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
@@ -104,7 +104,7 @@
   :config
   (use-package slamhound)
   ;; REPL history file
-  (setq cider-repl-history-file "~/.emacs.d/cider-history")
+  (setq cider-repl-history-file "~/.config/emacs/cider-history")
 
   ;; nice pretty printing
   (setq cider-repl-use-pretty-printing t)

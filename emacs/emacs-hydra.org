@@ -4,7 +4,7 @@
 #+STARTUP: showeverything
 #+STARTUP: nohideblocks
 #+STARTUP: indent
-#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/elisp/setup-hydra.el
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.config/emacs/elisp/setup-hydra.el
 #+PROPERTY:    header-args:shell  :tangle no
 #+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
 #+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
