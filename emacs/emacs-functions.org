@@ -233,7 +233,7 @@ variable-pitch face, and MODELINE-HEIGHT for mode-line face."
 
 ** pyenv
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 (defun nanounanue/pyenv-init()
   "Setup pyenv in Emacs."
   (setq global-pyenv (replace-regexp-in-string "\n" "" (shell-command-to-string "pyenv global")))
