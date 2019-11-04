@@ -85,15 +85,16 @@
 *** Aggresive-indent
 
 #+BEGIN_SRC emacs-lisp
-  (use-package aggressive-indent
-    :config
-    ;; (global-aggressive-indent-mode 1)
-    (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
-    (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
-    (add-hook 'clojure-mode-hook #'aggressive-indent-mode)
-    (add-hook 'ruby-mode-hook #'aggressive-indent-mode)
-    ;(add-hook 'python-mode-hook #'aggresive-indent-mode)
-    (add-hook 'css-mode-hook #'aggressive-indent-mode))
+(use-package aggressive-indent
+  :demand t
+  :config
+  ;; (global-aggressive-indent-mode 1)
+  (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
+  (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
+  (add-hook 'clojure-mode-hook #'aggressive-indent-mode)
+  (add-hook 'ruby-mode-hook #'aggressive-indent-mode)
+                                        ;(add-hook 'python-mode-hook #'aggresive-indent-mode)
+  (add-hook 'css-mode-hook #'aggressive-indent-mode))
 #+END_SRC
 
 *** /Jump to source/: [[https://github.com/jacktasia/dumb-jump][Dumb jump]]
@@ -208,26 +209,26 @@ Descargarlo desde [[https://racket-lang.org/download/][aquí]]
 
 #+begin_src emacs-lisp
 (use-package racket-mode
-  :mode ("\\.rkt\\" . racket-mode)
+  :mode ("\\.rkt\\'" . racket-mode)
   :hook (racket-repl-mode . electric-pair-local-mode)
   :bind (:map racket-mode-map ("C-c C-d" . racket-run-with-debugging)))
 #+end_src
 
 ** [[file:emacs-python.org][Python]]
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp
 (require 'setup-python)
 #+END_SRC
 
 ** [[file:emacs-tex.org][TeX]]
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp
 (require 'setup-tex)
 #+END_SRC
 
 ** [[file:emacs-scala.org][Scala]]
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp
 (require 'setup-scala)
 #+END_SRC
 
@@ -236,7 +237,7 @@ Descargarlo desde [[https://racket-lang.org/download/][aquí]]
 
 [[https://ess.r-project.org/][Emacs Speaks Statistics]]
 
- #+BEGIN_SRC emacs-lisp :tangle no
+ #+BEGIN_SRC emacs-lisp
 (use-package ess
   :init
   (require 'ess-site)
@@ -262,7 +263,7 @@ Descargarlo desde [[https://racket-lang.org/download/][aquí]]
 
 Conectamos =R= con =company=
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp
 (use-package company-statistics
   :after company
   :init
