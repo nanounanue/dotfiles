@@ -106,13 +106,13 @@ background processes.
 #+end_quote
 
 #+BEGIN_SRC emacs-lisp
-  (use-package dumb-jump
-    :diminish dumb-jump-mode
-    :config
-    (setq dumb-jump-selector 'ivy)
-    :bind (("C-M-g" . dumb-jump-go)
-           ("C-M-p" . dumb-jump-back)
-           ("C-M-q" . dumb-jump-quick-look)))
+(use-package dumb-jump
+  :diminish dumb-jump-mode
+  :config
+  (setq dumb-jump-selector 'ivy)
+  :bind (("C-M-g" . dumb-jump-go)
+         ("C-M-p" . dumb-jump-back)
+         ("C-M-q" . dumb-jump-quick-look)))
 #+END_SRC
 
 *** [[https://github.com/Malabarba/fancy-narrow][Fancy narrow]]
@@ -127,20 +127,19 @@ Una versión /fancy/ de =narrow-to-region=.
 
 
  #+BEGIN_SRC emacs-lisp
- (use-package fancy-narrow
-   :diminish
-   :config
-   (fancy-narrow-mode)
-   )
+(use-package fancy-narrow
+  :diminish
+  :config
+  (fancy-narrow-mode))
  #+END_SRC
 
 *** rainbow-blocks
 
 #+BEGIN_SRC emacs-lisp
 (use-package rainbow-blocks
-:config
-(require 'rainbow-blocks)
-:hook (clojure-mode))
+  :config
+  (require 'rainbow-blocks)
+  :hook (clojure-mode))
 #+END_SRC
 
 ** [[file:emacs-elisp.org][Emacs Lisp]]
@@ -182,8 +181,7 @@ Para aprender más sobre como usar Emacs con Common Lisp ver [[https://lispcookb
 #+BEGIN_SRC emacs-lisp
 (use-package sly
   :config
-  (setq inferior-lisp-program "sbcl")
-  )
+  (setq inferior-lisp-program "sbcl"))
 #+END_SRC
 
 Siguiendo las instrucciones de [[https://lispcookbook.github.io/cl-cookbook/getting-started.html][aquí]]  instalamos =quicklisp=
@@ -206,6 +204,8 @@ Y en esa sesión ejecutar
 
 ** Racket
 
+Descargarlo desde [[https://racket-lang.org/download/][aquí]]
+
 #+begin_src emacs-lisp
 (use-package racket-mode
   :mode ("\\.rkt\\" . racket-mode)
@@ -215,19 +215,19 @@ Y en esa sesión ejecutar
 
 ** [[file:emacs-python.org][Python]]
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (require 'setup-python)
 #+END_SRC
 
 ** [[file:emacs-tex.org][TeX]]
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (require 'setup-tex)
 #+END_SRC
 
 ** [[file:emacs-scala.org][Scala]]
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (require 'setup-scala)
 #+END_SRC
 
@@ -236,33 +236,33 @@ Y en esa sesión ejecutar
 
 [[https://ess.r-project.org/][Emacs Speaks Statistics]]
 
- #+BEGIN_SRC emacs-lisp
-   (use-package ess
-     :init
-     (require 'ess-site)
-     :config
-     ;; Subpackage
-     (use-package ess-R-data-view)
-     (use-package ess-smart-equals :disabled)
-     (use-package ess-smart-underscore)
-     (use-package ess-view)
+ #+BEGIN_SRC emacs-lisp :tangle no
+(use-package ess
+  :init
+  (require 'ess-site)
+  :config
+  ;; Subpackage
+  (use-package ess-R-data-view)
+  (use-package ess-smart-equals :disabled)
+  (use-package ess-smart-underscore)
+  (use-package ess-view)
 
      ;;(ess-toggle-underscore nil) ; http://stackoverflow.com/questions/2531372/how-to-stop-emacs-from-replacing-underbar-with-in-ess-mode
-     (setq ess-fancy-comments nil) ; http://stackoverflow.com/questions/780796/emacs-ess-mode-tabbing-for-comment-region
-                                           ; Make ESS use RStudio's indenting style
-     (add-hook 'ess-mode-hook (lambda() (ess-set-style 'RStudio)))
+  (setq ess-fancy-comments nil) ; http://stackoverflow.com/questions/780796/emacs-ess-mode-tabbing-for-comment-region
+                                        ; Make ESS use RStudio's indenting style
+  (add-hook 'ess-mode-hook (lambda() (ess-set-style 'RStudio)))
                                            ; Make ESS use more horizontal screen
                                            ; http://stackoverflow.com/questions/12520543/how-do-i-get-my-r-buffer-in-emacs-to-occupy-more-horizontal-space
-     (add-hook 'ess-R-post-run-hook 'ess-execute-screen-options)
-     (define-key inferior-ess-mode-map "\C-cw" 'ess-execute-screen-options)
+  (add-hook 'ess-R-post-run-hook 'ess-execute-screen-options)
+  (define-key inferior-ess-mode-map "\C-cw" 'ess-execute-screen-options)
                                            ; Add path to Stata to Emacs' exec-path so that Stata can be found
 
-     )
+  )
 #+END_SRC
 
 Conectamos =R= con =company=
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (use-package company-statistics
   :after company
   :init
@@ -358,21 +358,22 @@ Abre un /buffer/ cualquiera y teclea =M-x sql-postgres=
 
 
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'same-window-buffer-names "*SQL*")
+(use-feature sql
+  :demand t
+  :config
+  (add-to-list 'same-window-buffer-names "*SQL*")
 
-(setq sql-postgres-login-params
-      '((user :default "postgres")
-        (database :default "postgres")
-        (server :default "localhost")
-        (port :default 5432)))
+  (setq sql-postgres-login-params
+        '((user :default "postgres")
+          (database :default "postgres")
+          (server :default "localhost")
+          (port :default 5432)))
 
-(add-hook 'sql-interactive-mode-hook
-          (lambda ()
-            (setq sql-prompt-regexp "^[_[:alpha:]]*[=][#>] ")
-            (setq sql-prompt-cont-regexp "^[_[:alpha:]]*[-][#>] ")
-            (toggle-truncate-lines t)))
-
-
+  (add-hook 'sql-interactive-mode-hook
+            (lambda ()
+              (setq sql-prompt-regexp "^[_[:alpha:]]*[=][#>] ")
+              (setq sql-prompt-cont-regexp "^[_[:alpha:]]*[-][#>] ")
+              (toggle-truncate-lines t))))
 #+END_SRC
 
 [[https://github.com/bsvingen/sql-indent][Si queremos indentar]] =SQL=
@@ -388,8 +389,7 @@ Abre un /buffer/ cualquiera y teclea =M-x sql-postgres=
 #+BEGIN_SRC emacs-lisp
 (use-package cypher-mode
   :config
-  (add-to-list 'auto-mode-alist '("\\.cql\\'" . cypher-mode))
-  )
+  (add-to-list 'auto-mode-alist '("\\.cql\\'" . cypher-mode)))
 #+END_SRC
 
 
@@ -437,6 +437,12 @@ Como =org-mode=, pero para =markdown=
 
 (use-package poly-noweb
   :after polymode)
+#+end_src
+
+** Eglot
+
+#+begin_src emacs-lisp
+(require 'setup-lsp)
 #+end_src
 
 * A modo de fin

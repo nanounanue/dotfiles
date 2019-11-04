@@ -209,7 +209,7 @@ no sea configurado el administrador de paquetes
 
 * Configuración del servidor
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 (require 'setup-server)
 #+end_src
 
