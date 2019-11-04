@@ -1,0 +1,58 @@
+#+TITLE:  LSP
+#+AUTHOR: Adolfo De Unánue
+#+EMAIL:  nanounanue@gmail.com
+#+STARTUP: showeverything
+#+STARTUP: nohideblocks
+#+STARTUP: indent
+#+PROPERTY:    header-args:emacs-lisp  :tangle ~/.config/emacs/elisp/setup-lsp.el
+#+PROPERTY:    header-args:shell  :tangle no
+#+PROPERTY:    header-args:python :tangle no
+#+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+TAGS:   emacs lsp eglot
+
+* Eglot
+
+#+begin_src emacs-lisp
+(use-package eglot
+  :demand t)
+#+end_src
+
+* Emacs-lsp
+
+#+begin_src emacs-lisp
+(use-package lsp-mode
+  :ensure t
+  :commands lsp
+  :hook (python-mode . lsp)
+)
+
+(use-package lsp-ui :commands lsp-ui-mode)
+(use-package company-lsp :commands company-lsp)
+(use-package helm-lsp :commands helm-lsp-workspace-symbol)
+(use-package lsp-treemacs :commands lsp-treemacs-errors-list)
+(use-package dap-mode)
+(use-package lsp-ivy)
+;; (use-package dap-python);; to load the dap adapter for your language
+#+end_src
+
+
+* Servers
+
+** Python Language Server
+
+#+begin_src shell
+pip install --upgrade pyflakes 'python-language-server[all]' jedi flake8 yapf autopep8 importmagic pylint rope black mccabe pycodestyle pydocstyle yapf pyls-mypy pyls-isort pyls-black
+#+end_src
+
+
+
+
+
+* Al final
+
+#+BEGIN_SRC emacs-lisp
+  (provide 'setup-lsp)
+#+END_SRC
