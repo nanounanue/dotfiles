@@ -36,7 +36,7 @@ Ver [[(https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.h
 mkdir -p ~/.local/bin ~/local/lib
 #+END_SRC
 
-#+BEGIN_SRC shell
+#+BEGIN_SRC shell :tangle no
 export XDG_BIN_HOME=~/.local/bin
 export XDG_CACHE_HOME=~/.cache
 export XDG_CONFIG_HOME=~/.config
@@ -223,7 +223,7 @@ alias du="ncdu --color dark -rr -x --exclude .git --exclude node_modules"
 
 Queremos estos directorios, pero sólo si existen
 
-   #+BEGIN_SRC shell
+   #+BEGIN_SRC shell :tangle no
      OLDPATH=$PATH
      PATH=$HOME/bin
 
@@ -235,5 +235,5 @@ Queremos estos directorios, pero sólo si existen
        fi
      done
 
-     PATH=$PATH:$OLDPATH
+     PATH=$OLDPATH:$PATH
    #+END_SRC
