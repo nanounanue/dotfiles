@@ -77,7 +77,6 @@ pip install --upgrade flake8
 #+BEGIN_SRC emacs-lisp
 (use-package pyvenv)
 
-
 (use-package pyenv-mode
   :if
   (executable-find "pyenv")

@@ -170,7 +170,7 @@ no sea configurado el administrador de paquetes
 
 * Programación
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 (require 'setup-coding)
 #+end_src
 
