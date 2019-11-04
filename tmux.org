@@ -144,18 +144,18 @@ bind C-u command-prompt -p "Session to merge with: " \
 
 # Detach from session
 bind d detach
-bind D if -F '#{session_many_attached}' \
-    'confirm-before -p "Detach other clients? (y/n)" "detach -a"' \
-    'display "Session has only 1 client attached"'
+#bind D if -F '#{session_many_attached}' \
+#    'confirm-before -p "Detach other clients? (y/n)" "detach -a"' \
+#    'display "Session has only 1 client attached"'
 
 # Hide status bar on demand
-bind C-s if -F '#{s/off//:status}' 'set status off' 'set status on'
+#bind C-s if -F '#{s/off//:status}' 'set status off' 'set status on'
 
 # Swap panes back and forth with 1st pane
 # When in main-(horizontal|vertical) layouts, the biggest/widest panel is always @1
-bind \ if '[ #{pane_index} -eq 1 ]' \
-     'swap-pane -s "!"' \
-     'select-pane -t:.1 ; swap-pane -d -t 1 -s "!"'
+#bind \ if '[ #{pane_index} -eq 1 ]' \
+#     'swap-pane -s "!"' \
+#     'select-pane -t:.1 ; swap-pane -d -t 1 -s "!"'
 
 # División de la ventana
 bind | split-window -h -c "#{pane_current_path}"  # Divide la pantalla horizontalmente
@@ -178,9 +178,9 @@ bind C-f command-prompt -p find-session 'switch-client -t %%'
 
 #+begin_src shell
 bind m setw monitor-activity \; display-message 'Monitor window activity [#{?monitor-activity,ON,OFF}]'
-bind M if -F '#{monitor-silence}' \
-    'setw monitor-silence 0 ; display-message "Monitor window silence [OFF]"' \
-    'command-prompt -p "Monitor silence: interval (s)" "setw monitor-silence %%"'
+#bind M if -F '#{monitor-silence}' \
+#    'setw monitor-silence 0 ; display-message "Monitor window silence [OFF]"' \
+#    'command-prompt -p "Monitor silence: interval (s)" "setw monitor-silence %%"'
 #+end_src
 
 *** [[https://github.com/tmux-plugins/tpm][Plugins]]: TPM
@@ -209,82 +209,6 @@ if "test ! -d ~/.tmux/plugins/tpm" \
 set -g @plugin 'tmux-plugins/tpm'
 #+end_src
 
-**** CPU
-#+begin_src shell
-set -g @plugin 'tmux-plugins/tmux-cpu'
-#+end_src
-
-**** Red
-
-#+begin_src shell
-set -g @plugin 'tmux-plugins/tmux-net-speed'
-set -g @net_speed_interfaces "eth0 eth1"
-
-set -g @download_speed_format "%10s"
-set -g @upload_speed_format "%10s"
-set -g @net_speed_format "D:%10s U:%10s"
-#+end_src
-
-**** [[https://github.com/tmux-plugins/tmux-battery][Batería]]
-
-#+begin_src shell
-set -g @plugin 'tmux-plugins/tmux-battery'
-#+end_src
-
-**** /Sidebar/
-
-| prefix + t         | toggle sidebar with a directory tree            |
-| prefix + w         | toggle sidebar and move cursor to it (focus it) |
-
-
-#+begin_src shell
-set -g @plugin 'tmux-plugins/tmux-sidebar'
-
-set -g @sidebar-tree 't'
-set -g @sidebar-tree-focus 'w'
-set -g @sidebar-tree-command 'tree -C'
-#+end_src
-
-**** [[https://github.com/tmux-plugins/tmux-yank][/Yank/]]
-
-#+begin_src shell
-set -g @plugin 'tmux-plugins/tmux-yank'
-#+end_src
-
-
-**** [[https://github.com/tmux-plugins/tmux-prefix-highlight][Highlight]]
-
-#+begin_src shell
-set -g @plugin 'tmux-plugins/tmux-prefix-highlight'
-
-#set -g @prefix_highlight_fg 'white' # default is 'colour231'
-#set -g @prefix_highlight_bg 'blue'  # default is 'colour04'
-set -g @prefix_highlight_show_copy_mode 'on'
-#set -g @prefix_highlight_copy_mode_attr 'fg=black,bg=yellow,bold' # default is 'fg=default,bg=yellow'
-set -g @prefix_highlight_prefix_prompt 'Wait'
-set -g @prefix_highlight_copy_prompt 'Copy'
-#+end_src
-
-**** [[https://github.com/tmux-plugins/tmux-online-status][Online]]
-
-#+begin_src shell
-set -g @plugin 'tmux-plugins/tmux-online-status'
-#+end_src
-
-
-**** [[https://github.com/tmux-plugins/tmux-resurrect][Resurrect]] and [[https://github.com/tmux-plugins/tmux-continuum][continuum]]
-
-- Resurrect
-
-| prefix + Ctrl-s | save    |
-| prefix + Ctrl-r | restore |
-
-
-
-#+begin_src shell
-set -g @plugin 'tmux-plugins/tmux-resurrect'
-set -g @plugin 'tmux-plugins/tmux-continuum'
-#+end_src
 
 **** Tema
 
@@ -297,26 +221,26 @@ set -g @nord_tmux_no_patched_font "0"
 
 ***** /[[https://github.com/jimeh/tmux-themepack][Themepack]]/
 
-#+begin_src shell
-#set -g @plugin 'jimeh/tmux-themepack'
-#set -g @themepack 'powerline/block/cyan'
+#+begin_src shell :tangle no
+set -g @plugin 'jimeh/tmux-themepack'
+set -g @themepack 'powerline/block/cyan'
 #+end_src
 
 ***** [[https://github.com/seebi/tmux-colors-solarized][Solarized]]
 
-#+begin_src shell
-#set -g @plugin 'seebi/tmux-colors-solarized'
+#+begin_src shell :tangle no
+set -g @plugin 'seebi/tmux-colors-solarized'
 
-#set -g @colors-solarized '256'
-#set -g @colors-solarized 'dark'
-#set -g @colors-solarized 'light'
-#set -g @colors-solarized 'base16'
+set -g @colors-solarized '256'
+set -g @colors-solarized 'dark'
+set -g @colors-solarized 'light'
+set -g @colors-solarized 'base16'
 #+end_src
 
 
 *** Status bar
 
-#+begin_src shell
+#+begin_src shell :tangle no
 #set -g status-right "#{cpu_icon}"
 #set -g status-right '#{cpu_bg_color} CPU: #{cpu_icon} #{cpu_percentage} | %a %h-%d %H:%M '
 #set -g status-right "Online: #{online_status} Speed: #{net_speed} Continuum status: #{continuum_status} #{battery_status_bg} Batt: #{battery_icon} #{battery_percentage} #{battery_remain} H: #{prefix_highlight} | %a %h-%d %H:%M "
