@@ -23,7 +23,7 @@
 * Snippets
 
 #+BEGIN_SRC emacs-lisp
-  (use-package clojure-snippets)
+(use-package clojure-snippets)
 #+END_SRC
 
 
@@ -31,9 +31,9 @@
 * Paredit
 
 #+BEGIN_SRC emacs-lisp
-    (use-package paredit
-      :init
-      (add-hook 'clojure-mode-hook 'paredit-mode))
+(use-package paredit
+  :init
+  (add-hook 'clojure-mode-hook 'paredit-mode))
 #+END_SRC
 
   Useful key sequences for positioning cursor on particular s-expressions:
@@ -135,11 +135,11 @@
   and we will then advice the Cider function that prints the results:
 
   #+BEGIN_SRC emacs-lisp
-    (defun nanounanue/cider-append-comment ()
-      (when (null (nth 8 (syntax-ppss)))
-        (insert " ; ")))
+(defun nanounanue/cider-append-comment ()
+  (when (null (nth 8 (syntax-ppss)))
+    (insert " ; ")))
 
-    (advice-add 'cider-eval-print-last-sexp :before #'nanounanue/cider-append-comment)
+(advice-add 'cider-eval-print-last-sexp :before #'nanounanue/cider-append-comment)
   #+END_SRC
 
   While I typically use [[https://github.com/clojure-emacs/clj-refactor.el][clj-refactor]]'s [[https://github.com/clojure-emacs/clj-refactor.el/wiki/cljr-add-missing-libspec][add-missing-libspec]] function,
@@ -163,23 +163,23 @@
   warnings to [[file:emacs.org::*Flycheck][Flycheck]]:
 
   #+BEGIN_SRC emacs-lisp
-    (use-package flycheck-clojure
-      :init
-      (add-hook 'after-init-hook 'global-flycheck-mode)
-      :config
-      (use-package flycheck
-        :config
-        (flycheck-clojure-setup)))
+(use-package flycheck-clojure
+  :init
+  (add-hook 'after-init-hook 'global-flycheck-mode)
+  :config
+  (use-package flycheck
+    :config
+    (flycheck-clojure-setup)))
   #+END_SRC
 
   Seems we should also install [[https://github.com/flycheck/flycheck-pos-tip][flycheck-pos-tip]] as well.
 
   #+BEGIN_SRC emacs-lisp
-    (use-package flycheck-pos-tip
-      :config
-      (use-package flycheck
-        :config
-        (setq flycheck-display-errors-function 'flycheck-pos-tip-error-messages)))
+(use-package flycheck-pos-tip
+  :config
+  (use-package flycheck
+    :config
+    (setq flycheck-display-errors-function 'flycheck-pos-tip-error-messages)))
   #+END_SRC
 
 
@@ -189,19 +189,19 @@
   install [[https://github.com/joshuarh/4clojure.el][4clojure-mode]].
 
   #+BEGIN_SRC emacs-lisp
-    (use-package 4clojure
-      :init
-      (bind-key "<f9> a" '4clojure-check-answers clojure-mode-map)
-      (bind-key "<f9> n" '4clojure-next-question clojure-mode-map)
-      (bind-key "<f9> p" '4clojure-previous-question clojure-mode-map)
+(use-package 4clojure
+  :init
+  (bind-key "<f9> a" '4clojure-check-answers clojure-mode-map)
+  (bind-key "<f9> n" '4clojure-next-question clojure-mode-map)
+  (bind-key "<f9> p" '4clojure-previous-question clojure-mode-map)
 
-      :config
-      (defadvice 4clojure-open-question (around 4clojure-open-question-around)
-         "Start a cider/nREPL connection if one hasn't already been started when
+  :config
+  (defadvice 4clojure-open-question (around 4clojure-open-question-around)
+    "Start a cider/nREPL connection if one hasn't already been started when
          opening 4clojure questions."
-         ad-do-it
-         (unless cider-current-clojure-buffer
-           (cider-jack-in))))
+    ad-do-it
+    (unless cider-current-clojure-buffer
+      (cider-jack-in))))
   #+END_SRC
 
 
