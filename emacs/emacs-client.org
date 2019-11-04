@@ -238,12 +238,24 @@ Agrega /face/ a los paréntesis, de tal manera que los temas puedan oscurecerlos
 (use-package zerodark-theme)
 #+end_src
 
+** [[https://github.com/vbuzin/berrys-theme][Berrys]]
+
+#+begin_src emacs-lisp :tangle no
+(use-package berrys-theme)
+#+end_src
+
+** [[https://github.com/anler/minimal-theme][Minimal]]
+
+#+begin_src emacs-lisp
+(use-package minimal-theme)
+#+end_src
+
+
 ** Seleccionando el tema dependiendo del ambiente
 
 #+begin_src emacs-lisp
 (if (display-graphic-p)
-    ;; (load-theme 'abyss 'no-confirm)
-    (load-theme 'zerodark 'no-confirm)
+    (load-theme 'poet 'no-confirm)
   (load-theme 'wheatgrass))  ;; wheatgrass included in emacs
 #+end_src
 
