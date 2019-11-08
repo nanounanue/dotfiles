@@ -46,6 +46,26 @@ export XDG_LIB_HOME=~/.local/lib
 
 *NOTA*: =XDG_BIN_HOME= y =XDG_LIB_HOME= no son estándar.
 
+
+* Paths
+
+Queremos estos directorios, pero sólo si existen
+
+#+BEGIN_SRC shell
+OLDPATH=$PATH
+PATH=$HOME/bin
+
+for DIR in $HOME/bin /opt/local/bin /opt/local/sbin /usr/local/bin /usr/local/sbin /usr/bin /usr/sbin
+do
+    if [ -d $DIR ]
+    then
+        PATH=$PATH:$DIR
+    fi
+done
+
+PATH=$OLDPATH:$PATH
+#+END_SRC
+
 * Environment
 
 #+BEGIN_SRC shell
@@ -143,6 +163,15 @@ o para activarlo de manera automática en un directorio:
 echo $NAME > .python-version
 #+END_SRC
 
+*** Poetry
+
+=poetry= debe de instalarse de manera global de la siguiente manera
+
+#+begin_src shell :tangle no
+pyenv shell system
+curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+python shell --unset
+#+end_src
 
 ** Fzf
 
@@ -217,23 +246,3 @@ alias top="sudo htop"
 alias preview="fzf --preview 'bat --color \"always\" {}'"
 alias du="ncdu --color dark -rr -x --exclude .git --exclude node_modules"
 #+END_SRC
-
-
-* Paths
-
-Queremos estos directorios, pero sólo si existen
-
-   #+BEGIN_SRC shell :tangle no
-     OLDPATH=$PATH
-     PATH=$HOME/bin
-
-     for DIR in $HOME/bin /opt/local/bin /opt/local/sbin /usr/local/bin /usr/local/sbin /usr/bin /usr/sbin
-     do
-       if [ -d $DIR ]
-       then
-           PATH=$PATH:$DIR
-       fi
-     done
-
-     PATH=$OLDPATH:$PATH
-   #+END_SRC

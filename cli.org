@@ -27,7 +27,7 @@ dpkg -i /tmp/bat.deb
 Tomado de  http://denilson.sa.nom.br/prettyping/
 
 #+BEGIN_SRC sh
-wget -q -O ~/bin/prettyping  https://raw.githubusercontent.com/denilsonsa/prettyping/master/prettyping 
+wget -q -O ~/bin/prettyping  https://raw.githubusercontent.com/denilsonsa/prettyping/master/prettyping
 #+END_SRC
 
 #+BEGIN_SRC sh
