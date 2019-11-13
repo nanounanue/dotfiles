@@ -11,6 +11,83 @@
 #+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
 #+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
 
+* Texlive
+
+Es necesario instalar, /por lo menos/ lo siguiente:
+
+#+begin_src shell :dir /sudo::
+apt -y install texlive-xetex texlive-latex-extra \
+    texlive-science texlive-pictures \
+    texlive-pstricks  texlive-publishers \
+    texlive-fonts-extra \
+    texlive-bibtex-extra \
+    biber \
+#+end_src
+
+* Latexmk
+
+#+begin_src shell :dir /sudo::
+apt -y install latexmk
+#+end_src
+
+* Paquetes adicionales
+
+[[https://en.wikibooks.org/wiki/LaTeX/Installing_Extra_Packages][Referencia]]
+
+Para agregar paquetes de \LaTeX adicionales se deben de colocar los
+archivos =.cls= y =.sty= en la siguiente carpeta
+
+#+NAME:texmfhome
+ #+begin_src shell
+ kpsewhich -var-value=TEXMFHOME
+ #+end_src
+
+En dónde en particular depende del tipo de paquete:
+
+#+begin_src shell :var texmfhome=texmfhome :results output
+tree -d $texmfhome
+#+end_src
+
+#+begin_example
+├── bibtex
+│   └── bst
+└── tex
+    ├── beamer
+    │   └── base
+    │       └── themes
+    └── latex
+        ├── auto
+        └── typographydefaults
+#+end_example
+
+Cada vez que agregues algo ejecuta
+
+#+begin_src shell :var texmfhome=texmfhome
+texhash $texmfhome
+#+end_src
+
+
+Por el momento, nuestro [[file:emacs-org-mode.org][org-mode]] utiliza (entre otros) [[https://bastian.rieck.me/blog/posts/2018/latex_templates/][mimosis, mimore]]
+elsarticle, y tufte-latex.
+
+- [[https://github.com/Pseudomanifold/latex-mimore][mimore]]
+- [[https://github.com/Pseudomanifold/latex-mimosis][mimosis]]
+- [[https://github.com/Tufte-LaTeX/tufte-latex][tufte-latex]]
+- [[https://www.latextemplates.com/template/elseviers-elsarticle-document-class][elsarticle]]
+
+Para temas de beamer ver [[https://github.com/martinbjeldbak/ultimate-beamer-theme-list][aquí]]
+
+* Compilación
+
+#+begin_src shell :dir /sudo::
+apt install -y latexmk
+#+end_src
+
+#+begin_src shell :tangle ~/.latexmkrc
+$dvi_previewer = 'start xdvi -watchfile 1.5';
+$ps_previewer  = 'start gv --watch';
+$pdf_previewer = 'start evince';
+#+end_src
 
 * AucTeX
 
@@ -271,7 +348,7 @@ compiler and viewer integration.
 #+BEGIN_SRC emacs-lisp
 (use-package latex-math-preview
   :config
-  (autoload 'LaTeX-preview-setup "preview")
+  (autoload 'LaTeX-preview-setup "preview") ;
   (setq preview-scale-function 1.2)
   (add-hook 'LaTeX-mode-hook 'LaTeX-preview-setup))
 #+END_SRC

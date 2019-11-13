@@ -261,3 +261,29 @@ end
 
 puts "> all systems are go wirble/hirb/ap/show <"
 #+end_src
+
+* latexmk
+
+#+begin_src shell :tangle ~/.latexmkrc
+# Latexmk configuration file
+$makeindex = "makeindex -s gind.ist %O -o %D %S";
+
+add_cus_dep( 'acn', 'acr', 0, 'makeglossaries' );
+add_cus_dep( 'glo', 'gls', 0, 'makeglossaries' );
+
+sub makeglossaries {
+    my ($name, $path) = fileparse( $$Psource );
+    return system "makeglossaries -d '$path' '$name'";
+}
+
+$xelatex = "xelatex %O -interaction=nonstopmode --shell-escape %S";
+
+$xdvipdfmx = 'xdvipdfmx -E -o %D %O %S';
+
+
+$clean_ext .= "%R.acn %R.acr %R.alg %R.aux %R.auxlock %R.bak %R.bbl %R.blg %R.dvi %R.fls %R.glg %R.glo %R.gls %R.idx %R.ist %R.ilg %R.ind %R.log %R.out %R.pdf %R.ps %R.sav %R.swp %R.toc %R.run.xml %R-blx.bib %R_latexmk %R~ %R.pgf-plot.%R Figures/External/ %R.xdv %R.pyg";
+
+$dvi_previewer = 'start xdvi -watchfile 1.5';
+$ps_previewer  = 'start gv --watch';
+$pdf_previewer = 'start evince';
+#+end_src

@@ -367,15 +367,19 @@ Org Capture Templates are explained [[http://orgmode.org/manual/Capture-template
   :demand t
   :config
   (setq org-projects-files (directory-files-recursively nanounanue/projects-directory "\\.org$"))
+  (setq org-directory-files (directory-files-recursively org-directory "\\.org$"))
 
   ;; Targets include this file and any file contributing to the agenda - up to 9 levels deep
   (setq org-refile-targets (quote ((nil :maxlevel . 9)
-                                   (org-projects-files :maxlevel . 9)
-                                   (nanounanue/org-opened-buffer-files :maxlevel . 9)   ;; buffers abiertos
+                                   (org-directory-files :maxlevel . 9)
+;;                                   (nanounanue/org-opened-buffer-files :maxlevel . 9)   ;; buffers abiertos
                                    (org-agenda-files :maxlevel . 9))))
 
   ;; Use full outline paths for refile targets
   (setq org-refile-use-outline-path t)
+
+(setq org-outline-path-complete-in-steps nil)
+
 
   ;; Allow refile to create parent tasks with confirmatio
   (setq org-refile-allow-creating-parent-nodes (quote confirm))
@@ -688,18 +692,21 @@ como sigue:
 
 ** LaTeX
 
+help:org-format-latex-header
+help:org-latex-default-packages-alist
+help:org-latex-packages-alist
+help:org-latex-pdf-process
+
 #+BEGIN_SRC emacs-lisp :noweb yes
 (use-feature ox-latex
   :after ox
   :demand t
   :custom
-  (org-latex-compiler "xelatex")
+  (org-latex-compiler "latexmk")
   (org-latex-bib-compiler "biber")
   (org-latex-default-class "scrartcl")
-  (org-latex-pdf-process '(
-                           "%latex -shell-escape -interaction nonstopmode -output-directory %o %f"
-                           "%latex -shell-escape -interaction nonstopmode -output-directory %o %f"
-                           "%latex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+  (org-latex-pdf-process
+    '("%latex -xelatex -output-directory=%o -f %f"))
   :config
   ;; Bloques bonitos
   (setq org-latex-listings 'minted)
@@ -711,15 +718,6 @@ como sigue:
   (add-to-list 'org-latex-minted-langs '(shell "bash"))
   (add-to-list 'org-latex-minted-langs '(sh "bash"))
 
-
-  ;; (setq org-export-latex-minted-options
-  ;;       '(("frame" "lines")
-  ;;         ("fontsize" "\\scriptsize")
-  ;;         ("linenos=true" "")
-  ;;         ("mathescape")
-  ;;         ))
-
-  ;;(setq org-latex-title-command "")
 
   (setq org-latex-prefer-user-labels t)
 
@@ -1398,26 +1396,29 @@ update-desktop-database ~/.local/share/applications/
                  ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 #+end_src
 
-** Mimore
+** [[https://github.com/Pseudomanifold/latex-mimore][Mimore]]
+
+Para reportes
 
 #+begin_src emacs-lisp :tangle no :noweb-ref ox-latex-mimore
-  ;; Mimore class is a latex class for writing articles.
-  (add-to-list 'org-latex-classes
-               '("mimore"
-                 "\\documentclass{mimore}
+(add-to-list 'org-latex-classes
+             '("mimore"
+               "\\documentclass{mimore}
                   [NO-DEFAULT-PACKAGES]
                   [PACKAGES]
                   [EXTRA]"
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+               ("\\paragraph{%s}" . "\\paragraph*{%s}")
+               ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 #+end_src
 
-** Mimosis
+** [[https://github.com/Pseudomanifold/latex-mimosis][Mimosis]]
+
+Para tesis
+
 #+begin_src emacs-lisp :tangle no :noweb-ref ox-latex-mimosis
-  ;; Mimosis is a class I used to write my Ph.D. thesis.
   (add-to-list 'org-latex-classes
                '("mimosis"
                  "\\documentclass{mimosis}
