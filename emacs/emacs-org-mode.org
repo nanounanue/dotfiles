@@ -15,7 +15,7 @@
 
 * Links de interes
 - [[http://www.howardism.org/Technical/Emacs/literate-programming-tutorial.html][Introduction to Literate Programming]] [Howard Abrams]
-- [[https://github.com/nickanderson/Level-up-your-notes-with-Org][Level up your notes with Org]] [Nick Anderson] (Aunque orientado a /spacemacs/
+- [[https://github.com/nickanderson/Level-up-your-notes-with-Org][Level up your notes with Org]] [Nick Anderson] (Aunque orientado a /spacemacs/)
 - [[http://sachachua.com/blog/2014/01/tips-learning-org-mode-emacs/][Some tips for learning Org Mode for Emacs]] [Sacha Chua]
 - [[https://www.youtube.com/playlist?list=PLVtKhBrRV%255FZkPnBtt%255FTD1Cs9PJlU0IIdE][OrgMode Tutorial video series]] [Rainer König]
 
@@ -53,7 +53,7 @@
     (org-blank-before-new-entry '((heading . t) (plain-list-item . nil)))
     (org-return-follows-link t)
     (org-list-allow-alphabetical t)  ;; Allow ‘a.’, ‘A.’, "a)" and "A)" as list elements
-
+    (org-link-descriptive t)
 
     ;; Modificar estos si quieres llevar un log del cambio de estado
     (org-log-done 'time)
@@ -180,7 +180,6 @@ Habilitando mas tipos de imágenes a desplegar en =org-mode=
   (setq imagemagick-types-inhibit (remove 'PDF imagemagick-types-inhibit))
   )
 #+end_src
-
 
 * Agenda
 
@@ -565,10 +564,19 @@ Esto también lo vamos a ocupar
              '("sq" . "src sql"))
 
 (add-to-list 'org-structure-template-alist
+             '("si" . "src sqlite"))
+
+(add-to-list 'org-structure-template-alist
              '("cl" . "src lisp"))
 
 (add-to-list 'org-structure-template-alist
              '("clj" . "src clojure"))
+
+(add-to-list 'org-structure-template-alist
+             '("dd" . "src ditaa"))
+
+(add-to-list 'org-structure-template-alist
+             '("dp" . "src plantuml"))
 
 ;; Tomado de https://github.com/dangom/org-thesis/blob/master/org-init.el
 ;; After inserting an org template, also open a line.
@@ -676,9 +684,9 @@ como sigue:
           </style>"))
 #+END_SRC
 
-** Word
+** Word                                                         :deprecated:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 ;; The `ox-word' library uses pandoc to export Org files to Microsoft Word via
 ;; LaTeX. It is currently a part of Kitchin's awesome Scimax project.
 (use-package ox-word
@@ -717,7 +725,7 @@ help:org-latex-pdf-process
   (add-to-list 'org-babel-tangle-lang-exts '("jupyter-python" . "py"))
   (add-to-list 'org-latex-minted-langs '(shell "bash"))
   (add-to-list 'org-latex-minted-langs '(sh "bash"))
-
+  (add-to-list 'org-latex-minted-langs '(sqlite "sqlite3"))
 
   (setq org-latex-prefer-user-labels t)
 
@@ -844,8 +852,9 @@ apt install -y xclip
 
 * Presentaciones
 
-** Reveal
+** Reveal /et al/
 
+*** ox-reveal                                                  :deprecated:
 
 [[https://github.com/yjwen/org-reveal][ox-reveal]] para crear slides en *HTML*
 
@@ -866,6 +875,9 @@ tar zxf /tmp/reveal.tar.gz -C ~/software/js/revealjs --strip-component 1
   (org-reveal-postamble "Adolfo De Unánue"))
 #+END_SRC
 
+
+*** org-re-reveal
+
 Al parecer =ox-reveal= [[https://github.com/yjwen/org-reveal/issues/363#issuecomment-460270780][no está siendo mantenido]], la alternativa
 propuesta en el mismo lugar es el [[https://gitlab.com/oer/org-re-reveal][fork]] =org-re-reveal=:
 
@@ -876,26 +888,64 @@ propuesta en el mismo lugar es el [[https://gitlab.com/oer/org-re-reveal][fork]]
   :custom
   (org-re-reveal-mathjax t)
   (org-re-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
-                                        ;(org-reveal-root (concat "file://" (getenv "HOME") "/software/js/revealjs"))
   (org-re-reveal-postamble "Adolfo De Unánue"))
+
+(use-package oer-reveal
+  :after org-re-reveal
+  :demand t
+  :init
+  (require 'oer-reveal-publish)
+  (oer-reveal-setup-submodules t)
+  (oer-reveal-generate-include-files t)
+  (oer-reveal-publish-setq-defaults))
 
 (use-package org-re-reveal-ref
   :after org-re-reveal
   :demand t
   :config
-  (setq org-ref-default-bibliography '("~/pCloudDrive/org/research/research.bib")
-        org-ref-bibliography-entry-format
+  (setq org-ref-default-bibliography '("~/pCloudDrive/org/research/research.bib"))
+  (setq org-ref-bibliography-entry-format
         '(("article" . "%a, %t, <i>%j %v(%n)</i>, %p (%y). <a href=\"%U\">%U</a>")
-          ("book" . "%a, %t, %u, %y. <a href=\"%U\">%U</a>")
-          ("inproceedings" . "%a, %t, %b, %y. <a href=\"%U\">%U</a>")
-          ("incollection" . "%a, %t, %b, %u, %y. <a href=\"%U\">%U</a>")
-          ("misc" . "%a, %t, %i, %y.  <a href=\"%U\">%U</a>")
-          ("phdthesis" . "%a, %t, %s, %y.  <a href=\"%U\">%U</a>")
-          ("techreport" . "%a, %t, %i, %u (%y).")
-          ("proceedings" . "%e, %t in %S, %u (%y).")
-          ))
-  )
+  	  ("book" . "%a, %t, %u, %y. <a href=\"%U\">%U</a>")
+   	  ("inproceedings" . "%a, %t, %b, %y. <a href=\"%U\">%U</a>")
+	          ("incollection" . "%a, %t, %b, %u, %y. <a href=\"%U\">%U</a>")
+	          ("misc" . "%a, %t, %i, %y.  <a href=\"%U\">%U</a>")
+   	  ("phdthesis" . "%a, %t, %s, %y.  <a href=\"%U\">%U</a>")
+	          ("techreport" . "%a, %t, %i, %u (%y).")
+	          ("proceedings" . "%e, %t in %S, %u (%y).")
+	  )))
 #+end_src
+
+*** [[https://gitlab.com/oer/emacs-reveal][emacs-reveal]]
+
+El autor de =org-re-reveal= ha unificado las librerías en
+=emacs-reveal=, incluye =org-re-reveal=, =org-re-reveal-ref= y =oer-reveal=.
+
+El autor extendió las capacidades originales de =ox-reveal= para
+soportar *OER*, /Open Educational Resources/, inicialmente agregar
+capacidades de audio a =ox-reval=:
+
+#+begin_quote
+Teaching and learning resources should be free and open:
+   - In support of Sustainable Development Goal 4 (SDG 4)
+   - Open Educational Resources (OER)
+#+end_quote
+
+[[https://doi.org/10.21105/jose.00050][Aquí]] hay un artículo con más detalle sobre GNU/Emacs y OER.
+
+#+begin_src emacs-lisp :tangle no
+(use-package emacs-reveal
+  :after (:all org-re-reveal org-re-reveal-ref)
+  :demand t
+  :straight (emacs-reval :type git
+                         :host gitlab
+                         :repo "oer/emacs-reveal"
+                         :local-repo "emacs-reveal")
+  :init
+  (add-to-list 'load-path "~/.config/emacs/straight/repos/emacs-reveal/")
+  (require 'emacs-reveal))
+#+end_src
+
 
 ** epresent
 
@@ -1419,20 +1469,18 @@ Para reportes
 Para tesis
 
 #+begin_src emacs-lisp :tangle no :noweb-ref ox-latex-mimosis
-  (add-to-list 'org-latex-classes
-               '("mimosis"
-                 "\\documentclass{mimosis}
-                   [NO-DEFAULT-PACKAGES]
-                   [PACKAGES]
-                   [EXTRA]
-                   \\newcommand{\\mboxparagraph}[1]{\\paragraph{#1}\\mbox{}\\\\}
-                     \\newcommand{\\mboxsubparagraph}[1]{\\subparagraph{#1}\\mbox{}\\\\}"
-                 ("\\chapter{%s}" . "\\chapter*{%s}")
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                 ("\\mboxparagraph{%s}" . "\\mboxparagraph*{%s}")
-                 ("\\mboxsubparagraph{%s}" . "\\mboxsubparagraph*{%s}")))
+ (add-to-list 'org-latex-classes
+                  '("mimosis"
+                    "\\documentclass{mimosis}
+  [NO-DEFAULT-PACKAGES]
+  [PACKAGES]
+  [EXTRA]"
+                    ("\\chapter{%s}" . "\\addchap{%s}")
+                    ("\\section{%s}" . "\\section*{%s}")
+                    ("\\subsection{%s}" . "\\subsection*{%s}")
+                    ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                    ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                    ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 #+end_src
 
 ** Elsarticle
@@ -1645,6 +1693,11 @@ This package lets you quickly jump to recently used Org headings using Helm, Ivy
 #+end_src
 
 
+** Fixes
+
+#+begin_src emacs-lisp
+(setq org-link-descriptive t)
+#+end_src
 
 * Proveer
 
