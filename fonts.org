@@ -167,10 +167,35 @@ rm Hasklig-1.1.zip
 apt install -y fonts-ebgaramond fonts-ebgaramond-extra
 #+end_src
 
-** [[https://github.com/sebschub/FontPro][FontPro]]
+** EtBook
 
-* Actualizar el /cac
-he/ de fuentes
+#+begin_src shell :dit /tmp
+git clone https://github.com/edwardtufte/et-book.git && \
+mv et-book/et-book ~/.fonts
+#+end_src
+
+** CANCELLED [[https://github.com/sebschub/FontPro][FontPro]]
+CLOSED: [2019-11-18 Mon 01:48]
+:LOGBOOK:
+- State "CANCELLED"  from "TODO"          [2019-11-18 Mon 01:48] \\
+  Muy complicado de instalar
+- State "TODO"       from              [2019-11-11 Mon 13:04]
+:END:
+
+Es necesario tener =LCDF typtools= instalado.
+
+#+begin_src shell :dir /sudo::
+apt install -y lcdf-typetools
+#+end_src
+
+
+#+begin_src shell :dir ~/tmp
+git clone https://github.com/sebschub/FontPro.git
+#+end_src
+
+
+
+* Actualizar el /cache/ de fuentes
 
 #+BEGIN_SRC shell :dir /sudo::
 fc-cache -f -v
