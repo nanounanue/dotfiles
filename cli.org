@@ -87,3 +87,17 @@ Usage examples in https://github.com/junegunn/fzf/wiki/examples
   #+BEGIN_SRC sh :dir /sudo::
   apt install ncdu
   #+END_SRC
+
+* ripgrep
+
+Usando [[https://sidneyliebrand.io/blog/how-fzf-and-ripgrep-improved-my-workflow][ripgrep y fzf]]
+
+#+begin_quote
+ it is another grep program. Ripgrep is written in rust and one of its
+ primary goals is to be the fastest grep of them all. It performs
+ amazing even in a larger code base.
+#+end_quote
+
+#+begin_src shell :dir /sudo::
+apt install -y ripgrep
+#+end_src

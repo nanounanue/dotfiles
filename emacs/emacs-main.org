@@ -380,6 +380,34 @@ Emacs agrega /customized settings/ a =init.el=. No me gusta. Lo mandamos a un ar
 
 * Búsquedas
 
+** Deadgrep
+
+[[https://github.com/Wilfred/deadgrep][Repositorio]]
+
+Usa [[file:~/dotfiles/cli.org::*ripgrep][ripgrep]] desde Emacs
+
+#+begin_src emacs-lisp
+(use-package deadgrep
+:demand t
+:config
+(global-set-key (kbd "<f5>") #'deadgrep))
+#+end_src
+
+*** Keybindings
+
+| key         | action                                                           |
+|-------------+------------------------------------------------------------------|
+| RET         | Visit the result, file or push button at point                   |
+| o           | Visit the result in another window                               |
+| n and p     | Move between results or buttons                                  |
+| N and P     | Move between search hits                                         |
+| M-n and M-p | Move between file headers                                        |
+| g           | Re-run the search                                                |
+| TAB         | Expand/collapse results for a file                               |
+| C-c C-k     | Stop a running search                                            |
+| C-u         | A prefix argument prevents searches from starting automatically. |
+
+
 ** Silver searcher
 
 #+BEGIN_SRC shell :dir /sudo::
@@ -419,10 +447,11 @@ Es posible [[file:~/.agignore][crear una lista de archivos a ignorar]] en las b�
 #+END_SRC
 
 
-** [[https://github.com/mhayashi1120/Emacs-wgrep][wgrep]]
+** Wgrep
+
+[[https://github.com/mhayashi1120/Emacs-wgrep][Manual]]
 
 Permite editar un /grep buffer/ y aplicar los cambios al /file buffer/
-
 
 | Key     | Descripción                                                                                                                                        |
 |---------+----------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -447,6 +476,7 @@ Permite editar un /grep buffer/ y aplicar los cambios al /file buffer/
   :hook
   (ag-mode . wgrep-ag-setup))
 #+END_SRC
+
 
 * /Bookmarks/
 
@@ -1027,7 +1057,7 @@ Ayuda a cazar  errores en el archivo =init.el=
 
 [[https://github.com/Malabarba/elisp-bug-hunter][Ver aquí]]
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp
 (use-package bug-hunter)
 #+END_SRC
 
