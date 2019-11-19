@@ -1647,7 +1647,9 @@ queremos exportar el /header/, para lograrlo hay que hacer:
   :hook (org-mode . toc-org-enable))
 #+END_SRC
 
-** [[https://github.com/alphapapa/org-web-tools/blob/master/README.org][org-web-tools]]
+** Org-web-tool
+
+[[https://github.com/alphapapa/org-web-tools/blob/master/README.org][Repositorio]]
 
 #+begin_quote
 This file contains library functions and commands useful for
@@ -1671,7 +1673,9 @@ Ver [[https://www.reddit.com/r/emacs/comments/cnzj7d/org_mode_update_broke_orgca
 (use-package org-web-tools)
 #+end_src
 
-** [[https://github.com/scallywag/org-board][org-board]]
+** Org-board
+
+[[https://github.com/scallywag/org-board][Repositorio]]
 
 #+begin_quote
 org-board is a bookmarking and web archival system for Emacs Org
@@ -1718,7 +1722,9 @@ org-board is a bookmarking and web archival system for Emacs Org
   )
 #+end_src
 
-** [[https://github.com/alphapapa/org-recent-headings][org-recent-headings]]
+** Org-recent-headings
+
+[[https://github.com/alphapapa/org-recent-headings][Repositorio]]
 
 #+begin_quote
 This package lets you quickly jump to recently used Org headings using Helm, Ivy, or plain-ol’ completing-read.
@@ -1730,7 +1736,9 @@ This package lets you quickly jump to recently used Org headings using Helm, Ivy
   :config (org-recent-headings-mode))
 #+end_src
 
-** [[https://github.com/bastibe/org-journal][Org-journal]]
+** Org-journal
+
+[[https://github.com/bastibe/org-journal][Repositorio]]
 
 #+begin_src emacs-lisp
 (use-package org-journal
@@ -1741,12 +1749,19 @@ This package lets you quickly jump to recently used Org headings using Helm, Ivy
   (org-journal-date-format "%A, %d %B %Y"))
 #+end_src
 
-** [[https://github.com/alphapapa/org-sidebar][Org-sidebar]]
+** Org-sidebar
+
+[[https://github.com/alphapapa/org-sidebar][Repositorio]]
 
 #+begin_src emacs-lisp
 (use-package org-sidebar)
 #+end_src
 
+** Org-d20
+
+#+begin_src emacs-lisp
+(use-package org-d20)
+#+end_src
 
 ** Estética
 
