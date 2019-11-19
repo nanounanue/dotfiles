@@ -167,7 +167,9 @@ rm Hasklig-1.1.zip
 apt install -y fonts-ebgaramond fonts-ebgaramond-extra
 #+end_src
 
-** [[https://edwardtufte.github.io/et-book/][EtBook]]
+** EtBook
+
+[[https://edwardtufte.github.io/et-book/][Sitio web]]
 
 #+begin_src shell :dit /tmp
 git clone https://github.com/edwardtufte/et-book.git && \
