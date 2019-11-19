@@ -23,72 +23,25 @@ No usar /dialog-boxes/
 #+END_SRC
 
 
-* /Key Bindings/
-
-El artículo [[http://emacsninja.com/posts/making-emacs-more-presentable.html][Making Emacs More Presentable]], muestra este truco que
-cambia el tamaño de la fuente, en la /window/ no el /buffer/
+* Default text scale
 
 #+begin_src emacs-lisp
 (use-package default-text-scale)
 #+end_src
 
-  #+BEGIN_SRC emacs-lisp
-    (defun nanounanue/text-scale-frame-change (fn)
-      (let* ((current-font-name (frame-parameter nil 'font))
-             (decomposed-font-name (x-decompose-font-name current-font-name))
-             (font-size (string-to-int (aref decomposed-font-name 5))))
-        (aset decomposed-font-name 5 (int-to-string (funcall fn font-size)))
-        (set-frame-font (x-compose-font-name decomposed-font-name))))
-
-    (defun nanounanue/text-scale-frame-increase ()
-      (interactive)
-      (nanounanue/text-scale-frame-change '1+))
-
-    (defun nanounanue/text-scale-frame-decrease ()
-      (interactive)
-      (nanounanue/text-scale-frame-change '1-))
-
-    (bind-keys
-     ("s-C-+" . nanounanue/text-scale-frame-increase)
-     ("A-C-+" . nanounanue/text-scale-frame-increase)
-     ("s-C-=" . nanounanue/text-scale-frame-increase)
-     ("A-C-=" . nanounanue/text-scale-frame-increase)
-     ("s-C--" . nanounanue/text-scale-frame-decrease)
-     ("A-C--" . nanounanue/text-scale-frame-decrease))
-  #+END_SRC
-
-
 * Fuentes
 
-Definimos algunas variables
+** Fuente por default
 
 #+begin_src emacs-lisp
-(defvar  nanounanue-font-default)
-(defvar  nanounanue-font-variable)
-(defvar  nanounanue-font-modeline)
-#+end_src
-
-Asignamos las variables
-
-
-#+begin_src emacs-lisp
-(setq
- nanounanue-font-default "Fira Code"
- nanounanue-font-variable "Ubuntu Mono" ;; Noto Mono
- nanounanue-font-modeline "DejaVu Sans Mono")
+(set-face-attribute 'default nil :font "Fira Code-14")
+(set-face-attribute 'mode-line nil :font "DejaVu Sans Mono")
 #+end_src
 
 
+Para otras alternativas ver [[file:~/dotfiles/fonts.org][otras fuentes instaladas]]
 
-
-Activar /syntax highlighting/ globalmente
-
- #+BEGIN_SRC emacs-lisp
- (global-font-lock-mode 1)
- #+END_SRC
-
-¡Hay tantas opciones! Y yo  nunca me decido. Ver [[file:~/dotfiles/fonts.org][aquí]] para instalarlas.
-
+Org-mode está [[file:emacs-org-mode.org][configurado]] diferente
 
 Para ver que familias de fuentes están disponibles:
 
@@ -96,46 +49,7 @@ Para ver que familias de fuentes están disponibles:
 (message "%s" (font-family-list))
 #+END_SRC
 
-
-Instrucciones [[http://ergoemacs.org/emacs/emacs_list_and_set_font.html][aquí]]
-
-#+BEGIN_SRC emacs-lisp
-(set-face-attribute 'default nil
-                    :family nanounanue-font-default
-                    :height 150
-                    :weight 'normal)
-(set-face-attribute 'mode-line nil :family nanounanue-font-modeline :height 150 :weight 'regular)
-(set-face-attribute 'fixed-pitch nil :family nanounanue-font-default :height 150)
-(set-face-attribute 'variable-pitch nil :family nanounanue-font-variable)
-#+END_SRC
-
-Ajustando las fuentes dependiendo del tamaño del monitor
-
-#+begin_src emacs-lisp
-(when (display-graphic-p)
-  (if (> (x-display-pixel-width) 1800)
-      (if ;; very large number of pixels in display. side-by-side?
-          (> (x-display-pixel-width) 5000)
-	      (nanounanue/setup-main-fonts 140 140 120)
-        (if (or
-             (and             ;; specific display
-              (= (x-display-pixel-width) 2560)
-              (= (x-display-pixel-height) 1600))
-             (and ;; another specific display setup
-              (= (x-display-pixel-width) 3840)
-              (= (x-display-pixel-height) 1080)))
-            (nanounanue/setup-main-fonts 140 140 120)
-
-          ;; other large display
-	      (nanounanue/setup-main-fonts 140 140 120)
-          ))
-	(nanounanue-setup/main-fonts 140 140 120)))
-#+end_src
-
-
-#+begin_src emacs-lisp :tangle no
-(set-frame-font "Fira Code-14" t)
-#+end_src
+** Ajustes
 
 #+BEGIN_SRC emacs-lisp
   (use-feature text-mode
@@ -143,7 +57,6 @@ Ajustando las fuentes dependiendo del tamaño del monitor
     :hook (text-mode . (lambda ()
                          (variable-pitch-mode 1))))
 #+END_SRC
-
 
 #+BEGIN_SRC emacs-lisp :tangle no
 (use-package typo
@@ -165,6 +78,13 @@ variable (para texto) y fijas (para código)
 
 
 
+** Activar /syntax highlighting/ globalmente
+
+ #+BEGIN_SRC emacs-lisp
+ (global-font-lock-mode 1)
+ #+END_SRC
+
+
 ** Paréntesis
 
 Agrega /face/ a los paréntesis, de tal manera que los temas puedan oscurecerlos
@@ -175,7 +95,14 @@ Agrega /face/ a los paréntesis, de tal manera que los temas puedan oscurecerlos
   :init (global-paren-face-mode))
 #+END_SRC
 
-*  [[https://emacsthemes.com/popular/index.html][Temas]]
+*  Temas
+
+Para temas populares ver [[https://emacsthemes.com/popular/index.html][aquí]]
+
+** Spacemacs
+#+begin_src emacs-lisp
+(use-package spacemacs-theme)
+#+end_src
 
 ** Zenburn
 
@@ -252,6 +179,7 @@ Agrega /face/ a los paréntesis, de tal manera que los temas puedan oscurecerlos
 
 
 ** Seleccionando el tema dependiendo del ambiente
+
 
 #+begin_src emacs-lisp
 (if (display-graphic-p)
