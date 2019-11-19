@@ -1763,6 +1763,30 @@ This package lets you quickly jump to recently used Org headings using Helm, Ivy
 (use-package org-d20)
 #+end_src
 
+Para activar en un /buffer/ agregar al final del mismo:
+
+#+begin_example
+# Local Variables:
+# mode: org
+# mode: org-d20
+# org-d20-party: (("Zahrat" . 2) ("Ennon" . 4) ("Artemis" . 5))
+# End:
+#+end_example
+
+*** Keybindings
+
+| key     | action                                      |
+|---------+---------------------------------------------|
+| C-c , i | Iniciar combate o avanzar contador de turno |
+| C-c , a | Agregar monstruos                           |
+| C-c , d | Aplicar daño                                |
+| C-c , r | Prompt para una expresión de dados          |
+| f10     | Evaluar expresión de datos                  |
+| f11     | Tira la expresión de dados de nuevo         |
+| f12     | Tira d20 con ventaja y desventaja           |
+| S-f12   | Tira dados de percentil                     |
+
+
 ** Estética
 
 #+begin_src emacs-lisp
