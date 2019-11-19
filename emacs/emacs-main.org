@@ -1243,7 +1243,9 @@ Org-mode for non-Org buffers
 
 
 
-** [[https://www.projectile.mx/en/latest/][Projectile]]
+** Projectile
+
+[[https://www.projectile.mx/en/latest/][Sitio web]]
 
 #+BEGIN_SRC emacs-lisp
 (use-package projectile

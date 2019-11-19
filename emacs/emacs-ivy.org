@@ -34,54 +34,56 @@ Un /smart/ =M-x=. Sugiere los comandos de =M-x=  basados  en frecuencia y recié
 Sistema genérico de completado. Reemplaza a =ido=
 
 #+BEGIN_SRC emacs-lisp
-  (use-package ivy
-    :delight
-    :after ivy-rich
-    :diminish ivy-mode
-    :bind (("C-x b" . ivy-switch-buffer)
-            ("C-x B" . ivy-switch-buffer-other-window)
-            ("<f6>"   . ivy-resume)
-            :map ivy-minibuffer-map
-            ("<tab>" . ivy-alt-done)
-            ("C-i" . ivy-partial-or-done)
-            ("S-SPC" . nil)
-            :map ivy-switch-buffer-map
-            ("C-k" . ivy-switch-buffer-kill))
-   :custom
-    (ivy-height 10)
-    (ivy-wrap t)
-    (ivy-case-fold-search-default t)
-    (ivy-count-format "(%d/%d) ")
-    (ivy-re-builders-alist '((t . ivy--regex-plus)))
-    (ivy-fixed-height-minibuffer t)
-    (projectile-completition-system 'ivy)
-    (ivy-initial-inputs-alist nil)                   ; don't use ^ as initial input
-    (ivy-use-virtual-buffers nil)                    ; dont' show recent files in switch-buffer
-    (ivy-format-function #'ivy-format-function-line) ; highlight til EOL
-    (ivy-virtual-abbreviate 'full)                   ; show full path if showing virtual buffer
-    (ivy-magic-slash-non-match-action nil)           ; disable magic slash on non-match
-    (ivy-on-del-error-function nil)                  ; don't quit minibuffer on delete-error
-    (ivy-use-selectable-prompt t)                    ; allow input prompt value to be selectable
-    :config
-    ;;set action options during execution of counsel-find-file
-    ;; replace "frame" with window to open in new window
-    (ivy-set-actions
-     'counsel-find-file
-     '(("j" find-file-other-frame "other frame")
-       ("b" counsel-find-file-cd-bookmark-action "cd bookmark")
-       ("x" counsel-find-file-extern "open externally")
-       ("d" delete-file "delete")
-       ("r" counsel-find-file-as-root "open as root")))
+(use-package ivy
+  :delight
+  :after ivy-rich
+  :diminish ivy-mode
+  :bind (("C-x b" . ivy-switch-buffer)
+         ("C-x B" . ivy-switch-buffer-other-window)
+         ("<f6>"   . ivy-resume)
+         ("C-c v" . ivy-push-view)
+         ("C-c V" . ivy-pop-view)
+         :map ivy-minibuffer-map
+         ("<tab>" . ivy-alt-done)
+         ("C-i" . ivy-partial-or-done)
+         ("S-SPC" . nil)
+         :map ivy-switch-buffer-map
+         ("C-k" . ivy-switch-buffer-kill))
+  :custom
+  (ivy-height 10)
+  (ivy-wrap t)
+  (ivy-case-fold-search-default t)
+  (ivy-count-format "(%d/%d) ")
+  (ivy-re-builders-alist '((t . ivy--regex-plus)))
+  (ivy-fixed-height-minibuffer t)
+  (projectile-completition-system 'ivy)
+  (ivy-initial-inputs-alist nil)                   ; don't use ^ as initial input
+  (ivy-use-virtual-buffers nil)                    ; dont' show recent files in switch-buffer
+  (ivy-format-function #'ivy-format-function-line) ; highlight til EOL
+  (ivy-virtual-abbreviate 'full)                   ; show full path if showing virtual buffer
+  (ivy-magic-slash-non-match-action nil)           ; disable magic slash on non-match
+  (ivy-on-del-error-function nil)                  ; don't quit minibuffer on delete-error
+  (ivy-use-selectable-prompt t)                    ; allow input prompt value to be selectable
+  :config
+  ;;set action options during execution of counsel-find-file
+  ;; replace "frame" with window to open in new window
+  (ivy-set-actions
+   'counsel-find-file
+   '(("j" find-file-other-frame "other frame")
+     ("b" counsel-find-file-cd-bookmark-action "cd bookmark")
+     ("x" counsel-find-file-extern "open externally")
+     ("d" delete-file "delete")
+     ("r" counsel-find-file-as-root "open as root")))
 
-    ;; set actions when running C-x b
-    ;; replace "frame" with window to open in new window
-    (ivy-set-actions
-     'ivy-switch-buffer
-     '(("j" switch-to-buffer-other-frame "other frame")
-       ("k" kill-buffer "kill")
-       ("r" ivy--rename-buffer-action "rename")))
+  ;; set actions when running C-x b
+  ;; replace "frame" with window to open in new window
+  (ivy-set-actions
+   'ivy-switch-buffer
+   '(("j" switch-to-buffer-other-frame "other frame")
+     ("k" kill-buffer "kill")
+     ("r" ivy--rename-buffer-action "rename")))
 
-      (ivy-mode))
+  (ivy-mode))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -220,6 +222,7 @@ Colección de comandos de emacs mejorados por =ivy=
          ("C-x C-u" . counsel-unicode-char)
          ("C-x C-f" . counsel-find-file)
          ("M-x"     . counsel-M-x)
+         ("M-y"     . counsel-yank-pop)
          ("<f1> f"  . counsel-describe-function)
          ("<f1> v"  . counsel-describe-variable)
          ("<f1> l"  . counsel-find-library)
@@ -227,9 +230,15 @@ Colección de comandos de emacs mejorados por =ivy=
          ("<f2> u"  . counsel-unicode-char)
          ("C-c g"   . counsel-git)
          ("C-c j"   . counsel-git-grep)
-         ("C-c k"   . counsel-ag) ;; add counsel/ivy features to ag package
+         ("C-c m" . counsel-linux-app)
+         ("C-c n" . counsel-fzf)
+         ("C-c J" . counsel-file-jump)
+         ("C-c k"   . counsel-rg) ;; add counsel/ivy features to ag package
          ("C-x l"   . counsel-locate)
          ("C-S-o"   . counsel-rhythmbox)
+         ("C-c o" . counsel-outline)
+         ("C-c t" . counsel-load-theme)
+         ("C-c F" . counsel-org-mode)
          ("C-x C-v" . counsel-set-variable))
   :config (counsel-mode)
   :custom (counsel-rg-base-command "rg -S -M 150 --no-heading --line-number --color never %s")
@@ -249,8 +258,8 @@ La versión mejorada de =isearch= por =ivy=
                          swiper-match-face-2
                          swiper-match-face-2
                          swiper-match-face-2))
-    :bind (("C-s" . swiper)
-           ("C-r" . swiper)
+    :bind (("C-s" . swiper-isearch)
+           ("C-r" . swiper-isearch)
            :map swiper-map
            ("M-%" . swiper-query-replace)))
 #+END_SRC
