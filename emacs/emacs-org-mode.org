@@ -1359,7 +1359,7 @@ Bloques especiales
 	       ("\\paragraph{%s}" . "\\paragraph*{%s}")))
 
 (add-to-list 'org-latex-classes
-	     '("scrartcl"
+	     '("koma-article"
                 "\\documentclass[11pt]{scrartcl}
                 [NO-DEFAULT-PACKAGES]
                 [PACKAGES]
@@ -1371,7 +1371,7 @@ Bloques especiales
 	       ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 
 (add-to-list 'org-latex-classes
-	     '("scrreprt"
+	     '("koma-report"
                "\\documentclass[11pt]{scrreprt}
                 [NO-DEFAULT-PACKAGES]
                 [PACKAGES]
@@ -1382,7 +1382,7 @@ Bloques especiales
 	       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
 
 (add-to-list 'org-latex-classes
-	     '("scrbook"
+	     '("koma-book"
                "\\documentclass[11pt]{scrbook}
                [NO-DEFAULT-PACKAGES]
                [PACKAGES]
@@ -1394,7 +1394,7 @@ Bloques especiales
 	       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
 
 (add-to-list 'org-latex-classes
-	     `("scrlttr2"
+	     `("koma-letter"
 	       ,(concat "\\documentclass\[a4paper\]\{scrlttr2\}\n"
 			"\[NO-DEFAULT-PACKAGES]\n"
 			"\[NO-PACKAGES]\n"
