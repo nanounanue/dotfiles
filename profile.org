@@ -163,7 +163,7 @@ o para activarlo de manera automática en un directorio:
 echo $NAME > .python-version
 #+END_SRC
 
-*** Poetry
+** Poetry
 
 =poetry= debe de instalarse de manera global de la siguiente manera
 
@@ -171,6 +171,10 @@ echo $NAME > .python-version
 pyenv shell system
 curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
 python shell --unset
+#+end_src
+
+#+begin_src shell
+source ~/.poetry/env
 #+end_src
 
 ** Fzf
