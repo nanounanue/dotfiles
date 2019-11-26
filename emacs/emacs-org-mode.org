@@ -746,7 +746,7 @@ help:org-latex-pdf-process
   (org-latex-bib-compiler "biber")
   (org-latex-default-class "scrartcl")
   (org-latex-pdf-process
-    '("%latex -xelatex -output-directory=%o -f %f"))
+    '("latexmk -xelatex -output-directory=%o -f %f"))
   :config
   ;; Bloques bonitos
   (setq org-latex-listings 'minted)
@@ -757,7 +757,9 @@ help:org-latex-pdf-process
   (add-to-list 'org-babel-tangle-lang-exts '("jupyter-python" . "py"))
   (add-to-list 'org-latex-minted-langs '(shell "bash"))
   (add-to-list 'org-latex-minted-langs '(sh "bash"))
-  (add-to-list 'org-latex-minted-langs '(sqlite "sqlite3"))
+  (add-to-list 'org-babel-tangle-lang-exts '("bash" . "sh"))
+  (add-to-list 'org-latex-minted-langs '(sqlite "sql"))
+  (add-to-list 'org-babel-tangle-lang-exts '("sqlite" . "sql"))
 
   (setq org-latex-prefer-user-labels t)
 
@@ -1233,6 +1235,100 @@ update-desktop-database ~/.local/share/applications/
 )
 #+END_SRC
 
+* Funciones para Org LaTeX
+
+Soporte para etiquetas =slideonly= y =handoutonly=
+
+#+begin_src emacs-lisp
+(defun org/parse-headings (backend)
+  "Remove every headline with certain tags in the
+  current buffer. BACKEND is the export back-end being used, as
+  a symbol.
+  "
+
+  (if (member backend '(latex rst))
+      (org-map-entries
+       (lambda ()
+         (progn
+           (org-narrow-to-subtree)
+           (org-cut-subtree)
+           (widen)
+           ))
+       "+slideonly"))
+
+  (if (member backend '(reveal beamer))
+      (org-map-entries
+       (lambda ()
+         (progn
+           (org-narrow-to-subtree)
+           (org-cut-subtree)
+           (widen)
+           ))
+       "+handoutonly"))
+
+  )
+
+
+(add-hook 'org-export-before-parsing-hook 'org/parse-headings)
+#+end_src
+
+/Subtrees/ que tienen la etiqueta =:newpage:= será exportado a nueva página
+
+#+begin_src emacs-lisp
+(defun org/get-headline-string-element  (headline backend info)
+  "Return the org element representation of an element.
+  Won't work on ~verb~/=code=-only headers"
+  (let ((prop-point (next-property-change 0 headline)))
+    (if prop-point (plist-get (text-properties-at prop-point headline) :parent))))
+
+(defun org/ensure-latex-clearpage (headline backend info)
+  (when (org-export-derived-backend-p backend 'latex)
+    (let ((elmnt (org/get-headline-string-element headline backend info)))
+      (when (member "newpage" (org-element-property :tags elmnt))
+        (concat "\\clearpage\n" headline)))))
+
+(eval-after-load 'ox '(add-to-list
+                       'org-export-filter-headline-functions
+                       'org/ensure-latex-clearpage))
+#+end_src
+
+Bloques especiales
+
+#+begin_src emacs-lisp
+(defun string/starts-with (string prefix)
+  "Return t if STRING starts with prefix."
+  (and (string-match (rx-to-string `(: bos ,prefix) t) string) t))
+
+(defun nanounanue/process-NOTES-blocks (text backend info)
+  "Filter NOTES special blocks in export."
+  (cond
+   ((eq backend 'latex)
+    (if (string/starts-with text "\\begin{NOTES}") ""))
+   ((eq backend 'rst)
+    (if (string/starts-with text ".. NOTES::") ""))
+   ((eq backend 'html)
+    (if (string/starts-with text "<div class=\"NOTES\">") ""))
+   ((eq backend 'beamer)
+    (let ((text (replace-regexp-in-string "\\\\begin{NOTES}" "\\\\note{" text)))
+      (replace-regexp-in-string "\\\\end{NOTES}" "}" text)))
+   ))
+
+(eval-after-load 'ox '(add-to-list
+                       'org-export-filter-special-block-functions
+                       'nanounanue/process-NOTES-blocks))
+
+(defun nanounanue/process-mdframed-blocks (text backend info)
+  "Filter mdframed special blocks in export."
+  (cond
+   ((org-export-derived-backend-p backend 'rst)
+    (replace-regexp-in-string ".. mdframed::" ".. note::" text t t))
+   ))
+
+(eval-after-load 'ox '(add-to-list
+                       'org-export-filter-special-block-functions
+                       'nanounanue/process-mdframed-blocks))
+#+end_src
+
 * Org LaTeX classes
 
 ** Chapter
@@ -1317,7 +1413,9 @@ update-desktop-database ~/.local/share/applications/
 #+end_src
 
 
-** [[https://tufte-latex.github.io/tufte-latex/][Tufte]]
+** Tufte
+
+[[https://tufte-latex.github.io/tufte-latex/][Repositorio]]
 
 *** Tufte-book
 
@@ -1501,7 +1599,8 @@ update-desktop-database ~/.local/share/applications/
                  ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 #+end_src
 
-** [[https://github.com/Pseudomanifold/latex-mimore][Mimore]]
+** Mimore
+[[https://github.com/Pseudomanifold/latex-mimore][Repositorio]]
 
 Para reportes
 
@@ -1519,7 +1618,9 @@ Para reportes
                ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 #+end_src
 
-** [[https://github.com/Pseudomanifold/latex-mimosis][Mimosis]]
+** Mimosis
+
+ [[https://github.com/Pseudomanifold/latex-mimosis][Repositorio]]
 
 Para tesis
 
@@ -1554,6 +1655,9 @@ Para tesis
                  ("\\paragraph{%s}" . "\\paragraph*{%s}")
                  ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 #+end_src
+
+
+
 
 * Misceláneos
 
@@ -1765,12 +1869,12 @@ This package lets you quickly jump to recently used Org headings using Helm, Ivy
 
 Para activar en un /buffer/ agregar al final del mismo:
 
-#+begin_example
-# Local Variables:
-# mode: org
-# mode: org-d20
-# org-d20-party: (("Zahrat" . 2) ("Ennon" . 4) ("Artemis" . 5))
-# End:
+#+begin_example :eval never
+## Local Variables:
+## mode: org
+## mode: org-d20
+## org-d20-party: (("Zahrat" . 2) ("Ennon" . 4) ("Artemis" . 5))
+## End:
 #+end_example
 
 *** Keybindings
