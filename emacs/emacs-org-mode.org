@@ -170,7 +170,7 @@ Por /default/ no están habilitados
 | w     | Refile                                       |
 | @     | Mark subtree                                 |
 | \#    | Toggle comment                               |
-| I,O   | CLock-in, Clock-out                          |
+| I,O   | Clock-in, Clock-out                          |
 | :     | Tags command                                 |
 | ,     | Set priority                                 |
 | 1,2,3 | Priority A,B,C                               |
@@ -284,7 +284,7 @@ Habilitando mas tipos de imágenes a desplegar en =org-mode=
           ("REVIEW" . "lavender")
           ("BLOCKED" . "magenta")
           ("CANCELLED" . "dark red")
-          ("DELEGATED" . "powder blue")
+          ("DELEGATED" . "steel blue")
           ("DONE" . "green")
           ("ASSIGNED" . "sienna")))
   (font-lock-add-keywords            ; A bit silly but my headers are now
@@ -424,7 +424,7 @@ Por último, recuerda hacer =C-c C-w= para /refile/ la nota al lugar correspondi
 
 * /Tags/
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (setq org-tag-alist '(
   (:startgroup . nil)
     ("home" . ?h)
@@ -745,7 +745,7 @@ help:org-latex-pdf-process
   :custom
   (org-latex-compiler "latexmk")
   (org-latex-bib-compiler "biber")
-  (org-latex-default-class "scrartcl")
+  (org-latex-default-class "koma-article")
   (org-latex-pdf-process
     '("latexmk -xelatex -output-directory=%o -f %f"))
   :config
@@ -787,6 +787,15 @@ help:org-latex-pdf-process
 
   <<ox-latex-elsarticle>>
 
+<<ox-latex-elegantlatex>>
+
+<<ox-latex-hitec>>
+
+<<ox-latex-memoir>>
+
+<<ox-latex-arxiv>>
+
+<<ox-latex-preprint>>
   )
 #+END_SRC
 
@@ -1238,6 +1247,30 @@ update-desktop-database ~/.local/share/applications/
 
 * Funciones para Org LaTeX
 
+Permite recordar variables riesgosas
+
+#+begin_src emacs-lisp
+(defun risky-local-variable-p (sym &optional _ignored) nil)
+#+end_src
+
+Extrae propiedades del documento. Ver
+https://emacs.stackexchange.com/questions/21713
+
+#+begin_src emacs-lisp
+(defun org-global-props (&optional property buffer)
+  "Get the plists of global org properties of current buffer."
+  (unless property (setq property "PROPERTY"))
+  (with-current-buffer (or buffer (current-buffer))
+    (org-element-map (org-element-parse-buffer)
+        'keyword (lambda (el) (when (string-match
+                                     property (org-element-property :key el)) el)))))
+
+(defun org-global-prop-value (key)
+  "Get global org property KEY of current buffer."
+  (org-element-property :value (car (org-global-props key))))
+#+end_src
+
+
 Soporte para etiquetas =slideonly= y =handoutonly=
 
 #+begin_src emacs-lisp
@@ -1658,6 +1691,140 @@ Para tesis
 #+end_src
 
 
+** ElegantLaTeX
+
+#+begin_src emacs-lisp :tangle no :noweb-ref ox-latex-elegantlatex
+  ;; Elsarticle is Elsevier class for publications.
+  (add-to-list 'org-latex-classes
+               '("elegant-note"
+                 "\\documentclass{elegantnote}
+                  [NO-DEFAULT-PACKAGES]
+                  [PACKAGES]
+                  [EXTRA]"
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+
+  (add-to-list 'org-latex-classes
+               '("elegant-book"
+                 "\\documentclass{elegantbook}
+                  [NO-DEFAULT-PACKAGES]
+                  [PACKAGES]
+                  [EXTRA]"
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+
+  (add-to-list 'org-latex-classes
+               '("elegant-paper"
+                 "\\documentclass{elegantpaper}
+                  [NO-DEFAULT-PACKAGES]
+                  [PACKAGES]
+                  [EXTRA]"
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+#+end_src
+
+
+*** Instalación
+
+#+begin_src shell
+tlmgr option repository http://mirror.ctan.org/systems/texlive/tlnet
+tlmgr install elegantpaper
+#+end_src
+
+
+
+** Hitec
+
+[[https://www.ctan.org/tex-archive/macros/latex/contrib/hitec/][CTAN web page]]
+
+#+begin_src emacs-lisp :tangle no :noweb-ref ox-latex-hitec
+(add-to-list 'org-latex-classes
+             '("hitec"
+               "\\documentclass{hitec}
+                  [NO-DEFAULT-PACKAGES]
+                  [PACKAGES]
+                  [EXTRA]"
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+               ("\\paragraph{%s}" . "\\paragraph*{%s}")
+               ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+#+end_src
+
+
+*** Instalación
+#+begin_src shell
+tlmgr install hitec
+#+end_src
+
+
+
+** Memoir
+
+#+begin_src emacs-lisp :tangle no :noweb-ref ox-latex-memoir
+(add-to-list 'org-latex-classes
+             '("memoir"
+               "\\documentclass{memoir}
+                  [NO-DEFAULT-PACKAGES]
+                  [PACKAGES]
+                  [EXTRA]"
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+               ("\\paragraph{%s}" . "\\paragraph*{%s}")
+               ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+#+end_src
+
+
+
+
+** arxiv
+
+[[https://github.com/kourgeorge/arxiv-style][Github repo]]
+
+#+begin_src emacs-lisp :tangle no :noweb-ref ox-latex-arxiv
+(add-to-list 'org-latex-classes
+             '("arxiv"
+               "\\documentclass{article}
+                  \\usepackage{arxiv}
+                  [NO-DEFAULT-PACKAGES]
+                  [PACKAGES]
+                  [EXTRA]"
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+               ("\\paragraph{%s}" . "\\paragraph*{%s}")
+               ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+#+end_src
+
+** preprint
+
+[[https://github.com/brenhinkeller/preprint-template.tex][Github repo]]
+
+#+begin_src emacs-lisp :tangle no :noweb-ref ox-latex-preprint
+(add-to-list 'org-latex-classes
+             '("preprint"
+               "\\documentclass{article}
+                 \\usepackage{preprint}
+                  [NO-DEFAULT-PACKAGES]
+                  [PACKAGES]
+                  [EXTRA]"
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+               ("\\paragraph{%s}" . "\\paragraph*{%s}")
+               ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+#+end_src
+
 
 
 * Misceláneos
@@ -1871,11 +2038,12 @@ This package lets you quickly jump to recently used Org headings using Helm, Ivy
 Para activar en un /buffer/ agregar al final del mismo:
 
 #+begin_example :eval never
-## Local Variables:
-## mode: org
-## mode: org-d20
-## org-d20-party: (("Zahrat" . 2) ("Ennon" . 4) ("Artemis" . 5))
-## End:
+# Recuerda agregar al final como comentarios.
+ Local Variables:
+ mode: org
+ mode: org-d20
+ org-d20-party: (("Zahrat" . 2) ("Ennon" . 4) ("Artemis" . 5))
+ End:
 #+end_example
 
 *** Keybindings
