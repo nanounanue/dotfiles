@@ -1,0 +1,17 @@
+* Reveal.js local setup
+
+#+begin_src shell
+mkdir -p ~/pCloudDrive/revealjs
+#+end_src
+
+#+RESULTS:
+
+#+begin_src shell :dir ~/pCloudDrive/revealjs
+git clone https://github.com/hakimel/reveal.js.git &&\
+git clone https://github.com/e-gor/Reveal.js-TOC-Progress.git &&\
+git clone https://github.com/Sonaryr/reveal.js-coursemod.git &&\
+git clone https://github.com/SethosII/reveal.js-jump-plugin.git &&\
+git clone https://github.com/rajgoel/reveal.js-plugins.git
+#+end_src
+
+#+RESULTS:
