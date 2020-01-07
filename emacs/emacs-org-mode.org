@@ -1382,6 +1382,15 @@ Bloques especiales
 
 ** KOMA
 
+#+begin_src emacs-lisp
+(use-package ox-koma-letter
+  :after (:all org-ref ox)
+  :demand t
+  :straight (ox-koma-letter :type git
+                     :host github
+                     :repo "nanounanue/dotfiles"
+                     :files ("emacs/ox-koma-letter.el")))
+#+end_src
 
 #+begin_src emacs-lisp :tangle no :noweb-ref ox-latex-KOMA
 (add-to-list 'org-latex-classes
@@ -1429,7 +1438,7 @@ Bloques especiales
 
 (add-to-list 'org-latex-classes
 	     `("koma-letter"
-	       ,(concat "\\documentclass\[a4paper\]\{scrlttr2\}\n"
+	       ,(concat "\\documentclass\[parskip=full,letter\]\{scrlttr2\}\n"
 			"\[NO-DEFAULT-PACKAGES]\n"
 			"\[NO-PACKAGES]\n"
 			"\\usepackage\{fixltx2e\}\n"
@@ -1437,13 +1446,10 @@ Bloques especiales
 			"\\usepackage\{microtype\}\n"
 			"\\usepackage\{polyglossia\}\n"
 			"\\setdefaultlanguage[variant=british]\{english\}\n"
-			"\\usepackage\{libertine\}\n"
 			"\\usepackage\[normalem\]\{ulem\}\n"
-			"\\usepackage\{amsmath\}\n"
-			"\\usepackage\{hyperref\}\n")
-	       ("\\section\{%s\}" . "\\section*\{%s\}")
-	       ("\\subsection\{%s\}" . "\\subsection*\{%s\}")
-("\\subsubsection\{%s\}" . "\\subsubsection*\{%s\}")))
+              		    "\\usepackage\{amsmath\}\n"
+			            "\\usepackage\{hyperref\}\n")
+)))
 #+end_src
 
 
