@@ -1,0 +1,58 @@
+#+TITLE: Early init para GNU/Emacs
+#+AUTHOR: Adolfo De Unánue
+#+EMAIL: adolfo@unanue.mx
+#+STARTUP: showeverything
+#+STARTUP: nohideblocks
+#+STARTUP: indent
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.config/emacs/early-init.el
+#+PROPERTY:    header-args:shell  :tangle no
+#+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+TAGS: emacs
+
+Basado en [[https://github.com/hlissner/doom-emacs/][doom-emacs]] (8a9d8f0)
+
+#+begin_src emacs-lisp
+;;; early-init.el -*- lexical-binding: t; -*-
+#+end_src
+
+Emacs HEAD (27+) introduces =early-init.el=, which is run before =init.el=,
+before package and UI initialization happens.
+
+Defer garbage collection further back in the startup process
+#+begin_src emacs-lisp
+(setq gc-cons-threshold most-positive-fixnum)
+#+end_src
+
+;; In Emacs 27+, package initialization occurs before `user-init-file' is
+;; loaded, but after `early-init-file'. Doom handles package initialization, so
+;; we must prevent Emacs from doing it early!
+#+begin_src emacs-lisp
+(setq package-enable-at-startup nil)
+(advice-add #'package--ensure-init-file :override #'ignore)
+#+end_src
+
+;; Prevent the glimpse of un-styled Emacs by disabling these UI
+elements early.
+#+begin_src emacs-lisp
+(setq tool-bar-mode nil
+      menu-bar-mode nil)
+(when (fboundp 'set-scroll-bar-mode)
+  (set-scroll-bar-mode nil))
+#+end_src
+
+;; Resizing the Emacs frame can be a terribly expensive part of changing the
+;; font. By inhibiting this, we easily halve startup times with fonts that are
+;; larger than the system default.
+#+begin_src emacs-lisp
+(setq frame-inhibit-implied-resize t)
+#+end_src
+
+;; Ignore X resources; its settings would be redundant with the other settings
+;; in this file and can conflict with later config (particularly where the
+;; cursor color is concerned).
+#+begin_src emacs-lisp
+(advice-add #'x-apply-session-resources :override #'ignore)
+#+end_src
