@@ -50,7 +50,7 @@ make install
 (emacs-version)
 #+end_src
 
-* /Bytecode/ viejo?
+* ¿Bytecode viejo?
 
 Si la versión de =GNU/Emacs= cambió, el bytecode ya no es válido
 y debe de ser recompilado.
@@ -101,6 +101,16 @@ Al acabar, lo regresamos a un tamaño razonable.
             (lambda () (setq gc-cons-threshold  (* 20 1024 1024))))
 #+end_src
 
+
+En sesiones nointeractivas, priorizar el códigi fuente
+/non-byte-compiled/ para evitar el uso de /stale byte-code/. En sesiones
+con UI visual, salva un poco de tiempo de IO ya que evita los /checks/
+mtime en cada =*.elc= .
+#+begin_src emacs-lisp
+(setq load-prefer-newer noninteractive)
+#+end_src
+
+
 * Network
 
 
@@ -121,6 +131,16 @@ no sea configurado el administrador de paquetes
   ;; value.
 (setq gnutls-min-prime-bits 3072))
 #+end_src
+
+
+* Versión de GNU/Emacs soportada
+
+#+begin_src emacs-lisp
+(when (version< emacs-version "27.0")
+  (error "Se detectó Emacs %s. Esta configuración sólo soporta Emacs 27.0 y superior"
+         emacs-version))
+#+end_src
+
 
 * /Load path/
 
