@@ -14,15 +14,18 @@
 #+TAGS:   emacs python
 
 * Dependencias
+**  mu
 
-** [[https://www.djcbsoftware.nl/code/mu/mu4e.html][=mu=]]
+[[https://www.djcbsoftware.nl/code/mu/mu4e.html][Manual]]
 
 *** Clonar el repositorio
 #+begin_src shell :dir ~/software
 git clone https://github.com/djcb/mu.git
 #+end_src
 
-*** [[https://www.djcbsoftware.nl/code/mu/mu4e/Installation.html#Installation][Dependencias]]
+*** Dependencias
+
+Basado en [[https://www.djcbsoftware.nl/code/mu/mu4e/Installation.html#Installation][esta]] sección del manual
 
 #+begin_src shell :dir /sudo::
 apt install -y libgmime-3.0-dev libxapian-dev \
@@ -41,6 +44,9 @@ apt install -y libgmime-3.0-dev libxapian-dev \
 make install
 #+end_src
 
+*** Indexar
+
+
 ** Cifrado de /passwords/
 
 #+begin_src shell :dir /sudo::
@@ -48,7 +54,7 @@ apt install gnupg2 gpg
 #+end_src
 
 *** SMTP
-Las contraseñas están cifradas en los arhivo =.authinfo.gpg= de la
+Las contraseñas están cifradas en los arhivo [[file:~/pCloudDrive/config/.authinfo.gpg][.authinfo.gpg]] de la
 siguiente manera:
 
 #+begin_example
@@ -83,11 +89,20 @@ apt install isync -f
 Existen otros dos archivos que contienen el /password/ (y nada más) de
 IMAP.
 
-El procedimiento para cifrarlo es el mismo que en el caso de =SMTP=
+El procedimiento para cifrarlo es el mismo que en el caso de =SMTP=.
 
+El  archivo de configuración:  [[file:~/pCloudDrive/config/mbsyncrc][mbsyncrc]]
 
-** Paquete para convertir =html= a =texto=
+Para traer los nuevos archivos usa:
+
+#+begin_src shell
+mbsync -c ~/pCloudDrive/config/mbsyncrc -a
+#+end_src
+
+** Paquete para convertir html a texto
+
 (aunque está /deprecado/)
+
 
 #+begin_src shell :dir /sudo::
 apt install html2text
@@ -95,9 +110,8 @@ apt install html2text
 
 ** Directorio para /encolar/ mensajes (cuando estoy /off-line/)
 
-
 #+begin_src shell :dir ~
-mu mkdir ~/pCloudDrive/Maildir/fmail/queue && touch ~/pCloudDrive/Maildir/fmail/queue/.noindex
+mu mkdir ~/Maildir/fmail/queue && touch ~/Maildir/fmail/queue/.noindex
 #+end_src
 
 
@@ -119,7 +133,7 @@ mu mkdir ~/pCloudDrive/Maildir/fmail/queue && touch ~/pCloudDrive/Maildir/fmail/
   (setq mu4e-use-fancy-chars nil)
   (setq mail-user-agent 'mu4e-user-agent) ;; Mu4e como el cliente de correo por /default/ de GNU/Emacs
   (setq mu4e-mu-binary "/usr/local/bin/mu")
-  (setq mu4e-maildir "~/pCloudDrive/Maildir")
+  (setq mu4e-maildir "~/Maildir")
   (setq mu4e-get-mail-command "mbsync -c ~/pCloudDrive/config/mbsyncrc -a -q")
   (setq mu4e-headers-skip-duplicates t)
   (setq
@@ -138,7 +152,7 @@ mu mkdir ~/pCloudDrive/Maildir/fmail/queue && touch ~/pCloudDrive/Maildir/fmail/
   ;; Enable inline images.
   (setq mu4e-view-show-images t)
   (setq mu4e-view-show-addresses t)
-  (setq mu4e-maildir (expand-file-name "~/pCloudDrive/Maildir/fmail"))
+  (setq mu4e-maildir (expand-file-name "~/Maildir/fmail"))
 
 
   (setq
@@ -159,7 +173,7 @@ mu mkdir ~/pCloudDrive/Maildir/fmail/queue && touch ~/pCloudDrive/Maildir/fmail/
 
   ;; Use imagemagick, if available.
   (when (fboundp 'imagemagick-register-types)
-    (imagemagick-register-types))
+    (imagemagick-register-types))       ;
 
   ;; to view selected message in the browser, no signin, just html mail
   (add-to-list 'mu4e-view-actions
@@ -300,11 +314,11 @@ mu mkdir ~/pCloudDrive/Maildir/fmail/queue && touch ~/pCloudDrive/Maildir/fmail/
   (add-to-list 'org-capture-templates
                '("P" "contestar pronto" entry
                 (file+headline "~/pCloudDrive/org/refile.org" "Todo")
-                "* TODO 📪 %a %?\nDEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+2d\"))" :empty-lines 1))
+                "* TODO Email  %a %?\nDEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+2d\"))" :empty-lines 1))
   (add-to-list 'org-capture-templates
                '("L" "link a correo" entry
                 (file+headline "~/pCloudDrive/org/refile.org" "Correos")
-                "* 📧: %? (%a)" :empty-lines 1))
+                "* Email: %? (%a)" :empty-lines 1))
   (add-hook 'mu4e-compose-mode-hook 'org-mu4e-compose-org-mode)
   ;; Org capture en header and view mode
   (define-key mu4e-headers-mode-map (kbd "C-c c") 'org-mu4e-store-and-capture)
@@ -341,7 +355,7 @@ mu mkdir ~/pCloudDrive/Maildir/fmail/queue && touch ~/pCloudDrive/Maildir/fmail/
 
   ;; don't ask when quitting
   (setq mu4e-confirm-quit nil)
-  (setq smtpmail-queue-dir "~/pCloudDrive/Maildir/fmail/queue/cur")
+  (setq smtpmail-queue-dir "~/Maildir/fmail/queue/cur")
   (setq smtpmail-smtp-user  "adolfo@unanue.mx")
   ;;(setq smtpmail-starttls-credentials . (("smtp.fastmail.com" 587 nil nil)))
   (setq smtpmail-auth-credentials (expand-file-name "~/.authinfo.gpg"))
@@ -356,6 +370,7 @@ mu mkdir ~/pCloudDrive/Maildir/fmail/queue && touch ~/pCloudDrive/Maildir/fmail/
 
 
 * Alerts
+
 #+begin_src emacs-lisp
 (use-package mu4e-alert
   :after mu4e
@@ -365,7 +380,9 @@ mu mkdir ~/pCloudDrive/Maildir/fmail/queue && touch ~/pCloudDrive/Maildir/fmail/
 )
 #+end_src
 
-* [[https://github.com/flexibeast/org-vcard][Contactos]]
+* Contactos
+
+[[https://github.com/flexibeast/org-vcard][Documentación]]
 
 #+begin_src emacs-lisp
 (use-package org-vcard

@@ -42,7 +42,6 @@
 
 ** Nunca abandonamos Emacs...
 
-
 #+BEGIN_SRC emacs-lisp
 (setq confirm-kill-emacs 'yes-or-no-p)
 #+END_SRC
