@@ -138,6 +138,7 @@ Una versión /fancy/ de =narrow-to-region=.
 
 #+BEGIN_SRC emacs-lisp
 (use-package rainbow-blocks
+ :disabled t
   :config
   (require 'rainbow-blocks)
   :hook (clojure-mode))
