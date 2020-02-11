@@ -959,7 +959,7 @@ que ofrecerá =company-mode=
 
 Remover espacios al final
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 #+END_SRC
 
