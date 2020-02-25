@@ -14,12 +14,9 @@
 
 Tomado de  https://github.com/sharkdp/bat
 
-#+BEGIN_SRC sh
-wget  -q -O /tmp/bat.deb https://github.com/sharkdp/bat/releases/download/v0.5.0/bat_0.5.0_amd64.deb
-#+END_SRC
 
 #+BEGIN_SRC sh :dir /sudo::
-dpkg -i /tmp/bat.deb
+apt install bat
 #+END_SRC
 
 * PrettyPing
