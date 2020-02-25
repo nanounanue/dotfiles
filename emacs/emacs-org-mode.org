@@ -747,7 +747,7 @@ help:org-latex-pdf-process
   (org-latex-bib-compiler "biber")
   (org-latex-default-class "koma-article")
   (org-latex-pdf-process
-    '("latexmk -xelatex -output-directory=%o -f %f"))
+    '("latexmk -xelatex -shell-escape -output-directory=%o -f %f"))
   :config
   ;; Bloques bonitos
   (setq org-latex-listings 'minted)
@@ -1448,8 +1448,7 @@ Bloques especiales
 			"\\setdefaultlanguage[variant=british]\{english\}\n"
 			"\\usepackage\[normalem\]\{ulem\}\n"
               		    "\\usepackage\{amsmath\}\n"
-			            "\\usepackage\{hyperref\}\n")
-)))
+			            "\\usepackage\{hyperref\}\n")))
 #+end_src
 
 
