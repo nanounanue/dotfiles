@@ -237,7 +237,17 @@ set -g @colors-solarized 'light'
 set -g @colors-solarized 'base16'
 #+end_src
 
+***** [[https://github.com/ndyakov/pimux][pimux]]
 
+#+begin_src shell :tangle no
+set -g @plugin 'ndyakov/pimux'
+#+end_src
+
+***** [[https://github.com/alexanderjeurissen/sombre.tmux][sombre]]
+
+#+begin_src shell :tangle no
+set -g @plugin 'alexanderjeurissen/sombre.tmux'
+#+end_src
 *** Status bar
 
 #+begin_src shell :tangle no

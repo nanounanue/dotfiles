@@ -21,7 +21,7 @@ apt -y install texlive-xetex texlive-latex-extra \
     texlive-pstricks  texlive-publishers \
     texlive-fonts-extra \
     texlive-bibtex-extra \
-    biber \
+    biber
 #+end_src
 
 * Latexmk
