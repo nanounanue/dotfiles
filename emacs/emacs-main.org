@@ -301,6 +301,7 @@ gpg2 --list-keys Adolfo
   (unless (frame-parameter nil 'tty)                ; O scrollbar
       (scroll-bar-mode -1))
   (blink-cursor-mode -1)                            ; No quiero que parpadee el cursor
+(setq-default cursor-type 'bar) 
 #+END_SRC
 
 
