@@ -32,89 +32,91 @@
 * Org-mode
 
 #+begin_src emacs-lisp
-(use-feature org
-  :demand t
-  :mode
-  ("\\.org\\'" . org-mode)
-  ("\\.txt\\'" . org-mode)
-  (".*/[0-9]*$" . org-mode)
-  :bind
-  ("C-c l"   . org-store-link)
-  ("M-h"     . org-mark-element)
-  ("C-c c"   . org-capture)
-  ("C-c C-w" . org-refile)
-  ("C-c a"   . org-agenda)
-  ("C-c C-v t". org-babel-tangle)
-  ("C-c C-v f" . org-babel-tangle-file)
-  :custom
-  (org-directory "~/pCloudDrive/org")
-  (org-startup-indented t)
-  (org-catch-invisible-edits 'smart)
-  (org-blank-before-new-entry '((heading . t) (plain-list-item . nil)))
-  (org-return-follows-link t)
-  (org-list-allow-alphabetical t)  ;; Allow ‘a.’, ‘A.’, "a)" and "A)" as list elements
-  (org-link-descriptive t)
+  (use-feature org
+    :demand t
+    :mode
+    ("\\.org\\'" . org-mode)
+    ("\\.txt\\'" . org-mode)
+    (".*/[0-9]*$" . org-mode)
+    :bind
+    ("C-c l"   . org-store-link)
+    ("M-h"     . org-mark-element)
+    ("C-c c"   . org-capture)
+    ("C-c C-w" . org-refile)
+    ("C-c a"   . org-agenda)
+    ("C-c C-v t". org-babel-tangle)
+    ("C-c C-v f" . org-babel-tangle-file)
+    :custom
+    (org-directory "~/pCloudDrive/org")
+    (org-startup-indented t)
+    (org-catch-invisible-edits 'smart)
+    (org-blank-before-new-entry '((heading . t) (plain-list-item . nil)))
+    (org-return-follows-link t)
+    (org-list-allow-alphabetical t)  ;; Allow ‘a.’, ‘A.’, "a)" and "A)" as list elements
+    (org-link-descriptive t)
 
-  ;; Modificar estos si quieres llevar un log del cambio de estado
-  (org-log-done 'time)
-  (org-log-reschedule 'note)
-  (org-log-redeadline 'note)
-  (org-log-into-drawer t)
+    ;; Modificar estos si quieres llevar un log del cambio de estado
+    (org-log-done 'time)
+    (org-log-reschedule 'note)
+    (org-log-redeadline 'note)
+    (org-log-into-drawer t)
 
-  (org-special-ctrl-a/e t)
-
-
-  :custom-face
-  (variable-pitch ((t (:family "EtBembo" :height 1.1 :weight normal))))
-  (fixed-pitch ((t (:family "Fira Code" :slant normal :weight normal :height 1.0 :width normal))))
-  (org-indent ((t (:inherit (org-hide fixed-pitch)))))
-
-  :config
-  (font-lock-add-keywords 'org-mode
-                          '(("^ *\\([-]\\) "
-                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "▶"))))))
+    (org-special-ctrl-a/e t)
 
 
-  (defmacro unpackaged/def-org-maybe-surround (&rest keys)
-    "Define and bind interactive commands for each of KEYS that surround the region or insert text.
-    Commands are bound in `org-mode-map' to each of KEYS.  If the
-    region is active, commands surround it with the key character,
-    otherwise call `org-self-insert-command'."
-    `(progn
-       ,@(cl-loop for key in keys
-                  for name = (intern (concat "unpackaged/org-maybe-surround-" key))
-                  for docstring = (format "If region is active, surround it with \"%s\", otherwise call `org-self-insert-command'." key)
-                  collect `(defun ,name ()
-                             ,docstring
-                             (interactive)
-                             (if (region-active-p)
-                                 (let ((beg (region-beginning))
-                                       (end (region-end)))
-                                   (save-excursion
-                                     (goto-char end)
-                                     (insert ,key)
-                                     (goto-char beg)
-                                     (insert ,key)))
-                               (call-interactively #'org-self-insert-command)))
-                  collect `(define-key org-mode-map (kbd ,key) #',name))))
+    :custom-face
+    (variable-pitch ((t (:family "EtBembo" :height 1.1 :weight normal))))
+    (fixed-pitch ((t (:family "Fira Code" :slant normal :weight normal :height 1.0 :width normal))))
+    (org-indent ((t (:inherit (org-hide fixed-pitch)))))
 
-  (unpackaged/def-org-maybe-surround "~" "=" "*" "/" "+" "$")
+    :config
+    (font-lock-add-keywords 'org-mode
+                            '(("^ *\\([-]\\) "
+                               (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+    (font-lock-add-keywords 'org-mode
+                            '(("^ *\\([+]\\) "
+                               (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "◦"))))))
 
-  (defun org-summary-todo (n-done n-not-done)
-    "Switch entry to DONE when all subentries are done, to TODO otherwise."
-    (let (org-log-done org-log-states)   ; turn off logging
-      (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
+    (defmacro unpackaged/def-org-maybe-surround (&rest keys)
+      "Define and bind interactive commands for each of KEYS that surround the region or insert text.
+      Commands are bound in `org-mode-map' to each of KEYS.  If the
+      region is active, commands surround it with the key character,
+      otherwise call `org-self-insert-command'."
+      `(progn
+         ,@(cl-loop for key in keys
+                    for name = (intern (concat "unpackaged/org-maybe-surround-" key))
+                    for docstring = (format "If region is active, surround it with \"%s\", otherwise call `org-self-insert-command'." key)
+                    collect `(defun ,name ()
+                               ,docstring
+                               (interactive)
+                               (if (region-active-p)
+                                   (let ((beg (region-beginning))
+                                         (end (region-end)))
+                                     (save-excursion
+                                       (goto-char end)
+                                       (insert ,key)
+                                       (goto-char beg)
+                                       (insert ,key)))
+                                 (call-interactively #'org-self-insert-command)))
+                    collect `(define-key org-mode-map (kbd ,key) #',name))))
+
+    (unpackaged/def-org-maybe-surround "~" "=" "*" "/" "+" "$")
+
+    (defun org-summary-todo (n-done n-not-done)
+      "Switch entry to DONE when all subentries are done, to TODO otherwise."
+      (let (org-log-done org-log-states)   ; turn off logging
+        (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
 
 
-  :hook
-  (
-   (org-after-todo-statistics . org-summary-todo)
-   (org-mode . org-display-inline-images)
-   (org-babel-after-execute . org-redisplay-inline-images)
-   (org-mode . visual-line-mode)
-   (org-mode . variable-pitch-mode)
-   )
-  )
+    :hook
+    (
+     (org-after-todo-statistics . org-summary-todo)
+     (org-mode . org-display-inline-images)
+     (org-babel-after-execute . org-redisplay-inline-images)
+     (org-mode . visual-line-mode)
+     (org-mode . variable-pitch-mode)
+     )
+    )
 #+end_src
 
 * Custom faces
@@ -1037,11 +1039,14 @@ Teaching and learning resources should be free and open:
 Los /bullets/ hacen más presentable =org-mode=
 
 #+BEGIN_SRC emacs-lisp
-(use-package org-bullets
-  :demand t
-  :after org
-  :hook
-  (org-mode . (lambda () (org-bullets-mode 1))))
+  (use-package org-bullets
+    :demand t
+    :after org
+    :custom
+    (org-bullets-bullet-list '("◉" "☯" "○" "☯" "✸" "☯" "✿" "☯" "✜" "☯" "◆" "☯" "▶"))
+    (org-ellipsis "⤵")
+    :hook
+    (org-mode . (lambda () (org-bullets-mode 1))))
 #+END_SRC
 
 Tablas bonitas
@@ -2068,18 +2073,20 @@ Para activar en un /buffer/ agregar al final del mismo:
 ** Estética
 
 #+begin_src emacs-lisp
-(use-feature org
-  :demand t
-  :custom
-  (org-hide-emphasis-markers t)
-  (org-pretty-entities t)
-  (org-image-actual-width '(400))
-  (org-fontify-whole-heading-line t)
-  (org-fontify-quote-and-verse-blocks t)
-  (org-fontify-done-headline t)
-  (org-highlight-latex-and-related '(latex))
-  (org-hide-macro-markers t)
-  (org-link-descriptive t))
+  (use-feature org
+    :demand t
+    :custom
+    (org-hide-emphasis-markers t)
+    (org-hide-leading-starts t)
+    (org-odd-levels-only t)
+    (org-pretty-entities t)
+    (org-image-actual-width '(400))
+    (org-fontify-whole-heading-line t)
+    (org-fontify-quote-and-verse-blocks t)
+    (org-fontify-done-headline t)
+    (org-highlight-latex-and-related '(latex))
+    (org-hide-macro-markers t)
+    (org-link-descriptive t))
 #+end_src
 
 * Proveer

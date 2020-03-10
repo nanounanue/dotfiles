@@ -33,9 +33,26 @@ No usar /dialog-boxes/
 
 ** Fuente por default
 
+Alternativas: 
+
+- Ubuntu Mono-16
+- Source Code Pro Semibold-14
+- DejaVu Sans Mono-14
+- Fira Sans
+- Hack
+
+- EB Garamond -> Para headings, no para código
+- Iosevka
+
 #+begin_src emacs-lisp
-(set-face-attribute 'default nil :font "Source Code Pro Semibold-14")
+(setq default-font "DejaVu Sans Mono")
+(set-face-attribute 'default nil :font default-font)
+;;(set-face-attribute 'default nil :font "Source Code Pro Semibold-14")
 (set-face-attribute 'mode-line nil :font "DejaVu Sans Mono")
+
+(set-fontset-font "fontset-default" nil
+                    (font-spec :size 20 :name "Ubuntu Mono"))
+(set-fontset-font t 'unicode "Ubuntu Mono" nil 'prepend)
 #+end_src
 
 
@@ -57,6 +74,7 @@ Para ver que familias de fuentes están disponibles:
     :hook (text-mode . (lambda ()
                          (variable-pitch-mode 1))))
 #+END_SRC
+
 
 #+BEGIN_SRC emacs-lisp :tangle no
 (use-package typo
@@ -201,12 +219,41 @@ Para temas populares ver [[https://emacsthemes.com/popular/index.html][aquí]]
 #+end_src
 
 
-** Seleccionando el tema dependiendo del ambiente
+** [[https://github.com/osener/emacs-afternoon-theme][Afternoon]]
+
+#+begin_src emacs-lisp
+(use-package afternoon-theme)
+#+end_src
+
+
+** [[https://github.com/alezost/alect-themes][Alect]]
+
+#+begin_src emacs-lisp
+(use-package alect-themes)
+#+end_src
+
+** [[https://github.com/jordonbiondo/ample-theme][Ample]]
+
+#+begin_src emacs-lisp
+(use-package ample-theme)
+#+end_src
+
+
+** [[https://gitlab.com/protesilaos/modus-themes][Modus]]
+
+#+begin_src emacs-lisp :tangle no
+(use-package modus-vivendi-theme)
+(use-package modus-operandi-theme)
+#+end_src
+
+
+
+** Selección del tema 
 
 
 #+begin_src emacs-lisp
 (if (display-graphic-p)
-    (load-theme 'doom-spacegrey 'no-confirm)
+    (load-theme 'afternoon 'no-confirm)
   (load-theme 'wheatgrass))  ;; wheatgrass included in emacs
 #+end_src
 
