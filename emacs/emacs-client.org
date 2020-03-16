@@ -45,14 +45,14 @@ Alternativas:
 - Iosevka
 
 #+begin_src emacs-lisp
-(setq default-font "DejaVu Sans Mono")
+(setq default-font "Ubuntu Mono-16")
 (set-face-attribute 'default nil :font default-font)
 ;;(set-face-attribute 'default nil :font "Source Code Pro Semibold-14")
 (set-face-attribute 'mode-line nil :font "DejaVu Sans Mono")
 
-(set-fontset-font "fontset-default" nil
-                    (font-spec :size 20 :name "Ubuntu Mono"))
-(set-fontset-font t 'unicode "Ubuntu Mono" nil 'prepend)
+;;(set-fontset-font "fontset-default" nil
+;;                    (font-spec :size 20 :name "Ubuntu Mono"))
+;;(set-fontset-font t 'unicode "Ubuntu Mono" nil 'prepend)
 #+end_src
 
 
@@ -241,7 +241,7 @@ Para temas populares ver [[https://emacsthemes.com/popular/index.html][aquí]]
 
 ** [[https://gitlab.com/protesilaos/modus-themes][Modus]]
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp 
 (use-package modus-vivendi-theme)
 (use-package modus-operandi-theme)
 #+end_src
@@ -253,7 +253,7 @@ Para temas populares ver [[https://emacsthemes.com/popular/index.html][aquí]]
 
 #+begin_src emacs-lisp
 (if (display-graphic-p)
-    (load-theme 'afternoon 'no-confirm)
+    (load-theme 'alect-dark 'no-confirm)
   (load-theme 'wheatgrass))  ;; wheatgrass included in emacs
 #+end_src
 
