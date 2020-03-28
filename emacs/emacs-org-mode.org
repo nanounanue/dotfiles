@@ -610,6 +610,9 @@ Esto también lo vamos a ocupar
              '("dd" . "src ditaa"))
 
 (add-to-list 'org-structure-template-alist
+             '("dg" . "src dot"))
+
+(add-to-list 'org-structure-template-alist
              '("dp" . "src plantuml"))
 
 ;; Tomado de https://github.com/dangom/org-thesis/blob/master/org-init.el
@@ -720,6 +723,8 @@ como sigue:
 #+END_SRC
 
 ** Word                                                         :deprecated:
+
+Usar mejor =ox-pandoc=
 
 #+begin_src emacs-lisp :tangle no
 ;; The `ox-word' library uses pandoc to export Org files to Microsoft Word via
