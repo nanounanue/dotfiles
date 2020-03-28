@@ -66,7 +66,7 @@
 
     :custom-face
     (variable-pitch ((t (:family "EtBembo" :height 1.1 :weight normal))))
-    (fixed-pitch ((t (:family "Fira Code" :slant normal :weight normal :height 1.0 :width normal))))
+    (fixed-pitch ((t (:family "Ubuntu Mono" :slant normal :weight normal :height 1.0 :width normal))))
     (org-indent ((t (:inherit (org-hide fixed-pitch)))))
 
     :config
@@ -77,31 +77,7 @@
                             '(("^ *\\([+]\\) "
                                (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "◦"))))))
 
-    (defmacro unpackaged/def-org-maybe-surround (&rest keys)
-      "Define and bind interactive commands for each of KEYS that surround the region or insert text.
-      Commands are bound in `org-mode-map' to each of KEYS.  If the
-      region is active, commands surround it with the key character,
-      otherwise call `org-self-insert-command'."
-      `(progn
-         ,@(cl-loop for key in keys
-                    for name = (intern (concat "unpackaged/org-maybe-surround-" key))
-                    for docstring = (format "If region is active, surround it with \"%s\", otherwise call `org-self-insert-command'." key)
-                    collect `(defun ,name ()
-                               ,docstring
-                               (interactive)
-                               (if (region-active-p)
-                                   (let ((beg (region-beginning))
-                                         (end (region-end)))
-                                     (save-excursion
-                                       (goto-char end)
-                                       (insert ,key)
-                                       (goto-char beg)
-                                       (insert ,key)))
-                                 (call-interactively #'org-self-insert-command)))
-                    collect `(define-key org-mode-map (kbd ,key) #',name))))
-
-    (unpackaged/def-org-maybe-surround "~" "=" "*" "/" "+" "$")
-
+ 
     (defun org-summary-todo (n-done n-not-done)
       "Switch entry to DONE when all subentries are done, to TODO otherwise."
       (let (org-log-done org-log-states)   ; turn off logging
@@ -125,8 +101,8 @@ Finally, we set up a nice proportional font, in different sizes, for
 the headlines. The fonts listed will be tried in sequence, and the
 first one found will be used. Feel free to add your own favorite font:
 
-#+begin_src emacs-lisp
-(use-feature org-faces
+#+begin_src emacs-lisp :tangle no
+(use-feature org-faces 
 :after org
 :config
  (let* ((variable-tuple
@@ -149,7 +125,7 @@ first one found will be used. Feel free to add your own favorite font:
        `(org-level-3        ((t (,@headline ,@variable-tuple :height 1.25))))
        `(org-level-2        ((t (,@headline ,@variable-tuple :height 1.5))))
        `(org-level-1        ((t (,@headline ,@variable-tuple :height 1.75))))
-       `(org-headline-done  ((t (,@headline ,@variable-tuple :strike-through t))))
+       `(org-headline-done  ((t (,@headline ,@variable-tuple :strike-through nil))))
        `(org-document-title ((t (,@headline ,@variable-tuple
                                             :height 2.0 :underline nil))))))
     (eval-after-load 'face-remap '(diminish 'buffer-face-mode))
