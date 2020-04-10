@@ -16,6 +16,8 @@
 #+begin_src emacs-lisp
 (setq nanounanue/projects-directory (concat (getenv "HOME") "/projects/"))
 (setq nanounanue/pcloud-directory (concat (getenv "HOME") "/pCloudDrive/"))
+(setq nanounanue/org-directory (concat nanounanue/pcloud-directory "org/"))
+(setq nanounanue/org-agenda-directory (concat nanounanue/org-directory "gtd/"))
 #+end_src
 
 
@@ -151,6 +153,15 @@ Tomado de [[https://yiming.dev/blog/2018/03/02/my-org-refile-workflow/][aquí]]
                       (buffer-file-name x)))
                 (buffer-list))))
 
+#+end_src
+
+Archiva todos los /tasks/ con =DONE=
+
+#+begin_src emacs-lisp
+(defun nanounanue/org-archive-done-tasks ()
+  "Archive all done tasks"
+  (interactive)
+  (org-map-entres 'org-archive-subtree "/DONE" 'file))
 #+end_src
 
 

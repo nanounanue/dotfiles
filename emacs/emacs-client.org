@@ -40,23 +40,21 @@ Alternativas:
 - DejaVu Sans Mono-14
 - Fira Sans
 - Hack
+- Libre Baskerville
 
 - EB Garamond -> Para headings, no para código
 - Iosevka
 
 #+begin_src emacs-lisp
-
-;(setq default-font "Ubuntu Mono-16")
-;(set-face-attribute 'default nil :font default-font)
-;;(set-face-attribute 'default nil :font "Source Code Pro Semibold-14")
-;(set-face-attribute 'mode-line nil :family "DejaVu Sans Mono")
-
-(set-face-attribute 'default nil :family "Ubuntu Mono" :height 150)
-;(set-face-attribute 'fixed-pitch nil :family "Ubuntu Mono")
-;(set-face-attribute 'variable-pitch nil :family "EtBembo")
+(set-face-attribute 'default nil :family "Ubuntu Mono")
+;; (set-face-attribute 'fixed-pitch nil :font "DejaVu Sans Mono")
+;; (set-face-attribute 'fixed-pitch-serif nil :font "DejaVu Serif")
+;; (set-face-attribute 'variable-pitch nil :font "EtBembo")
+;; (set-face-attribute 'mode-line nil :family "DejaVu Sans Mono")
 
 (set-fontset-font "fontset-default" nil
-                    (font-spec :size 20 :name "Ubuntu Mono"))
+                    (font-spec :name "Ubuntu Mono"))
+
 (set-fontset-font t 'unicode "Ubuntu Mono" nil 'prepend)
 #+end_src
 
