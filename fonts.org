@@ -167,6 +167,14 @@ rm Hasklig-1.1.zip
 apt install -y fonts-ebgaramond fonts-ebgaramond-extra
 #+end_src
 
+
+** Libre Baskerville
+#+begin_src shell :dir ~/.fonts
+curl -L https://www.fontsquirrel.com/fonts/download/libre-baskerville  --output libre-baskerville.zip && \
+unzip -o libre-baskerville.zip && \
+rm libre-baskerville.zip
+#+end_src
+
 ** EtBook
 
 [[https://edwardtufte.github.io/et-book/][Sitio web]]
