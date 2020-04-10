@@ -47,7 +47,7 @@
     ("C-c C-v t". org-babel-tangle)
     ("C-c C-v f" . org-babel-tangle-file)
     :custom
-    (org-directory "~/pCloudDrive/org")
+    (org-directory nanounanue/org-directory)
     (org-startup-indented t)
     (org-catch-invisible-edits 'smart)
     (org-blank-before-new-entry '((heading . t) (plain-list-item . nil)))
@@ -65,17 +65,17 @@
 
 
     :custom-face
-    (variable-pitch ((t (:family "EtBembo" :height 1.1 :weight normal))))
-    (fixed-pitch ((t (:family "Ubuntu Mono" :slant normal :weight normal :height 1.0 :width normal))))
-    (org-indent ((t (:inherit (org-hide fixed-pitch)))))
+     (variable-pitch ((t (:family "EtBembo" :height 1.1 :weight normal))))
+     (fixed-pitch ((t (:family "Ubuntu Mono" :slant normal :weight normal :height 1.0 :width normal))))
+     (org-indent ((t (:inherit (org-hide fixed-pitch)))))
 
     :config
-    (font-lock-add-keywords 'org-mode
-                            '(("^ *\\([-]\\) "
-                               (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-    (font-lock-add-keywords 'org-mode
-                            '(("^ *\\([+]\\) "
-                               (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "◦"))))))
+    ;; (font-lock-add-keywords 'org-mode
+    ;;                         '(("^ *\\([-]\\) "
+    ;;                            (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+    ;; (font-lock-add-keywords 'org-mode
+    ;;                         '(("^ *\\([+]\\) "
+    ;;                            (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "◦"))))))
 
  
     (defun org-summary-todo (n-done n-not-done)
@@ -93,44 +93,6 @@
      (org-mode . variable-pitch-mode)
      )
     )
-#+end_src
-
-* Custom faces
-
-Finally, we set up a nice proportional font, in different sizes, for
-the headlines. The fonts listed will be tried in sequence, and the
-first one found will be used. Feel free to add your own favorite font:
-
-#+begin_src emacs-lisp :tangle no
-(use-feature org-faces 
-:after org
-:config
- (let* ((variable-tuple
-            (cond ((x-list-fonts   "EtBembo") '(:font   "EtBembo"))
-                  ((x-list-fonts   "Source Sans Pro")   '(:font   "Source Sans Pro"))
-                  ((x-list-fonts   "Verdana")         '(:font   "Verdana"))
-                  ((x-family-fonts "Sans Serif")      '(:family "Sans Serif"))
-                  (nil (warn "Cannot find a Sans Serif Font."))))
-           (base-font-color (face-foreground 'default nil 'default))
-           (headline `(:inherit default :weight bold
-                                :foreground ,base-font-color)))
-
-      (custom-theme-set-faces
-       'user
-       `(org-level-8        ((t (,@headline ,@variable-tuple))))
-       `(org-level-7        ((t (,@headline ,@variable-tuple))))
-       `(org-level-6        ((t (,@headline ,@variable-tuple))))
-       `(org-level-5        ((t (,@headline ,@variable-tuple))))
-       `(org-level-4        ((t (,@headline ,@variable-tuple :height 1.1))))
-       `(org-level-3        ((t (,@headline ,@variable-tuple :height 1.25))))
-       `(org-level-2        ((t (,@headline ,@variable-tuple :height 1.5))))
-       `(org-level-1        ((t (,@headline ,@variable-tuple :height 1.75))))
-       `(org-headline-done  ((t (,@headline ,@variable-tuple :strike-through nil))))
-       `(org-document-title ((t (,@headline ,@variable-tuple
-                                            :height 2.0 :underline nil))))))
-    (eval-after-load 'face-remap '(diminish 'buffer-face-mode))
-    (eval-after-load 'simple '(diminish 'visual-line-mode))
-)
 #+end_src
 
 * /Speed keys/
@@ -191,16 +153,85 @@ Habilitando mas tipos de imágenes a desplegar en =org-mode=
   )
 #+end_src
 
+* [[https://github.com/sprig/org-capture-extension][Org protocol]]
+
+Configuración tomada de [[https://stackoverflow.com/a/32851154/754176][aquí]]
+
+** Preparando el sistema operativo 
+
+Registramos =emacs= como el encargado de manejar las peticiones de la
+extensión de Firefox
+
+#+BEGIN_SRC shell
+mkdir -p ~/.local/share/applications
+#+END_SRC
+
+
+#+BEGIN_SRC shell :dir ~/.local/share/applications
+cat > "org-protocol.desktop" << EOF
+[Desktop Entry]
+Name=org-protocol
+Exec=emacsclient %u
+Type=Application
+Terminal=false
+Categories=System;
+MimeType=x-scheme-handler/org-protocol;
+EOF
+#+END_SRC
+
+Actualizamos la base de datos de manejadores
+
+#+BEGIN_SRC shell
+update-desktop-database ~/.local/share/applications/
+#+END_SRC
+
+
+** Agregar a firefox el protocolo
+
+
+Abrir [[about:config]] en firefox y crear una nueva variable booleana:
+
+=network.protocol-handler.expose.org-protocol=
+
+su valor debe de ser =true=.
+
+
+** Agregar a firefox los bookmarklets
+
+En el campo =Location:=
+
+*** org: capture
+
+#+begin_src 
+javascript:location.href ='org-protocol://capture?template=c&url='+   encodeURIComponent(location.href) +   '&title=' + encodeURIComponent(document.title) +   '&body=' + encodeURIComponent(window.getSelection())
+#+end_src
+
+*** org: store-link
+
+
+#+begin_src
+javascript:location.href ='org-protocol://capture?template=l&url='+   encodeURIComponent(location.href) +   '&title=' + encodeURIComponent(document.title)
+#+end_src
+
+** Configuración *en* emacs
+
+#+BEGIN_SRC emacs-lisp 
+(use-feature org-protocol
+  :after org
+  :demand t)
+#+END_SRC
+
 * Agenda
 
 #+BEGIN_SRC emacs-lisp
   (use-feature org-agenda
     :demand t
     :config
-    (setq org-agenda-files (directory-files-recursively org-directory "\\.org$"))
-
+    (setq org-agenda-files (directory-files-recursively nanounanue/org-agenda-directory "\\.org$"))
     ;; No queremos ver aquello que ya acabó en la agenda
     ;; http://orgmode.org/manual/Global-TODO-list.html#Global-TODO-list
+    (setq org-agenda-block-separator nil)
+    (setq org-agenda-start-with-log-mode t)
     (setq org-agenda-skip-scheduled-if-done t)
     (setq org-agenda-skip-deadline-if-done t)
     (setq org-agenda-skip-timestamp-if-done t)
@@ -210,6 +241,32 @@ Habilitando mas tipos de imágenes a desplegar en =org-mode=
     (setq org-agenda-todo-ignore-with-date t)
     (setq org-deadline-warning-days 40)
     (setq org-deadline-past-days 21)
+  (setq org-columns-default-format "%40ITEM(Task) %Effort(EE){:} %CLOCKSUM(Time Spent) %SCHEDULED(Scheduled) %DEADLINE(Deadline)")
+  (setq org-agenda-custom-commands `(("A" "Agenda"
+                                      ((agenda ""
+                                               ((org-agenda-span 'week)
+                                                (org-deadline-warning-days 365)))
+                                       (todo "TODO"
+                                             ((org-agenda-overriding-header "To Refile")
+                                              (org-agenda-files '(,(concat nanounanue/org-agenda-directory "inbox.org")))))
+                                       (todo "TODO"
+                                             ((org-agenda-overriding-header "Emails")
+                                              (org-agenda-files '(,(concat nanounanue/org-agenda-directory "emails.org")))))
+                                       (todo "NEXT"
+                                             ((org-agenda-overriding-header "In Progress")
+                                              (org-agenda-files '(,(concat nanounanue/org-agenda-directory "someday.org")
+                                                                  ,(concat nanounanue/org-agenda-directory "projects.org")
+                                                                  ,(concat nanounanue/org-agenda-directory "next.org")))
+                                              ))
+                                       (todo "TODO"
+                                             ((org-agenda-overriding-header "Projects")
+                                              (org-agenda-files '(,(concat nanounanue/org-agenda-directory "projects.org")))
+                                              ))
+                                       (todo "TODO"
+                                             ((org-agenda-overriding-header "One-off Tasks")
+                                              (org-agenda-files '(,(concat nanounanue/org-agenda-directory "next.org")))
+                                              (org-agenda-skip-function '(org-agenda-skip-entry-if 'deadline 'scheduled))))))))
+
     (setq org-agenda-start-on-weekday nil))
 #+END_SRC
 
@@ -226,25 +283,62 @@ Habilitando mas tipos de imágenes a desplegar en =org-mode=
 
 ** [[https://github.com/alphapapa/org-super-agenda][Org-super-agenda]]
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package org-super-agenda)
 #+end_src
 
 
 ** TODOs templates
 
+
+Primero especificamos que estados podemos tener:
+
+| Estado    | Significado                                                                                  |
+|-----------+----------------------------------------------------------------------------------------------|
+| TODO      | es algo que tiene que hacerse                                                                |
+| WORKING   | estoy trabajando en ella                                                                     |
+| BLOCKED   | la tarea depende de algo más para hacerse                                                    |
+| DELEGATED | alguien más lo está haciendo y yo tengo que verificar/estar enterado de lo que está haciendo |
+| ASSIGNED  | alguien tiene completa responsabilidad sobre la tarea                                        |
+| REVIEW    | alguien está validando el task                                                               |
+| CANCELLED | ya no es necesario hacerse                                                                   |
+| DONE      | ha sido completada                                                                           |
+
+
+#+begin_src plantuml :file task_states.png  :results none :exports none :cache yes
+@startuml
+title Diagrama de estados de las tareas
+hide empty description
+[*] --> TODO
+TODO --> WORKING
+WORKING --> DONE
+TODO --> DONE
+DONE --> [*]
+TODO -down-> DELEGATED
+TODO -down-> CANCELLED
+WORKING -> REVIEW
+WORKING --> CANCELLED
+CANCELLED --> [*]
+WORKING --> BLOCKED
+BLOCKED --> WORKING
+BLOCKED --> CANCELLED 
+REVIEW --> WORKING
+REVIEW --> DONE
+DELEGATED --> CANCELLED
+DELEGATED --> DONE
+TODO --> ASSIGNED
+ASSIGNED --> [*]
+@enduml
+#+end_src
+
+[[./task_states.png]]
+
+
 #+begin_src emacs-lisp
 (use-feature org
   :config
   (setq org-todo-keywords '(
-                            (;; TODO significa que es algo que tiene que hacerse
-                             ;; WORKING significa que estoy trabajando en alla
-                             ;; BLOCKED significa que la tarea depende de algo más para hacerse
-                             ;; DELEGATED significa que alguien más lo está haciendo y yo tengo que verificar/estar enterado de lo que está haciendo
-                             ;; ASSIGNED significa que alguien tiene completa responsabilidad sobre la tarea
-                             ;; REVIEW significa que alguien está validando el task
-                             ;; CANCELLED significa que ya no es necesario hacerse
-                             ;; DONE significa que ha sido completada
+                            (
                              sequence
                              "TODO(t!)"
                              "WORKING(w!)"
@@ -256,34 +350,39 @@ Habilitando mas tipos de imágenes a desplegar en =org-mode=
                              "CANCELLED(c@/!)"
                              "DONE(d!)")))
 
-  (setq org-todo-keyword-faces
-        '(("TODO" . "tomato")
-          ("WORKING" . "gold2")
-          ("REVIEW" . "lavender")
-          ("BLOCKED" . "magenta")
-          ("CANCELLED" . "dark red")
-          ("DELEGATED" . "steel blue")
-          ("DONE" . "green")
-          ("ASSIGNED" . "sienna")))
-  (font-lock-add-keywords            ; A bit silly but my headers are now
-   'org-mode `(("^\\*+ \\(TODO\\) "  ; shorter, and that is nice canceled
-                (1 (progn (compose-region (match-beginning 1) (match-end 1) "⚑")
-                          nil)))
-               ("^\\*+ \\(WORKING\\) "
-                (1 (progn (compose-region (match-beginning 1) (match-end 1) "⚐")
-                          nil)))
-               ("^\\*+ \\(CANCELLED\\) "
-                (1 (progn (compose-region (match-beginning 1) (match-end 1) "✘")
-                          nil)))
-               ("^\\*+ \\(CANCE\\) "
-                (1 (progn (compose-region (match-beginning 1) (match-end 1) "✘")
-                          nil)))
-               ("^\\*+ \\(DONE\\) "
-                (1 (progn (compose-region (match-beginning 1) (match-end 1) "✔")
-                          nil)))))
-  )
-
 #+end_src
+
+Podemos asignarles color e íconos para hacerlos un poco más vistosos.
+
+#+begin_src emacs-lisp
+(setq org-todo-keyword-faces
+      '(("TODO" . "tomato")
+        ("WORKING" . "gold2")
+        ("REVIEW" . "lavender")
+        ("BLOCKED" . "magenta")
+        ("CANCELLED" . "dark red")
+        ("DELEGATED" . "steel blue")
+        ("DONE" . "green")
+        ("ASSIGNED" . "sienna")))
+(font-lock-add-keywords            ; A bit silly but my headers are now
+ 'org-mode `(("^\\*+ \\(TODO\\) "  ; shorter, and that is nice canceled
+              (1 (progn (compose-region (match-beginning 1) (match-end 1) "⚑")
+                        nil)))
+             ("^\\*+ \\(WORKING\\) "
+              (1 (progn (compose-region (match-beginning 1) (match-end 1) "⚐")
+                        nil)))
+             ("^\\*+ \\(CANCELLED\\) "
+              (1 (progn (compose-region (match-beginning 1) (match-end 1) "✘")
+                        nil)))
+             ("^\\*+ \\(CANCE\\) "
+              (1 (progn (compose-region (match-beginning 1) (match-end 1) "✘")
+                        nil)))
+             ("^\\*+ \\(DONE\\) "
+              (1 (progn (compose-region (match-beginning 1) (match-end 1) "✔")
+                        nil)))))
+)
+#+end_src
+
 
 * Clock
 
@@ -328,48 +427,36 @@ en el que estoy trabajando (/capture/)
 
 Org Capture Templates are explained [[http://orgmode.org/manual/Capture-templates.html][here]], Org Template expansion [[http://orgmode.org/manual/Template-expansion.html#Template-expansion][here.]]
 
-* Capture
+** Capture
 
 
 #+BEGIN_SRC emacs-lisp
 (use-feature org
   :config
-  ;; Usado por org-capture cuando el template no define un archivo target
-  (setq org-default-notes-file (nanounanue/org-file-path "refile.org"))
-  (setq org-default-tasks-file (nanounanue/org-file-path "tasks.org"))
-
   (setq org-capture-templates
-        (quote (("t" "TODO    (t)" entry (file "~/pCloudDrive/org/refile.org")
-                 "* TODO %? \n:PROPERTIES:\n:via: %f\n:note:\n:END:":clock-in t :clock-resume t :empty-lines 1)
+        (quote (
+                ("i" "inbox" entry (file (lambda () (concat nanounanue/org-agenda-directory "inbox.org")))
+                 "* TODO %?")
+                ("e" "email" entry (file+headline (lambda () (concat nanounanue/org-agenda-directory "emails.org")) "Emails")
+                 "* TODO [#A] Reply: %a "
+                 :immediate-finish t)
+                ("c" "org-protocol-capture" entry (file (lambda () (concat nanounanue/org-agenda-directory "inbox.org")))
+                 "* TODO [[%:link][%:description]]\n:PROPERTIES:\n:CREATED: %U\n:Source: %:link\n:END:\n %:initial\n"
+                 :immediate-finish t)
+                ("l" "org-protocol-store-link" entry (file (lambda () (concat nanounanue/org-agenda-directory "inbox.org")))
+                 "* [[%:link][%:description]]\n:PROPERTIES:\n:CREATED: %U\n:Source: %:link\n:END:\n" 
+                 :immediate-finish t)
                 ("K" "Cliplink capture task" entry (file "")
                  "* TODO %(org-cliplink-capture) \n  SCHEDULED: %t\n" :empty-lines 1)
-                ("r" "Research")
-                ("rp" "Research project" entry (file "~/pCloudDrive/org/refile.org")
-	         "* TODO %^{Project title} :research::%^G:\n:PROPERTIES:\n:CREATED: %U\n:END:\n%^{Project description}\n** TODO Literature review\n** TODO %?\n** TODO Summary\n** TODO Reports\n** Ideas\n" :clock-in t :clock-resume t)
-                ("ri" "Research Idea" entry (file "~/pCloudDrive/org/research.org")
-                 "* %? :research::IDEA:\n%U\n%a\n" :clock-in t :clock-resume t)
-                ("s" "Scheduled TODO" entry (file+headline "~/pCloudDrive/org/refile.org")
+                ("S" "Scheduled TODO" entry (file (lambda () (concat nanounanue/org-agenda-directory "inbox.org")))
                  "* TODO %? %^G \nSCHEDULED: %^t\n  %U" :empty-lines 1)
-                ("d" "Deadline" entry (file+headline "~/pCloudDrive/org/refile.org")
+                ("D" "Deadline" entry (file (lambda () (concat nanounanue/org-agenda-directory "inbox.org")))
                  "* TODO %? %^G \n  DEADLINE: %^t" :empty-lines 1)
-                ("b" "Link from browser" entry (file "~/pCloudDrive/org/refile.org")
-	         "*  %? |- (%:description)\n:BOOKMARK:\n:PROPERTIES:\n:CREATED: %U\n:Source: %:link\n:END:\n%i\n" :clock-in t :clock-resume t)
-             	("s" "Selection from browser" entry (file "~/pCloudDrive/org/refile.org")
-	         "*  %? \n :BOOKMARK:\n%(replace-regexp-in-string \"\n.*\" \"\" \"%i\")\n:PROPERTIES:\n:CREATED: %U\n:Source: %:link\n:END:\n%i\n" :clock-in t :clock-resume t)
-                ("j" "Journal" entry (function nanounanue/org-journal-find-location)
-                 "* %(format-time-string org-journal-time-format)%^{Title}\n%i%?")
-                ("c" "Contactos" entry (file+headline "~/pCloudDrive/org/contactos.org" "Contactos")
-                 "* %^{Name Last Name}\n:PROPERTIES:\n:ADDRESS: %^{289 Cleveland St. Brooklyn, 11206 NY, USA}\n:BIRTHDAY: %^{yyyy-mm-dd}\n:EMAIL: %^{email@host.com}\n:NOTE: %^{NOTE}\n:END:" :empty-lines 1)
-                ("b" "Book/Bibliography" entry (file+headline "~/pCloudDrive/org/research/bibliography.org" "Refile")
-                 "* %?%^{TITLE}p%^{AUTHOR}p%^{TYPE}p")
-                ("n" "Note" entry (file "~/pCloudDrive/org/notes.org")
-                 "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t :empty-lines 1)
-                ("N" "Note with Clipboard" entry (file "~/pCloudDrive/org/notes.org")
-                 "* %? :NOTE:\n%U\n%a\n %c" :empty-lines 1))))
+                ))) 
   )
 #+end_src
 
-* Refile
+** Refile
 
 #+begin_src emacs-lisp
 (use-feature org
@@ -381,16 +468,13 @@ Org Capture Templates are explained [[http://orgmode.org/manual/Capture-template
   ;; Targets include this file and any file contributing to the agenda - up to 9 levels deep
   (setq org-refile-targets (quote ((nil :maxlevel . 9)
                                    (org-directory-files :maxlevel . 9)
-;;                                   (nanounanue/org-opened-buffer-files :maxlevel . 9)   ;; buffers abiertos
                                    (org-agenda-files :maxlevel . 9))))
 
   ;; Use full outline paths for refile targets
   (setq org-refile-use-outline-path t)
 
-(setq org-outline-path-complete-in-steps nil)
+  (setq org-outline-path-complete-in-steps nil)
 
-
-  ;; Allow refile to create parent tasks with confirmatio
   (setq org-refile-allow-creating-parent-nodes (quote confirm))
   )
 #+END_SRC
@@ -399,6 +483,8 @@ Luego de seleccionar el /template/ adecuado, tecleas la nota, =C-c C-c=
 para guardar.
 
 Por último, recuerda hacer =C-c C-w= para /refile/ la nota al lugar correspondiente.
+
+** Archive
 
 * /Tags/
 
@@ -657,7 +743,7 @@ Esto también lo vamos a ocupar
   ;; org-export-allow-bind to t.
   (put 'org-export-allow-bind-keywords 'safe-local-variable #'booleanp)
   (setq org-export-with-sub-superscripts '{}
-        org-export-initial-scope 'subtree
+        org-export-initial-scope 'buffer
         org-export-coding-system 'utf-8
         org-html-checkbox-type 'html))
 #+end_src
@@ -722,64 +808,112 @@ help:org-latex-packages-alist
 help:org-latex-pdf-process
 
 #+BEGIN_SRC emacs-lisp :noweb yes
-(use-feature ox-latex
-  :after ox
-  :demand t
-  :custom
-  (org-latex-compiler "latexmk")
-  (org-latex-bib-compiler "biber")
-  (org-latex-default-class "koma-article")
-  (org-latex-pdf-process
-    '("latexmk -xelatex -shell-escape -output-directory=%o -f %f"))
-  :config
-  ;; Bloques bonitos
-  (setq org-latex-listings 'minted)
-  ;; Need to let ox know about ipython and jupyter
-  (add-to-list 'org-latex-minted-langs '(ipython "python"))
-  (add-to-list 'org-babel-tangle-lang-exts '("ipython" . "py"))
-  (add-to-list 'org-latex-minted-langs '(jupyter-python "python"))
-  (add-to-list 'org-babel-tangle-lang-exts '("jupyter-python" . "py"))
-  (add-to-list 'org-latex-minted-langs '(shell "bash"))
-  (add-to-list 'org-latex-minted-langs '(sh "bash"))
-  (add-to-list 'org-babel-tangle-lang-exts '("bash" . "sh"))
-  (add-to-list 'org-latex-minted-langs '(sqlite "sql"))
-  (add-to-list 'org-babel-tangle-lang-exts '("sqlite" . "sql"))
+  (use-feature ox-latex
+    :after ox
+    :demand t
+    :custom
+    (org-latex-compiler "latexmk")
+    (org-latex-bib-compiler "biber")
+    (org-latex-default-class "koma-article")
+    (org-latex-pdf-process
+     '("latexmk -xelatex -shell-escape -output-directory=%o -f %f"))
+    
+    :config
+    
+    (setq xedvisvgm '(xedvisvgm :programs ("xelatex" "dvisvgm")
+       :description "dvi > svg"
+       :message "you need to install xelatex and dvisvgm."
+       :use-xcolor t
+       :image-input-type "dvi"
+       :image-output-type "svg"
+       :image-size-adjust (1.7 . 1.5)
+       :latex-compiler ("xelatex -interaction nonstopmode -output-directory %o %f")
+       :image-converter ("dvisvgm %f -n -b min -c %S -o %O")))
 
-  (setq org-latex-prefer-user-labels t)
+    (add-to-list 'org-preview-latex-process-alist xedvisvgm)
 
-  ;; Borra los archivos intermedios al exportar
-  (setq org-latex-logfiles-extensions
-        '("lof" "lot" "tex=" "aux" "idx" "log" "out" "toc" "nav" "snm" "vrb" "glo" "acn" "alg" "acr"
-          "dvi" "fdb_latexmk" "blg" "brf" "fls" "entoc" "ps" "spl" "bbl"))
+    (setq org-preview-latex-default-process 'dvisvgm)
 
-  ;; Templates
 
-  <<ox-latex-chapter>>
+    ;; Programa a utilizar por default (listado en org-preview-latex-process-alist)
+    ;;(setq org-preview-latex-default-process 'dvisvgm)
 
-  <<ox-latex-KOMA>>
+    ;; Bloques bonitos
+    (setq org-latex-listings 'minted)
+    ;; Need to let ox know about ipython and jupyter
+    (add-to-list 'org-latex-minted-langs '(ipython "python"))
+    (add-to-list 'org-babel-tangle-lang-exts '("ipython" . "py"))
+    (add-to-list 'org-latex-minted-langs '(jupyter-python "python"))
+    (add-to-list 'org-babel-tangle-lang-exts '("jupyter-python" . "py"))
+    (add-to-list 'org-latex-minted-langs '(shell "bash"))
+    (add-to-list 'org-latex-minted-langs '(sh "bash"))
+    (add-to-list 'org-babel-tangle-lang-exts '("bash" . "sh"))
+    (add-to-list 'org-latex-minted-langs '(sqlite "sql"))
+    (add-to-list 'org-babel-tangle-lang-exts '("sqlite" . "sql"))
+    
+    
+    ;; Escala los previews de LaTeX 
+    (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
+    
+    ;; For example, when this variable is non-nil, a headline like this:
+  
+    ;;   ** Some section
+    ;;      :PROPERTIES:
+    ;;      :CUSTOM_ID: sec:foo
+    ;;      :END:
+    ;;   This is section [[#sec:foo]].
+    ;;   #+BEGIN_EXPORT latex
+    ;;   And this is still section \ref{sec:foo}.
+    ;;   #+END_EXPORT
+    
+    ;; will be exported to LaTeX as:
+    
+    ;;   \subsection{Some section}
+    ;;   \label{sec:foo}
+    ;;   This is section \ref{sec:foo}.
+    ;;   And this is still section \ref{sec:foo}.
+    
+    ;; Note, however, that setting this variable introduces a limitation
+    ;; on the possible values for CUSTOM_ID and NAME.  When this
+    ;; variable is non-nil, Org passes their value to \label unchanged.
+    ;; You are responsible for ensuring that the value is a valid LaTeX
+    ;; \label key, and that no other \label commands with the same key
+    ;; appear elsewhere in your document. 
+    (setq org-latex-prefer-user-labels t)
+    
+    ;; Borra los archivos intermedios al exportar
+    (setq org-latex-logfiles-extensions
+          '("lof" "lot" "tex=" "aux" "idx" "log" "out" "toc" "nav" "snm" "vrb" "glo" "acn" "alg" "acr"
+            "dvi" "fdb_latexmk" "blg" "brf" "fls" "entoc" "ps" "spl" "bbl"))
+    
+    ;; Templates
+    
+    <<ox-latex-chapter>>
+    
+    <<ox-latex-KOMA>>
+    
+    <<ox-latex-tufte-book>>
+    
+    <<ox-latex-beamer>>
+    
+    <<ox-latex-assign>>
+    
+    <<ox-latex-mimore>>
+    
+    <<ox-latex-mimosis>>
+    
+    <<ox-latex-elsarticle>>
+    
+    <<ox-latex-elegantlatex>>
+    
+    <<ox-latex-hitec>>
+    
+    <<ox-latex-memoir>>
+    
+    <<ox-latex-arxiv>>
+    
+    <<ox-latex-preprint>>)
 
-  <<ox-latex-tufte-book>>
-
-  <<ox-latex-beamer>>
-
-  <<ox-latex-assign>>
-
-  <<ox-latex-mimore>>
-
-  <<ox-latex-mimosis>>
-
-  <<ox-latex-elsarticle>>
-
-<<ox-latex-elegantlatex>>
-
-<<ox-latex-hitec>>
-
-<<ox-latex-memoir>>
-
-<<ox-latex-arxiv>>
-
-<<ox-latex-preprint>>
-  )
 #+END_SRC
 
 
@@ -887,6 +1021,27 @@ apt install -y xclip
   :init
   (require 'org-recoll))
 #+end_src
+
+
+** ox-hugo
+
+#+begin_src emacs-lisp
+(use-package ox-hugo
+  :demand t
+  :after ox)
+#+end_src
+
+
+Es necesario instalar Hugo
+
+#+begin_src shell 
+curl -L https://github.com/gohugoio/hugo/releases/download/v0.68.3/hugo_0.68.3_Linux-64bit.deb --output /tmp/hugo.deb 
+#+end_src
+
+#+begin_src sh :dir /sudo::
+sudo dpkg -i /tmp/hugo.deb
+#+end_src
+
 
 
 * Presentaciones
@@ -1176,60 +1331,6 @@ Not for real use, just here for demonstration purposes."
 #+END_SRC
 
 
-
-* [[https://github.com/sprig/org-capture-extension][Org protocol]]
-
-** Preparando el sistema operativo para el [[https://addons.mozilla.org/en-US/firefox/addon/org-capture/?src=search][add-on in de firefox]]
-
-Registramos =emacs= como el encargado de manejar las peticiones de la
-extensión de Firefox
-
-#+BEGIN_SRC shell
-mkdir -p ~/.local/share/applications
-#+END_SRC
-
-
-#+BEGIN_SRC shell :dir ~/.local/share/applications
-cat > "org-protocol.desktop" << EOF
-[Desktop Entry]
-Name=org-protocol
-Exec=emacsclient %u
-Type=Application
-Terminal=false
-Categories=System;
-MimeType=x-scheme-handler/org-protocol;
-EOF
-#+END_SRC
-
-Actualizamos la base de datos de manejadores
-
-#+BEGIN_SRC shell
-update-desktop-database ~/.local/share/applications/
-#+END_SRC
-
-** Configuración *en* emacs
-
-#+BEGIN_SRC emacs-lisp :tangle no
-(use-feature org-protocol
-  :after org
-  :demand t
-  :config
-  (defun transform-square-brackets-to-round-ones(string-to-transform)
-    "Transforms [ into ( and ] into ), other chars left unchanged."
-    (concat
-     (mapcar #'(lambda (c) (if (equal c ?[) ?\( (if (equal c ?]) ?\) c))) string-to-transform))
-    )
-
-
-  (add-to-list 'org-capture-templates
-               '("p" "Protocol" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
-                 "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?"))
-
-  (add-to-list 'org-capture-templates
-               '("L" "Protocol Link" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
-                 "* %? [[%:link][%(transform-square-brackets-to-round-ones \"%:description\")]]\n"))
-)
-#+END_SRC
 
 * Funciones para Org LaTeX
 
@@ -1820,6 +1921,7 @@ tlmgr install hitec
 
 * Misceláneos
 
+
 ** [[https://github.com/rexim/org-cliplink][org-cliplink]]
 
 #+begin_quote
@@ -1852,7 +1954,7 @@ buffer.
              org-download-screenshot)
 
   :config
-  (setq-default org-download-image-dir "./img")
+  (setq-default org-download-image-dir "./imagenes")
   (setq org-download-screenshot-method "screencapture -i %s")
   :hook ((org-mode dired-mode) . org-download-enable))
 #+END_SRC
@@ -1871,8 +1973,6 @@ buffer.
 
 A veces queremos agrupar texto por algunos /headers/ pero *NO*
 queremos exportar el /header/, para lograrlo hay que hacer:
-
-
 
 #+begin_src emacs-lisp
 ;; Feature `ox-extra' is a library from the org-plus-contrib package.
@@ -2059,9 +2159,9 @@ Para activar en un /buffer/ agregar al final del mismo:
     :custom
     (org-hide-emphasis-markers t)
     (org-hide-leading-starts t)
-    (org-odd-levels-only t)
+    (org-odd-levels-only nil)
     (org-pretty-entities t)
-    (org-image-actual-width '(400))
+    (org-image-actual-width nil) ;; siempre usa #+ATTR_ORG: : width en tu código
     (org-fontify-whole-heading-line t)
     (org-fontify-quote-and-verse-blocks t)
     (org-fontify-done-headline t)
