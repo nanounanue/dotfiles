@@ -65,9 +65,9 @@
 
 
     :custom-face
-     (variable-pitch ((t (:family "EtBembo" :height 1.1 :weight normal))))
-     (fixed-pitch ((t (:family "Ubuntu Mono" :slant normal :weight normal :height 1.0 :width normal))))
-     (org-indent ((t (:inherit (org-hide fixed-pitch)))))
+    (variable-pitch ((t (:family "EtBembo" :height 1.1 :weight normal))))
+    (fixed-pitch ((t (:family "Ubuntu Mono" :slant normal :weight normal :height 1.0 :width normal))))
+    (org-indent ((t (:inherit (org-hide fixed-pitch)))))
 
     :config
     ;; (font-lock-add-keywords 'org-mode
@@ -209,7 +209,7 @@ javascript:location.href ='org-protocol://capture?template=c&url='+   encodeURIC
 *** org: store-link
 
 
-#+begin_src
+#+begin_src javascript
 javascript:location.href ='org-protocol://capture?template=l&url='+   encodeURIComponent(location.href) +   '&title=' + encodeURIComponent(document.title)
 #+end_src
 
@@ -595,48 +595,54 @@ Esto también lo vamos a ocupar
   ;; Usamos sly para Lisp
   (setq org-babel-lisp-eval-fn 'sly-eval)
 
-
-  (dolist (language    '((org . t)
-                         (shell . t)
-                         (awk        . t)
-                         (sed        . t)
-                         (js         . t)
-                         (emacs-lisp . t)
-                         (gnuplot . t)
-                         (screen  . t)
-                         (eshell  . t)
-                         (makefile . t)
-                         (lisp       . t)
-                         (perl       . t)
-                         (R          . t)
-                                        ;(scala      . t)
-                         (clojure    . t)
-                         (latex      . t)
-                         (C          . t)
-                         (fortran    . t)
-                         (stan       . t)
-                         (sqlite     . t)
-                         (sql        . t)
-                         (mongo      . t)
-                         (cypher     . t)
-                                        ; (redis      . t)
-                         (blockdiag  . t)
-                         (calc       . t)
-                         (python     . t)
-                         (ruby       . t)
-                         (dot        . t)
-                         (css        . t)
-                         (jq         . t)
-                         (plantuml   . t)))
-    (add-to-list 'org-babel-load-languages language))
-
-  (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
+  <<ob-languages>>
 
   <<ob-templates>>
 
   :hook (org-babel-after-execute . org-display-inline-images))
 #+end_src
 
+*** Lenguajes soportados por bloques =org-babel=
+
+#+begin_src emacs-lisp :tangle no :noweb-ref ob-languages
+(dolist (language    '((org . t)
+                       (shell . t)
+                       (awk        . t)
+                       (sed        . t)
+                       (js         . t)
+                       (emacs-lisp . t)
+                       (gnuplot . t)
+                       (screen  . t)
+                       (eshell  . t)
+                       (makefile . t)
+                       (lisp       . t)
+                       (perl       . t)
+                       (R          . t)
+                                        ;(scala      . t)
+                       (clojure    . t)
+                       (latex      . t)
+                       (C          . t)
+                       (fortran    . t)
+                       (stan       . t)
+                       (sqlite     . t)
+                       (sql        . t)
+                       (mongo      . t)
+                       (cypher     . t)
+                                        ; (redis      . t)
+                       (blockdiag  . t)
+                       (calc       . t)
+                       (python     . t)
+                       (ruby       . t)
+                       (dot        . t)
+                       (css        . t)
+                       (jq         . t)
+                                        ;(javascript .t)
+                       (plantuml   . t)))
+  (add-to-list 'org-babel-load-languages language))
+
+(org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
+
+#+end_src
 
 *** Templates para bloques =org-babel=
 
@@ -1331,20 +1337,153 @@ Not for real use, just here for demonstration purposes."
 #+END_SRC
 
 
+#+begin_src emacs-lisp
+(use-feature org-ref-ox-hugo
+  :after org org-ref ox-hugo
+  :config
+  (add-to-list 'org-ref-formatted-citation-formats
+               '("md"
+                 ("article" . "${author}, *${title}*, ${journal}, *${volume}(${number})*, ${pages} (${year}). ${doi}")
+                 ("inproceedings" . "${author}, *${title}*, In ${editor}, ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
+                 ("book" . "${author}, *${title}* (${year}), ${address}: ${publisher}.")
+                 ("phdthesis" . "${author}, *${title}* (Doctoral dissertation) (${year}). ${school}, ${address}.")
+                 ("inbook" . "${author}, *${title}*, In ${editor} (Eds.), ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
+                 ("incollection" . "${author}, *${title}*, In ${editor} (Eds.), ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
+                 ("proceedings" . "${editor} (Eds.), _${booktitle}_ (${year}). ${address}: ${publisher}.")
+                 ("unpublished" . "${author}, *${title}* (${year}). Unpublished manuscript.")
+                 ("misc" . "${author} (${year}). *${title}*. Retrieved from [${howpublished}](${howpublished}). ${note}.")
+                 (nil . "${author}, *${title}* (${year})."))))
+#+end_src
+
+
 ** =org-roam=
 
 #+begin_src emacs-lisp
 (use-package org-roam
-      :hook 
-      (after-init . org-roam-mode)
-      :custom
-      (org-roam-directory "/path/to/org-files/")
-      :bind (:map org-roam-mode-map
+  :commands (org-roam-insert org-roam-find-file org-roam-switch-to-buffer org-roam)
+  :hook 
+  (after-init . org-roam-mode)
+  :custom-face
+  (org-roam-link ((t (:inherit org-link :foreground "#005200"))))
+  :custom
+  (org-roam-directory "~/pCloudDrive/org/research")
+  (org-roam-db-location "~/pCloudDrive/org/org-roam.db")
+  (org-roam-graph-exclude-matcher "private")
+  :bind (:map org-roam-mode-map
               (("C-c n l" . org-roam)
                ("C-c n f" . org-roam-find-file)
-               ("C-c n g" . org-roam-show-graph))
+               ("C-c n g" . org-roam-graph-show))
               :map org-mode-map
-              (("C-c n i" . org-roam-insert))))
+              (("C-c n i" . org-roam-insert)))
+  :config
+  (require 'org-roam-protocol)
+  (setq org-roam-capture-templates
+        '(("d" "default" plain (function org-roam--capture-get-point)
+           "%?"
+           :file-name "${slug}"
+           :head "#+SETUPFILE:./hugo_setup.org
+,#+HUGO_SECTION: zettels
+,#+HUGO_SLUG: ${slug}
+,#+TITLE: ${title}\n"
+           :unnarrowed t)
+          ("p" "private" plain (function org-roam-capture--get-point)
+           "%?"
+           :file-name "private-${slug}"
+           :head "#+TITLE: ${title}\n"
+           :unnarrowed t)))
+  (setq org-roam-ref-capture-templates
+        '(("r" "ref" plain (function org-roam-capture--get-point)
+           "%?"
+           :file-name "websites/${slug}"
+           :head "#+SETUPFILE:./hugo_setup.org
+,#+ROAM_KEY: ${ref}
+,#+HUGO_SLUG: ${slug}
+,#+TITLE: ${title}
+- source :: ${ref}"
+           :unnarrowed t))))
+#+end_src
+
+*** company
+
+#+begin_src emacs-lisp
+(use-package company-org-roam
+  :after org-roam
+  :config
+  (set-company-backend! 'org-mode '(company-org-roam company-yasnippet company-dabbrev)))
+#+end_src
+
+*** el-patch
+
+#+begin_src emacs-lisp
+(use-package el-patch
+  :straight (:host github
+                   :repo "raxod502/el-patch"
+                   :branch "develop"))
+
+(eval-when-compile
+  (require 'el-patch))
+#+end_src
+
+*** Deft
+
+#+begin_src emacs-lisp
+(use-package deft
+  :after org
+  :bind
+  ("C-c n d" . deft)
+  :custom
+  (deft-recursive t)
+  (deft-use-filter-string-for-filename t)
+  (deft-default-extension "org")
+  (deft-directory "~/pCloudDrive/org/research")
+  :config/el-patch
+  (defun deft-parse-title (file contents)
+    "Parse the given FILE and CONTENTS and determine the title.
+     If `deft-use-filename-as-title' is nil, the title is taken to
+     be the first non-empty line of the FILE.  Else the base name of the FILE is
+     used as title."
+    (el-patch-swap (if deft-use-filename-as-title
+                       (deft-base-filename file)
+                     (let ((begin (string-match "^.+$" contents)))
+                       (if begin
+                           (funcall deft-parse-title-function
+                                    (substring contents begin (match-end 0))))))
+                   (org-roam--get-title-or-slug file))))
+#+end_src
+
+
+*** Org-roam protocol
+
+Extiende =org-protocol= 
+
+#+begin_src javascript
+javascript:location.href =
+'org-protocol:/roam-ref?template=r&ref='
++ encodeURIComponent(location.href)
++ '&title='
++ encodeURIComponent(document.title)
+#+end_src
+
+*** Backlinks en export
+
+#+begin_src emacs-lisp
+(defun nanounanue/org-roam--backlinks-list (file)
+  (if (org-roam--org-roam-file-p file)
+      (--reduce-from
+       (concat acc (format "- [[file:%s][%s]]\n"
+                           (file-relative-name (car it) org-roam-directory)
+                                 (org-roam--get-title-or-slug (car it))))
+       "" (org-roam-sql [:select [file-from] :from file-links :where (= file-to $s1)] file))
+    ""))
+
+(defun nanounanue/org-export-preprocessor (backend)
+  (let ((links (nanounanue/org-roam--backlinks-list (buffer-file-name))))
+    (unless (string= links "")
+      (save-excursion
+        (goto-char (point-max))
+        (insert (concat "\n* Backlinks\n") links)))))
+
+(add-hook 'org-export-before-processing-hook 'nanounanue/org-export-preprocessor)
 #+end_src
 
 
@@ -1960,20 +2099,31 @@ buffer.
 
 ** [[https://github.com/abo-abo/org-download][org-download]]
 
+#+begin_src shell :dir /sudo::
+apt -y install scrot maim
+#+end_src
+
+
 #+BEGIN_SRC emacs-lisp
 (use-package org-download
-  ;ensure t
+  :demand t
   :after org
-  :init
-  (require 'org-download)
-  :commands (org-download-enable
-             org-download-yank
-             org-download-screenshot)
-
+  :commands
+  (org-download-enable
+   org-download-yank
+   org-download-dnd
+   org-download-screenshot
+   org-download-dnd-base64)
+  :bind
+  (:map org-mode-map
+        (("s-Y" . org-download-screenshot)
+         ("s-y" . org-download-yank)))
   :config
   (setq-default org-download-image-dir "./imagenes")
-  (setq org-download-screenshot-method "screencapture -i %s")
-  :hook ((org-mode dired-mode) . org-download-enable))
+  (setq org-download-screenshot-method
+        (cond ((executable-find "maim")  "maim -s %s")
+              ((executable-find "scrot") "scrot -s %s")))
+  :hook ((org-mode dired-mode) . org-download-enable))         
 #+END_SRC
 
 ** =org-attach-screenshot=
@@ -1985,6 +2135,7 @@ buffer.
   :bind
   (("C-c S" . org-attach-screenshot)))
 #+END_SRC
+
 
 ** ox-extra
 
@@ -2122,10 +2273,15 @@ This package lets you quickly jump to recently used Org headings using Helm, Ivy
 
 #+begin_src emacs-lisp
 (use-package org-journal
+  :bind
+  ("C-c n j" . org-journal-new-entry)
+  ("C-c n t" . org-journal-today)
   :demand t
   :custom
   (org-journal-dir "~/pCloudDrive/org/journal/")
   (org-journal-file-type 'yearly)
+  (org-journal-date-prefix "#+TITLE: ")
+  (org-journal-file-format "%Y-%m-%d.org")
   (org-journal-date-format "%A, %d %B %Y"))
 #+end_src
 
