@@ -28,12 +28,12 @@
 
 
 
-* Paredit
+* Smartparens
 
 #+BEGIN_SRC emacs-lisp
-(use-package paredit
+(use-package smartparens
   :init
-  (add-hook 'clojure-mode-hook 'paredit-mode))
+  (add-hook 'clojure-mode-hook #'smartparens-mode))
 #+END_SRC
 
   Useful key sequences for positioning cursor on particular s-expressions:

@@ -78,9 +78,7 @@ Por recomendación del [[https://lispcookbook.github.io/cl-cookbook/emacs-ide.ht
       (setq parinfer-extensions
             '(defaults       ; should be included.
               pretty-parens  ; different paren styles for different modes.
-              evil           ; If you use Evil.
               lispy          ; If you use Lispy. With this extension, you should install Lispy and do not enable lispy-mode directly.
-              paredit        ; Introduce some paredit commands.
               smart-tab      ; C-b & C-f jump positions and smart shift with tab & S-tab.
               smart-yank))   ; Yank behavior depend on mode.
       (add-hook 'clojure-mode-hook #'parinfer-mode)
@@ -90,17 +88,79 @@ Por recomendación del [[https://lispcookbook.github.io/cl-cookbook/emacs-ide.ht
       (add-hook 'lisp-mode-hook #'parinfer-mode)))
 #+END_SRC
 
-* Paredit
+* smartparens
+
+Ver [[https://ebzzry.io/en/emacs-pairs/][Emacs-pairs]] para ejemplos
+de uso
+
+#+begin_src emacs-lisp
+(use-package smartparens
+  :bind
+  (:map smartparens-mode-map
+        ("C-M-a" . sp-beginning-of-sexp)
+        ("C-M-e" . sp-end-of-sexp)
+
+        ("C-<down>" . sp-down-sexp)
+        ("C-<up>"   . sp-up-sexp)
+        ("M-<down>" . sp-backward-down-sexp)
+        ("M-<up>"   . sp-backward-up-sexp)
+
+        ("C-M-f" . sp-forward-sexp)
+        ("C-M-b" . sp-backward-sexp)
+
+        ("C-M-n" . sp-next-sexp)
+        ("C-M-p" . sp-previous-sexp)
+
+        ("C-S-f" . sp-forward-symbol)
+        ("C-S-b" . sp-backward-symbol)
+
+        ("C-<right>" . sp-forward-slurp-sexp)
+        ("M-<right>" . sp-forward-barf-sexp)
+        ("C-<left>"  . sp-backward-slurp-sexp)
+        ("M-<left>"  . sp-backward-barf-sexp)
+
+        ("C-M-t" . sp-transpose-sexp)
+        ("C-M-k" . sp-kill-sexp)
+        ("C-k"   . sp-kill-hybrid-sexp)
+        ("M-k"   . sp-backward-kill-sexp)
+        ("C-M-w" . sp-copy-sexp)
+        ("C-M-d" . delete-sexp)
+
+        ("M-<backspace>" . backward-kill-word)
+        ("C-<backspace>" . sp-backward-kill-word)
+        ([remap sp-backward-kill-word] . backward-kill-word)
+
+        ("M-[" . sp-backward-unwrap-sexp)
+        ("M-]" . sp-unwrap-sexp)
+
+        ("C-x C-t" . sp-transpose-hybrid-sexp)
+
+        ("C-c ("  . wrap-with-parens)
+        ("C-c ["  . wrap-with-brackets)
+        ("C-c {"  . wrap-with-braces)
+        ("C-c '"  . wrap-with-single-quotes)
+        ("C-c \"" . wrap-with-double-quotes)
+        ("C-c _"  . wrap-with-underscores)
+        ("C-c `"  . wrap-with-back-quotes)))
+#+end_src
+
+
+* Paredit                                                        :deprecated:
+:PROPERTIES:
+:REASON:   Ahora usamos smartparens
+:END:
 
 El mítico =paredit=.  [[http://pub.gajendra.net/src/paredit-refcard.pdf][Cheatsheet]]
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (use-package paredit
   :diminish "﹙﹚"
   :init
   (dolist (m (list 'emacs-lisp-mode-hook 'lisp-interaction-mode-hook 'eval-expression-minibuffer-setup-hook 'ielm-mode-hook))
     (add-hook m 'enable-paredit-mode)))
 #+END_SRC
+
+
 
 * Navegación: [[https://github.com/abo-abo/lispy][Lispy]]
 
