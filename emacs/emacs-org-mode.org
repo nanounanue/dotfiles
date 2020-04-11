@@ -1381,7 +1381,7 @@ Not for real use, just here for demonstration purposes."
         '(("d" "default" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "${slug}"
-           :head "#+SETUPFILE:./hugo_setup.org
+           :head "#+SETUPFILE:./hugo.setup
 ,#+HUGO_SECTION: zettels
 ,#+HUGO_SLUG: ${slug}
 ,#+TITLE: ${title}\n"
@@ -1395,7 +1395,7 @@ Not for real use, just here for demonstration purposes."
         '(("r" "ref" plain (function org-roam-capture--get-point)
            "%?"
            :file-name "websites/${slug}"
-           :head "#+SETUPFILE:./hugo_setup.org
+           :head "#+SETUPFILE:./hugo.setup
 ,#+ROAM_KEY: ${ref}
 ,#+HUGO_SLUG: ${slug}
 ,#+TITLE: ${title}
