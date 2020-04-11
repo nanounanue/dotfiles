@@ -388,9 +388,10 @@ Usa [[file:~/dotfiles/cli.org::*ripgrep][ripgrep]] desde Emacs
 
 #+begin_src emacs-lisp
 (use-package deadgrep
-:demand t
-:config
-(global-set-key (kbd "<f5>") #'deadgrep))
+  :if (executable-find "rg")
+  :demand t
+  :config
+  (global-set-key (kbd "<f5>") #'deadgrep))
 #+end_src
 
 *** Keybindings
@@ -1446,32 +1447,35 @@ Emacs
 =org-mode= hacen que mis días en Emacs sean felices.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package magit
-    :commands magit-status magit-blame
-    :init
-    (defadvice magit-status (around magit-fullscreen activate)
-      (window-configuration-to-register :magit-fullscreen)
-      ad-do-it
-      (delete-other-windows))
-    :config
-    (setq magit-completing-read-function 'ivy-completing-read)
-    (setq magit-branch-arguments nil
-          ;; use ido to look for branches
-          magit-completing-read-function 'magit-ido-completing-read
-          ;; don't put "origin-" in front of new branch names by default
-          magit-default-tracking-name-function 'magit-default-tracking-name-branch-only
-          magit-push-always-verify nil
-          ;; Get rid of the previous advice to go into fullscreen
-          magit-restore-window-configuration t)
-
-    :bind
-    ("C-x g s" . magit-status)
-    ("C-x g x" . magit-checkout)
-    ("C-x g c" . magit-commit)
-    ("C-x g p" . magit-push)
-    ("C-x g u" . magit-pull)
-    ("C-x g e" . magit-ediff-resolve)
-    ("C-x g r" . magit-rebase-interactive))
+(use-package magit
+  :commands magit-status magit-blame
+  :init
+  (defadvice magit-status (around magit-fullscreen activate)
+    (window-configuration-to-register :magit-fullscreen)
+    ad-do-it
+    (delete-other-windows))
+  :config
+  (setq magit-completing-read-function 'ivy-completing-read)
+  (setq magit-branch-arguments nil
+        ;; don't put "origin-" in front of new branch names by default
+        magit-default-tracking-name-function 'magit-default-tracking-name-branch-only
+        magit-push-always-verify nil
+        ;; Get rid of the previous advice to go into fullscreen
+        magit-restore-window-configuration t)
+  (transient-append-suffix 'magit-log "a"
+                           '("w" "Wip" magit-wip-log-current))
+  (magit-define-popup-switch 'magit-log-popup
+                             ?m "Omit merge commits" "--no-merges")
+  (transient-append-suffix 'magit-log "-A"
+                           '("-m" "Omit merge commits" "--no-merges"))
+  :bind
+  ("C-x g s" . magit-status)
+  ("C-x g x" . magit-checkout)
+  ("C-x g c" . magit-commit)
+  ("C-x g p" . magit-push)
+  ("C-x g u" . magit-pull)
+  ("C-x g e" . magit-ediff-resolve)
+  ("C-x g r" . magit-rebase-interactive))
 #+END_SRC
 
 La configuración la tomé de *Howard Abrams*
