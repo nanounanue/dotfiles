@@ -17,11 +17,14 @@
 - [[https://truthseekers.io/lessons/how-to-use-ivy-swiper-counsel-in-emacs-for-noobs/][How to use ivy swiper counsel in emacs for noobs]]
 - [[https://emacs.stackexchange.com/a/37307/10848][Find and replace a text among the files of a project]]
 
-* smex, un reemplazo de =M-x=
+* smex, un reemplazo de =M-x=                                      :deprecated:
+:PROPERTIES:
+:REASON:   Usamos counsel-M-x
+:END:
 
 Un /smart/ =M-x=. Sugiere los comandos de =M-x=  basados  en frecuencia y recién uso.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (use-package smex
   :commands (smex smex-major-mode-commands)
   :config
@@ -228,20 +231,20 @@ Colección de comandos de emacs mejorados por =ivy=
          ("<f1> l"  . counsel-find-library)
          ("<f2> i"  . counsel-info-lookup-symbol)
          ("<f2> u"  . counsel-unicode-char)
+         ("<f2> j" . counsel-set-variable)
          ("C-c g"   . counsel-git)
          ("C-c j"   . counsel-git-grep)
+         ("C-c L" . counsel-git-log)
          ("C-c m" . counsel-linux-app)
-         ("C-c n" . counsel-fzf)
+         ("C-c f" . counsel-fzf)
          ("C-c J" . counsel-file-jump)
          ("C-c k"   . counsel-rg) ;; add counsel/ivy features to ag package
          ("C-x l"   . counsel-locate)
          ("C-S-o"   . counsel-rhythmbox)
          ("C-c o" . counsel-outline)
-         ("C-c t" . counsel-load-theme)
-         ("C-c F" . counsel-org-mode)
-         ("C-x C-v" . counsel-set-variable))
+         ("C-c t" . counsel-load-theme))
   :config (counsel-mode)
-  :custom (counsel-rg-base-command "rg -S -M 150 --no-heading --line-number --color never %s")
+  ;; :custom (counsel-rg-base-command "rg -S -M 150 --no-heading --line-number --color never %s")
   )
 #+END_SRC
 
