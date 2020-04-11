@@ -1331,6 +1331,22 @@ Not for real use, just here for demonstration purposes."
 #+END_SRC
 
 
+** =org-roam=
+
+#+begin_src emacs-lisp
+(use-package org-roam
+      :hook 
+      (after-init . org-roam-mode)
+      :custom
+      (org-roam-directory "/path/to/org-files/")
+      :bind (:map org-roam-mode-map
+              (("C-c n l" . org-roam)
+               ("C-c n f" . org-roam-find-file)
+               ("C-c n g" . org-roam-show-graph))
+              :map org-mode-map
+              (("C-c n i" . org-roam-insert))))
+#+end_src
+
 
 * Funciones para Org LaTeX
 
@@ -1449,6 +1465,7 @@ Bloques especiales
                        'org-export-filter-special-block-functions
                        'nanounanue/process-mdframed-blocks))
 #+end_src
+
 
 * Org LaTeX classes
 

@@ -267,7 +267,7 @@ Para temas populares ver [[https://emacsthemes.com/popular/index.html][aquí]]
 
 ** [[https://gitlab.com/protesilaos/modus-themes][Modus]]
 
-#+begin_src emacs-lisp  :tangle no
+#+begin_src emacs-lisp  
 (use-package modus-vivendi-theme)
 (use-package modus-operandi-theme)
 #+end_src
@@ -387,8 +387,11 @@ Por el momento uso [[https://github.com/Malabarba/smart-mode-line/][smart-mode-l
   (dashboard-show-shortcuts t)
   (dashboard-set-heading-icons t)
   (dashboard-set-file-icons t)
+  (dashboard-set-navigator t)
+  (show-week-agenda-p t)
   (dashboard-items '((recents  . 5)
-                     (projects . 5)))
+                     (projects . 5)
+                     (agenda   . 5)))
 
   ;;To show info about the packages loaded and the init time:
   (dashboard-set-init-info t)
