@@ -37,6 +37,7 @@
     :mode
     ("\\.org\\'" . org-mode)
     ("\\.txt\\'" . org-mode)
+    ("\\.setup\\'" . org-mode)
     (".*/[0-9]*$" . org-mode)
     :bind
     ("C-c l"   . org-store-link)
@@ -65,8 +66,8 @@
 
 
     :custom-face
-    (variable-pitch ((t (:family "EtBembo" :height 1.1 :weight normal))))
-    (fixed-pitch ((t (:family "Ubuntu Mono" :slant normal :weight normal :height 1.0 :width normal))))
+    ;;(variable-pitch ((t (:family "EtBembo" :height 1.1 :weight normal))))
+    ;;(fixed-pitch ((t (:family "Ubuntu Mono" :slant normal :weight normal :height 1.0 :width normal))))
     (org-indent ((t (:inherit (org-hide fixed-pitch)))))
 
     :config
@@ -1384,6 +1385,7 @@ Not for real use, just here for demonstration purposes."
            :head "#+SETUPFILE:./hugo.setup
 ,#+HUGO_SECTION: zettels
 ,#+HUGO_SLUG: ${slug}
+,#+STARTUP:  latexpreview
 ,#+TITLE: ${title}\n"
            :unnarrowed t)
           ("p" "private" plain (function org-roam-capture--get-point)
@@ -1398,6 +1400,7 @@ Not for real use, just here for demonstration purposes."
            :head "#+SETUPFILE:./hugo.setup
 ,#+ROAM_KEY: ${ref}
 ,#+HUGO_SLUG: ${slug}
+,#+STARTUP:  latexpreview
 ,#+TITLE: ${title}
 - source :: ${ref}"
            :unnarrowed t))))

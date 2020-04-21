@@ -258,7 +258,8 @@ Descargarlo desde [[https://racket-lang.org/download/][aquí]]
   (add-hook 'ess-R-post-run-hook 'ess-execute-screen-options)
   (define-key inferior-ess-mode-map "\C-cw" 'ess-execute-screen-options)
                                            ; Add path to Stata to Emacs' exec-path so that Stata can be found
-
+  (setq ess-directory nil)
+  (setq ess-ask-for-ess-directory nil)
   )
 #+END_SRC
 
