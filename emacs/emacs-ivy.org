@@ -276,7 +276,7 @@ Package `prescient' is a library for intelligent sorting and
 filtering in various contexts.
 #+end_quote
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package prescient
   :demand t
   :config
