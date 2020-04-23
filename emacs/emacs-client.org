@@ -55,7 +55,7 @@ Alternativas:
 ;;(set-fontset-font "fontset-default" nil
 ;;                    (font-spec :name "Ubuntu Mono"))
 
-(set-fontset-font t 'unicode "Iosevka" nil 'prepend)
+(set-fontset-font t 'unicode "DejaVu Sans Mono" nil 'prepend)
 #+end_src
 
 

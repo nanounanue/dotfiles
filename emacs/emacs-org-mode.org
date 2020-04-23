@@ -1104,7 +1104,7 @@ propuesta en el mismo lugar es el [[https://gitlab.com/oer/org-re-reveal][fork]]
   :after org-re-reveal
   :demand t
   :config
-  (setq org-ref-default-bibliography '("~/pCloudDrive/org/library.bib"))
+  (setq org-ref-default-bibliography '("~/pCloudDrive/org/bibliografia/library.bib"))
   (setq org-ref-bibliography-entry-format
         '(("article" . "%a, %t, <i>%j %v(%n)</i>, %p (%y). <a href=\"%U\">%U</a>")
   	  ("book" . "%a, %t, %u, %y. <a href=\"%U\">%U</a>")
@@ -1261,7 +1261,7 @@ In a later step it should be possible to create truly interleaved PDFs of your n
   :after org
   :demand t
   :init
-  (setq reftex-default-bibliography '("~/pCloudDrive/org/library.bib"))
+  (setq reftex-default-bibliography '("~/pCloudDrive/org/bibliografia/library.bib"))
 
   ;; see org-ref for use of these variables
   (setq org-ref-bibliography-notes "~/pCloudDrive/org/research/notes.org"
