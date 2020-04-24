@@ -1489,9 +1489,9 @@ Incluir los =TODOs= en la ventana de =magit=
   :config (magit-todos-mode))
 #+END_SRC
 
-*** Magit popup
+*** Magit popup                                                :deprecated:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package magit-popup)
 #+end_src
 
