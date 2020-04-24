@@ -1436,24 +1436,26 @@ In a later step it should be possible to create truly interleaved PDFs of your n
 ,#+HUGO_SECTION: zettels
 ,#+HUGO_SLUG: ${slug}
 ,#+STARTUP:  latexpreview
-,#+TITLE: ${title}\n"
+,#+TITLE: ${title}
+
+- tags :: "
            :unnarrowed t)
-          ("p" "private" plain (function org-roam-capture--get-point)
-           "%?"
-           :file-name "private-${slug}"
-           :head "#+TITLE: ${title}\n"
-           :unnarrowed t)))
-  (setq org-roam-ref-capture-templates
-        '(("r" "ref" plain (function org-roam-capture--get-point)
+          ("r" "ref" plain (function org-roam-capture--get-point)
            "%?"
            :file-name "websites/${slug}"
            :head "#+SETUPFILE:./hugo.setup
+,#+HUGO_SECTION: websites
 ,#+ROAM_KEY: ${ref}
 ,#+HUGO_SLUG: ${slug}
 ,#+STARTUP:  latexpreview
 ,#+TITLE: ${title}
 
 - source :: ${ref}"
+           :unnarrowed t)
+          ("p" "private" plain (function org-roam-capture--get-point)
+           "%?"
+           :file-name "private-${slug}"
+           :head "#+TITLE: ${title}\n"
            :unnarrowed t))))
 #+end_src
 
