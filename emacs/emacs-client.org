@@ -46,10 +46,10 @@ Alternativas:
 - Iosevka
 
 #+begin_src emacs-lisp
-;; (set-face-attribute 'default nil :family "Iosevka" :size 16)
+(set-face-attribute 'default nil :family "DejaVu Sans Mono" )
 (set-face-attribute 'fixed-pitch nil :font "DejaVu Sans Mono")
-(set-face-attribute 'fixed-pitch-serif nil :font "DejaVu Serif")
-(set-face-attribute 'variable-pitch nil :font "Ubuntu")
+;;(set-face-attribute 'fixed-pitch-serif nil :font "DejaVu Serif")
+(set-face-attribute 'variable-pitch nil :font "DejaVu Serif")
 (set-face-attribute 'mode-line nil :family "DejaVu Sans Mono")
 
 ;;(set-fontset-font "fontset-default" nil
