@@ -127,8 +127,7 @@ compiler and viewer integration.
   (Tex-parse-self t)
   (TeX-save-query nil)
   (reftex-plug-into-AUCTeX t)
-  (reftex-default-bibliography '("~/Dropbox/bibliography/references.bib"))
-
+  (reftex-default-bibliography '("~/pCloudDrive/org/bibliografia/library.bib"))
   (LaTeX-indent-level 4
 	              LaTeX-item-indent 0
 	              TeX-brace-indent-level 4
