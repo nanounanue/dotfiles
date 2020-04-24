@@ -1103,7 +1103,7 @@ propuesta en el mismo lugar es el [[https://gitlab.com/oer/org-re-reveal][fork]]
   :after org-re-reveal
   :demand t
   :config
-  (setq org-ref-default-bibliography '("~/pCloudDrive/org/bibliografia/library.bib"))
+  
   (setq org-ref-bibliography-entry-format
         '(("article" . "%a, %t, <i>%j %v(%n)</i>, %p (%y). <a href=\"%U\">%U</a>")
   	  ("book" . "%a, %t, %u, %y. <a href=\"%U\">%U</a>")
@@ -1252,6 +1252,56 @@ In a later step it should be possible to create truly interleaved PDFs of your n
   )
 #+end_src
 
+** ivy-bibtex
+
+#+begin_src emacs-lisp
+(use-package ivy-bibtex
+  :ensure t
+  :config
+  (setq ivy-re-builders-alist
+        '((ivy-bibtex . ivy--regex-ignore-order)
+          (t . ivy--regex-plus)))
+  (setq   bibtex-completion-bibliography "~/pCloudDrive/org/bibliografia/library.bib")
+  (setq   bibtex-completion-notes-path "~/pCloudDrive/org/research")
+  ;; ¿Qué campo del bibtex usar para abrir el PDF?
+  (setq   bibtex-completion-pdf-field "file")
+  ;; Símbolos usados para indicar que tiene PDF y notas
+  (setq bibtex-completion-pdf-symbol "⌘")
+  (setq bibtex-completion-notes-symbol "✎")
+  ;; Para abrir URL/DOIs
+  (setq bibtex-completion-browser-function
+        (lambda (url _) (start-process "firefox" "*firefox*" "firefox" url)))
+
+  (setq bibtex-completion-format-citation-functions
+        '((org-mode      . bibtex-completion-format-citation-org-link-to-PDF)
+          (latex-mode    . bibtex-completion-format-citation-cite)
+          (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
+          (default       . bibtex-completion-format-citation-default)))
+
+  (setq ivy-bibtex-default-action 'ivy-bibtex-insert-key)
+
+(setq bibtex-completion-display-formats
+    '((article       . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${journal:40}")
+      (inbook        . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} Chapter ${chapter:32}")
+      (incollection  . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+      (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+      (t             . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*}")))
+
+  (ivy-set-actions
+   'ivy-bibtex
+   '(("p" ivy-bibtex-open-any "Open PDF, URL, or DOI")
+     ("e" ivy-bibtex-edit-notes "Edit notes")))
+
+  (ivy-add-actions
+   'ivy-bibtex
+   '(("P" ivy-bibtex-open-annotated-pdf "Open annotated PDF (if present)")))
+
+  :bind
+  (("C-x C-b" . ivy-bibtex))
+  )
+#+end_src
+
+
 **  =org-ref=
 
 #+BEGIN_SRC emacs-lisp
@@ -1260,80 +1310,79 @@ In a later step it should be possible to create truly interleaved PDFs of your n
   :after org
   :demand t
   :init
-  (setq reftex-default-bibliography '("~/pCloudDrive/org/bibliografia/library.bib"))
-
-  ;; see org-ref for use of these variables
+  (setq org-ref-default-bibliography '("~/pCloudDrive/org/bibliografia/library.bib"))
   (setq org-ref-bibliography-notes "~/pCloudDrive/org/research/notes.org"
-        org-ref-pdf-directory "~/pCloudDrive/org/referencias/"
-        org-latex-prefer-user-labels t
-        bibtex-completion-pdf-field "file"
         org-ref-default-citation-link "parencite")
-  (setq org-ref-notes-function #'org-ref-notes-function-one-file)
-  :config
 
-  (defun org-ref-grep-pdf (&optional _candidate)
-    "Search pdf files of marked CANDIDATEs."
-    (interactive)
-    (let ((keys (helm-marked-candidates))
-          (get-pdf-function org-ref-get-pdf-filename-function))
-      (helm-do-pdfgrep-1
-       (-remove (lambda (pdf)
-                  (string= pdf ""))
-                (mapcar (lambda (key)
-                          (funcall get-pdf-function key))
-                        keys)))))
-
-  (defun org-ref-noter-at-point ()
-    "Open the pdf for bibtex key under point if it exists."
-    (interactive)
-    (let* ((results (org-ref-get-bibtex-key-and-file))
-           (key (car results))
-           (pdf-file (funcall org-ref-get-pdf-filename-function key)))
-      (if (file-exists-p pdf-file)
-          (progn
-            (find-file-other-window pdf-file)
-            (org-noter))
-        (message "no pdf found for %s" key))))
-
-  (defun org-ref-open-in-scihub ()
-    "Open the bibtex entry at point in a browser using the url field or doi field.
-Not for real use, just here for demonstration purposes."
-    (interactive)
-    (let ((doi (org-ref-get-doi-at-point)))
-      (when doi
-        (if (string-match "^http" doi)
-            (browse-url doi)
-          (browse-url (format "http://sci-hub.se/%s" doi)))
-        (message "No url or doi found"))))
+  (setq org-ref-completion-library 'org-ref-ivy-cite)
+  (setq org-ref-notes-function #'org-ref-notes-function-one-file)  )
 
 
-  (defun org-ref-open-pdf-at-point-in-emacs ()
-    "Open the pdf for bibtex key under point if it exists."
-    (interactive)
-    (let* ((results (org-ref-get-bibtex-key-and-file))
-           (key (car results))
-           (pdf-file (funcall org-ref-get-pdf-filename-function key)))
-      (if (file-exists-p pdf-file)
-          (find-file-other-window pdf-file)
-        (message "no pdf found for %s" key))))
+  ;;   :config
 
-  (helm-add-action-to-source "Grep PDF" 'org-ref-grep-pdf helm-source-bibtex 1)
+  ;;   (defun org-ref-grep-pdf (&optional _candidate)
+  ;;     "Search pdf files of marked CANDIDATEs."
+  ;;     (interactive)
+  ;;     (let ((keys (helm-marked-candidates))
+  ;;           (get-pdf-function org-ref-get-pdf-filename-function))
+  ;;       (helm-do-pdfgrep-1
+  ;;        (-remove (lambda (pdf)
+  ;;                   (string= pdf ""))
+  ;;                 (mapcar (lambda (key)
+  ;;                           (funcall get-pdf-function key))
+  ;;                         keys)))))
 
-  ;; The following makes it possible to grep pdfs from the org-ref Helm
-  ;; selection interface with C-s.
-  (setq helm-bibtex-map
-        (let ((map (make-sparse-keymap)))
-          (set-keymap-parent map helm-map)
-          (define-key map (kbd "C-s") (lambda () (interactive)
-                                        (helm-run-after-exit 'org-ref-grep-pdf)))
-          map))
-  (push `(keymap . ,helm-bibtex-map) helm-source-bibtex)
+  ;;   (defun org-ref-noter-at-point ()
+  ;;     "Open the pdf for bibtex key under point if it exists."
+  ;;     (interactive)
+  ;;     (let* ((results (org-ref-get-bibtex-key-and-file))
+  ;;            (key (car results))
+  ;;            (pdf-file (funcall org-ref-get-pdf-filename-function key)))
+  ;;       (if (file-exists-p pdf-file)
+  ;;           (progn
+  ;;             (find-file-other-window pdf-file)
+  ;;             (org-noter))
+  ;;         (message "no pdf found for %s" key))))
+
+  ;;   (defun org-ref-open-in-scihub ()
+  ;;     "Open the bibtex entry at point in a browser using the url field or doi field.
+  ;; Not for real use, just here for demonstration purposes."
+  ;;     (interactive)
+  ;;     (let ((doi (org-ref-get-doi-at-point)))
+  ;;       (when doi
+  ;;         (if (string-match "^http" doi)
+  ;;             (browse-url doi)
+  ;;           (browse-url (format "http://sci-hub.se/%s" doi)))
+  ;;         (message "No url or doi found"))))
 
 
-  (add-to-list 'org-ref-helm-user-candidates
-               '(("Org-Noter notes" . org-ref-noter-at-point)
-                 ("Open in Sci-hub"  . org-ref-open-in-scihub)
-                 ("Open in Emacs" . org-ref-open-pdf-at-point-in-emacs))))
+  ;;   (defun org-ref-open-pdf-at-point-in-emacs ()
+  ;;     "Open the pdf for bibtex key under point if it exists."
+  ;;     (interactive)
+  ;;     (let* ((results (org-ref-get-bibtex-key-and-file))
+  ;;            (key (car results))
+  ;;            (pdf-file (funcall org-ref-get-pdf-filename-function key)))
+  ;;       (if (file-exists-p pdf-file)
+  ;;           (find-file-other-window pdf-file)
+  ;;         (message "no pdf found for %s" key))))
+
+  ;;   (helm-add-action-to-source "Grep PDF" 'org-ref-grep-pdf helm-source-bibtex 1)
+
+  ;;   ;; The following makes it possible to grep pdfs from the org-ref Helm
+  ;;   ;; selection interface with C-s.
+  ;;   (setq helm-bibtex-map
+  ;;         (let ((map (make-sparse-keymap)))
+  ;;           (set-keymap-parent map helm-map)
+  ;;           (define-key map (kbd "C-s") (lambda () (interactive)
+  ;;                                         (helm-run-after-exit 'org-ref-grep-pdf)))
+  ;;           map))
+  ;;   (push `(keymap . ,helm-bibtex-map) helm-source-bibtex)
+
+
+  ;;   (add-to-list 'org-ref-helm-user-candidates
+  ;;                '(("Org-Noter notes" . org-ref-noter-at-point)
+  ;;                  ("Open in Sci-hub"  . org-ref-open-in-scihub)
+  ;;                  ("Open in Emacs" . org-ref-open-pdf-at-point-in-emacs)))
 #+END_SRC
 
 
@@ -1372,10 +1421,12 @@ Not for real use, just here for demonstration purposes."
   :bind (:map org-roam-mode-map
               (("C-c n l" . org-roam)
                ("C-c n f" . org-roam-find-file)
+               ("C-c n b" . org-roam-switch-to-buffer)
                ("C-c n g" . org-roam-graph-show))
               :map org-mode-map
               (("C-c n i" . org-roam-insert)))
   :config
+  (setq org-roam-completion-system 'ivy)
   (require 'org-roam-protocol)
   (setq org-roam-capture-templates
         '(("d" "default" plain (function org-roam--capture-get-point)
@@ -1401,6 +1452,7 @@ Not for real use, just here for demonstration purposes."
 ,#+HUGO_SLUG: ${slug}
 ,#+STARTUP:  latexpreview
 ,#+TITLE: ${title}
+
 - source :: ${ref}"
            :unnarrowed t))))
 #+end_src
@@ -1466,6 +1518,20 @@ javascript:location.href =
 + encodeURIComponent(document.title)
 #+end_src
 
+*** org-roam-bibtex
+
+#+begin_src emacs-lisp
+(use-package org-roam-bibtex
+  :hook (org-roam-mode . org-roam-bibtex-mode)
+  :config
+  (setq org-roam-bibtex-templates
+        '(("r" "ref" plain (function org-roam-capture--get-point) ""
+           :file-name "${slug}"
+           :head "#+TITLE: ${=key=}: ${title}\n#+ROAM_KEY: ${ref}\n" 
+           :unnarrowed t)))
+  )
+#+end_src
+
 *** Backlinks en export
 
 #+begin_src emacs-lisp
@@ -1487,6 +1553,8 @@ javascript:location.href =
 
 (add-hook 'org-export-before-processing-hook 'nanounanue/org-export-preprocessor)
 #+end_src
+
+
 
 
 * Funciones para Org LaTeX
@@ -2121,7 +2189,7 @@ apt -y install scrot maim
         (("s-Y" . org-download-screenshot)
          ("s-y" . org-download-yank)))
   :config
-  (setq-default org-download-image-dir "./imagenes")
+  (setq-default org-download-image-dir "~/pCloudDrive/org/imagenes/downloads")
   (setq org-download-screenshot-method
         (cond ((executable-find "maim")  "maim -s %s")
               ((executable-find "scrot") "scrot -s %s")))
