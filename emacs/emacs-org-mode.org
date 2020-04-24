@@ -203,14 +203,14 @@ En el campo =Location:=
 
 *** org: capture
 
-#+begin_src 
+#+begin_src  js
 javascript:location.href ='org-protocol://capture?template=c&url='+   encodeURIComponent(location.href) +   '&title=' + encodeURIComponent(document.title) +   '&body=' + encodeURIComponent(window.getSelection())
 #+end_src
 
 *** org: store-link
 
 
-#+begin_src javascript
+#+begin_src js
 javascript:location.href ='org-protocol://capture?template=l&url='+   encodeURIComponent(location.href) +   '&title=' + encodeURIComponent(document.title)
 #+end_src
 
@@ -637,7 +637,6 @@ Esto también lo vamos a ocupar
                        (dot        . t)
                        (css        . t)
                        (jq         . t)
-                                        ;(javascript .t)
                        (plantuml   . t)))
   (add-to-list 'org-babel-load-languages language))
 
@@ -1077,12 +1076,12 @@ tar zxf /tmp/reveal.tar.gz -C ~/software/js/revealjs --strip-component 1
 #+END_SRC
 
 
-*** org-re-reveal
+*** org-re-reveal                                              :deprecated:
 
 Al parecer =ox-reveal= [[https://github.com/yjwen/org-reveal/issues/363#issuecomment-460270780][no está siendo mantenido]], la alternativa
 propuesta en el mismo lugar es el [[https://gitlab.com/oer/org-re-reveal][fork]] =org-re-reveal=:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp  :tangle no
 (use-package org-re-reveal
   :after ox
   :demand t
@@ -1459,7 +1458,7 @@ Not for real use, just here for demonstration purposes."
 
 Extiende =org-protocol= 
 
-#+begin_src javascript
+#+begin_src js
 javascript:location.href =
 'org-protocol:/roam-ref?template=r&ref='
 + encodeURIComponent(location.href)
