@@ -234,13 +234,30 @@ alias et="emacsclient -nw"
 alias sbcl="rlwrap sbcl"
 #+END_SRC
 
-** SSH Tunneling (DSaPP)
+** SSH Tunneling 
+
+*** DSaPP bastión                                              :deprecated:
 
   #+BEGIN_SRC shell
   alias dsapp-up='ssh -fNTM dsapp-tunnel'
   alias dsapp-status='ssh -TO check dsapp-tunnel'
   alias dsapp-down='ssh -TO exit dsapp-tunnel'
   #+END_SRC
+
+*** ITAM bastión
+#+begin_src shell
+  alias itam-up='ssh -fNTML itam-tunnel'
+  alias itam-status='ssh -TO check itam-tunnel'
+  alias itam-down='ssh -TO exit itam-tunnel'
+#+end_src
+
+*** CCD bastión
+
+#+begin_src shell
+  alias ccd-up='ssh -fNTML ccd-tunnel'
+  alias ccd-status='ssh -TO check ccd-tunnel'
+  alias ccd-down='ssh -TO exit ccd-tunnel'
+#+end_src
 
 ** CLI
 
