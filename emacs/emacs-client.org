@@ -58,6 +58,12 @@ Alternativas:
 (set-fontset-font t 'unicode "DejaVu Sans Mono" nil 'prepend)
 #+end_src
 
+Cuando iniciamos con =emacs --daemon= / =emacsclient= es necesario usar =fame-alist=
+
+#+begin_src emacs-lisp
+(setq default-frame-alist '((font . "DejaVu Sans Mono-13")))
+#+end_src
+
 
 Para otras alternativas ver [[file:~/dotfiles/fonts.org][otras fuentes instaladas]]
 
@@ -406,11 +412,11 @@ Por el momento uso [[https://github.com/Malabarba/smart-mode-line/][smart-mode-l
 (use-package zoom-frm)
 #+end_src
 
-* Tabs
+* Tabs                                                           :deprecated:
 
 *NOTA*: Deshabilitado, no agrega valor y ocupa mucho espacio
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package centaur-tabs
   :disabled t
   :config
@@ -437,7 +443,7 @@ Por el momento uso [[https://github.com/Malabarba/smart-mode-line/][smart-mode-l
 (use-package emamux)
 #+end_src
 
-** Pocket Reader
+** Pocket Reader                                                :deprecated:
 
 Uno de los elementos *indispensables* para una experiencia de lectura
 rica es =pocket=:

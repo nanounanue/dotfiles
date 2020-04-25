@@ -1254,6 +1254,55 @@ In a later step it should be possible to create truly interleaved PDFs of your n
 
 ** ivy-bibtex
 
+La siguiente función fué tomada de [[https://randyridenour.net/2019/06/26/org-mode-citations-with-ivy-bibtex/][aquí]]
+
+#+begin_quote
+Ivy-bibtex will insert citations into org documents, but its default
+format is not the same as it is in org-ref. 
+
+To fix that, I added the following to my init file:
+#+end_quote
+
+#+begin_src emacs-lisp
+(defun bibtex-completion-format-citation-orgref (keys)
+  "Formatter for org-ref citations."
+  (let* ((prenote  (if bibtex-completion-cite-prompt-for-optional-arguments (read-from-minibuffer "Prenote: ") ""))
+         (postnote (if bibtex-completion-cite-prompt-for-optional-arguments (read-from-minibuffer "Postnote: ") "")))
+(if (and (string= "" prenote) (string= "" postnote))
+                (format "%s" (s-join "; " (--map (concat "autocite:" it) keys)))
+    (format "[[%s][%s::%s]]"  (s-join "; " (--map (concat "autocite:" it) keys)) prenote postnote))))
+#+end_src
+
+#+begin_quote
+This prompts for both pre and post-note text when selecting the
+citation. Here are the org-mode citations that are produced: 
+
+   -  Citation only: autocite:lewisCounterfactuals1973
+   -  Citation with post-text: [[autocite:lewisCounterfactuals1973][::25]]
+   -  Citation with pre-text: [[autocite:lewisCounterfactuals1973][As seen in::]]
+   -  Citation with both pre and post-text:
+     [[autocite:lewisCounterfactuals1973][As seen in::25]]
+
+When exported, these produce the following LaTeX code:
+ 
+#+begin_example
+\autocite{lewisCounterfactuals1973}
+ 
+\autocite[][25]{lewisCounterfactuals1973}
+ 
+\autocite[As seen in][]{lewisCounterfactuals1973}
+ 
+\autocite[As seen in][25]{lewisCounterfactuals1973}
+#+end_example
+
+I use Chicago parenthetical references – so these compile like this:
+
+-    (Lewis 1973)
+-    (Lewis 1973, 25)
+-    (As seen in Lewis 1973)
+-    (As seen in Lewis 1973, 25)
+#+end_quote
+
 #+begin_src emacs-lisp
 (use-package ivy-bibtex
   :ensure t
@@ -1268,24 +1317,25 @@ In a later step it should be possible to create truly interleaved PDFs of your n
   ;; Símbolos usados para indicar que tiene PDF y notas
   (setq bibtex-completion-pdf-symbol "⌘")
   (setq bibtex-completion-notes-symbol "✎")
+  (setq bibtex-completion-additional-search-fields '(journal booktitle))
   ;; Para abrir URL/DOIs
   (setq bibtex-completion-browser-function
         (lambda (url _) (start-process "firefox" "*firefox*" "firefox" url)))
 
   (setq bibtex-completion-format-citation-functions
-        '((org-mode      . bibtex-completion-format-citation-org-link-to-PDF)
+        '((org-mode      . nanounanue/bibtex-completion-format-citation-org-link-to-PDF)
           (latex-mode    . bibtex-completion-format-citation-cite)
           (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
           (default       . bibtex-completion-format-citation-default)))
 
-  (setq ivy-bibtex-default-action 'ivy-bibtex-insert-key)
+  (setq ivy-bibtex-default-action 'ivy-bibtex-insert-citation)
 
-(setq bibtex-completion-display-formats
-    '((article       . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${journal:40}")
-      (inbook        . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} Chapter ${chapter:32}")
-      (incollection  . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
-      (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
-      (t             . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*}")))
+  (setq bibtex-completion-display-formats
+        '((article       . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${journal:40}")
+          (inbook        . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} Chapter ${chapter:32}")
+          (incollection  . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+          (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+          (t             . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*}")))
 
   (ivy-set-actions
    'ivy-bibtex
@@ -1311,11 +1361,7 @@ In a later step it should be possible to create truly interleaved PDFs of your n
   :demand t
   :init
   (setq org-ref-default-bibliography '("~/pCloudDrive/org/bibliografia/library.bib"))
-  (setq org-ref-bibliography-notes "~/pCloudDrive/org/research/notes.org"
-        org-ref-default-citation-link "parencite")
-
-  (setq org-ref-completion-library 'org-ref-ivy-cite)
-  (setq org-ref-notes-function #'org-ref-notes-function-one-file)  )
+  (setq org-ref-completion-library 'org-ref-ivy-cite))
 
 
   ;;   :config
