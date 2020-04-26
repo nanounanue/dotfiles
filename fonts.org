@@ -175,11 +175,19 @@ unzip -o libre-baskerville.zip && \
 rm libre-baskerville.zip
 #+end_src
 
+** Titillium
+
+#+begin_src shell :dir ~/.fonts
+curl -L https://www.fontsquirrel.com/fonts/download/Titillium --output titillium.zip && \
+unzip -o titillium.zip && \
+rm titillium.zip
+#+end_src
+
 ** EtBook
 
 [[https://edwardtufte.github.io/et-book/][Sitio web]]
 
-#+begin_src shell :dit /tmp
+#+begin_src shell :dir /tmp
 git clone https://github.com/edwardtufte/et-book.git && \
 mv et-book/et-book ~/.fonts
 #+end_src
@@ -238,6 +246,6 @@ git clone https://github.com/sebschub/FontPro.git
 
 * Actualizar el /cache/ de fuentes
 
-#+BEGIN_SRC shell :dir /sudo::
+#+begin_src shell 
 fc-cache -f -v
-#+END_SRC
+#+end_src
