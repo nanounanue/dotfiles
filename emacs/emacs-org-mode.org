@@ -463,13 +463,12 @@ Org Capture Templates are explained [[http://orgmode.org/manual/Capture-template
 (use-feature org
   :demand t
   :config
-  (setq org-projects-files (directory-files-recursively nanounanue/projects-directory "\\.org$"))
-  (setq org-directory-files (directory-files-recursively org-directory "\\.org$"))
 
-  ;; Targets include this file and any file contributing to the agenda - up to 9 levels deep
-  (setq org-refile-targets (quote ((nil :maxlevel . 9)
-                                   (org-directory-files :maxlevel . 9)
-                                   (org-agenda-files :maxlevel . 9))))
+;; El archivo actual a un nivel de 9, las agendas y los archivos en abiertos
+(setq org-refile-targets '((nil :maxlevel . 9)
+                           (org-agenda-files :maxlevel . 3)
+                           (org-buffer-list :maxlevel . 3)))
+
 
   ;; Use full outline paths for refile targets
   (setq org-refile-use-outline-path t)
