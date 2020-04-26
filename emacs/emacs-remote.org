@@ -49,31 +49,15 @@
   )
 #+END_SRC
 
-
-#+begin_src emacs-lisp
-  (use-package counsel-tramp
-    :after counsel)
-#+end_src
-
 Usar =counsel=
 
-#+BEGIN_SRC emacs-lisp
-  (use-package counsel-tramp)
-#+END_SRC
-
-=tramp-term=  la descripción de la [[https://github.com/randymorris/tramp-term.el/blob/master/README.md][página]]:
-
-#+begin_quote
-Provides a quick way to launch an ssh session in an
-ansi-term with directory tracking pre-configured. This makes opening
-remote files via TRAMP directly from the ssh session as easy as =C-x C-f=.
-#+end_quote
-
 #+begin_src emacs-lisp
-(use-package tramp-term)
+(use-package counsel-tramp
+  :after counsel)
 #+end_src
 
-También podemos conectarnos a un =docker= /container:/
+
+Podemos conectarnos a un =docker= /container:/
 
 #+BEGIN_EXAMPLE
   C-x C-f /docker:user@container:/path/to/file
