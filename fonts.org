@@ -183,6 +183,14 @@ unzip -o titillium.zip && \
 rm titillium.zip
 #+end_src
 
+** Verdana y Arial
+
+*** [[https://dry.sailingissues.com/linux-equivalents-verdana-arial.html][Linux equivalents Verdana and Arial fonts]]
+:PROPERTIES:
+:CREATED: [2020-04-26 Sun 17:09]
+:Source: https://dry.sailingissues.com/linux-equivalents-verdana-arial.html
+:END:
+
 ** EtBook
 
 [[https://edwardtufte.github.io/et-book/][Sitio web]]
