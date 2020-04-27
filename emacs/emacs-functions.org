@@ -17,6 +17,8 @@
 (setq nanounanue/projects-directory (concat (getenv "HOME") "/projects/"))
 (setq nanounanue/pcloud-directory (concat (getenv "HOME") "/pCloudDrive/"))
 (setq nanounanue/org-directory (concat nanounanue/pcloud-directory "org/"))
+(setq nanounanue/org-projects-directory (concat nanounanue/org-directory "proyectos/"))
+(setq nanounanue/org-research-directory (concat nanounanue/org-directory "research/"))
 (setq nanounanue/org-agenda-directory (concat nanounanue/org-directory "gtd/"))
 #+end_src
 
