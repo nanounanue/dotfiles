@@ -1262,14 +1262,16 @@ format is not the same as it is in org-ref.
 To fix that, I added the following to my init file:
 #+end_quote
 
+
+
 #+begin_src emacs-lisp
-(defun bibtex-completion-format-citation-orgref (keys)
+(defun nanounanue/bibtex-completion-format-citation-orgref (keys)
   "Formatter for org-ref citations."
   (let* ((prenote  (if bibtex-completion-cite-prompt-for-optional-arguments (read-from-minibuffer "Prenote: ") ""))
          (postnote (if bibtex-completion-cite-prompt-for-optional-arguments (read-from-minibuffer "Postnote: ") "")))
 (if (and (string= "" prenote) (string= "" postnote))
-                (format "%s" (s-join "; " (--map (concat "autocite:" it) keys)))
-    (format "[[%s][%s::%s]]"  (s-join "; " (--map (concat "autocite:" it) keys)) prenote postnote))))
+                (format "%s" (s-join "; " (--map (concat "parencite:" it) keys)))
+    (format "[[%s][%s::%s]]"  (s-join "; " (--map (concat "parencite:" it) keys)) prenote postnote))))
 #+end_src
 
 #+begin_quote
@@ -1302,6 +1304,7 @@ I use Chicago parenthetical references – so these compile like this:
 -    (As seen in Lewis 1973, 25)
 #+end_quote
 
+
 #+begin_src emacs-lisp
 (use-package ivy-bibtex
   :ensure t
@@ -1322,7 +1325,7 @@ I use Chicago parenthetical references – so these compile like this:
         (lambda (url _) (start-process "firefox" "*firefox*" "firefox" url)))
 
   (setq bibtex-completion-format-citation-functions
-        '((org-mode      . nanounanue/bibtex-completion-format-citation-org-link-to-PDF)
+        '((org-mode      . nanounanue/bibtex-completion-format-citation-orgref)
           (latex-mode    . bibtex-completion-format-citation-cite)
           (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
           (default       . bibtex-completion-format-citation-default)))
@@ -1340,10 +1343,6 @@ I use Chicago parenthetical references – so these compile like this:
    'ivy-bibtex
    '(("p" ivy-bibtex-open-any "Open PDF, URL, or DOI")
      ("e" ivy-bibtex-edit-notes "Edit notes")))
-
-  (ivy-add-actions
-   'ivy-bibtex
-   '(("P" ivy-bibtex-open-annotated-pdf "Open annotated PDF (if present)")))
 
   :bind
   (("C-x C-b" . ivy-bibtex))
@@ -1481,6 +1480,8 @@ I use Chicago parenthetical references – so these compile like this:
 ,#+HUGO_SECTION: zettels
 ,#+HUGO_SLUG: ${slug}
 ,#+STARTUP:  latexpreview
+,#+STARTUP: overview
+,#+STARTUP: hideblocks
 ,#+TITLE: ${title}
 
 - tags :: "
@@ -1493,6 +1494,8 @@ I use Chicago parenthetical references – so these compile like this:
 ,#+ROAM_KEY: ${ref}
 ,#+HUGO_SLUG: ${slug}
 ,#+STARTUP:  latexpreview
+,#+STARTUP: overview
+,#+STARTUP: hideblocks
 ,#+TITLE: ${title}
 
 - source :: ${ref}"
