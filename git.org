@@ -59,6 +59,7 @@
 
 [diff]
     tool = meld
+    submodule = log
 
 [github]
     user = nanounanue
