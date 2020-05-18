@@ -1063,15 +1063,12 @@ tar zxf /tmp/reveal.tar.gz -C ~/software/js/revealjs --strip-component 1
 #+END_SRC
 
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp
 (use-package ox-reveal
-  :disabled t
+  :demand t
   :after org
   :custom
-  (org-reveal-mathjax t)
-  (org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
-                                        ;(org-reveal-root (concat "file://" (getenv "HOME") "/software/js/revealjs"))
-  (org-reveal-postamble "Adolfo De Unánue"))
+  (org-reveal-mathjax t))
 #+END_SRC
 
 
@@ -1270,8 +1267,8 @@ To fix that, I added the following to my init file:
   (let* ((prenote  (if bibtex-completion-cite-prompt-for-optional-arguments (read-from-minibuffer "Prenote: ") ""))
          (postnote (if bibtex-completion-cite-prompt-for-optional-arguments (read-from-minibuffer "Postnote: ") "")))
 (if (and (string= "" prenote) (string= "" postnote))
-                (format "%s" (s-join "; " (--map (concat "parencite:" it) keys)))
-    (format "[[%s][%s::%s]]"  (s-join "; " (--map (concat "parencite:" it) keys)) prenote postnote))))
+                (format "%s" (s-join "; " (--map (concat "autocite:" it) keys)))
+    (format "[[%s][%s::%s]]"  (s-join "; " (--map (concat "autocite:" it) keys)) prenote postnote))))
 #+end_src
 
 #+begin_quote
@@ -1330,6 +1327,23 @@ I use Chicago parenthetical references – so these compile like this:
           (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
           (default       . bibtex-completion-format-citation-default)))
 
+  (setq  bibtex-completion-notes-template-multiple-files
+         (concat
+          "#+TITLE: ${title}\n"
+          "#+ROAM_KEY: cite:${=key=}\n"
+          "* TODO Notes\n"
+          ":PROPERTIES:\n"
+          ":Custom_ID: ${=key=}\n"
+          ":NOTER_DOCUMENT: %(orb-process-file-field \"${=key=}\")\n"
+          ":AUTHOR: ${author-abbrev}\n"
+          ":JOURNAL: ${journaltitle}\n"
+          ":DATE: ${date}\n"
+          ":YEAR: ${year}\n"
+          ":DOI: ${doi}\n"
+          ":URL: ${url}\n"
+          ":END:\n\n"
+          ))
+
   (setq ivy-bibtex-default-action 'ivy-bibtex-insert-citation)
 
   (setq bibtex-completion-display-formats
@@ -1359,75 +1373,44 @@ I use Chicago parenthetical references – so these compile like this:
   :demand t
   :init
   (setq org-ref-default-bibliography '("~/pCloudDrive/org/bibliografia/library.bib"))
-  (setq org-ref-completion-library 'org-ref-ivy-cite))
-
-
-  ;;   :config
-
-  ;;   (defun org-ref-grep-pdf (&optional _candidate)
-  ;;     "Search pdf files of marked CANDIDATEs."
-  ;;     (interactive)
-  ;;     (let ((keys (helm-marked-candidates))
-  ;;           (get-pdf-function org-ref-get-pdf-filename-function))
-  ;;       (helm-do-pdfgrep-1
-  ;;        (-remove (lambda (pdf)
-  ;;                   (string= pdf ""))
-  ;;                 (mapcar (lambda (key)
-  ;;                           (funcall get-pdf-function key))
-  ;;                         keys)))))
-
-  ;;   (defun org-ref-noter-at-point ()
-  ;;     "Open the pdf for bibtex key under point if it exists."
-  ;;     (interactive)
-  ;;     (let* ((results (org-ref-get-bibtex-key-and-file))
-  ;;            (key (car results))
-  ;;            (pdf-file (funcall org-ref-get-pdf-filename-function key)))
-  ;;       (if (file-exists-p pdf-file)
-  ;;           (progn
-  ;;             (find-file-other-window pdf-file)
-  ;;             (org-noter))
-  ;;         (message "no pdf found for %s" key))))
-
-  ;;   (defun org-ref-open-in-scihub ()
-  ;;     "Open the bibtex entry at point in a browser using the url field or doi field.
-  ;; Not for real use, just here for demonstration purposes."
-  ;;     (interactive)
-  ;;     (let ((doi (org-ref-get-doi-at-point)))
-  ;;       (when doi
-  ;;         (if (string-match "^http" doi)
-  ;;             (browse-url doi)
-  ;;           (browse-url (format "http://sci-hub.se/%s" doi)))
-  ;;         (message "No url or doi found"))))
-
-
-  ;;   (defun org-ref-open-pdf-at-point-in-emacs ()
-  ;;     "Open the pdf for bibtex key under point if it exists."
-  ;;     (interactive)
-  ;;     (let* ((results (org-ref-get-bibtex-key-and-file))
-  ;;            (key (car results))
-  ;;            (pdf-file (funcall org-ref-get-pdf-filename-function key)))
-  ;;       (if (file-exists-p pdf-file)
-  ;;           (find-file-other-window pdf-file)
-  ;;         (message "no pdf found for %s" key))))
-
-  ;;   (helm-add-action-to-source "Grep PDF" 'org-ref-grep-pdf helm-source-bibtex 1)
-
-  ;;   ;; The following makes it possible to grep pdfs from the org-ref Helm
-  ;;   ;; selection interface with C-s.
-  ;;   (setq helm-bibtex-map
-  ;;         (let ((map (make-sparse-keymap)))
-  ;;           (set-keymap-parent map helm-map)
-  ;;           (define-key map (kbd "C-s") (lambda () (interactive)
-  ;;                                         (helm-run-after-exit 'org-ref-grep-pdf)))
-  ;;           map))
-  ;;   (push `(keymap . ,helm-bibtex-map) helm-source-bibtex)
-
-
-  ;;   (add-to-list 'org-ref-helm-user-candidates
-  ;;                '(("Org-Noter notes" . org-ref-noter-at-point)
-  ;;                  ("Open in Sci-hub"  . org-ref-open-in-scihub)
-  ;;                  ("Open in Emacs" . org-ref-open-pdf-at-point-in-emacs)))
+  (setq org-ref-completion-library 'org-ref-ivy-cite)
+  (setq org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex)
+  ;;(setq org-ref-bibliography-notes "/home/haozeke/Git/Gitlab/Mine/Notes/bibnotes.org")
+  (setq org-ref-note-title-format "* TODO %y - %t\n :PROPERTIES:\n  :Custom_ID: %k\n  :NOTER_DOCUMENT: %F\n :ROAM_KEY: cite:%k\n  :AUTHOR: %9a\n  :JOURNAL: %j\n  :YEAR: %y\n  :VOLUME: %v\n  :PAGES: %p\n  :DOI: %D\n  :URL: %U\n :END:\n\n")
+  ;;(setq org-ref-notes-directory "/home/haozeke/Git/Gitlab/Mine/Notes/")
+  (setq org-ref-notes-function 'orb-edit-notes)
+)
 #+END_SRC
+
+Por alguna razón =org-ref= no usa las misma llaves que el archivo =.bib= 
+Ver [[https://github.com/jkitchin/org-ref/blob/875371a63430544e446db7a76b44b33c7e20a8bd/org-ref-utils.el][aquí]]
+
+#+begin_quote
+In the format, the following percent escapes will be expanded.
+%l   The BibTeX label of the citation.
+%a   List of author names, see also `reftex-cite-punctuation'.
+%2a  Like %a, but abbreviate more than 2 authors like Jones et al.
+%A   First author name only.
+%e   Works like %a, but on list of editor names.  (%2e and %E work as well)
+It is also possible to access all other BibTeX database fields:
+%b booktitle     %c chapter        %d edition    %h howpublished
+%i institution   %j journal        %k key        %m month
+%n number        %o organization   %p pages      %P first page
+%r address       %s school         %u publisher  %t title
+%v volume        %y year
+%B booktitle, abbreviated          %T title, abbreviated
+%U url
+%D doi
+%S series        %N note
+%f pdf filename
+%F absolute pdf filename
+Usually, only %l is needed.  The other stuff is mainly for the echo area
+display, and for (setq reftex-comment-citations t).
+%< as a special operator kills punctuation and space around it after the
+string has been formatted.
+A pair of square brackets indicates an optional argument, and RefTeX
+will prompt for the values of these arguments.
+#+end_quote
 
 
 #+begin_src emacs-lisp
@@ -1453,7 +1436,16 @@ I use Chicago parenthetical references – so these compile like this:
 
 #+begin_src emacs-lisp
 (use-package org-roam
-  :commands (org-roam-insert org-roam-find-file org-roam-switch-to-buffer org-roam)
+  :commands (org-roam-buffer-toggle-display
+             org-roam-find-file
+             org-roam-graph
+             org-roam-insert
+             org-roam-switch-to-buffer
+             org-roam-dailies-date
+             org-roam-dailies-today
+             org-roam-dailies-tomorrow
+             org-roam-dailies-yesterday
+             org-roam)
   :hook 
   (after-init . org-roam-mode)
   :custom-face
@@ -1472,6 +1464,8 @@ I use Chicago parenthetical references – so these compile like this:
   :config
   (setq org-roam-completion-system 'ivy)
   (require 'org-roam-protocol)
+  (setq org-roam-verbose nil)
+  (setq org-roam-buffer-no-delete-other-windows t)
   (setq org-roam-capture-templates
         '(("d" "default" plain (function org-roam--capture-get-point)
            "%?"
@@ -1482,9 +1476,13 @@ I use Chicago parenthetical references – so these compile like this:
 ,#+STARTUP:  latexpreview
 ,#+STARTUP: overview
 ,#+STARTUP: hideblocks
+,,#+EXCLUDE_TAGS: noexport
+
 ,#+TITLE: ${title}
 
-- tags :: "
+:TAGS:
+- tags :: 
+:END:"
            :unnarrowed t)
           ("r" "ref" plain (function org-roam-capture--get-point)
            "%?"
@@ -1533,12 +1531,25 @@ I use Chicago parenthetical references – so these compile like this:
 #+begin_src emacs-lisp
 (use-package deft
   :after org
+  :commands deft
+  :init
+  (setq deft-default-extension "org"
+        ;; de-couples filename and note title:
+        deft-use-filename-as-title nil
+        deft-use-filter-string-for-filename t
+        ;; disable auto-save
+        deft-auto-save-interval -1.0
+        ;; converts the filter string into a readable file-name using kebab-case:
+        deft-file-naming-rules
+        '((noslash . "-")
+          (nospace . "-")
+          (case-fn . downcase)))
   :bind
   ("C-c n d" . deft)
+  :config
+  (add-to-list 'deft-extensions "tex")
   :custom
   (deft-recursive t)
-  (deft-use-filter-string-for-filename t)
-  (deft-default-extension "org")
   (deft-directory "~/pCloudDrive/org/research")
   :config/el-patch
   (defun deft-parse-title (file contents)
@@ -1572,12 +1583,21 @@ javascript:location.href =
 
 #+begin_src emacs-lisp
 (use-package org-roam-bibtex
+  :after (org-roam)
   :hook (org-roam-mode . org-roam-bibtex-mode)
   :config
+  (setq org-roam-bibtex-preformat-keywords
+      '("=key=" "title" "url" "file" "author-or-editor" "keywords"))
   (setq org-roam-bibtex-templates
         '(("r" "ref" plain (function org-roam-capture--get-point) ""
            :file-name "${slug}"
-           :head "#+TITLE: ${=key=}: ${title}\n#+ROAM_KEY: ${ref}\n" 
+           :head "#+TITLE: ${=key=}: ${title}\n#+ROAM_KEY: ${ref}\n
+- tags ::
+- keywords :: ${keywords}
+
+
+\n* ${title}\n  :PROPERTIES:\n  :Custom_ID: ${=key=}\n  :URL: ${url}\n  :AUTHOR: ${author-or-editor}\n  :NOTER_DOCUMENT: %(orb-process-file-field \"${=key=}\")\n  :NOTER_PAGE: \n  :END:\n\n"
+
            :unnarrowed t)))
   )
 #+end_src
