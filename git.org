@@ -85,6 +85,10 @@
 [url "https://bitbucket.org/"]
     insteadOf = bb:
 
+[status]
+    submoduleSummary = true
+
+
 [alias]
     co = checkout
     cot = "!f() { git branch | grep $1 | xargs -I {} git co {}; }; f"
