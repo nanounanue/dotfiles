@@ -1,0 +1,73 @@
+#+TITLE:     PostgreSQL configuration files
+#+AUTHOR:    Adolfo De Unánue
+#+EMAIL:     adolfo@unanue.mx
+#+PROPERTY: header-args:shell :tangle no :comments org :results silent
+#+PROPERTY:    header-args        :results silent   :eval no-export   :comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+
+
+Ambos archivos deben de ir en =$HOME=
+
+
+* Connection service file ( =.pg_service.conf= )
+
+[[https://www.postgresql.org/docs/current/libpq-pgservice.html][Documentación]]
+
+Para conectarme con =psql=
+
+#+begin_src text :eval never
+psql service=ccd-db
+#+end_src
+
+#+begin_src text :tangle ~/.pg_service.conf
+
+#ccd
+[ccd]
+host=localhost
+port=5444
+user=nanounanue
+dbname=postgres
+
+
+# ccd-itam
+[itam]
+host=localhost
+port=5444
+user=nanounanue
+dbname=itam
+
+# ccd-amai
+[amai]
+host=localhost
+port=5444
+user=nanounanue
+dbname=amai_2019
+#+end_src
+
+
+* Passwords ( =.pgpass= )                                          
+
+[[https://www.postgresql.org/docs/current/libpq-pgpass.html][Documentación]]
+
+Debe de tener esta forma:
+
+#+begin_src text :tangle no 
+hostname:port:database:username:password
+#+end_src
+
+
+#+begin_src shell :dir ~ 
+cp '/home/nanounanue/pCloudDrive/Crypto Folder/.pgpass' .
+#+end_src
+
+
+Sus permisos deben de ser =0600=
+
+#+begin_src shell :dir ~ 
+chmod 0600 .pgpass
+#+end_src
+
+
+
