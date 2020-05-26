@@ -441,6 +441,9 @@ Org Capture Templates are explained [[http://orgmode.org/manual/Capture-template
                 ("e" "email" entry (file+headline (lambda () (concat nanounanue/org-agenda-directory "emails.org")) "Emails")
                  "* TODO [#A] Reply: %a "
                  :immediate-finish t)
+                ("j" "diario" entry (file+datetree (lambda () (concat nanounanue/org-agenda-directory "diario.org")))
+                 "* %?"
+                 :empty-lines 1)
                 ("c" "org-protocol-capture" entry (file (lambda () (concat nanounanue/org-agenda-directory "inbox.org")))
                  "* TODO [[%:link][%:description]]\n:PROPERTIES:\n:CREATED: %U\n:Source: %:link\n:END:\n %:initial\n"
                  :immediate-finish t)
