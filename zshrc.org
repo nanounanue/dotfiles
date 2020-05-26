@@ -86,14 +86,26 @@ antigen bundle zsh-users/zsh-syntax-highlighting
 * Tema
 
 
-   Vamos a usar =geometry= como tema
-
  #+BEGIN_SRC shell
 antigen theme https://github.com/jhwhite/the-time-lord
  #+END_SRC
 
 
 Para mayor configuración ver el [[https://github.com/geometry-zsh/geometry][repositorio]]
+
+* /suffix aliases/
+
+Esto es específico de =zsh=, indica con qué aplicación abrir los
+archivos con extensión (por el momento, todo en =emacs=)
+
+#+begin_src shell
+alias -s org=ec
+alias -s md=ec
+alias -s json=ec
+alias -s {py,rb,lisp,clj}=ec
+#+end_src
+
+
 
 * Finalizando
 

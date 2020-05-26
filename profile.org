@@ -267,20 +267,5 @@ alias preview="fzf --preview 'bat --color \"always\" {}'"
 alias du="ncdu --color dark -rr -x --exclude .git --exclude node_modules"
 #+END_SRC
 
-** /suffix aliases/
-
-Esto es específico de =zsh=, indica con qué aplicación abrir los
-archivos con extensión (por el momento, todo en =emacs=)
-
-#+begin_src shell
-alias -s org=ec
-alias -s md=ec
-alias -s json=ec
-alias -s {py,rb,lisp,clj}=ec
-#+end_src
-
-
-* Funciones
-
 
 
