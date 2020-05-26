@@ -9,15 +9,6 @@
 #+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
 
 
-* Funciones
-
-#+BEGIN_SRC shell
-function projects() {
-    cd ~/projects/$1
-}
-#+END_SRC
-
-
 * Estructura de archivos
 
 Intentando la estructura de archivos =XDG=
@@ -69,7 +60,7 @@ PATH=$OLDPATH:$PATH
 * Environment
 
 #+BEGIN_SRC shell
-HISTSIZE=5000
+HISTSIZE=10000
 SAVEHIST=$HISTSIZE
 #+END_SRC
 
@@ -217,9 +208,17 @@ _fzf_compgen_dir() {
 * Aliases
 
 #+BEGIN_SRC shell
-alias p="projects"
-alias s="software"
+alias p="cd ~/projects"
+alias s="cd ~/software"
+alias d="cd ~/dotfiles"
 #+END_SRC
+
+** docker
+
+#+begin_src shell
+alias dps="docker ps"
+#+end_src
+
 
 ** Emacs
 
@@ -236,12 +235,12 @@ alias sbcl="rlwrap sbcl"
 
 ** SSH Tunneling 
 
-*** DSaPP bastión                                              :deprecated:
+*** CMU bastión
 
   #+BEGIN_SRC shell
-  alias dsapp-up='ssh -fNTM dsapp-tunnel'
-  alias dsapp-status='ssh -TO check dsapp-tunnel'
-  alias dsapp-down='ssh -TO exit dsapp-tunnel'
+  alias cmu-up='ssh -fNTM cmu-tunnel'
+  alias cmu-status='ssh -TO check cmu-tunnel'
+  alias cmu-down='ssh -TO exit cmu-tunnel'
   #+END_SRC
 
 *** ITAM bastión
@@ -267,3 +266,21 @@ alias top="sudo htop"
 alias preview="fzf --preview 'bat --color \"always\" {}'"
 alias du="ncdu --color dark -rr -x --exclude .git --exclude node_modules"
 #+END_SRC
+
+** /suffix aliases/
+
+Esto es específico de =zsh=, indica con qué aplicación abrir los
+archivos con extensión (por el momento, todo en =emacs=)
+
+#+begin_src shell
+alias -s org=ec
+alias -s md=ec
+alias -s json=ec
+alias -s {py,rb,lisp,clj}=ec
+#+end_src
+
+
+* Funciones
+
+
+
