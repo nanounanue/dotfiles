@@ -32,32 +32,55 @@ Host *
   ControlPath ~/.ssh/sockets/%r@%h-%p
   # La conexión permanerá abierta por 600 s después de que la última sesión ha sido cerrada
   ControlPersist 600
-#+end_src
-
-*** Github
-
-#+begin_src shell
-Host github.com
   User nanounanue
-  IdentityFile ~/.ssh/id_rsa
-#+end_src
-
-*** SSH Tunnels
-
-#+begin_src shell
-# A ssh tunnel!
-# Host tunnel
-#     HostName database.example.com
-#     IdentityFile ~/.ssh/coolio.example.key
-#     LocalForward 9906 127.0.0.1:3306
-#     User coolio
+  #LogLevel DEBUG1
 #+end_src
 
 *** Servidores
 
 #+begin_src shell
-Host wmca
-  HostName 51.105.29.96
-  Port 22
-  User adolfo_deunanue
+Host ccd
+  HostName bastion.ccdatos.itam.mx
+#+end_src
+
+#+begin_src shell
+Host itam
+  HostName mnemosine.itam.mx
+#+end_src
+
+
+#+begin_src shell
+Host cmu
+  HostName king-friday.dssg.io
+#+end_src
+
+
+
+*** SSH Tunnels
+
+**** CCD 
+
+El puerto =9876= en la máquina local puede ser usado para acceder
+a =database.XXXX= en el puerto 5432 de la máquina =ec2-XXXX=
+
+#+begin_src shell
+Host ccd-tunnel
+   Hostname bastion.ccdatos.itam.mx
+   LocalForward localhost:5444 database-ccd.cfdemdotqpti.us-east-1.rds.amazonaws.com:5432
+#+end_src
+
+**** ITAM
+
+#+begin_src shell
+Host itam-tunnel
+   Hostname mnemosine.itam.mx
+   LocalForward localhost:5122 anicca.itam.mx:1522
+#+end_src
+
+**** CMU
+
+#+begin_src shell
+Host cmu-tunnel
+   Hostname king-friday.dssg.io
+   LocalForward localhost:2345 lady-aberlin.dssg.io:5432
 #+end_src
