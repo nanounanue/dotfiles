@@ -87,7 +87,7 @@ antigen bundle zsh-users/zsh-syntax-highlighting
 
 
  #+BEGIN_SRC shell
-antigen theme https://github.com/jhwhite/the-time-lord
+antigen theme sorin
  #+END_SRC
 
 
