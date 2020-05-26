@@ -49,9 +49,9 @@ source ~/software/antigen.zsh
 Si =ZSH_TMUX_AUTOSTART= es verdadero, siempre, al crear una terminal
 se inicializará =tmux= o se conectará a una sesión existente
 
- #+BEGIN_SRC shell
- ZSH_TMUX_AUTOSTART=true
- #+END_SRC
+#+BEGIN_SRC shell
+ZSH_TMUX_AUTOSTART=true
+#+END_SRC
 
 
 #+BEGIN_SRC shell

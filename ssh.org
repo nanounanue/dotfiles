@@ -33,7 +33,7 @@ Host *
   # La conexión permanerá abierta por 600 s después de que la última sesión ha sido cerrada
   ControlPersist 600
   User nanounanue
-  #LogLevel DEBUG1
+  LogLevel DEBUG1
 #+end_src
 
 *** Servidores
