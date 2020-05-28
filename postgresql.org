@@ -27,9 +27,8 @@ psql service=ccd-db
 [ccd]
 host=localhost
 port=5444
-user=nanounanue
+user=postgres
 dbname=postgres
-
 
 # ccd-itam
 [itam]
