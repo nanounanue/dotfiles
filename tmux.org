@@ -58,6 +58,24 @@ Mucho, mucho de esta configuración está basado en [[https://medium.com/free-co
 
 *** General
 
+/Emacs key bindings/ =(prefix + :)= 
+
+#+begin_src shell
+set -g status-keys emacs
+#+end_src
+
+Aumentar el =history=
+
+#+begin_src shell
+set -g history-limit 50000
+#+end_src
+
+Deshabilitar el /mouse/
+
+#+begin_src shell
+set -g mouse off
+#+end_src
+
 #+begin_src shell
 set -g default-terminal "screen-256color"
 setw -g xterm-keys on
@@ -65,24 +83,16 @@ set -s escape-time 10                      # Secuencias de comandos más rápida
 set -sg repeat-time 600                    # Incrementar el timeout en las repeticiones
 set -g focus-events on
 
-set -q -g status-utf8 on                   # usar utf-8 (tmux < 2.2)
 setw -q -g utf8 on
-
-set -g history-limit 50000                 # Mucha historia
-
 set -s escape 1 # Cambiando el delay al mandar comandos
-
-# super useful when using "grouped sessions" and multi-monitor setup
-setw -g aggressive-resize on
-
-# Habilitando el mouse
-set -g mouse off
-set -g set-titles-string '#h ❐ #S ● #I #W'
-
-# emacs key bindings in tmux command prompt (prefix + :) are better than
-# vi keys, even for vim users
-set -g status-keys emacs
 #+end_src
+
+*** Shell
+
+#+begin_src shell
+bind-key S run-shell "tmux rename-session $(basename $(pwd))"
+#+end_src
+
 
 *** /Hooks/
 
@@ -148,15 +158,6 @@ bind d detach
 #    'confirm-before -p "Detach other clients? (y/n)" "detach -a"' \
 #    'display "Session has only 1 client attached"'
 
-# Hide status bar on demand
-#bind C-s if -F '#{s/off//:status}' 'set status off' 'set status on'
-
-# Swap panes back and forth with 1st pane
-# When in main-(horizontal|vertical) layouts, the biggest/widest panel is always @1
-#bind \ if '[ #{pane_index} -eq 1 ]' \
-#     'swap-pane -s "!"' \
-#     'select-pane -t:.1 ; swap-pane -d -t 1 -s "!"'
-
 # División de la ventana
 bind | split-window -h -c "#{pane_current_path}"  # Divide la pantalla horizontalmente
 bind - split-window -v -c "#{pane_current_path}" # Divide la pantalla verticalmente
@@ -178,9 +179,6 @@ bind C-f command-prompt -p find-session 'switch-client -t %%'
 
 #+begin_src shell
 bind m setw monitor-activity \; display-message 'Monitor window activity [#{?monitor-activity,ON,OFF}]'
-#bind M if -F '#{monitor-silence}' \
-#    'setw monitor-silence 0 ; display-message "Monitor window silence [OFF]"' \
-#    'command-prompt -p "Monitor silence: interval (s)" "setw monitor-silence %%"'
 #+end_src
 
 *** [[https://github.com/tmux-plugins/tpm][Plugins]]: TPM
@@ -206,25 +204,14 @@ if "test ! -d ~/.tmux/plugins/tpm" \
 **** Listado de /plugins/
 
 #+begin_src shell
-set -g @plugin 'tmux-plugins/tpm'
+set -g @tpm_plugin "
+tmux-plugins/tpm                   \ 
+tmux-plugins/tmux-copycat          \
+"
 #+end_src
 
 
 **** Tema
-
-***** Nord
-
-#+begin_src shell
-set -g @plugin "arcticicestudio/nord-tmux"
-set -g @nord_tmux_no_patched_font "0"
-#+end_src
-
-***** /[[https://github.com/jimeh/tmux-themepack][Themepack]]/
-
-#+begin_src shell :tangle no
-set -g @plugin 'jimeh/tmux-themepack'
-set -g @themepack 'powerline/block/cyan'
-#+end_src
 
 ***** [[https://github.com/seebi/tmux-colors-solarized][Solarized]]
 
@@ -232,31 +219,27 @@ set -g @themepack 'powerline/block/cyan'
 set -g @plugin 'seebi/tmux-colors-solarized'
 
 set -g @colors-solarized '256'
-set -g @colors-solarized 'dark'
-set -g @colors-solarized 'light'
-set -g @colors-solarized 'base16'
+#set -g @colors-solarized 'dark'
+#set -g @colors-solarized 'light'
+#set -g @colors-solarized 'base16'
 #+end_src
 
-***** [[https://github.com/ndyakov/pimux][pimux]]
-
-#+begin_src shell :tangle no
-set -g @plugin 'ndyakov/pimux'
-#+end_src
-
-***** [[https://github.com/alexanderjeurissen/sombre.tmux][sombre]]
-
-#+begin_src shell :tangle no
-set -g @plugin 'alexanderjeurissen/sombre.tmux'
-#+end_src
-*** Status bar
-
-#+begin_src shell :tangle no
-#set -g status-right "#{cpu_icon}"
-#set -g status-right '#{cpu_bg_color} CPU: #{cpu_icon} #{cpu_percentage} | %a %h-%d %H:%M '
-#set -g status-right "Online: #{online_status} Speed: #{net_speed} Continuum status: #{continuum_status} #{battery_status_bg} Batt: #{battery_icon} #{battery_percentage} #{battery_remain} H: #{prefix_highlight} | %a %h-%d %H:%M "
-#+end_src
 
 *** /Display/
+
+#+begin_src shell
+setw -g aggressive-resize on
+#+end_src
+
+Títulos de ventana
+
+#+begin_src shell
+set -g set-titles-string "tmux:#I #W"
+setw -g window-status-format "#[bg=NONE]#[fg=colour240] #I #[bg=NONE]#[fg=colour240] #W "
+setw -g window-status-current-format "#[fg=colour246]#[bg=NONE] #I #[bg=NONE]#[fg=colour246] #W#F "
+#+end_src
+
+
 
 #+begin_src shell
 set -g base-index 1 # El índice de las ventanas empieza en 1
@@ -277,6 +260,31 @@ set -g visual-activity on
 #+end_src
 
 
+Colores de mensajes
+
+#+begin_src shell
+# Colorize the messages in the command
+set-option -g message-bg colour235
+set-option -g message-fg red
+
+# Sane colors for a light background
+set -g status-bg colour8
+set -g status-fg colour1
+set-window-option -g window-status-current-fg colour15
+#+end_src
+
+Colores varios
+
+#+begin_src shell
+
+# hostname color
+set -g status-left ' #[fg=colour2]★'
+
+# right status and color
+set -g status-right-length 40
+set -g status-right '#[fg=colour3]%a %v %l:%M %p'
+#+end_src
+
 *** Renovar el environment
 
 #+begin_src shell
@@ -296,23 +304,32 @@ bind '$' run "~/dotfiles/renew_env.sh"
 
 *** Navegación
 
-#+begin_src shell
-# Movimiento entre páneles
+
+Movimiento entre páneles
+
+#+begin_src shell 
 bind h select-pane -L
 bind j select-pane -D
 bind k select-pane -U
 bind l select-pane -R
+#+end_src
 
+/Swaping panes/
+
+#+begin_src shell
 bind > swap-pane -D       # swap current pane with the next one
 bind < swap-pane -U       # swap current pane with the previous one
+#+end_src
 
-# Movimiento circular entre ventanas
+
+Movimiento circular entre ventanas
+
+#+begin_src shell
 unbind n
 unbind p
 bind -r C-p previous-window # select previous window
 bind -r C-n next-window     # select next window
 bind Tab last-window        # move to last active window
-
 #+end_src
 
 ** Nesting Remote tmux sessions inside our local tmux

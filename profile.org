@@ -261,7 +261,7 @@ alias sbcl="rlwrap sbcl"
 ** CLI
 
 #+BEGIN_SRC shell
-alias cat="bat"
+alias cat="batcat"
 alias top="sudo htop"
 alias preview="fzf --preview 'bat --color \"always\" {}'"
 alias du="ncdu --color dark -rr -x --exclude .git --exclude node_modules"
